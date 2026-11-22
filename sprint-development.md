@@ -657,19 +657,21 @@ A variety of enemies and at least one fully functional boss encounter.
 
 **Goal:** Make the world more interesting to explore.
 
+**Split into three sprints (user decision):** **12a** the world (map as data, a bigger map, boundaries, placement, decorations, map-specific spawns), **12b** obstacles (they also break up wide circling), **12c** points of interest (chests, shrines, merchant, rare scroll spots). Items are tagged with the sprint that builds them.
+
 ### Tasks
 
-- [ ] Create the first playable map.
-- [ ] Implement environmental boundaries.
+- [x] Create the first playable map (12a).
+- [x] Implement environmental boundaries (12a).
 - [ ] Implement environmental obstacles.
 - [ ] Implement treasure chests.
-- [ ] Implement Arcane Lectern placement.
+- [x] Implement Arcane Lectern placement (12a).
 - [ ] Implement Health Shrines.
 - [ ] Implement Mana Shrines.
 - [ ] Implement merchant encounters.
 - [ ] Implement rare scroll locations.
-- [ ] Implement environmental decorations.
-- [ ] Implement map-specific enemy spawn configurations.
+- [x] Implement environmental decorations (12a).
+- [x] Implement map-specific enemy spawn configurations (12a).
 
 ### Deliverable
 
@@ -681,6 +683,8 @@ A complete playable environment with points of interest that encourage explorati
 - Points of interest are distributed throughout the map.
 - Environmental obstacles interact correctly with movement and combat.
 - The map supports the intended survival gameplay.
+
+**Built note (12a):** the map is data (`MapData`, with `MapPlacement`s) and a `GameMap` scene builds the floor, boundary walls, decorations and placed scenes from it. The first map is 1920×1080 (four screens by four, user decision) with three Lecterns spread far apart, and `Main` hands its bounds to the spawner and camera. Decorations are a seeded scatter and F7 shows a debug overlay of the bounds and placements. Nothing blocks movement except the outer wall yet, so a bigger map alone makes wide circling easier until 12b. Balance has not been tested in play.
 
 ---
 

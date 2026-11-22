@@ -402,3 +402,22 @@ With only Standard enemies the new code runs at the old speed, so the compositio
 Review fixes (Sprint 11 whole-branch review: 0 Critical, 1 Important fixed, 8 minors deferred):
 - An Exploder could freeze for ever: if the 40-zone cap freed its blast zone while it was fusing, nothing ever blasted it or killed it. The cap now frees an already-blasted zone before a live one, and an Exploder whose zone vanished blows up on its next step.
 - Left open on purpose: the next boss is due 300 s after the previous one spawned (the design said both that and "after defeating"), and a boss alive past 300 s is followed at once. Say if you would rather time the next boss from the kill.
+
+## 2026-11-22: Sprint 12a (the world, map as data)
+
+Sprint 12 was split into three (user agreed): 12a the world, 12b obstacles, 12c points of interest.
+
+Decisions:
+- A map is data (user decision, "map as data"): `MapData` and `MapPlacement` resources, built into the world by one `GameMap` scene. The first map is 1920×1080 (user: medium, because jumping between Lecterns was too easy). At 90 px/s, crossing it takes about 21 s.
+- `Main._apply_map` is the only reader of the arena size. The spawner, `Enemy` and `Boss` keep their 960×540 defaults for tests, and the stress scene stays on `test_arena.tscn`.
+- Decorations are a seeded scatter drawn in one `_draw`. F7 toggles a debug overlay. F7 was free (F8, F9, F10 and F12 are taken, and F11 is fullscreen in browsers).
+- Ruling: `MapData.problems()` returns early on a non-positive size, so one bad size is one problem.
+
+Verified: full suite 1180/1180, smoke run and MCP run clean, and a real window run that pressed F7 with a real key event, walked the player into the corner (it stopped at the wall, 6 px in, and the camera stopped half a view from the corner) and showed the overlay in a screenshot. The real save was not used (`save_path` empty).
+
+Stress with `--drops` (300 enemies, windowed, a single run each, so noise is likely): Standard only (`--minutes=0`) 646.0 fps, five minutes in 361.1 fps (Sprint 11: 481.3 and 402.2). The stress scene does not load the new map, so this measures the same game code on a different day, not the new world.
+
+Left open on purpose:
+- A bigger map with nothing in it makes wide circling easier until 12b adds obstacles.
+- Balance and the Lectern distances have not been tested in play.
+- Not checked on a phone or a controller.

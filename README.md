@@ -572,6 +572,8 @@ Potential points of interest include:
 
 These points of interest provide incentives to move around the map and take calculated risks.
 
+The first map is 1920×1080, four screens wide and four tall. A map is data (its size, colours, where things are placed and which enemies spawn), so new maps are new data and no new code. The three Lecterns start far apart, so reaching one takes real time. Obstacles and the remaining points of interest follow in the next sprints.
+
 # 10. Art Direction and Presentation
 
 ### Visual Style

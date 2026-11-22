@@ -1,6 +1,6 @@
 # Sprint 12a Design: The World (Map as Data)
 
-**Status:** Proposed.
+**Status:** Built (Sprint 12a).
 
 Scope comes from `sprint-development.md` (Sprint 12, first third) and the README (section 9, "Map Exploration"). Architecture follows `CLAUDE.md`, `technical-design.md` and `sprint-0` to `sprint-11-design.md`. Decisions below were agreed with the user in conversation, except where marked "my call".
 
