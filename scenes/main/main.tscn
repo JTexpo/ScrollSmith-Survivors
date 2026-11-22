@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/main/main.gd" id="0"]
-[ext_resource type="PackedScene" path="res://scenes/world/test_arena.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/world/game_map.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2"]
 [ext_resource type="Script" path="res://scripts/systems/enemy_spawner.gd" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/ui/touch_controls.tscn" id="4"]
@@ -17,7 +17,6 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/scroll_toast.tscn" id="13"]
 [ext_resource type="PackedScene" path="res://scenes/ui/inventory_panel.tscn" id="14"]
 [ext_resource type="PackedScene" path="res://scenes/ui/inventory_button.tscn" id="15"]
-[ext_resource type="PackedScene" path="res://scenes/interactables/lectern.tscn" id="40"]
 [ext_resource type="PackedScene" path="res://scenes/ui/interact_button.tscn" id="41"]
 [ext_resource type="PackedScene" path="res://scenes/ui/crafting_screen.tscn" id="42"]
 [ext_resource type="Script" path="res://scripts/systems/value_dropper.gd" id="50"]
@@ -53,29 +52,13 @@
 script = ExtResource("0")
 debug_scrolls = Array[ExtResource("19")]([ExtResource("20"), ExtResource("21"), ExtResource("22"), ExtResource("23"), ExtResource("24"), ExtResource("25"), ExtResource("26"), ExtResource("27"), ExtResource("28"), ExtResource("29"), ExtResource("30"), ExtResource("31"), ExtResource("32"), ExtResource("33"), ExtResource("34")])
 
-[node name="TestArena" parent="." instance=ExtResource("1")]
-
-[node name="LecternWest" parent="." instance=ExtResource("40")]
-position = Vector2(160, 120)
-
-[node name="LecternEast" parent="." instance=ExtResource("40")]
-position = Vector2(800, 150)
-
-[node name="LecternSouth" parent="." instance=ExtResource("40")]
-position = Vector2(480, 450)
+[node name="GameMap" parent="." instance=ExtResource("1")]
 
 [node name="EnemySpawner" type="Node" parent="."]
 script = ExtResource("3")
 config = ExtResource("5")
 
 [node name="Player" parent="." instance=ExtResource("2")]
-position = Vector2(480, 270)
-
-[node name="Camera2D" parent="Player" index="2"]
-limit_left = 0
-limit_top = 0
-limit_right = 960
-limit_bottom = 540
 
 [node name="TargetReticle" parent="." instance=ExtResource("9")]
 
