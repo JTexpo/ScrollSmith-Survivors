@@ -70,8 +70,10 @@ func _ready() -> void:
 	if run_seconds > 0.0:
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 		Engine.max_fps = 0
-	for i in enemy_count:
-		_spawn_one()
+	_spawner.enemy_died.connect(_on_enemy_died)
+	while _spawner.alive < enemy_count:
+		if not _spawn_one():
+			break
 
 
 func _physics_process(delta: float) -> void:
@@ -121,14 +123,20 @@ func _scatter_pickups(count: int) -> void:
 		_dropper.place(entries[i % entries.size()].scroll, _player.global_position + offset)
 
 
-func _spawn_one() -> void:
+## Adds enemies up to `enemy_count` alive (a Swarmer cluster is trimmed to fit). False if nothing spawned.
+func _spawn_one() -> bool:
 	var offset := Vector2.from_angle(_rng.randf_range(0.0, TAU)) * _rng.randf_range(SPAWN_RADIUS_MIN, SPAWN_RADIUS_MAX)
-	var enemy := _spawner.spawn_at(_player.global_position + offset)
-	enemy.died.connect(_on_enemy_died)
+	return _spawner.spawn_at(_player.global_position + offset, enemy_count - _spawner.alive) != null
 
 
 func _on_enemy_died(_enemy: Enemy) -> void:
-	_spawn_one.call_deferred()
+	_refill.call_deferred()
+
+
+func _refill() -> void:
+	while _spawner.alive < enemy_count:
+		if not _spawn_one():
+			break
 
 
 func _read_command_line() -> void:

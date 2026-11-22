@@ -432,3 +432,19 @@ func test_the_default_config_unlocks_every_archetype_by_five_minutes() -> void:
 	var config := load("res://resources/spawning/default_spawn_config.tres") as SpawnConfig
 	for archetype in config.archetypes:
 		assert_lte(archetype.unlock_seconds, 300.0, str(archetype.id))
+
+
+func test_a_cluster_limit_caps_the_members_of_one_spawn() -> void:
+	var spawner := _composed_spawner([&"swarmer"], [&"none"], _no_elites(), 60.0)
+	spawner.spawn_at(Vector2(300, 300), 2)
+	assert_eq(spawner.alive, 2)
+	spawner.spawn_at(Vector2(300, 300), 1)
+	assert_eq(spawner.alive, 3)
+
+
+func test_a_cluster_limit_of_zero_or_less_means_no_limit() -> void:
+	var spawner := _composed_spawner([&"swarmer"], [&"none"], _no_elites(), 60.0)
+	spawner.spawn_at(Vector2(300, 300), 0)
+	assert_eq(spawner.alive, 5)
+	spawner.spawn_at(Vector2(300, 300), -3)
+	assert_eq(spawner.alive, 10)

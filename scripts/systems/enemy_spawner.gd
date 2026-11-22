@@ -137,8 +137,8 @@ func try_spawn() -> Enemy:
 
 ## Spawns an enemy (or a cluster of them) at `position` and returns the first: it composes a role and an
 ## element, applies the difficulty scales for the run time and may make it an elite. Null when no
-## archetype or element can be picked.
-func spawn_at(position: Vector2) -> Enemy:
+## archetype or element can be picked. `cluster_limit` above 0 caps how many members one spawn makes.
+func spawn_at(position: Vector2, cluster_limit: int = 0) -> Enemy:
 	var seconds := elapsed_seconds()
 	var archetype := pick_archetype(seconds)
 	var element := pick_element()
@@ -146,7 +146,10 @@ func spawn_at(position: Vector2) -> Enemy:
 		return null
 	var composed := composer.compose(archetype, element)
 	var first: Enemy = null
-	for i in maxi(archetype.cluster_size, 1):
+	var members := maxi(archetype.cluster_size, 1)
+	if cluster_limit > 0:
+		members = mini(members, cluster_limit)
+	for i in members:
 		if i > 0 and alive >= current_max_alive():
 			break
 		var at := position
