@@ -539,3 +539,10 @@ func test_next_run_has_the_bought_potion_in_the_bar() -> void:
 	var second := _new_main(_path())
 	assert_eq(_player(second).belt.count(&"potion_health"), 1)
 	assert_eq((second.get_node("Hud/PotionBar") as PotionBar).widgets[0].count, 1)
+
+
+func test_a_potion_slot_press_blocks_casting_until_the_cast_input_is_released() -> void:
+	_save_with_potions({&"potion_health": 1})
+	var main := _new_main(_path())
+	(main.get_node("Hud/PotionBar") as PotionBar).slot_pressed.emit(0)
+	assert_true(_player(main)._cast_blocked, "a click on a slot must not also fire a spell")

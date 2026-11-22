@@ -467,7 +467,7 @@ Luck makes Uncommon scrolls (weight x(1 + luck)) and Rare scrolls (weight x(1 + 
 
 A potion is only drunk, and consumed, when its effect really happens. It is refused (and kept) when you have none left, its cooldown is running, another potion was drunk in the last second, its timed effect is still running, Health is already full, every spell is already full, or you are dead. Cooldowns and effect timers stop while the game is paused.
 
-Keys: Z, X, C, V, B and N drink the six potions in bar order. On a controller, D-pad left and right select a potion and D-pad up drinks it. On a touchscreen or with the mouse, tap or click a slot.
+Keys: Z, X, C, V, B and N drink the six potions in bar order. On a controller, X selects the next potion, a left stick click selects the previous one, and B drinks the selected one (the D-pad stays for moving). On a touchscreen or with the mouse, tap or click a slot.
 
 Potions introduce another layer of resource management and allow players to prepare for particularly difficult encounters.
 

@@ -107,7 +107,7 @@ func _begin_progression() -> void:
 	_player.belt.used.connect(_on_potion_used)
 	_player.belt.refused.connect(_level_toast.show_message)
 	_potion_bar.bind(_player.belt, _player.effects, potion_catalog)
-	_potion_bar.slot_pressed.connect(_player.belt.use_slot)
+	_potion_bar.slot_pressed.connect(_on_potion_slot_pressed)
 	_player.died.connect(_potion_bar.hide)
 	_saver.bind(profile, save_path)
 	_xp_bar.bind(progress)
@@ -145,6 +145,13 @@ func _on_xp_changed(_total_xp: int, _level: int) -> void:
 
 func _on_bonuses_changed(total: StatBonuses) -> void:
 	_dropper.luck = total.fraction(StatBonuses.Stat.LUCK)
+
+
+## A tap or click on a potion slot. The click that drinks must not also cast a spell, so casting waits
+## until the cast input has been released.
+func _on_potion_slot_pressed(index: int) -> void:
+	_player.belt.use_slot(index)
+	_player.require_cast_release()
 
 
 ## A drunk potion is saved at once, so quitting cannot refund it.

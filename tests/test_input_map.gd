@@ -82,14 +82,33 @@ func test_potion_slots_are_keys_z_x_c_v_b_n() -> void:
 		assert_true(found, "%s is not on its key" % action)
 
 
-func test_potion_selection_is_on_the_dpad() -> void:
-	var expected := {&"potion_prev": JOY_BUTTON_DPAD_LEFT, &"potion_next": JOY_BUTTON_DPAD_RIGHT, &"potion_use": JOY_BUTTON_DPAD_UP}
+func test_potion_selection_is_on_buttons_that_do_not_move_the_player() -> void:
+	var expected := {&"potion_prev": JOY_BUTTON_LEFT_STICK, &"potion_next": JOY_BUTTON_X, &"potion_use": JOY_BUTTON_B}
 	for action in expected:
 		var found := false
 		for event in InputMap.action_get_events(action):
 			if event is InputEventJoypadButton and event.button_index == expected[action]:
 				found = true
-		assert_true(found, "%s is not on its D-pad button" % action)
+		assert_true(found, "%s is not on its button" % action)
+
+
+func test_no_joypad_button_belongs_to_two_gameplay_actions() -> void:
+	var owner_of := {}
+	for action in ACTIONS:
+		for event in InputMap.action_get_events(action):
+			if event is InputEventJoypadButton:
+				var button: int = event.button_index
+				assert_false(owner_of.has(button), "button %d is on both %s and %s" % [button, owner_of.get(button, ""), action])
+				owner_of[button] = action
+
+
+func test_a_dpad_press_matches_only_movement() -> void:
+	for button in [JOY_BUTTON_DPAD_UP, JOY_BUTTON_DPAD_DOWN, JOY_BUTTON_DPAD_LEFT, JOY_BUTTON_DPAD_RIGHT]:
+		var event := InputEventJoypadButton.new()
+		event.button_index = button
+		event.pressed = true
+		for action in [&"potion_prev", &"potion_next", &"potion_use"]:
+			assert_false(event.is_action(action), "D-pad %d must not match %s" % [button, action])
 
 
 func test_debug_give_potions_is_f8() -> void:

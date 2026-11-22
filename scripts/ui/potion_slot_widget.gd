@@ -2,8 +2,9 @@ class_name PotionSlotWidget
 extends Control
 ## TEMPORARY (Sprint 10): one slot in the placeholder potion bar. Shows the potion's colour, how many
 ## are left, the key that drinks it, a cooldown overlay and, while a timed effect runs, a shrinking
-## timer bar. A tap on a touchscreen drinks it (mouse clicks are ignored on purpose, so clicking here
-## never casts). Build children in _ready, so add it to the tree before calling setup().
+## timer bar. A tap on a touchscreen or a left click drinks it (Main also blocks casting until the cast
+## input is released, so a click here never fires a spell). Build children in _ready, so add it to the
+## tree before calling setup().
 
 signal pressed(index: int)
 
@@ -46,6 +47,9 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch and event.pressed:
 		if handle_touch(event.position):
 			get_viewport().set_input_as_handled()
+	elif event is InputEventMouseButton:
+		if handle_mouse_click(event):
+			get_viewport().set_input_as_handled()
 
 
 func handle_touch(screen_position: Vector2) -> bool:
@@ -53,6 +57,13 @@ func handle_touch(screen_position: Vector2) -> bool:
 		return false
 	pressed.emit(slot_index)
 	return true
+
+
+## A left mouse press on the slot. Other buttons, releases and clicks elsewhere are ignored.
+func handle_mouse_click(event: InputEventMouseButton) -> bool:
+	if event.button_index != MOUSE_BUTTON_LEFT or not event.pressed:
+		return false
+	return handle_touch(event.position)
 
 
 func setup(index: int, potion: PotionData, key: String) -> void:

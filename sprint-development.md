@@ -598,7 +598,7 @@ Players can purchase and use consumables during an adventure.
 - Mana Potions can restore depleted spell mana.
 - Potion effects are communicated through the UI.
 
-**Built note:** potions are data (`PotionData` in a `PotionCatalog`), bought one at a time in the death-screen shop and carried as a saved stock. A potion bar shows each type with its count, cooldown and remaining effect time, and drinking is a key (Z X C V B N), a controller D-pad press or a tap. Health and Mana are instant, Speed, Damage and Luck are timed stat bonuses, and Invulnerability is a timed window on the hurtbox. A refused potion (none left, cooling down, effect running, full health, full mana, dead) is never consumed. The Player now holds three bonus layers (level, equipment, temporary) and one `refresh_bonuses`, and luck weights scroll drops by rarity. Balance has not been tested in play.
+**Built note:** potions are data (`PotionData` in a `PotionCatalog`), bought one at a time in the death-screen shop and carried as a saved stock. A potion bar shows each type with its count, cooldown and remaining effect time, and drinking is a key (Z X C V B N), a controller button (X, left stick click, B), a click or a tap. Health and Mana are instant, Speed, Damage and Luck are timed stat bonuses, and Invulnerability is a timed window on the hurtbox. A refused potion (none left, cooling down, effect running, full health, full mana, dead) is never consumed. The Player now holds three bonus layers (level, equipment, temporary) and one `refresh_bonuses`, and luck weights scroll drops by rarity. Balance has not been tested in play.
 
 ---
 
