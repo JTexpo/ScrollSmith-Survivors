@@ -7,6 +7,8 @@ signal enemy_died(enemy: Enemy)
 
 const MAX_SPAWNS_PER_TICK := 4
 const SPAWN_ANGLE_ATTEMPTS := 8
+## How far a cluster member can start from the first one.
+const CLUSTER_RADIUS := 24.0
 
 @export var config: SpawnConfig
 @export var arena_bounds: Rect2 = Rect2(0, 0, 960, 540)
@@ -14,6 +16,12 @@ const SPAWN_ANGLE_ATTEMPTS := 8
 
 var rng := RandomNumberGenerator.new()
 var alive: int = 0
+## Builds (and caches) the EnemyData of each archetype and element pair.
+var composer := EnemyComposer.new()
+## When 0 or more it replaces the run clock (tests and the stress scene use it).
+var elapsed_override: float = -1.0
+## Divides the spawn interval, so 0.5 doubles it. A living boss sets it to 0.5.
+var spawn_rate_scale: float = 1.0
 ## Where enemies are added. Defaults to this node's parent.
 var spawn_root: Node
 
@@ -31,7 +39,7 @@ func _process(delta: float) -> void:
 func tick(delta: float) -> void:
 	if config == null:
 		return
-	var interval := maxf(config.interval, 0.01)
+	var interval := current_interval()
 	_time_since_spawn += delta
 	var budget := MAX_SPAWNS_PER_TICK
 	while _time_since_spawn >= interval and budget > 0:
@@ -40,6 +48,79 @@ func tick(delta: float) -> void:
 		if try_spawn() == null:
 			_time_since_spawn = 0.0
 			return
+
+
+## Run seconds for difficulty and unlocks: the override when set, otherwise the pausable run clock.
+func elapsed_seconds() -> float:
+	return elapsed_override if elapsed_override >= 0.0 else RunClock.seconds()
+
+
+## Seconds between spawn attempts now: the curve's interval (else the config's), divided by the rate scale.
+func current_interval() -> float:
+	if config == null:
+		return 0.5
+	var base := config.difficulty.spawn_interval(elapsed_seconds()) if config.difficulty != null else config.interval
+	return maxf(base / maxf(spawn_rate_scale, 0.01), 0.01)
+
+
+func current_max_alive() -> int:
+	if config.difficulty != null:
+		return config.difficulty.max_alive(elapsed_seconds())
+	return config.max_alive
+
+
+## A role that has unlocked by `seconds`, picked by weight. Empty slots and zero weights are never picked,
+## and the result is null when nothing is pickable.
+func pick_archetype(seconds: float) -> EnemyArchetype:
+	if config == null:
+		return null
+	var total := 0.0
+	var last: EnemyArchetype = null
+	for archetype in config.archetypes:
+		if archetype != null and archetype.spawn_weight > 0.0 and archetype.unlock_seconds <= seconds:
+			total += archetype.spawn_weight
+			last = archetype
+	if last == null:
+		return null
+	var roll := rng.randf() * total
+	for archetype in config.archetypes:
+		if archetype == null or archetype.spawn_weight <= 0.0 or archetype.unlock_seconds > seconds:
+			continue
+		roll -= archetype.spawn_weight
+		if roll < 0.0:
+			return archetype
+	return last
+
+
+## An element picked by weight (including "no element"), or null when there are none.
+func pick_element() -> EnemyElement:
+	if config == null:
+		return null
+	var total := 0.0
+	var last: EnemyElement = null
+	for element in config.elements:
+		if element != null and element.spawn_weight > 0.0:
+			total += element.spawn_weight
+			last = element
+	if last == null:
+		return null
+	var roll := rng.randf() * total
+	for element in config.elements:
+		if element == null or element.spawn_weight <= 0.0:
+			continue
+		roll -= element.spawn_weight
+		if roll < 0.0:
+			return element
+	return last
+
+
+## Whether a spawn at this time is an elite. Never without both a curve and a modifier, and no roll is
+## drawn while the chance is zero.
+func roll_elite(seconds: float) -> bool:
+	if config == null or config.difficulty == null or config.elite_modifier == null:
+		return false
+	var chance := config.difficulty.elite_chance(seconds)
+	return chance > 0.0 and rng.randf() < chance
 
 
 ## Picks from the pool by spawn_weight. Empty slots and zero weights are never picked, and the
@@ -66,7 +147,7 @@ func pick_enemy_data() -> EnemyData:
 
 
 func try_spawn() -> Enemy:
-	if config == null or alive >= config.max_alive:
+	if config == null or alive >= current_max_alive():
 		return null
 	var player := get_tree().get_first_node_in_group(&"player") as Node2D
 	if player == null:
@@ -77,10 +158,39 @@ func try_spawn() -> Enemy:
 	return spawn_at(position)
 
 
+## Spawns an enemy (or a cluster of them) at `position` and returns the first. With archetypes configured
+## it composes a role and an element, applies the difficulty scales for the run time and may make it an
+## elite. Without them it falls back to the old fixed pool.
 func spawn_at(position: Vector2) -> Enemy:
-	var data := pick_enemy_data()
-	if data == null:
+	if config.archetypes.is_empty():
+		var data := pick_enemy_data()
+		if data == null:
+			return null
+		return _spawn_enemy(data, position)
+	var seconds := elapsed_seconds()
+	var archetype := pick_archetype(seconds)
+	var element := pick_element()
+	if archetype == null or element == null:
 		return null
+	var composed := composer.compose(archetype, element)
+	var first: Enemy = null
+	for i in maxi(archetype.cluster_size, 1):
+		if i > 0 and alive >= current_max_alive():
+			break
+		var at := position
+		if i > 0:
+			at = (position + Vector2.from_angle(rng.randf_range(0.0, TAU)) * CLUSTER_RADIUS * sqrt(rng.randf())).clamp(arena_bounds.position, arena_bounds.end)
+		var enemy := _spawn_enemy(composed, at)
+		if config.difficulty != null:
+			enemy.apply_scales(config.difficulty.health_scale(seconds), config.difficulty.damage_scale(seconds), config.difficulty.speed_scale(seconds))
+		if roll_elite(seconds):
+			enemy.make_elite(config.elite_modifier)
+		if first == null:
+			first = enemy
+	return first
+
+
+func _spawn_enemy(data: EnemyData, position: Vector2) -> Enemy:
 	var enemy := config.enemy_scene.instantiate() as Enemy
 	enemy.setup(data, arena_bounds, rng)
 	var root := spawn_root if spawn_root != null else get_parent()
