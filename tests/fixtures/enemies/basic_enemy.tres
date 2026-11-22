@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/enemies/enemy_data.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/drops/basic_drops.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+max_health = 20.0
+contact_damage = 10.0
+contact_cooldown = 1.0
+contact_knockback = 80.0
+speed = 40.0
+speed_variation = 0.15
+offset_radius = 24.0
+element = -1
+color = Color(0.75, 0.75, 0.75, 1)
+spawn_weight = 1.0
+drop_table = ExtResource("2")
+xp_reward = 5
+gold_reward = 1

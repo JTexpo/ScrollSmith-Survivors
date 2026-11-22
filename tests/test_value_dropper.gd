@@ -1,7 +1,7 @@
 extends GutTest
 
 const GEM_SCENE := "res://scenes/progression/xp_gem.tscn"
-const FIRE_ENEMY := "res://resources/enemies/fire_enemy.tres"
+const FIRE_ENEMY := "res://tests/fixtures/enemies/fire_enemy.tres"
 
 var _root: Node2D
 var _dropper: ValueDropper
@@ -109,14 +109,14 @@ func _enemy_data(path: String) -> Enemy:
 
 func test_gold_dropper_uses_the_enemys_gold_reward() -> void:
 	var gold := _gold_dropper()
-	assert_eq(gold.on_enemy_died(_enemy_data("res://resources/enemies/land_enemy.tres")).value, 3)
-	assert_eq(gold.on_enemy_died(_enemy_data("res://resources/enemies/sea_enemy.tres")).value, 2)
-	assert_eq(gold.on_enemy_died(_enemy_data("res://resources/enemies/basic_enemy.tres")).value, 1)
+	assert_eq(gold.on_enemy_died(_enemy_data("res://tests/fixtures/enemies/land_enemy.tres")).value, 3)
+	assert_eq(gold.on_enemy_died(_enemy_data("res://tests/fixtures/enemies/sea_enemy.tres")).value, 2)
+	assert_eq(gold.on_enemy_died(_enemy_data("res://tests/fixtures/enemies/basic_enemy.tres")).value, 1)
 
 
 func test_xp_dropper_reads_xp_and_the_gold_dropper_reads_gold() -> void:
 	var gold := _gold_dropper()
-	var enemy := _enemy_data("res://resources/enemies/land_enemy.tres")
+	var enemy := _enemy_data("res://tests/fixtures/enemies/land_enemy.tres")
 	assert_eq(_dropper.on_enemy_died(enemy).value, 10)
 	assert_eq(gold.on_enemy_died(enemy).value, 3)
 	assert_eq(get_tree().get_nodes_in_group(&"xp_gems").size(), 1)
@@ -125,7 +125,7 @@ func test_xp_dropper_reads_xp_and_the_gold_dropper_reads_gold() -> void:
 
 func test_zero_gold_reward_drops_nothing() -> void:
 	var gold := _gold_dropper()
-	var data := (load("res://resources/enemies/fire_enemy.tres") as EnemyData).duplicate() as EnemyData
+	var data := (load("res://tests/fixtures/enemies/fire_enemy.tres") as EnemyData).duplicate() as EnemyData
 	data.gold_reward = 0
 	var enemy := (load("res://scenes/enemies/base_enemy.tscn") as PackedScene).instantiate() as Enemy
 	enemy.setup(data, Rect2(0, 0, 960, 540), RandomNumberGenerator.new())

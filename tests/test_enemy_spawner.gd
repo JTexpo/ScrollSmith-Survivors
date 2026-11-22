@@ -27,7 +27,8 @@ func _make_spawner(max_alive: int) -> EnemySpawner:
 	config.max_alive = max_alive
 	config.spawn_margin = 24.0
 	config.enemy_scene = load("res://scenes/enemies/base_enemy.tscn")
-	config.enemy_pool = [load("res://resources/enemies/basic_enemy.tres") as EnemyData]
+	config.archetypes = [load("res://resources/enemies/archetypes/standard.tres") as EnemyArchetype] as Array[EnemyArchetype]
+	config.elements = [load("res://resources/enemies/elements/none.tres") as EnemyElement] as Array[EnemyElement]
 	var spawner := EnemySpawner.new()
 	spawner.config = config
 	spawner.arena_bounds = BOUNDS
@@ -93,78 +94,6 @@ func test_tick_respects_interval() -> void:
 	assert_eq(_spawner.alive, 1)
 
 
-const POOL_FILES := [
-	"res://resources/enemies/basic_enemy.tres",
-	"res://resources/enemies/fire_enemy.tres",
-	"res://resources/enemies/thunder_enemy.tres",
-	"res://resources/enemies/land_enemy.tres",
-	"res://resources/enemies/sea_enemy.tres",
-]
-
-
-func _set_pool(pool: Array[EnemyData]) -> void:
-	_spawner.config.enemy_pool = pool
-
-
-func _file_pool() -> Array[EnemyData]:
-	var pool: Array[EnemyData] = []
-	for path in POOL_FILES:
-		pool.append(load(path) as EnemyData)
-	return pool
-
-
-func test_pick_covers_every_pool_entry() -> void:
-	var pool := _file_pool()
-	_set_pool(pool)
-	var seen := {}
-	for i in 500:
-		seen[_spawner.pick_enemy_data()] = true
-	assert_eq(seen.size(), 5)
-	for data in pool:
-		assert_true(seen.has(data))
-
-
-func test_pick_respects_weights() -> void:
-	var light := (load(POOL_FILES[0]) as EnemyData).duplicate() as EnemyData
-	var heavy := (load(POOL_FILES[0]) as EnemyData).duplicate() as EnemyData
-	light.spawn_weight = 1.0
-	heavy.spawn_weight = 3.0
-	var pool: Array[EnemyData] = [light, heavy]
-	_set_pool(pool)
-	var counts := {light: 0, heavy: 0}
-	for i in 1000:
-		counts[_spawner.pick_enemy_data()] += 1
-	assert_gt(counts[heavy], counts[light] * 2)
-
-
-func test_single_entry_pool_always_picks_it() -> void:
-	for i in 20:
-		assert_eq(_spawner.pick_enemy_data(), _spawner.config.enemy_pool[0])
-
-
-func test_empty_pool_and_zero_weights_spawn_nothing() -> void:
-	var empty: Array[EnemyData] = []
-	_set_pool(empty)
-	assert_null(_spawner.pick_enemy_data())
-	assert_null(_spawner.try_spawn())
-	var dead := (load(POOL_FILES[0]) as EnemyData).duplicate() as EnemyData
-	dead.spawn_weight = 0.0
-	var zero: Array[EnemyData] = [dead, dead]
-	_set_pool(zero)
-	assert_null(_spawner.pick_enemy_data())
-	assert_null(_spawner.try_spawn())
-	assert_eq(_spawner.alive, 0)
-
-
-func test_spawned_enemy_uses_data_from_the_pool() -> void:
-	var pool := _file_pool()
-	_set_pool(pool)
-	_spawner.config.max_alive = 20
-	for i in 10:
-		var enemy := _spawner.try_spawn()
-		assert_true(pool.has(enemy.data))
-
-
 func test_enemy_damaged_is_re_emitted() -> void:
 	var enemy := _spawner.try_spawn()
 	watch_signals(_spawner)
@@ -176,27 +105,7 @@ func test_enemy_damaged_is_re_emitted() -> void:
 	assert_signal_emitted_with_parameters(_spawner, "enemy_damaged", params)
 
 
-func test_empty_pool_slots_are_skipped() -> void:
-	var basic := load(POOL_FILES[0]) as EnemyData
-	var with_gaps: Array[EnemyData] = [null, basic, null]
-	_set_pool(with_gaps)
-	for i in 200:
-		assert_eq(_spawner.pick_enemy_data(), basic)
-	assert_not_null(_spawner.try_spawn())
-	var all_empty: Array[EnemyData] = [null, null]
-	_set_pool(all_empty)
-	assert_null(_spawner.pick_enemy_data())
-	assert_null(_spawner.try_spawn())
 
-
-func test_a_zero_weight_last_entry_is_never_picked() -> void:
-	var live := (load(POOL_FILES[0]) as EnemyData).duplicate() as EnemyData
-	var dead := (load(POOL_FILES[0]) as EnemyData).duplicate() as EnemyData
-	dead.spawn_weight = 0.0
-	var pool: Array[EnemyData] = [live, dead]
-	_set_pool(pool)
-	for i in 500:
-		assert_eq(_spawner.pick_enemy_data(), live)
 
 
 func test_enemy_died_is_re_emitted() -> void:
@@ -469,11 +378,6 @@ func test_the_run_clock_is_used_without_an_override() -> void:
 	assert_lt(spawner.elapsed_seconds(), 0.2)
 
 
-func test_the_pool_fallback_still_works_without_archetypes() -> void:
-	var enemy := _spawner.spawn_at(Vector2(300, 300))
-	assert_not_null(enemy)
-	assert_eq(enemy.data, _spawner.config.enemy_pool[0])
-
 
 func test_every_pair_can_spawn_and_is_named() -> void:
 	var spawner := _composed_spawner(ALL_ARCHETYPES, ALL_ELEMENTS, _no_elites(), 1000.0)
@@ -486,3 +390,45 @@ func test_every_pair_can_spawn_and_is_named() -> void:
 			assert_not_null(enemy, "%s %s" % [element_id, archetype_id])
 			names[enemy.data.display_name] = true
 	assert_eq(names.size(), 35)
+
+
+
+func test_the_default_spawn_config_composes_every_pair() -> void:
+	var config := load("res://resources/spawning/default_spawn_config.tres") as SpawnConfig
+	assert_eq(config.archetypes.size(), 7)
+	assert_eq(config.elements.size(), 5)
+	var composer := EnemyComposer.new()
+	var names := {}
+	for archetype in config.archetypes:
+		for element in config.elements:
+			names[composer.compose(archetype, element).display_name] = true
+	assert_eq(names.size(), 35)
+	assert_not_null(config.difficulty)
+	assert_not_null(config.elite_modifier)
+	assert_not_null(config.enemy_scene)
+
+
+func test_the_default_config_has_no_legacy_pool() -> void:
+	var config := load("res://resources/spawning/default_spawn_config.tres") as SpawnConfig
+	assert_false("enemy_pool" in config)
+	assert_false(_spawner.has_method("pick_enemy_data"))
+
+
+func test_a_default_run_spawns_standard_enemies_first() -> void:
+	var spawner := EnemySpawner.new()
+	spawner.config = load("res://resources/spawning/default_spawn_config.tres") as SpawnConfig
+	spawner.arena_bounds = BOUNDS
+	spawner.view_size = VIEW
+	spawner.elapsed_override = 0.0
+	add_child_autofree(spawner)
+	spawner.rng.seed = 5
+	for i in 60:
+		assert_eq(spawner.pick_archetype(0.0).id, &"standard")
+	var enemy := spawner.spawn_at(Vector2(300, 300))
+	assert_eq(enemy.data.archetype_id, &"standard")
+
+
+func test_the_default_config_unlocks_every_archetype_by_five_minutes() -> void:
+	var config := load("res://resources/spawning/default_spawn_config.tres") as SpawnConfig
+	for archetype in config.archetypes:
+		assert_lte(archetype.unlock_seconds, 300.0, str(archetype.id))

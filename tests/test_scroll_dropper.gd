@@ -1,7 +1,7 @@
 extends GutTest
 
 const PICKUP_SCENE := "res://scenes/scrolls/scroll_pickup.tscn"
-const FIRE_ENEMY := "res://resources/enemies/fire_enemy.tres"
+const FIRE_ENEMY := "res://tests/fixtures/enemies/fire_enemy.tres"
 
 var _root: Node2D
 var _dropper: ScrollDropper

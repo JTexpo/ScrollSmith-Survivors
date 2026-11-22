@@ -116,15 +116,12 @@ func test_sea_cone_matches_the_builder_except_the_pool() -> void:
 	assert_eq(starting.area_type(), built.area_type())
 
 
-func test_every_enemy_has_an_xp_reward() -> void:
-	var expected := {"basic": 5, "fire": 4, "thunder": 4, "sea": 6, "land": 10}
+func test_every_archetype_has_xp_and_gold_rewards() -> void:
+	var expected := {
+		"standard": [5, 1], "swarmer": [2, 1], "chaser": [5, 1], "tank": [12, 3],
+		"ranged": [7, 2], "exploder": [6, 1], "support": [8, 2],
+	}
 	for name in expected:
-		var data := load("res://resources/enemies/%s_enemy.tres" % name) as EnemyData
-		assert_eq(data.xp_reward, expected[name], name)
-
-
-func test_every_enemy_has_a_gold_reward() -> void:
-	var expected := {"basic": 1, "fire": 1, "thunder": 1, "sea": 2, "land": 3}
-	for name in expected:
-		var data := load("res://resources/enemies/%s_enemy.tres" % name) as EnemyData
-		assert_eq(data.gold_reward, expected[name], name)
+		var archetype := load("res://resources/enemies/archetypes/%s.tres" % name) as EnemyArchetype
+		assert_eq(archetype.xp_reward, expected[name][0], "%s xp" % name)
+		assert_eq(archetype.gold_reward, expected[name][1], "%s gold" % name)

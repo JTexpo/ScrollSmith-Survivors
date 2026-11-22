@@ -1,13 +1,14 @@
 extends GutTest
 
-const ENEMY_DIR := "res://resources/enemies/"
+const ELEMENT_DIR := "res://resources/enemies/elements/"
+## The themed drop tables now belong to the enemy elements.
 const ELEMENT_ENEMIES := {
-	"fire_enemy": SpellData.Element.FIRE,
-	"thunder_enemy": SpellData.Element.THUNDER,
-	"land_enemy": SpellData.Element.LAND,
-	"sea_enemy": SpellData.Element.SEA,
+	"fire": SpellData.Element.FIRE,
+	"thunder": SpellData.Element.THUNDER,
+	"land": SpellData.Element.LAND,
+	"sea": SpellData.Element.SEA,
 }
-const ENEMY_FILES := ["basic_enemy", "fire_enemy", "thunder_enemy", "land_enemy", "sea_enemy"]
+const ENEMY_FILES := ["none", "fire", "thunder", "land", "sea"]
 
 var _rng: RandomNumberGenerator
 
@@ -37,9 +38,9 @@ func _table(chance: float, entries: Array[DropEntry]) -> DropTable:
 	return table
 
 
-func _full_chance_table(enemy_file: String) -> DropTable:
-	var data := load(ENEMY_DIR + enemy_file + ".tres") as EnemyData
-	var table := data.drop_table.duplicate() as DropTable
+func _full_chance_table(element_file: String) -> DropTable:
+	var element := load(ELEMENT_DIR + element_file + ".tres") as EnemyElement
+	var table := element.drop_table.duplicate() as DropTable
 	table.drop_chance = 1.0
 	return table
 
@@ -80,7 +81,7 @@ func test_empty_and_all_unpickable_tables_return_null() -> void:
 	assert_null(_table(1.0, junk).roll(_rng))
 
 
-func test_every_enemy_has_a_themed_table() -> void:
+func test_every_element_has_a_themed_table() -> void:
 	for file in ELEMENT_ENEMIES:
 		var own: int = ELEMENT_ENEMIES[file]
 		var table := _full_chance_table(file)
@@ -99,8 +100,8 @@ func test_every_enemy_has_a_themed_table() -> void:
 		assert_between(float(own_total) / all_total, 0.35, 0.55, "%s own share of all drops" % file)
 
 
-func test_the_plain_enemy_favours_no_element() -> void:
-	var table := _full_chance_table("basic_enemy")
+func test_the_no_element_enemy_favours_no_element() -> void:
+	var table := _full_chance_table("none")
 	var counts := {}
 	var base_total := 0
 	for i in 6000:
@@ -116,16 +117,16 @@ func test_the_plain_enemy_favours_no_element() -> void:
 func test_every_catalog_scroll_can_drop() -> void:
 	var seen := {}
 	for file in ENEMY_FILES:
-		var data := load(ENEMY_DIR + file + ".tres") as EnemyData
-		for entry in data.drop_table.entries:
+		var element := load(ELEMENT_DIR + file + ".tres") as EnemyElement
+		for entry in element.drop_table.entries:
 			seen[entry.scroll.id] = true
 	assert_eq(seen.size(), 15)
 
 
 func test_drop_chance_is_ten_percent_everywhere() -> void:
 	for file in ENEMY_FILES:
-		var data := load(ENEMY_DIR + file + ".tres") as EnemyData
-		assert_eq(data.drop_table.drop_chance, 0.1, file)
+		var element := load(ELEMENT_DIR + file + ".tres") as EnemyElement
+		assert_eq(element.drop_table.drop_chance, 0.1, file)
 
 
 func _rarity_scroll(id: StringName, rarity: ScrollData.Rarity) -> ScrollData:

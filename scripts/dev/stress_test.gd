@@ -56,6 +56,8 @@ func _ready() -> void:
 	_read_command_line()
 	_rng.randomize()
 	_spawner.set_process(false)
+	# Five minutes in: every archetype is unlocked and elites are in the mix.
+	_spawner.elapsed_override = 300.0
 	_spawner.enemy_damaged.connect(_damage_numbers.show_number)
 	if drops:
 		_spawner.enemy_died.connect(_dropper.on_enemy_died)
@@ -113,7 +115,7 @@ func _stress_spell() -> SpellData:
 
 ## Puts `count` scrolls from the plain enemy's drop table on the ground around the player.
 func _scatter_pickups(count: int) -> void:
-	var entries := _spawner.config.enemy_pool[0].drop_table.entries
+	var entries := _spawner.config.elements[0].drop_table.entries
 	for i in count:
 		var offset := Vector2.from_angle(_rng.randf_range(0.0, TAU)) * _rng.randf_range(SPAWN_RADIUS_MIN, SPAWN_RADIUS_MAX)
 		_dropper.place(entries[i % entries.size()].scroll, _player.global_position + offset)

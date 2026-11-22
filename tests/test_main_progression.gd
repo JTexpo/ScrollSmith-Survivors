@@ -552,3 +552,12 @@ func test_main_starts_the_run_clock_at_zero() -> void:
 	await wait_seconds(0.2)
 	var main := _new_main("")
 	assert_lt(RunClock.seconds(), 0.1)
+
+
+func test_the_main_scene_spawns_composed_enemies() -> void:
+	var main := _new_main("")
+	var spawner := main.get_node("EnemySpawner") as EnemySpawner
+	var enemy := spawner.spawn_at(Vector2(300, 300))
+	assert_not_null(enemy)
+	assert_false(enemy.data.display_name.is_empty())
+	assert_eq(enemy.data.archetype_id, &"standard", "only the Standard role is unlocked at the start")

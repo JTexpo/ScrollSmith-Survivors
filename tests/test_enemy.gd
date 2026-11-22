@@ -23,7 +23,7 @@ func test_no_player_returns_zero() -> void:
 
 
 func _data() -> EnemyData:
-	return load("res://resources/enemies/basic_enemy.tres") as EnemyData
+	return load("res://tests/fixtures/enemies/basic_enemy.tres") as EnemyData
 
 
 func _rng(seed_value: int) -> RandomNumberGenerator:
@@ -133,11 +133,11 @@ const E := SpellData.Element
 const ENEMY_BOUNDS := Rect2(0, 0, 960, 540)
 # path, element, max health, contact damage, speed, colour, spawn weight
 const ENEMY_FILES := [
-	["res://resources/enemies/basic_enemy.tres", SpellData.NO_ELEMENT, 20.0, 10.0, 40.0, Color(0.75, 0.75, 0.75), 1.0],
-	["res://resources/enemies/fire_enemy.tres", E.FIRE, 16.0, 12.0, 55.0, Color(1, 0.45, 0.1), 2.0],
-	["res://resources/enemies/thunder_enemy.tres", E.THUNDER, 12.0, 8.0, 75.0, Color(1, 0.9, 0.2), 2.0],
-	["res://resources/enemies/land_enemy.tres", E.LAND, 50.0, 14.0, 28.0, Color(0.6, 0.4, 0.2), 2.0],
-	["res://resources/enemies/sea_enemy.tres", E.SEA, 24.0, 10.0, 42.0, Color(0.2, 0.55, 1), 2.0],
+	["res://tests/fixtures/enemies/basic_enemy.tres", SpellData.NO_ELEMENT, 20.0, 10.0, 40.0, Color(0.75, 0.75, 0.75), 1.0],
+	["res://tests/fixtures/enemies/fire_enemy.tres", E.FIRE, 16.0, 12.0, 55.0, Color(1, 0.45, 0.1), 2.0],
+	["res://tests/fixtures/enemies/thunder_enemy.tres", E.THUNDER, 12.0, 8.0, 75.0, Color(1, 0.9, 0.2), 2.0],
+	["res://tests/fixtures/enemies/land_enemy.tres", E.LAND, 50.0, 14.0, 28.0, Color(0.6, 0.4, 0.2), 2.0],
+	["res://tests/fixtures/enemies/sea_enemy.tres", E.SEA, 24.0, 10.0, 42.0, Color(0.2, 0.55, 1), 2.0],
 ]
 
 
@@ -174,9 +174,9 @@ func test_enemy_takes_its_element_and_colour_from_data() -> void:
 
 func test_damaged_signal_carries_final_amount_and_effect() -> void:
 	var cases := [
-		["res://resources/enemies/land_enemy.tres", 15.0, ElementTable.Effect.VULNERABLE],
-		["res://resources/enemies/sea_enemy.tres", 5.0, ElementTable.Effect.RESISTED],
-		["res://resources/enemies/fire_enemy.tres", 10.0, ElementTable.Effect.NEUTRAL],
+		["res://tests/fixtures/enemies/land_enemy.tres", 15.0, ElementTable.Effect.VULNERABLE],
+		["res://tests/fixtures/enemies/sea_enemy.tres", 5.0, ElementTable.Effect.RESISTED],
+		["res://tests/fixtures/enemies/fire_enemy.tres", 10.0, ElementTable.Effect.NEUTRAL],
 	]
 	for case in cases:
 		var enemy := _enemy_from(case[0])
@@ -187,7 +187,7 @@ func test_damaged_signal_carries_final_amount_and_effect() -> void:
 
 
 func test_killing_hit_emits_damaged_once() -> void:
-	var enemy := _enemy_from("res://resources/enemies/basic_enemy.tres")
+	var enemy := _enemy_from("res://tests/fixtures/enemies/basic_enemy.tres")
 	watch_signals(enemy)
 	(enemy.get_node("HurtboxComponent") as HurtboxComponent).receive_hit(1000.0, Vector2.ZERO)
 	assert_signal_emit_count(enemy, "damaged", 1)

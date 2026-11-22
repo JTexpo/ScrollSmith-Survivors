@@ -123,29 +123,6 @@ func roll_elite(seconds: float) -> bool:
 	return chance > 0.0 and rng.randf() < chance
 
 
-## Picks from the pool by spawn_weight. Empty slots and zero weights are never picked, and the
-## result is null when there is no pool or nothing is pickable.
-func pick_enemy_data() -> EnemyData:
-	if config == null:
-		return null
-	var total := 0.0
-	var last_pickable: EnemyData = null
-	for data in config.enemy_pool:
-		if data != null and data.spawn_weight > 0.0:
-			total += data.spawn_weight
-			last_pickable = data
-	if last_pickable == null:
-		return null
-	var roll := rng.randf() * total
-	for data in config.enemy_pool:
-		if data == null or data.spawn_weight <= 0.0:
-			continue
-		roll -= data.spawn_weight
-		if roll < 0.0:
-			return data
-	return last_pickable
-
-
 func try_spawn() -> Enemy:
 	if config == null or alive >= current_max_alive():
 		return null
@@ -158,15 +135,10 @@ func try_spawn() -> Enemy:
 	return spawn_at(position)
 
 
-## Spawns an enemy (or a cluster of them) at `position` and returns the first. With archetypes configured
-## it composes a role and an element, applies the difficulty scales for the run time and may make it an
-## elite. Without them it falls back to the old fixed pool.
+## Spawns an enemy (or a cluster of them) at `position` and returns the first: it composes a role and an
+## element, applies the difficulty scales for the run time and may make it an elite. Null when no
+## archetype or element can be picked.
 func spawn_at(position: Vector2) -> Enemy:
-	if config.archetypes.is_empty():
-		var data := pick_enemy_data()
-		if data == null:
-			return null
-		return _spawn_enemy(data, position)
 	var seconds := elapsed_seconds()
 	var archetype := pick_archetype(seconds)
 	var element := pick_element()
