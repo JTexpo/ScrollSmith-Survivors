@@ -110,3 +110,10 @@ func test_without_map_data_it_builds_nothing() -> void:
 	assert_null(node.get_node_or_null("Floor"))
 	assert_eq(node.bounds(), Rect2())
 	assert_eq(node.player_start(), Vector2.ZERO)
+
+
+func test_an_invalid_map_is_reported_when_it_loads() -> void:
+	var data := _data()
+	data.player_start = Vector2(5000, 5000)
+	_map_node(data)
+	assert_push_error("player start")

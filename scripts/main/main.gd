@@ -118,6 +118,8 @@ func _apply_map() -> void:
 	_camera.limit_top = int(area.position.y)
 	_camera.limit_right = int(area.end.x)
 	_camera.limit_bottom = int(area.end.y)
+	# The player entered the tree at (0, 0), so without this the smoothed camera glides in from the corner.
+	_camera.reset_smoothing()
 
 
 ## Loads the profile, wires XP and saving, rolls the random starting buffs, asks for each owed chosen

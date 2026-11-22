@@ -14,6 +14,8 @@ const BORDER_MARGIN := 32.0
 func _ready() -> void:
 	if map_data == null:
 		return
+	for problem in map_data.problems():
+		push_error("Map '%s': %s" % [map_data.id, problem])
 	_add_rect(&"Border", Rect2(-Vector2(BORDER_MARGIN, BORDER_MARGIN), map_data.size + Vector2(BORDER_MARGIN, BORDER_MARGIN) * 2.0), map_data.border_color)
 	_add_rect(&"Floor", map_data.bounds(), map_data.floor_color)
 	var decor := MapDecorLayer.new()

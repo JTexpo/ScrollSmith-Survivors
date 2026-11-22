@@ -421,3 +421,10 @@ Left open on purpose:
 - A bigger map with nothing in it makes wide circling easier until 12b adds obstacles.
 - Balance and the Lectern distances have not been tested in play.
 - Not checked on a phone or a controller.
+
+Review fixes (Sprint 12a whole-branch review: 0 Critical, 2 Important fixed, 5 minors deferred):
+- The smoothed camera glided in from the top-left corner at every run start, because the player now enters the tree at (0, 0) and `Main` moves it afterwards. `Main._apply_map` now calls `reset_smoothing()`.
+- A map with a start or placement outside its bounds loaded silently. `GameMap` now pushes an error for each line of `MapData.problems()`.
+- The spawn ring fails to find a spot about 10% of the time at a map corner, so its attempts went from 8 to 64 (found by the corner test, before the review).
+
+Deferred minors: a placed scene whose root is not a `Node2D` crashes the build; a map with no data builds a world where nothing spawns, with no warning; `MapData` counts the far edge as outside while the spawner counts it as inside; `decoration_count` has no upper limit; the F7 overlay draws under the player and enemies.

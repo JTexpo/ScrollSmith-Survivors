@@ -73,3 +73,10 @@ func test_f7_toggles_the_overlay() -> void:
 	event.pressed = true
 	main._unhandled_input(event)
 	assert_true(overlay.visible)
+
+
+func test_the_camera_starts_on_the_player_with_no_glide() -> void:
+	var main := _new_main()
+	await wait_frames(1)
+	var camera := main.get_node("Player/Camera2D") as Camera2D
+	assert_almost_eq(camera.get_screen_center_position(), Vector2(960, 540), Vector2(1, 1))
