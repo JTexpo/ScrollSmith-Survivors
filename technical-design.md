@@ -126,6 +126,7 @@ wizard-survivor/
 │   │   └── lectern.tscn
 │   │
 │   ├── world/
+│   │   ├── game_map.tscn
 │   │   └── test_arena.tscn
 │   │
 │   └── ui/
@@ -145,12 +146,21 @@ wizard-survivor/
 │   │   ├── damage_system.gd
 │   │   └── progression_system.gd
 │   │
+│   ├── world/
+│   │   ├── game_map.gd
+│   │   ├── map_decor.gd
+│   │   └── map_debug_overlay.gd
+│   │
 │   └── utilities/
 │
 ├── resources/
 │   ├── spells/
 │   ├── scrolls/
 │   ├── enemies/
+│   ├── maps/
+│   │   ├── map_data.gd
+│   │   ├── map_placement.gd
+│   │   └── first_map.tres
 │   ├── equipment/
 │   └── potions/
 │

@@ -6,6 +6,8 @@ extends Node2D
 @export var debug_scrolls: Array[ScrollData] = []
 
 @onready var _player: Player = $Player
+@onready var _map: GameMap = $GameMap
+@onready var _camera: Camera2D = $Player/Camera2D
 @onready var _death_screen: DeathScreen = $DeathScreen
 @onready var _health_bar: HealthBar = $Hud/HealthBar
 @onready var _spell_bar: SpellBar = $Hud/SpellBar
@@ -45,6 +47,7 @@ var _rng := RandomNumberGenerator.new()
 func _ready() -> void:
 	GameTime.reset()
 	RunClock.reset()
+	_apply_map()
 	_health_bar.bind(_player.health)
 	_player.died.connect(_death_screen.show_death)
 	# A hidden bar ignores touches, so a dead player can't change spell and the restart tap gets through.
@@ -82,6 +85,9 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"toggle_inventory"):
 		_toggle_inventory()
+	# DEBUG: shows the map's bounds and placements. Delete when no longer needed.
+	elif event.is_action_pressed(&"debug_toggle_map"):
+		_map.toggle_debug()
 	# DEBUG: refills every spell's mana. Delete once potions exist.
 	elif event.is_action_pressed(&"debug_restore_mana"):
 		_player.loadout.restore_all_mana()
@@ -98,6 +104,22 @@ func _unhandled_input(event: InputEvent) -> void:
 	# DEBUG: 100 XP, to try levels without grinding. It is saved like real XP. Delete later.
 	elif event.is_action_pressed(&"debug_give_xp"):
 		_player.progress.add_xp(100)
+
+
+## Hands the map's size to the spawner and camera, its spawn config to the spawner (when it has one)
+## and its start to the player. Nothing else reads the arena size.
+func _apply_map() -> void:
+	var area := _map.bounds()
+	_spawner.arena_bounds = area
+	if _map.map_data != null and _map.map_data.spawn_config != null:
+		_spawner.config = _map.map_data.spawn_config
+	_player.global_position = _map.player_start()
+	_camera.limit_left = int(area.position.x)
+	_camera.limit_top = int(area.position.y)
+	_camera.limit_right = int(area.end.x)
+	_camera.limit_bottom = int(area.end.y)
+	# The player entered the tree at (0, 0), so without this the smoothed camera glides in from the corner.
+	_camera.reset_smoothing()
 
 
 ## Loads the profile, wires XP and saving, rolls the random starting buffs, asks for each owed chosen

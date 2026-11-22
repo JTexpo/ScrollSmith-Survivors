@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="MapData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://resources/maps/map_data.gd" id="1"]
+[ext_resource type="Script" path="res://resources/maps/map_placement.gd" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/lectern.tscn" id="3"]
+[ext_resource type="Resource" path="res://resources/spawning/default_spawn_config.tres" id="4"]
+
+[sub_resource type="Resource" id="west"]
+script = ExtResource("2")
+scene = ExtResource("3")
+position = Vector2(300, 260)
+
+[sub_resource type="Resource" id="east"]
+script = ExtResource("2")
+scene = ExtResource("3")
+position = Vector2(1600, 300)
+
+[sub_resource type="Resource" id="south"]
+script = ExtResource("2")
+scene = ExtResource("3")
+position = Vector2(960, 900)
+
+[resource]
+script = ExtResource("1")
+id = &"first_map"
+display_name = "The Lectern Grounds"
+size = Vector2(1920, 1080)
+floor_color = Color(0.16, 0.2, 0.17, 1)
+border_color = Color(0.08, 0.1, 0.09, 1)
+player_start = Vector2(960, 540)
+spawn_config = ExtResource("4")
+placements = Array[ExtResource("2")]([SubResource("west"), SubResource("east"), SubResource("south")])
+decoration_count = 160
+decoration_seed = 12
+decoration_colors = PackedColorArray(0.2, 0.26, 0.2, 1, 0.14, 0.18, 0.15, 1, 0.24, 0.3, 0.22, 1)
+decoration_size = Vector2(2, 5)

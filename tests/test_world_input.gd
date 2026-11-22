@@ -5,6 +5,7 @@ extends GutTest
 
 const SCENES := [
 	"res://scenes/world/test_arena.tscn",
+	"res://scenes/world/game_map.tscn",
 	"res://scenes/player/player.tscn",
 	"res://scenes/enemies/base_enemy.tscn",
 	"res://scenes/interactables/lectern.tscn",
