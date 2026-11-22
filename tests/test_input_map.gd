@@ -8,7 +8,7 @@ const ACTIONS: Array[StringName] = [
 	&"spell_prev", &"spell_next", &"debug_restore_mana",
 	&"toggle_inventory", &"debug_give_scrolls", &"debug_give_xp",
 	&"potion_1", &"potion_2", &"potion_3", &"potion_4", &"potion_5", &"potion_6",
-	&"potion_prev", &"potion_next", &"potion_use", &"debug_give_potions",
+	&"potion_prev", &"potion_next", &"potion_use", &"debug_give_potions", &"debug_toggle_map",
 ]
 const MOVE_ACTIONS: Array[StringName] = [&"move_up", &"move_down", &"move_left", &"move_right"]
 
@@ -115,5 +115,13 @@ func test_debug_give_potions_is_f8() -> void:
 	var found := false
 	for event in InputMap.action_get_events(&"debug_give_potions"):
 		if event is InputEventKey and event.physical_keycode == KEY_F8:
+			found = true
+	assert_true(found)
+
+
+func test_debug_toggle_map_is_f7() -> void:
+	var found := false
+	for event in InputMap.action_get_events(&"debug_toggle_map"):
+		if event is InputEventKey and event.physical_keycode == KEY_F7:
 			found = true
 	assert_true(found)

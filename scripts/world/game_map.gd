@@ -30,6 +30,18 @@ func _ready() -> void:
 		var placed := placement.scene.instantiate() as Node2D
 		placed.position = placement.position
 		placements.add_child(placed)
+	var overlay := MapDebugOverlay.new()
+	overlay.name = &"Debug"
+	overlay.visible = false
+	add_child(overlay)
+	overlay.setup(map_data)
+
+
+## DEBUG: shows or hides the layout overlay (F7).
+func toggle_debug() -> void:
+	var overlay := get_node_or_null("Debug") as Node2D
+	if overlay != null:
+		overlay.visible = not overlay.visible
 
 
 ## The map's rectangle, or an empty one when there is no data.
