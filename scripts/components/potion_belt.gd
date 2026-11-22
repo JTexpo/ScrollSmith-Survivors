@@ -70,6 +70,20 @@ func use(id: StringName) -> PotionResult:
 	return result
 
 
+## Drinks the potion at a place in the bar (0 is the first). An index outside the bar is refused.
+func use_slot(index: int) -> PotionResult:
+	if _catalog == null or index < 0 or index >= _catalog.potions.size():
+		var result := PotionResult.new()
+		result.reason = PotionSystem.REASON_UNKNOWN
+		return result
+	return use(_catalog.potions[index].id)
+
+
+## Tells listeners the stock changed (a debug gift, a purchase) so the bar redraws.
+func refresh() -> void:
+	changed.emit()
+
+
 func count(id: StringName) -> int:
 	return _profile.potion_count(id) if _profile != null else 0
 

@@ -322,3 +322,50 @@ func test_refresh_with_heal_difference_heals_by_the_gain() -> void:
 	_player.refresh_bonuses(true)
 	assert_almost_eq(_player.health.max_health, 120.0, 0.001)
 	assert_almost_eq(_player.health.current_health, 90.0, 0.001)
+
+
+func _potion_event(action: StringName) -> InputEventAction:
+	var event := InputEventAction.new()
+	event.action = action
+	event.pressed = true
+	return event
+
+
+func _stocked_belt() -> PotionBelt:
+	var profile := PlayerProfile.new()
+	for potion in PotionCatalog.default_catalog().potions:
+		profile.add_potion(potion.id, 3)
+	_player.belt.bind(_player, profile, PotionCatalog.default_catalog())
+	return _player.belt
+
+
+func test_potion_key_actions_drink_the_matching_potion() -> void:
+	var belt := _stocked_belt()
+	_player._unhandled_input(_potion_event(&"potion_3"))
+	assert_true(_player.effects.is_active(&"potion_speed"))
+	assert_eq(belt.count(&"potion_speed"), 2)
+	belt._process(1.1)
+	_player.health.take_damage(50.0)
+	_player._unhandled_input(_potion_event(&"potion_1"))
+	assert_eq(belt.count(&"potion_health"), 2)
+	assert_almost_eq(_player.health.current_health, 90.0, 0.001)
+
+
+func test_controller_actions_select_and_use() -> void:
+	var belt := _stocked_belt()
+	_player._unhandled_input(_potion_event(&"potion_next"))
+	_player._unhandled_input(_potion_event(&"potion_next"))
+	assert_eq(belt.selected_index, 2)
+	_player._unhandled_input(_potion_event(&"potion_use"))
+	assert_true(_player.effects.is_active(&"potion_speed"))
+	_player._unhandled_input(_potion_event(&"potion_prev"))
+	assert_eq(belt.selected_index, 1)
+
+
+func test_a_dead_player_cannot_drink() -> void:
+	var belt := _stocked_belt()
+	_player.health.take_damage(1000.0)
+	_player._unhandled_input(_potion_event(&"potion_3"))
+	_player._unhandled_input(_potion_event(&"potion_next"))
+	assert_eq(belt.count(&"potion_speed"), 3)
+	assert_eq(belt.selected_index, 0)

@@ -26,6 +26,7 @@ extends Node2D
 @onready var _level_toast: LevelToast = $Hud/LevelToast
 @onready var _gold_counter: GoldCounter = $Hud/GoldCounter
 @onready var _shop_screen: ShopScreen = $ShopScreen
+@onready var _potion_bar: PotionBar = $Hud/PotionBar
 
 ## Where the profile is saved. Empty means "do not load or save": tests set it before adding Main to
 ## the tree so they never touch the player's real save.
@@ -79,6 +80,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed(&"debug_give_scrolls"):
 		for scroll in debug_scrolls:
 			_player.inventory.add(scroll, 3)
+	# DEBUG: 3 of every potion, saved, until potions are found another way. Delete later.
+	elif event.is_action_pressed(&"debug_give_potions"):
+		for potion in potion_catalog.potions:
+			profile.add_potion(potion.id, 3)
+		_player.belt.refresh()
+		_saver.save_now()
 	# DEBUG: 100 XP, to try levels without grinding. It is saved like real XP. Delete later.
 	elif event.is_action_pressed(&"debug_give_xp"):
 		_player.progress.add_xp(100)
@@ -98,6 +105,10 @@ func _begin_progression() -> void:
 	progress.bind(_player, profile, track)
 	_player.belt.bind(_player, profile, potion_catalog)
 	_player.belt.used.connect(_on_potion_used)
+	_player.belt.refused.connect(_level_toast.show_message)
+	_potion_bar.bind(_player.belt, _player.effects, potion_catalog)
+	_potion_bar.slot_pressed.connect(_player.belt.use_slot)
+	_player.died.connect(_potion_bar.hide)
 	_saver.bind(profile, save_path)
 	_xp_bar.bind(progress)
 	_gold_counter.bind(progress)

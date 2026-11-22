@@ -191,3 +191,21 @@ func test_count_follows_the_profile() -> void:
 	assert_eq(_belt.count(&"potion_luck"), 0)
 	_profile.add_potion(&"potion_luck", 4)
 	assert_eq(_belt.count(&"potion_luck"), 4)
+
+
+func test_use_slot_drinks_the_potion_at_that_place_in_the_bar() -> void:
+	_profile.add_potion(&"potion_speed")
+	assert_true(_belt.use_slot(2).ok)
+	assert_eq(_profile.potion_count(&"potion_speed"), 0)
+
+
+func test_use_slot_out_of_range_is_refused_without_error() -> void:
+	assert_false(_belt.use_slot(-1).ok)
+	assert_false(_belt.use_slot(6).ok)
+	assert_false(_belt.use_slot(99).ok)
+
+
+func test_refresh_emits_changed() -> void:
+	watch_signals(_belt)
+	_belt.refresh()
+	assert_signal_emit_count(_belt, "changed", 1)

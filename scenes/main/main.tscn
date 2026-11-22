@@ -29,6 +29,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/level_toast.tscn" id="55"]
 [ext_resource type="PackedScene" path="res://scenes/ui/gold_counter.tscn" id="57"]
 [ext_resource type="PackedScene" path="res://scenes/ui/shop_screen.tscn" id="58"]
+[ext_resource type="PackedScene" path="res://scenes/ui/potion_bar.tscn" id="59"]
 [ext_resource type="Resource" path="res://resources/scrolls/base/fire.tres" id="20"]
 [ext_resource type="Resource" path="res://resources/scrolls/base/thunder.tres" id="21"]
 [ext_resource type="Resource" path="res://resources/scrolls/base/land.tres" id="22"]
@@ -107,6 +108,8 @@ offset_left = 8.0
 offset_top = 8.0
 offset_right = 88.0
 offset_bottom = 22.0
+
+[node name="PotionBar" parent="Hud" instance=ExtResource("59")]
 
 [node name="XpBar" parent="Hud" instance=ExtResource("54")]
 

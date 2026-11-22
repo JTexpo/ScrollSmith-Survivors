@@ -9,6 +9,9 @@ signal bonuses_changed(total: StatBonuses)
 const SLOT_ACTIONS: Array[StringName] = [
 	&"spell_slot_1", &"spell_slot_2", &"spell_slot_3", &"spell_slot_4", &"spell_slot_5",
 ]
+const POTION_ACTIONS: Array[StringName] = [
+	&"potion_1", &"potion_2", &"potion_3", &"potion_4", &"potion_5", &"potion_6",
+]
 
 @onready var health: HealthComponent = $HealthComponent
 @onready var _move: MoveComponent = $MoveComponent
@@ -111,7 +114,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.is_action_pressed(SLOT_ACTIONS[index]):
 			loadout.select(index)
 			return
-	if event.is_action_pressed(&"spell_prev"):
+	for index in POTION_ACTIONS.size():
+		if event.is_action_pressed(POTION_ACTIONS[index]):
+			belt.use_slot(index)
+			return
+	if event.is_action_pressed(&"potion_prev"):
+		belt.select(-1)
+	elif event.is_action_pressed(&"potion_next"):
+		belt.select(1)
+	elif event.is_action_pressed(&"potion_use"):
+		belt.use_selected()
+	elif event.is_action_pressed(&"spell_prev"):
 		loadout.cycle(-1)
 	elif event.is_action_pressed(&"spell_next"):
 		loadout.cycle(1)
