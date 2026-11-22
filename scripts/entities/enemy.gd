@@ -23,6 +23,8 @@ var _health_scale: float = 1.0
 var _damage_scale: float = 1.0
 var _speed_scale: float = 1.0
 var _elite: EliteModifier
+## What it does each step (chase, keep distance, explode, support), chosen from its data's behaviour.
+var _brain: EnemyBrain
 
 var _bounds: Rect2 = Rect2(0, 0, 960, 540)
 var _dead: bool = false
@@ -36,6 +38,7 @@ var _dead: bool = false
 
 
 func _ready() -> void:
+	add_to_group(&"enemies")
 	_hurtbox.hit_received.connect(_on_hit_received)
 	_health.died.connect(_on_died)
 	if data != null:
@@ -46,7 +49,9 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	var velocity := direction_to_target() * speed + _knockback.update(delta)
+	if _brain == null:
+		_brain = EnemyBrain.for_data(data)
+	var velocity := _brain.step(self, delta) + _knockback.update(delta)
 	position += velocity * delta
 	position = position.clamp(_bounds.position, _bounds.end)
 
@@ -54,6 +59,7 @@ func _physics_process(delta: float) -> void:
 ## `arena_bounds` is in the parent's coordinate space.
 func setup(enemy_data: EnemyData, arena_bounds: Rect2, rng: RandomNumberGenerator) -> void:
 	data = enemy_data
+	_brain = null
 	_bounds = arena_bounds
 	speed = data.speed * rng.randf_range(1.0 - data.speed_variation, 1.0 + data.speed_variation)
 	_base_speed = speed
@@ -61,6 +67,34 @@ func setup(enemy_data: EnemyData, arena_bounds: Rect2, rng: RandomNumberGenerato
 	target_offset = Vector2.from_angle(angle) * data.offset_radius * sqrt(rng.randf())
 	if is_node_ready():
 		_apply_data()
+
+
+## The player this enemy is after, or null when there is none (or the player is dead).
+func target_player() -> Node2D:
+	return get_tree().get_first_node_in_group(&"player") as Node2D
+
+
+## How much its difficulty scale and elite status multiply damage it deals other than by touching
+## (projectiles, blasts).
+func damage_multiplier() -> float:
+	return _damage_scale * (_elite.damage_multiplier if _elite != null else 1.0)
+
+
+## Restores health, never above the maximum. Does nothing once dead.
+func heal(amount: float) -> void:
+	_health.heal(amount)
+
+
+func is_dead() -> bool:
+	return _dead
+
+
+## Dies in its own blast: no XP, Gold or drops, and the usual death (one `died`, then the shrink).
+func explode_and_die() -> void:
+	if _dead:
+		return
+	gives_rewards = false
+	_health.take_damage(_health.max_health * 1000.0)
 
 
 ## The difficulty scales for this one enemy (never edits the shared data). Setting them again replaces
@@ -121,6 +155,8 @@ func direction_to_target() -> Vector2:
 
 
 func _apply_data() -> void:
+	if _brain == null:
+		_brain = EnemyBrain.for_data(data)
 	_health.set_max_health(data.max_health * _health_scale * (_elite.health_multiplier if _elite != null else 1.0))
 	_hitbox.damage = data.contact_damage * _damage_scale * (_elite.damage_multiplier if _elite != null else 1.0)
 	if _base_speed > 0.0:
