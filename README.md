@@ -488,15 +488,19 @@ Each enemy has its own behavior, movement speed, health, damage, and elemental a
 
 ### Enemy Archetypes
 
-Potential enemy types include:
+An enemy is a **role** (its archetype) combined with an **element**, picked independently, so a Thunder Tank, a Sea Swarmer or a Fire Exploder can all appear. The role decides every stat, and the element only decides what hurts it, its colour and which scrolls it drops (a Thunder Tank is exactly as tough as a Land Tank). Roles unlock as the run goes on:
 
-- **Swarmers:** Weak enemies that attack in large numbers.
-- **Chasers:** Fast enemies that aggressively pursue the player.
-- **Ranged Enemies:** Attack from a distance and force the player to reposition.
-- **Tanks:** Slow, heavily armored enemies with high health.
-- **Exploders:** Move toward the player and explode when close.
-- **Support Enemies:** Buff or heal nearby enemies.
-- **Elite Enemies:** Stronger variations of standard enemies with improved stats and abilities.
+| Role | From | What it does | Health | Speed | Touch damage |
+|---|---|---|---|---|---|
+| Standard | start | Walks at you. | 20 | 40 | 10 |
+| Swarmer | 0:30 | Weak and small, comes in clusters of 5. | 8 | 46 | 5 |
+| Chaser | 1:00 | Fast and fragile. | 14 | 80 | 9 |
+| Tank | 2:00 | Slow, big and tough; drops more. | 80 | 26 | 16 |
+| Ranged | 3:00 | Keeps about 90 px away and fires a shot every 2 s (8 damage). | 14 | 34 | 6 |
+| Exploder | 4:00 | Runs in, flashes for 0.8 s, then blasts a radius of 36 for 24 damage and dies (no rewards). Killing it during the flash cancels the blast. | 12 | 58 | 4 |
+| Support | 5:00 | Heals every other enemy near it, 6 health a second; drops more. | 22 | 30 | 4 |
+
+**Elites** are a modifier on any role and element: 3 times the health, 1.5 times the damage, a little faster, 1.4 times the size, 3 times the XP and Gold, double the drop chance, with a bright outline. The chance is 0 for the first 2 minutes, then rises 2% a minute up to 20%.
 
 ### Elemental Affinities
 
@@ -519,6 +523,17 @@ Potential boss mechanics:
 - Multiple attack phases.
 - Vulnerability windows after specific attacks.
 
+The first boss is the **Ember Titan** (Fire element, 1,500 health). It arrives at 5:00 and then every 5 minutes after the previous one appeared, and never two at once. After a boss dies the run goes on and the next one is tougher (each extra boss has +50% health and +20% damage). While a boss lives, normal enemies spawn at half rate.
+
+- **Phase 1** (down to half health): Slam, Charge, Summon, one every 2.5 s.
+- **Phase 2** (below half health): adds Burst, attacks every 1.8 s, and moves 30% faster.
+- **Slam:** marks your position, warns for 1 s, then blasts a radius of 48 for 30 damage. Move away.
+- **Charge:** warns with a line for 0.8 s, then dashes along it (25 damage), then stands still for 2 s while it takes +50% damage.
+- **Burst:** a ring of 12 shots after a 0.6 s warning.
+- **Summon:** calls 4 Swarmers after a 0.8 s warning.
+
+A boss pays 300 XP and 150 Gold (both times its number) and 2 Rare scrolls where it falls. A boss warning, health bar and the run clock show at the top of the screen.
+
 Defeating bosses can reward the player with:
 - Large amounts of XP.
 - Gold.
@@ -534,7 +549,7 @@ As time progresses, enemies become stronger, spawn rates increase, and new enemy
 
 ### Difficulty Scaling
 
-Difficulty can increase through:
+The difficulty follows the run clock (it stops while the game is paused). Enemy health grows 12% a minute, damage 6% and speed 2% (up to +25%), the spawn interval shrinks (0.5 s down to 0.12 s) and the most enemies alive grows from 150 up to 300. Difficulty can increase through:
 - Increased enemy health.
 - Increased enemy damage.
 - Increased enemy movement speed.

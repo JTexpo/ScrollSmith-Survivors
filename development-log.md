@@ -357,3 +357,44 @@ Findings during the build:
 Review fixes (Sprint 10 whole-branch review: 1 Critical and 1 Important fixed, minors deferred):
 - **Critical:** the controller potion buttons were first put on the D-pad (the plan and the design said so), but the D-pad already moves the player, so walking drank potions and changed the selection. They are now X (next), left stick click (previous) and B (drink), and a new test fails if any joypad button belongs to two gameplay actions. The README, CLAUDE.md and the design were corrected.
 - **Important:** the design promised "tap or click a slot", but a mouse click on a slot fired a spell toward the top-right corner instead of drinking. The slot now handles left clicks, and `Main` blocks casting until the cast input is released, so a click drinks once and fires nothing. Checked on a real window: count 3 to 2, health 20 to 80, mana unchanged, no missiles.
+
+## 2026-11-22: Sprint 11 (enemy variety, bosses and difficulty)
+
+Decisions:
+- **The run continues after a boss, and bosses keep coming (your choice).** The docs never defined a victory, so a boss is a milestone, not an ending.
+- **Approach 1 plus your mix and match:** an enemy is an archetype (the role and every stat) plus an element (affinity, colour, drops), picked independently. **Elements have no stat flavour (your option A):** a Thunder Tank is as tough as a Land Tank. The old element-and-stat bundles became archetypes (Land's toughness is Tank, Thunder's speed is Chaser, the plain enemy is Standard).
+- The staff "increased damage against bosses" was left out (the open question defaulted to no), so no equipment changed.
+- Numbers (my calls, tune by playing): archetypes and unlock times 0 / 30 / 60 / 120 / 180 / 240 / 300 s, elites x3 health and reward, difficulty +12% health, +6% damage, +2% speed a minute, a boss every 300 s each +50% health and +20% damage, and the Ember Titan with two phases, a 2 s vulnerability window after its charge, and rewards of XP 300, Gold 150 and 2 Rare scrolls.
+
+Rulings I made while building (the full list is the final message's):
+- `RunClock` got its own start marker: the plan assumed `GameTime.reset()` zeroes the clock, but it only clears the pause bookkeeping (the first test run read 0.78 s at "zero"). `Main` now calls `RunClock.reset()` right after `GameTime.reset()`.
+- `EnemySpawner.spawn_at` got an optional `cluster_limit` because the stress scene respawned a whole Swarmer cluster per death and drifted over its enemy count.
+- The enemy scene's default data is a new `resources/enemies/default_enemy.tres` (the old basic enemy, 20 health), because many tests build an enemy from the scene without `setup` and production must not point into `tests/fixtures`.
+- The five old enemy files moved to `tests/fixtures/enemies/`, the themed drop-table tests moved to the element resources, and the death summary reads "..., survived 5:07".
+- `BlastZone.cancel` also sets a flag, so a later manual `_process` can never detonate a cancelled zone.
+
+Migration notes: `SpawnConfig.enemy_pool` and `EnemySpawner.pick_enemy_data` are gone (use `archetypes`, `elements`, `difficulty`, `elite_modifier`, `boss_scene` and `bosses`). `DropTable.roll(rng, luck, chance_scale)` takes a chance scale. The droppers read `Enemy.xp_reward()`, `gold_reward()` and `drop_chance_scale()` and skip an enemy whose `gives_rewards` is false. `Enemy` joins the group `enemies`, creates its brain from its data, and has `heal`, `is_dead`, `explode_and_die`, `apply_scales`, `make_elite` and `display_name`. `EnemyData` gained `display_name`, `body_scale`, `drop_chance_scale`, `behavior` and `archetype_id`.
+
+Known limitations:
+- One boss ships (the architecture takes more). Archetypes differ visually only by size and a colour shade, until the art sprint.
+- Balance, including the XP and Gold the new enemies pay, is untested in play.
+- Support enemies scan every enemy four times a second each, which is fine at today's counts but is the first place to look if many Supports ever appear together.
+- Only the Ember Titan's visuals were checked on a real window (a screenshot), and not on a phone.
+- The boss hit "vulnerability" is a +50% bonus applied after the normal damage, so the damage numbers show the total.
+
+Findings during the build:
+- `GameTime.reset()` does not zero `now_msec()` (see the ruling), which would have started every run's difficulty from engine uptime.
+- `wait_seconds(0.15)` in headless GUT runs lasts about 0.07 s of real time, so clock tests compare against measured time.
+- A real-window screenshot of a boss fight showed the boss bar and name, the run clock, the Slam's warning circle on the spot the player stood and the boss body.
+- The MCP run caught an integer-division warning in the clock formatter.
+
+Stress with `--drops` (300 enemies, windowed, median of three, 0.05 s interval). The scene now starts five minutes in, so the enemies are a different, heavier mix than before:
+
+| Area | Sprint 10 (old five enemies) | Sprint 11, Standard only (`--minutes=0`) | Sprint 11, five minutes in |
+|---|---|---|---|
+| Missile | 475.1 | 481.3 (Missile only) | 402.2 |
+| Wave | 103.6 | not measured | 96.0 |
+| Zone | 175.9 | not measured | 152.2 |
+| Missile with an Ember Titan (`--boss`) | | | 372.5 |
+
+With only Standard enemies the new code runs at the old speed, so the composition path costs nothing. At five minutes the drop (physics from about 5.2 to 8.4 ms a frame) is the heavier workload: tougher enemies, real Ranged shots, Exploder blasts and Support sweeps. Everything stays well above 60 fps.

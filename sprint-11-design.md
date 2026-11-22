@@ -1,6 +1,6 @@
 # Sprint 11 Design: Enemy Variety, Bosses and Difficulty
 
-**Status:** Proposed (awaiting approval).
+**Status:** Built (Sprint 11).
 
 Scope comes from `sprint-development.md` (Sprint 11) and the README (sections 7, 8 and 9). Architecture follows `CLAUDE.md`, `technical-design.md` and `sprint-0` to `sprint-10-design.md`. Decisions below were agreed with the user in conversation, except where marked "my call".
 

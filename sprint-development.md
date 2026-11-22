@@ -610,33 +610,33 @@ Players can purchase and use consumables during an adventure.
 
 #### Enemy Archetypes
 
-- [ ] Implement Swarmers.
-- [ ] Implement Chasers.
-- [ ] Implement Ranged Enemies.
-- [ ] Implement Tanks.
-- [ ] Implement Exploders.
-- [ ] Implement Support Enemies.
-- [ ] Implement Elite Enemies.
+- [x] Implement Swarmers.
+- [x] Implement Chasers.
+- [x] Implement Ranged Enemies.
+- [x] Implement Tanks.
+- [x] Implement Exploders.
+- [x] Implement Support Enemies.
+- [x] Implement Elite Enemies.
 
 #### Bosses
 
-- [ ] Create a boss architecture.
-- [ ] Implement boss health.
-- [ ] Implement boss-specific attacks.
-- [ ] Implement attack patterns.
-- [ ] Implement multiple attack phases.
-- [ ] Implement boss spawning.
-- [ ] Implement boss rewards.
-- [ ] Implement boss death and encounter completion.
+- [x] Create a boss architecture. (`BossData`, `BossPhase`, `BossAttack` and one `Boss` state machine.)
+- [x] Implement boss health.
+- [x] Implement boss-specific attacks. (Slam, Charge, Burst and Summon, all telegraphed.)
+- [x] Implement attack patterns.
+- [x] Implement multiple attack phases.
+- [x] Implement boss spawning. (One boss, the Ember Titan: the architecture takes more, only one ships.)
+- [x] Implement boss rewards.
+- [x] Implement boss death and encounter completion.
 
 #### Difficulty
 
-- [ ] Implement enemy health scaling.
-- [ ] Implement enemy damage scaling.
-- [ ] Implement enemy spawn scaling.
-- [ ] Implement elite enemy spawn rates.
-- [ ] Implement timed encounters.
-- [ ] Implement boss encounter intervals.
+- [x] Implement enemy health scaling.
+- [x] Implement enemy damage scaling.
+- [x] Implement enemy spawn scaling.
+- [x] Implement elite enemy spawn rates.
+- [x] Implement timed encounters.
+- [x] Implement boss encounter intervals.
 
 ### Deliverable
 
@@ -648,6 +648,8 @@ A variety of enemies and at least one fully functional boss encounter.
 - Boss encounters require active player movement.
 - Difficulty increases over time.
 - Boss rewards function correctly.
+
+**Built note:** an enemy is now an archetype (the role and every stat) plus an element (affinity, colour, drops), picked independently, so a Thunder Tank or a Sea Swarmer comes out of the same pieces and an element never changes a stat (user decisions). The seven archetypes are Standard, Swarmer, Chaser, Tank, Ranged, Exploder and Support, with Elites as a modifier on any of them, and they unlock over run time. Ranged enemies fire projectiles, Exploders fuse and blast, Support enemies heal others, and every danger is telegraphed. A `DifficultyCurve` raises health, damage, speed, spawn rate and elite chance with run time, and a `RunDirector` brings an Ember Titan at 5 minutes and every 5 minutes after, each tougher, with two phases, a vulnerability window after its charge, XP, Gold and Rare scroll rewards. The run continues after a boss (user decision). The Staff's boss damage was left out. Balance has not been tested in play.
 
 ---
 
