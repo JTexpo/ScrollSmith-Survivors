@@ -169,3 +169,16 @@ func test_nothing_equipped_changes_nothing() -> void:
 	assert_eq(_player.health.max_health, 100.0)
 	assert_eq(_player.loadout.bonuses.fraction(StatBonuses.Stat.CAST_SPEED), 0.0)
 	assert_eq(_player.loadout.slots[0].max_mana(), 1000.0)
+
+
+func test_run_start_sets_the_level_and_equipment_layers_and_leaves_the_temporary_one() -> void:
+	_at_level(5)
+	_wear(&"hat_swift")
+	var temporary := StatBonuses.new()
+	temporary.add(StatBonuses.Stat.CAST_SPEED, 0.25)
+	_player.temporary_bonuses = temporary
+	RunStart.prepare(_player, _profile, _track, _buffs, _catalog)
+	assert_almost_eq(_player.level_bonuses.fraction(StatBonuses.Stat.SPEED), 0.08, 0.0001)
+	assert_almost_eq(_player.equipment_bonuses.fraction(StatBonuses.Stat.SPEED), 0.10, 0.0001)
+	assert_almost_eq(_player.temporary_bonuses.fraction(StatBonuses.Stat.CAST_SPEED), 0.25, 0.0001)
+	assert_almost_eq(_player.loadout.bonuses.fraction(StatBonuses.Stat.CAST_SPEED), 0.25, 0.0001)

@@ -94,7 +94,6 @@ func _begin_progression() -> void:
 	profile = SaveGame.load_profile(save_path) if not save_path.is_empty() else PlayerProfile.new()
 	var progress := _player.progress
 	progress.bind(_player, profile, track)
-	progress.equipment_bonuses = ShopSystem.bonuses(profile, catalog)
 	_saver.bind(profile, save_path)
 	_xp_bar.bind(progress)
 	_gold_counter.bind(progress)

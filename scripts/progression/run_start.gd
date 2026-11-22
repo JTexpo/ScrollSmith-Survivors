@@ -7,10 +7,11 @@ extends RefCounted
 
 static func prepare(player: Player, profile: PlayerProfile, track: LevelTrack, run_buffs: RunBuffs, catalog: EquipmentCatalog) -> void:
 	var level := profile.level(track)
-	# Level and equipment bonuses first, added into one object, so every spell equipped below starts
-	# with the mana bonus and the casting speed.
-	var bonuses := StatBonuses.combined(StatBonuses.for_level(track, level), ShopSystem.bonuses(profile, catalog))
-	player.apply_stat_bonuses(bonuses, false)
+	# The level and equipment layers first (the temporary layer is left as it is), so every spell
+	# equipped below starts with the mana bonus and the casting speed.
+	player.level_bonuses = StatBonuses.for_level(track, level)
+	player.equipment_bonuses = ShopSystem.bonuses(profile, catalog)
+	player.refresh_bonuses(false)
 	var loadout := player.loadout
 	loadout.set_unlocked_slots(track.slot_count(level))
 	if not loadout.starting_spells.is_empty():

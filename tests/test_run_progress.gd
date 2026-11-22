@@ -169,7 +169,7 @@ func _wear(id: StringName) -> void:
 	var catalog := EquipmentCatalog.default_catalog()
 	_profile.grant(id)
 	_profile.equip(int(catalog.find(id).slot()), id)
-	_progress.equipment_bonuses = ShopSystem.bonuses(_profile, catalog)
+	_player.equipment_bonuses = ShopSystem.bonuses(_profile, catalog)
 
 
 func test_level_up_keeps_the_equipment_bonuses() -> void:
@@ -199,3 +199,16 @@ func test_equipment_damage_bonus_survives_a_mana_level_up() -> void:
 	_progress.add_xp(_track.xp_for_level(4))
 	assert_almost_eq(_player.loadout.bonuses.fraction(StatBonuses.Stat.DAMAGE_FIRE), 0.15, 0.0001)
 	assert_almost_eq(_player.loadout.bonuses.fraction(StatBonuses.Stat.SPELL_MANA), 0.15, 0.0001)
+
+
+func test_a_level_up_sets_only_the_level_layer() -> void:
+	_wear(&"hat_swift")
+	var temporary := StatBonuses.new()
+	temporary.add(StatBonuses.Stat.CAST_SPEED, 0.25)
+	_player.temporary_bonuses = temporary
+	_progress.add_xp(30)
+	assert_almost_eq(_player.level_bonuses.fraction(StatBonuses.Stat.SPEED), 0.08, 0.0001)
+	assert_almost_eq(_player.equipment_bonuses.fraction(StatBonuses.Stat.SPEED), 0.10, 0.0001)
+	assert_almost_eq(_player.temporary_bonuses.fraction(StatBonuses.Stat.CAST_SPEED), 0.25, 0.0001)
+	assert_almost_eq(_speed(), 90.0 * 1.18, 0.001)
+	assert_almost_eq(_player.loadout.bonuses.fraction(StatBonuses.Stat.CAST_SPEED), 0.25, 0.0001)

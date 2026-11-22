@@ -2,6 +2,9 @@ class_name Player
 extends CharacterBody2D
 
 signal died
+## The bonuses were recomputed. `total` is the sum of the three layers, for anything that needs the
+## whole (the scroll dropper's luck).
+signal bonuses_changed(total: StatBonuses)
 
 const SLOT_ACTIONS: Array[StringName] = [
 	&"spell_slot_1", &"spell_slot_2", &"spell_slot_3", &"spell_slot_4", &"spell_slot_5",
@@ -25,6 +28,13 @@ const SLOT_ACTIONS: Array[StringName] = [
 var base_speed: float = 0.0
 var base_health: float = 0.0
 
+## The three sources of bonuses. Each owner sets its own layer and then calls refresh_bonuses():
+## RunStart and RunProgress set the level layer, RunStart sets the equipment layer, and ActiveEffects
+## sets the temporary (potion) layer. Nothing else pushes bonuses to the player and the loadout.
+var level_bonuses := StatBonuses.new()
+var equipment_bonuses := StatBonuses.new()
+var temporary_bonuses := StatBonuses.new()
+
 var _cast_blocked: bool = false
 
 
@@ -39,6 +49,15 @@ func _ready() -> void:
 	base_health = health.max_health
 	_hurtbox.hit_received.connect(_on_hit_received)
 	health.died.connect(_on_died)
+
+
+## Adds the level, equipment and temporary layers and pushes the total, so a bonus can neither be
+## dropped nor counted twice whichever layer changed. With `heal_difference` a rise in maximum health
+## also heals by that rise.
+func refresh_bonuses(heal_difference: bool = false) -> void:
+	var total := StatBonuses.combined(StatBonuses.combined(level_bonuses, equipment_bonuses), temporary_bonuses)
+	apply_stat_bonuses(total, heal_difference)
+	bonuses_changed.emit(total)
 
 
 ## Sets speed, maximum health and the spells' mana bonus from the base values and `bonuses`. With

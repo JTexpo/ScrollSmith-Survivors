@@ -239,3 +239,86 @@ func test_apply_stat_bonuses_reaches_the_loadout_cast_stats() -> void:
 	assert_almost_eq(_player.loadout.bonuses.fraction(StatBonuses.Stat.CAST_SPEED), 0.25, 0.0001)
 	assert_almost_eq(_player.loadout.bonuses.fraction(StatBonuses.Stat.DAMAGE_FIRE), 0.15, 0.0001)
 	assert_almost_eq(_player.loadout.slots[0].cast_speed_bonus, 0.25, 0.0001)
+
+
+func _layer(stat: StatBonuses.Stat, amount: float) -> StatBonuses:
+	var layer := StatBonuses.new()
+	layer.add(stat, amount)
+	return layer
+
+
+func test_refresh_bonuses_adds_the_three_layers() -> void:
+	_player.level_bonuses = _layer(StatBonuses.Stat.SPEED, 0.08)
+	_player.equipment_bonuses = _layer(StatBonuses.Stat.SPEED, 0.10)
+	_player.temporary_bonuses = _layer(StatBonuses.Stat.SPEED, 0.40)
+	_player.refresh_bonuses()
+	assert_almost_eq((_player.get_node("MoveComponent") as MoveComponent).speed, 90.0 * 1.58, 0.001)
+
+
+func test_refresh_bonuses_with_empty_layers_changes_nothing() -> void:
+	_player.refresh_bonuses()
+	assert_eq((_player.get_node("MoveComponent") as MoveComponent).speed, 90.0)
+	assert_eq(_player.health.max_health, 100.0)
+	assert_eq(_player.loadout.bonuses.fraction(StatBonuses.Stat.CAST_SPEED), 0.0)
+
+
+func test_layers_can_be_set_in_any_order_with_the_same_result() -> void:
+	var other := load("res://scenes/player/player.tscn").instantiate() as Player
+	_root.add_child(other)
+	_player.level_bonuses = _layer(StatBonuses.Stat.HEALTH, 0.2)
+	_player.equipment_bonuses = _layer(StatBonuses.Stat.SPEED, 0.1)
+	_player.temporary_bonuses = _layer(StatBonuses.Stat.CAST_SPEED, 0.25)
+	_player.refresh_bonuses()
+	other.temporary_bonuses = _layer(StatBonuses.Stat.CAST_SPEED, 0.25)
+	other.equipment_bonuses = _layer(StatBonuses.Stat.SPEED, 0.1)
+	other.level_bonuses = _layer(StatBonuses.Stat.HEALTH, 0.2)
+	other.refresh_bonuses()
+	assert_eq((other.get_node("MoveComponent") as MoveComponent).speed, (_player.get_node("MoveComponent") as MoveComponent).speed)
+	assert_eq(other.health.max_health, _player.health.max_health)
+	assert_eq(other.loadout.bonuses.fraction(StatBonuses.Stat.CAST_SPEED), _player.loadout.bonuses.fraction(StatBonuses.Stat.CAST_SPEED))
+
+
+func test_changing_one_layer_leaves_the_others() -> void:
+	_player.level_bonuses = _layer(StatBonuses.Stat.SPEED, 0.08)
+	_player.equipment_bonuses = _layer(StatBonuses.Stat.SPEED, 0.10)
+	_player.refresh_bonuses()
+	var before := (_player.get_node("MoveComponent") as MoveComponent).speed
+	_player.temporary_bonuses = _layer(StatBonuses.Stat.SPEED, 0.40)
+	_player.refresh_bonuses()
+	assert_gt((_player.get_node("MoveComponent") as MoveComponent).speed, before)
+	_player.temporary_bonuses = StatBonuses.new()
+	_player.refresh_bonuses()
+	assert_eq((_player.get_node("MoveComponent") as MoveComponent).speed, before)
+	assert_almost_eq(before, 90.0 * 1.18, 0.001)
+
+
+func test_refresh_bonuses_emits_bonuses_changed_with_the_total() -> void:
+	_player.level_bonuses = _layer(StatBonuses.Stat.SPEED, 0.08)
+	_player.temporary_bonuses = _layer(StatBonuses.Stat.CAST_SPEED, 0.25)
+	watch_signals(_player)
+	_player.refresh_bonuses()
+	assert_signal_emit_count(_player, "bonuses_changed", 1)
+	var total := get_signal_parameters(_player, "bonuses_changed")[0] as StatBonuses
+	assert_almost_eq(total.fraction(StatBonuses.Stat.SPEED), 0.08, 0.0001)
+	assert_almost_eq(total.fraction(StatBonuses.Stat.CAST_SPEED), 0.25, 0.0001)
+
+
+func test_refresh_twice_equals_once() -> void:
+	_player.level_bonuses = _layer(StatBonuses.Stat.HEALTH, 0.2)
+	_player.equipment_bonuses = _layer(StatBonuses.Stat.SPEED, 0.1)
+	_player.refresh_bonuses()
+	var speed := (_player.get_node("MoveComponent") as MoveComponent).speed
+	var health := _player.health.max_health
+	_player.refresh_bonuses()
+	_player.refresh_bonuses(true)
+	assert_eq((_player.get_node("MoveComponent") as MoveComponent).speed, speed)
+	assert_eq(_player.health.max_health, health)
+	assert_eq(_player.health.current_health, health)
+
+
+func test_refresh_with_heal_difference_heals_by_the_gain() -> void:
+	_player.health.take_damage(30.0)
+	_player.level_bonuses = _layer(StatBonuses.Stat.HEALTH, 0.2)
+	_player.refresh_bonuses(true)
+	assert_almost_eq(_player.health.max_health, 120.0, 0.001)
+	assert_almost_eq(_player.health.current_health, 90.0, 0.001)

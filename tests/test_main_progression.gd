@@ -379,3 +379,15 @@ func test_a_second_accept_right_after_the_shop_opens_buys_nothing() -> void:
 		focused.pressed.emit()
 	assert_eq(main.profile.gold, 1000, "nothing was bought by the second press")
 	assert_true(main.profile.owned.is_empty())
+
+
+func test_the_temporary_layer_starts_empty_every_run() -> void:
+	var first := _new_main("")
+	var temporary := StatBonuses.new()
+	temporary.add(StatBonuses.Stat.SPEED, 0.4)
+	_player(first).temporary_bonuses = temporary
+	_player(first).refresh_bonuses()
+	first.free()
+	var second := _new_main("")
+	assert_eq(_player(second).temporary_bonuses.fraction(StatBonuses.Stat.SPEED), 0.0)
+	assert_eq(_speed(second), 90.0)
