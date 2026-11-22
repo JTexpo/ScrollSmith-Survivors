@@ -2,9 +2,15 @@ class_name Player
 extends CharacterBody2D
 
 signal died
+## The bonuses were recomputed. `total` is the sum of the three layers, for anything that needs the
+## whole (the scroll dropper's luck).
+signal bonuses_changed(total: StatBonuses)
 
 const SLOT_ACTIONS: Array[StringName] = [
 	&"spell_slot_1", &"spell_slot_2", &"spell_slot_3", &"spell_slot_4", &"spell_slot_5",
+]
+const POTION_ACTIONS: Array[StringName] = [
+	&"potion_1", &"potion_2", &"potion_3", &"potion_4", &"potion_5", &"potion_6",
 ]
 
 @onready var health: HealthComponent = $HealthComponent
@@ -18,6 +24,8 @@ const SLOT_ACTIONS: Array[StringName] = [
 @onready var collector: PickupCollector = $PickupCollector
 @onready var interaction: InteractionComponent = $InteractionComponent
 @onready var progress: RunProgress = $RunProgress
+@onready var effects: ActiveEffects = $ActiveEffects
+@onready var belt: PotionBelt = $PotionBelt
 
 
 ## The values the scene starts with. Bonuses are always worked out from these, so applying the same
@@ -25,7 +33,20 @@ const SLOT_ACTIONS: Array[StringName] = [
 var base_speed: float = 0.0
 var base_health: float = 0.0
 
+## The three sources of bonuses. Each owner sets its own layer and then calls refresh_bonuses():
+## RunStart and RunProgress set the level layer, RunStart sets the equipment layer, and ActiveEffects
+## sets the temporary (potion) layer. Nothing else pushes bonuses to the player and the loadout.
+var level_bonuses := StatBonuses.new()
+var equipment_bonuses := StatBonuses.new()
+var temporary_bonuses := StatBonuses.new()
+
 var _cast_blocked: bool = false
+
+
+## The player's hurtbox, for the things that grant it a timed window.
+var hurtbox: HurtboxComponent:
+	get:
+		return _hurtbox
 
 
 ## Call when a menu closes. The player will not cast until the cast input has been released once,
@@ -39,6 +60,16 @@ func _ready() -> void:
 	base_health = health.max_health
 	_hurtbox.hit_received.connect(_on_hit_received)
 	health.died.connect(_on_died)
+	effects.bind(self)
+
+
+## Adds the level, equipment and temporary layers and pushes the total, so a bonus can neither be
+## dropped nor counted twice whichever layer changed. With `heal_difference` a rise in maximum health
+## also heals by that rise.
+func refresh_bonuses(heal_difference: bool = false) -> void:
+	var total := StatBonuses.combined(StatBonuses.combined(level_bonuses, equipment_bonuses), temporary_bonuses)
+	apply_stat_bonuses(total, heal_difference)
+	bonuses_changed.emit(total)
 
 
 ## Sets speed, maximum health and the spells' mana bonus from the base values and `bonuses`. With
@@ -83,7 +114,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.is_action_pressed(SLOT_ACTIONS[index]):
 			loadout.select(index)
 			return
-	if event.is_action_pressed(&"spell_prev"):
+	for index in POTION_ACTIONS.size():
+		if event.is_action_pressed(POTION_ACTIONS[index]):
+			belt.use_slot(index)
+			return
+	if event.is_action_pressed(&"potion_prev"):
+		belt.select(-1)
+	elif event.is_action_pressed(&"potion_next"):
+		belt.select(1)
+	elif event.is_action_pressed(&"potion_use"):
+		belt.use_selected()
+	elif event.is_action_pressed(&"spell_prev"):
 		loadout.cycle(-1)
 	elif event.is_action_pressed(&"spell_next"):
 		loadout.cycle(1)

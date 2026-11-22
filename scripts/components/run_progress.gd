@@ -14,9 +14,6 @@ var track: LevelTrack
 var run_xp: int = 0
 ## Gold collected since this run began.
 var run_gold: int = 0
-## What the equipped items add. Main sets it from the profile, so a level-up recomputes level plus
-## equipment and never drops the equipment's bonuses.
-var equipment_bonuses: StatBonuses = StatBonuses.new()
 
 var _player: Player
 
@@ -57,7 +54,8 @@ func add_gold(amount: int) -> void:
 func _apply(reached: int, reward: LevelReward) -> void:
 	match reward.kind:
 		LevelReward.Kind.SPEED, LevelReward.Kind.HEALTH, LevelReward.Kind.MANA:
-			_player.apply_stat_bonuses(StatBonuses.combined(StatBonuses.for_level(track, reached), equipment_bonuses), true)
+			_player.level_bonuses = StatBonuses.for_level(track, reached)
+			_player.refresh_bonuses(true)
 		LevelReward.Kind.SLOT:
 			_player.loadout.unlock_next()
 		_:

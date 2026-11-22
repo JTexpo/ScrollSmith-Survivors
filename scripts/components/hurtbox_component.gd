@@ -14,6 +14,9 @@ signal hit_received(damage: float, source_position: Vector2, knockback: float, e
 @export var invulnerability_time: float = 0.0
 
 var _invulnerable_left: float = 0.0
+## A separate window granted from outside (an Invulnerability Potion). It runs next to the per-hit
+## window: a landed hit never shortens or clears it, and it never starts or stretches the per-hit one.
+var _granted_left: float = 0.0
 
 
 func _ready() -> void:
@@ -22,9 +25,9 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	_invulnerable_left -= delta
-	if _invulnerable_left <= 0.0:
-		_invulnerable_left = 0.0
+	_invulnerable_left = maxf(_invulnerable_left - delta, 0.0)
+	_granted_left = maxf(_granted_left - delta, 0.0)
+	if _invulnerable_left <= 0.0 and _granted_left <= 0.0:
 		set_process(false)
 
 
@@ -35,8 +38,17 @@ func _physics_process(_delta: float) -> void:
 			hitbox.try_hit(self)
 
 
+## Blocks every hit for `seconds`. Ignores zero and negative values, and a shorter grant never
+## replaces a longer one that is still running.
+func grant_invulnerability(seconds: float) -> void:
+	if seconds <= 0.0:
+		return
+	_granted_left = maxf(_granted_left, seconds)
+	set_process(true)
+
+
 func is_invulnerable() -> bool:
-	return _invulnerable_left > 0.0
+	return _invulnerable_left > 0.0 or _granted_left > 0.0
 
 
 func receive_hit(

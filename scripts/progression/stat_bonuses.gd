@@ -17,6 +17,7 @@ enum Stat {
 	CAST_SPEED,
 	CAST_TWICE_CHANCE,
 	DOUBLE_DAMAGE_CHANCE,
+	LUCK,
 }
 
 var _fractions: Dictionary = {}

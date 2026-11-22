@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="PotionCatalog" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://resources/potions/potion_catalog.gd" id="1"]
+[ext_resource type="Script" path="res://resources/potions/potion_data.gd" id="2"]
+[ext_resource type="Resource" path="res://resources/potions/potion_health.tres" id="p0"]
+[ext_resource type="Resource" path="res://resources/potions/potion_mana.tres" id="p1"]
+[ext_resource type="Resource" path="res://resources/potions/potion_speed.tres" id="p2"]
+[ext_resource type="Resource" path="res://resources/potions/potion_damage.tres" id="p3"]
+[ext_resource type="Resource" path="res://resources/potions/potion_invulnerability.tres" id="p4"]
+[ext_resource type="Resource" path="res://resources/potions/potion_luck.tres" id="p5"]
+
+[resource]
+script = ExtResource("1")
+potions = Array[ExtResource("2")]([ExtResource("p0"), ExtResource("p1"), ExtResource("p2"), ExtResource("p3"), ExtResource("p4"), ExtResource("p5")])

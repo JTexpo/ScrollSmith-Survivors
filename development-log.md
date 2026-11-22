@@ -323,3 +323,37 @@ Review fixes (Sprint 9 whole-branch review: 0 Critical, 2 Important fixed, minor
 - Mashing Enter (or the controller's accept) at the moment of death opened the shop and then bought the first item, because the 500 ms input delay only guarded `handle_event`. The Shop button now ignores presses inside that delay, and the shop ignores item presses for 300 ms after it opens (`ShopScreen.input_guard_msec`). Close always works.
 - The crafting drawbacks line ("100 casts become N") used the raw pool while the stats block above it used the loadout's mana bonus. Both now use the bonus.
 - Doubled zones (the cost of a Wand's cast twice on a ground-targeted spell), measured with `--copies` as the stand-in at the real zone interval of 1.2 s, 300 enemies, median of three: 1 copy 688.2 fps, 2 copies 694.8, 4 copies 590.6. Casting twice costs nothing measurable.
+
+## 2026-11-22: Sprint 10 (potions and consumables)
+
+Decisions:
+- **Carry everything you own, with a potion bar (your choice, "A").** Potions are bought one at a time in the death-screen shop, the stock is saved (up to 99 of each), and unused potions survive death.
+- **Approach 1 (your choice):** potions are data (`PotionData` in a `PotionCatalog`), timed bonuses ride on the `StatBonuses` path, and the Player holds three bonus layers (level, equipment, temporary) with one `refresh_bonuses`. This replaced the two places that combined level and equipment by hand.
+- The six potions (my calls, tune by playing): Health heals 40% of max health (price 40, cooldown 10 s), Mana restores 50% of every spell's pool (60, 15 s), Speed +40% for 15 s (30, 30 s), Damage +50% spell damage for 15 s (50, 30 s), Invulnerability 5 s (100, 60 s), Luck +100% for 60 s (40, 90 s). Mana restores only part of a pool on purpose.
+- Rules (my calls): each type has its own cooldown plus a 1 s shared cooldown, a timed potion can't be drunk again while its effect runs, Health is refused at full health, Mana when every spell is full, and nothing can be drunk while dead. A refused potion is never consumed and starts no cooldown. Timers and cooldowns freeze while paused.
+- Luck weights Uncommon scrolls x(1 + luck) and Rare x(1 + 2 x luck), and never changes whether something drops. At luck 0 the roll is exactly the old one.
+- Inputs: Z X C V B N for the six slots, X (next), left stick click (previous) and B (drink) on a controller, tap or click on a slot. F8 gives 3 of every potion (DEBUG, saved).
+
+Rulings I made while building:
+- `PotionBelt` gained `use_slot(index)` and `refresh()` (not in the plan), so keys and taps can drink by bar position and a debug gift can redraw the bar.
+- `Player` gained a `hurtbox` accessor so `ActiveEffects` can grant the hurtbox its window.
+- The shop's potion row is a 3 by 2 grid with short labels ("Health  40g  x2"), because six buttons did not fit in one row at 480 pixels.
+- `ActiveEffects.clear()` leaves the hurtbox's own window to run out by itself.
+
+Migration notes: `RunProgress.equipment_bonuses` is gone (the Player's `equipment_bonuses` layer replaces it), `DropTable.roll` takes an optional luck, `ShopScreen.open` takes an optional potion catalog, `ShopResult` has a `potion` field, `PlayerProfile` has `potions`, and `StatBonuses.Stat` has `LUCK`.
+
+Known limitations:
+- Potion numbers, prices and the luck formula are first guesses and untested in play.
+- Potions are only bought in the death-screen shop, and none drop from enemies.
+- A controller can't drink a potion directly (it selects with X or a left stick click, then presses B), and there is no confirmation dialog when buying.
+- All the new HUD and shop pieces are TEMPORARY looks.
+- The refusal "Still cooling down." shows for a timed potion drunk again during its effect, because the type cooldown outranks "effect running" in the checking order.
+
+Findings during the build:
+- Touches never reach buttons because mouse emulation is off, so the potion slots handle their own touches. A real-window script (3x scale, a throwaway profile) confirmed a tap on a slot drinks exactly once and fires no spell, and a second tap during the cooldown is refused.
+- A real-window screenshot of the shop showed the new Potions row and the detail text sit under the equipment columns without overlapping.
+- Stress with `--drops` (300 enemies, windowed, median of three, 0.05 s interval): Missile 475.1, Wave 103.6, Zone 175.9 fps, unchanged from Sprint 9 (469.7, 105.4, 173.2). The new components cost nothing measurable.
+
+Review fixes (Sprint 10 whole-branch review: 1 Critical and 1 Important fixed, minors deferred):
+- **Critical:** the controller potion buttons were first put on the D-pad (the plan and the design said so), but the D-pad already moves the player, so walking drank potions and changed the selection. They are now X (next), left stick click (previous) and B (drink), and a new test fails if any joypad button belongs to two gameplay actions. The README, CLAUDE.md and the design were corrected.
+- **Important:** the design promised "tap or click a slot", but a mouse click on a slot fired a spell toward the top-right corner instead of drinking. The slot now handles left clicks, and `Main` blocks casting until the cast input is released, so a click drinks once and fires nothing. Checked on a real window: count 3 to 2, health 20 to 80, mana unchanged, no missiles.

@@ -236,3 +236,84 @@ func test_the_hitbox_hands_its_profile_to_the_hurtbox() -> void:
 	hitbox.profile = profile
 	assert_true(hitbox.try_hit(target))
 	assert_eq(target.health.current_health, 15.0)
+
+
+func test_granted_invulnerability_blocks_hits() -> void:
+	var target := _make_target(Vector2.ZERO, 10.0, 0.0)
+	target.grant_invulnerability(5.0)
+	assert_true(target.is_invulnerable())
+	assert_false(target.receive_hit(4.0, Vector2.ZERO))
+	assert_eq(target.health.current_health, 10.0)
+
+
+func test_a_blocked_hit_starts_no_per_hit_window() -> void:
+	var target := _make_target(Vector2.ZERO, 10.0, 0.5)
+	target.grant_invulnerability(2.0)
+	target.receive_hit(4.0, Vector2.ZERO)
+	target._process(2.01)
+	assert_false(target.is_invulnerable(), "no leftover per-hit window after the grant ends")
+	assert_true(target.receive_hit(4.0, Vector2.ZERO))
+
+
+func test_the_window_ends_on_time() -> void:
+	var target := _make_target(Vector2.ZERO, 10.0, 0.0)
+	target.grant_invulnerability(5.0)
+	target._process(4.99)
+	assert_true(target.is_invulnerable())
+	assert_false(target.receive_hit(3.0, Vector2.ZERO))
+	target._process(0.02)
+	assert_false(target.is_invulnerable())
+	assert_true(target.receive_hit(3.0, Vector2.ZERO))
+	assert_eq(target.health.current_health, 7.0)
+
+
+func test_the_per_hit_window_does_not_shorten_the_granted_one() -> void:
+	var target := _make_target(Vector2.ZERO, 10.0, 0.5)
+	assert_true(target.receive_hit(1.0, Vector2.ZERO), "a normal hit starts the 0.5 s window")
+	target.grant_invulnerability(5.0)
+	target._process(0.6)
+	assert_true(target.is_invulnerable(), "the per-hit window ended but the grant has not")
+	assert_false(target.receive_hit(1.0, Vector2.ZERO))
+	target._process(4.5)
+	assert_false(target.is_invulnerable())
+
+
+func test_a_grant_does_not_cancel_a_running_per_hit_window_early() -> void:
+	var target := _make_target(Vector2.ZERO, 10.0, 3.0)
+	target.receive_hit(1.0, Vector2.ZERO)
+	target.grant_invulnerability(1.0)
+	target._process(1.5)
+	assert_true(target.is_invulnerable(), "the 3 s per-hit window is still running")
+	target._process(1.6)
+	assert_false(target.is_invulnerable())
+
+
+func test_a_longer_grant_replaces_a_shorter_one_and_a_shorter_never_replaces_a_longer() -> void:
+	var target := _make_target(Vector2.ZERO, 10.0, 0.0)
+	target.grant_invulnerability(2.0)
+	target.grant_invulnerability(5.0)
+	target._process(3.0)
+	assert_true(target.is_invulnerable())
+	target.grant_invulnerability(0.5)
+	target._process(1.9)
+	assert_true(target.is_invulnerable(), "the longer remaining window was kept")
+	target._process(0.2)
+	assert_false(target.is_invulnerable())
+
+
+func test_grant_invulnerability_ignores_zero_and_negative_seconds() -> void:
+	var target := _make_target(Vector2.ZERO, 10.0, 0.0)
+	target.grant_invulnerability(0.0)
+	target.grant_invulnerability(-3.0)
+	assert_false(target.is_invulnerable())
+	assert_true(target.receive_hit(1.0, Vector2.ZERO))
+
+
+func test_both_windows_expire_independently() -> void:
+	var target := _make_target(Vector2.ZERO, 10.0, 1.0)
+	target.receive_hit(1.0, Vector2.ZERO)
+	target.grant_invulnerability(3.0)
+	target._process(1.1)
+	assert_true(target.is_invulnerable(), "the grant is still running")
+	target._process(2.0)
+	assert_false(target.is_invulnerable())

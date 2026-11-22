@@ -140,3 +140,20 @@ func test_a_save_with_a_bad_gold_field_is_kept_as_bak() -> void:
 	var profile := SaveGame.load_profile(_path())
 	assert_eq(profile.gold, 0)
 	assert_true(FileAccess.file_exists(_path() + ".bak"))
+
+
+func test_potions_survive_save_and_load() -> void:
+	var profile := PlayerProfile.new()
+	profile.add_gold(10)
+	profile.add_potion(&"potion_mana", 7)
+	assert_true(SaveGame.save_profile(profile, _path()))
+	var loaded := SaveGame.load_profile(_path())
+	assert_eq(loaded.potion_count(&"potion_mana"), 7)
+	assert_eq(loaded.gold, 10)
+
+
+func test_a_save_with_a_bad_potions_field_is_kept_as_bak() -> void:
+	_write('{"version": 1, "total_xp": 5, "gold": 9, "potions": {"potion_health": "lots"}}')
+	var profile := SaveGame.load_profile(_path())
+	assert_eq(profile.gold, 0)
+	assert_true(FileAccess.file_exists(_path() + ".bak"))

@@ -26,6 +26,7 @@ extends Node2D
 @onready var _level_toast: LevelToast = $Hud/LevelToast
 @onready var _gold_counter: GoldCounter = $Hud/GoldCounter
 @onready var _shop_screen: ShopScreen = $ShopScreen
+@onready var _potion_bar: PotionBar = $Hud/PotionBar
 
 ## Where the profile is saved. Empty means "do not load or save": tests set it before adding Main to
 ## the tree so they never touch the player's real save.
@@ -34,6 +35,7 @@ extends Node2D
 var profile: PlayerProfile
 var track: LevelTrack
 var catalog: EquipmentCatalog
+var potion_catalog: PotionCatalog
 
 var _rng := RandomNumberGenerator.new()
 
@@ -78,6 +80,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed(&"debug_give_scrolls"):
 		for scroll in debug_scrolls:
 			_player.inventory.add(scroll, 3)
+	# DEBUG: 3 of every potion, saved, until potions are found another way. Delete later.
+	elif event.is_action_pressed(&"debug_give_potions"):
+		for potion in potion_catalog.potions:
+			profile.add_potion(potion.id, 3)
+		_player.belt.refresh()
+		_saver.save_now()
 	# DEBUG: 100 XP, to try levels without grinding. It is saved like real XP. Delete later.
 	elif event.is_action_pressed(&"debug_give_xp"):
 		_player.progress.add_xp(100)
@@ -91,13 +99,20 @@ func _begin_progression() -> void:
 	_rng.randomize()
 	track = LevelTrack.default_track()
 	catalog = EquipmentCatalog.default_catalog()
+	potion_catalog = PotionCatalog.default_catalog()
 	profile = SaveGame.load_profile(save_path) if not save_path.is_empty() else PlayerProfile.new()
 	var progress := _player.progress
 	progress.bind(_player, profile, track)
-	progress.equipment_bonuses = ShopSystem.bonuses(profile, catalog)
+	_player.belt.bind(_player, profile, potion_catalog)
+	_player.belt.used.connect(_on_potion_used)
+	_player.belt.refused.connect(_level_toast.show_message)
+	_potion_bar.bind(_player.belt, _player.effects, potion_catalog)
+	_potion_bar.slot_pressed.connect(_on_potion_slot_pressed)
+	_player.died.connect(_potion_bar.hide)
 	_saver.bind(profile, save_path)
 	_xp_bar.bind(progress)
 	_gold_counter.bind(progress)
+	_player.bonuses_changed.connect(_on_bonuses_changed)
 	_player.collector.xp_collected.connect(progress.add_xp)
 	_player.collector.gold_collected.connect(progress.add_gold)
 	_spawner.enemy_died.connect(_xp_dropper.on_enemy_died)
@@ -128,6 +143,22 @@ func _on_xp_changed(_total_xp: int, _level: int) -> void:
 	_saver.mark_dirty()
 
 
+func _on_bonuses_changed(total: StatBonuses) -> void:
+	_dropper.luck = total.fraction(StatBonuses.Stat.LUCK)
+
+
+## A tap or click on a potion slot. The click that drinks must not also cast a spell, so casting waits
+## until the cast input has been released.
+func _on_potion_slot_pressed(index: int) -> void:
+	_player.belt.use_slot(index)
+	_player.require_cast_release()
+
+
+## A drunk potion is saved at once, so quitting cannot refund it.
+func _on_potion_used(_potion: PotionData) -> void:
+	_saver.save_now()
+
+
 func _on_gold_changed(_total_gold: int) -> void:
 	_saver.mark_dirty()
 
@@ -146,7 +177,7 @@ func _rolled_notice(run_buffs: RunBuffs, reward_level: int) -> String:
 
 
 func _on_shop_requested() -> void:
-	_shop_screen.open(profile, catalog)
+	_shop_screen.open(profile, catalog, potion_catalog)
 
 
 func _on_player_died() -> void:

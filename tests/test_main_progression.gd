@@ -379,3 +379,170 @@ func test_a_second_accept_right_after_the_shop_opens_buys_nothing() -> void:
 		focused.pressed.emit()
 	assert_eq(main.profile.gold, 1000, "nothing was bought by the second press")
 	assert_true(main.profile.owned.is_empty())
+
+
+func test_the_temporary_layer_starts_empty_every_run() -> void:
+	var first := _new_main("")
+	var temporary := StatBonuses.new()
+	temporary.add(StatBonuses.Stat.SPEED, 0.4)
+	_player(first).temporary_bonuses = temporary
+	_player(first).refresh_bonuses()
+	first.free()
+	var second := _new_main("")
+	assert_eq(_player(second).temporary_bonuses.fraction(StatBonuses.Stat.SPEED), 0.0)
+	assert_eq(_speed(second), 90.0)
+
+
+func test_the_scroll_dropper_follows_the_players_luck() -> void:
+	var main := _new_main("")
+	var dropper := main.get_node("ScrollDropper") as ScrollDropper
+	assert_eq(dropper.luck, 0.0)
+	var lucky := StatBonuses.new()
+	lucky.add(StatBonuses.Stat.LUCK, 1.0)
+	_player(main).temporary_bonuses = lucky
+	_player(main).refresh_bonuses()
+	assert_eq(dropper.luck, 1.0)
+	_player(main).temporary_bonuses = StatBonuses.new()
+	_player(main).refresh_bonuses()
+	assert_eq(dropper.luck, 0.0)
+
+
+func _save_with_potions(counts: Dictionary) -> void:
+	var profile := PlayerProfile.new()
+	for id in counts:
+		profile.add_potion(id, counts[id])
+	SaveGame.save_profile(profile, _path())
+
+
+func test_drinking_a_potion_is_saved_at_once() -> void:
+	_save_with_potions({&"potion_health": 2})
+	var main := _new_main(_path())
+	_player(main).health.take_damage(50.0)
+	assert_true(_player(main).belt.use(&"potion_health").ok)
+	assert_eq(SaveGame.load_profile(_path()).potion_count(&"potion_health"), 1)
+
+
+func test_a_refused_drink_does_not_change_the_save() -> void:
+	_save_with_potions({&"potion_health": 2})
+	var main := _new_main(_path())
+	var before := FileAccess.get_file_as_string(_path())
+	assert_false(_player(main).belt.use(&"potion_health").ok, "full health")
+	assert_eq(FileAccess.get_file_as_string(_path()), before)
+	assert_eq(SaveGame.load_profile(_path()).potion_count(&"potion_health"), 2)
+
+
+func test_a_new_run_has_fresh_cooldowns_and_no_effects_but_keeps_the_stock() -> void:
+	_save_with_potions({&"potion_health": 2, &"potion_speed": 2})
+	var first := _new_main(_path())
+	_player(first).health.take_damage(50.0)
+	_player(first).belt.use(&"potion_health")
+	_player(first).belt._process(1.01)
+	_player(first).belt.use(&"potion_speed")
+	first.free()
+	var second := _new_main(_path())
+	assert_eq(_player(second).belt.cooldown_left(&"potion_health"), 0.0)
+	assert_eq(_player(second).belt.shared_left(), 0.0)
+	assert_false(_player(second).effects.is_active(&"potion_speed"))
+	assert_eq(_speed(second), 90.0)
+	assert_eq(_player(second).belt.count(&"potion_health"), 1)
+	assert_eq(_player(second).belt.count(&"potion_speed"), 1)
+
+
+func test_tapping_a_slot_drinks_that_potion() -> void:
+	_save_with_potions({&"potion_health": 2})
+	var main := _new_main(_path())
+	_player(main).health.take_damage(50.0)
+	(main.get_node("Hud/PotionBar") as PotionBar).slot_pressed.emit(0)
+	assert_eq(_player(main).belt.count(&"potion_health"), 1)
+	assert_almost_eq(_player(main).health.current_health, 90.0, 0.001)
+
+
+func test_a_refused_drink_shows_its_reason_in_the_toast() -> void:
+	_save_with_potions({&"potion_health": 2})
+	var main := _new_main(_path())
+	(main.get_node("Hud/PotionBar") as PotionBar).slot_pressed.emit(0)
+	var toast := main.get_node("Hud/LevelToast") as LevelToast
+	assert_true(toast.is_showing())
+	assert_string_contains(toast.text, PotionSystem.REASON_FULL_HEALTH)
+
+
+func test_the_potion_bar_hides_on_death() -> void:
+	var main := _new_main("")
+	var bar := main.get_node("Hud/PotionBar") as PotionBar
+	assert_true(bar.visible)
+	_die(main)
+	assert_false(bar.visible)
+
+
+func test_the_bar_shows_the_saved_stock() -> void:
+	_save_with_potions({&"potion_mana": 5})
+	var main := _new_main(_path())
+	var bar := main.get_node("Hud/PotionBar") as PotionBar
+	assert_eq(bar.widgets[1].count, 5)
+	assert_eq(bar.widgets[0].count, 0)
+
+
+func test_f8_gives_three_of_every_potion_and_saves() -> void:
+	_save_with_potions({&"potion_health": 1})
+	var main := _new_main(_path())
+	var event := InputEventAction.new()
+	event.action = &"debug_give_potions"
+	event.pressed = true
+	main._unhandled_input(event)
+	for potion in PotionCatalog.default_catalog().potions:
+		var expected := 4 if potion.id == &"potion_health" else 3
+		assert_eq(SaveGame.load_profile(_path()).potion_count(potion.id), expected, str(potion.id))
+	assert_eq((main.get_node("Hud/PotionBar") as PotionBar).widgets[0].count, 4)
+
+
+func test_a_potion_tap_does_not_cast_a_spell() -> void:
+	_save_with_potions({&"potion_health": 1})
+	var main := _new_main(_path())
+	var bar := main.get_node("Hud/PotionBar") as PotionBar
+	var mana := _player(main).loadout.slots[0].current_mana
+	var touch := InputEventScreenTouch.new()
+	touch.pressed = true
+	touch.position = bar.widgets[0].get_global_rect().get_center()
+	bar.widgets[0]._input(touch)
+	assert_eq(_player(main).loadout.slots[0].current_mana, mana)
+	assert_false(_player(main).aim.is_firing)
+
+
+func test_a_potion_bought_in_the_death_screen_shop_is_saved_at_once() -> void:
+	var profile := PlayerProfile.new()
+	profile.add_gold(100)
+	SaveGame.save_profile(profile, _path())
+	var main := _new_main(_path())
+	_die(main)
+	(main.get_node("DeathScreen") as DeathScreen).input_delay_msec = 0
+	(main.get_node("DeathScreen/ShopButton") as Button).pressed.emit()
+	var shop := main.get_node("ShopScreen") as ShopScreen
+	shop.input_guard_msec = 0
+	shop.buy_potion(&"potion_health")
+	var saved := SaveGame.load_profile(_path())
+	assert_eq(saved.potion_count(&"potion_health"), 1)
+	assert_eq(saved.gold, 60)
+
+
+func test_next_run_has_the_bought_potion_in_the_bar() -> void:
+	var profile := PlayerProfile.new()
+	profile.add_gold(100)
+	SaveGame.save_profile(profile, _path())
+	var first := _new_main(_path())
+	_die(first)
+	(first.get_node("DeathScreen") as DeathScreen).input_delay_msec = 0
+	(first.get_node("DeathScreen/ShopButton") as Button).pressed.emit()
+	var shop := first.get_node("ShopScreen") as ShopScreen
+	shop.input_guard_msec = 0
+	shop.buy_potion(&"potion_health")
+	first.free()
+	var second := _new_main(_path())
+	assert_eq(_player(second).belt.count(&"potion_health"), 1)
+	assert_eq((second.get_node("Hud/PotionBar") as PotionBar).widgets[0].count, 1)
+
+
+func test_a_potion_slot_press_blocks_casting_until_the_cast_input_is_released() -> void:
+	_save_with_potions({&"potion_health": 1})
+	var main := _new_main(_path())
+	(main.get_node("Hud/PotionBar") as PotionBar).slot_pressed.emit(0)
+	assert_true(_player(main)._cast_blocked, "a click on a slot must not also fire a spell")

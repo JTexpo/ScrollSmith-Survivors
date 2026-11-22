@@ -5,3 +5,5 @@ extends RefCounted
 var ok: bool = false
 var reason: String = ""
 var item: EquipmentData
+## The potion a potion purchase was about (item stays null).
+var potion: PotionData
