@@ -398,3 +398,7 @@ Stress with `--drops` (300 enemies, windowed, median of three, 0.05 s interval).
 | Missile with an Ember Titan (`--boss`) | | | 372.5 |
 
 With only Standard enemies the new code runs at the old speed, so the composition path costs nothing. At five minutes the drop (physics from about 5.2 to 8.4 ms a frame) is the heavier workload: tougher enemies, real Ranged shots, Exploder blasts and Support sweeps. Everything stays well above 60 fps.
+
+Review fixes (Sprint 11 whole-branch review: 0 Critical, 1 Important fixed, 8 minors deferred):
+- An Exploder could freeze for ever: if the 40-zone cap freed its blast zone while it was fusing, nothing ever blasted it or killed it. The cap now frees an already-blasted zone before a live one, and an Exploder whose zone vanished blows up on its next step.
+- Left open on purpose: the next boss is due 300 s after the previous one spawned (the design said both that and "after defeating"), and a boss alive past 300 s is followed at once. Say if you would rather time the next boss from the kill.

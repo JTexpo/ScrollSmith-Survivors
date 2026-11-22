@@ -172,3 +172,17 @@ func test_a_player_without_a_hurtbox_stand_in_is_ignored_safely() -> void:
 	var zone := _zone(Vector2(300, 300))
 	zone._process(1.0)
 	assert_true(zone.is_detonated(), "no crash with a non-Player in the group")
+
+
+func test_the_cap_evicts_a_detonated_zone_before_a_live_one() -> void:
+	var live_first := _zone(Vector2(10, 10))
+	var spent := _zone(Vector2(500, 500), 5.0, 1.0, 0.0)
+	spent._process(0.0)
+	assert_true(spent.is_detonated())
+	for i in BlastZone.MAX_ALIVE - 2:
+		_zone(Vector2(20 + i, 10))
+	assert_eq(_live().size(), BlastZone.MAX_ALIVE)
+	_zone(Vector2(900, 10))
+	assert_true(spent.is_queued_for_deletion(), "the zone that already blasted goes first")
+	assert_false(live_first.is_queued_for_deletion(), "a zone still warning is kept")
+	assert_eq(_live().size(), BlastZone.MAX_ALIVE)

@@ -4,7 +4,7 @@ extends Node2D
 ## warning, and it is harmless. At the end it checks the player once: a living player inside the radius
 ## takes the damage. It never moves, so it cannot follow the player, and it counts time with _process
 ## deltas, so it freezes while the game is paused. Exploders, Ranged-style bosses and the boss slam use it.
-## At most MAX_ALIVE exist: a new zone frees the oldest.
+## At most MAX_ALIVE exist: a new zone frees one that already blasted, else the oldest.
 
 const MAX_ALIVE := 40
 const FLASH_TIME := 0.15
@@ -32,7 +32,9 @@ static func place(
 ) -> BlastZone:
 	var live := parent.get_tree().get_nodes_in_group(&"blast_zones").filter(func(node: Node) -> bool: return not node.is_queued_for_deletion())
 	while live.size() >= MAX_ALIVE:
-		live.pop_front().queue_free()
+		var victim := _eviction_victim(live)
+		live.erase(victim)
+		victim.queue_free()
 	var zone := scene.instantiate() as BlastZone
 	zone.radius = zone_radius
 	zone.damage = zone_damage
@@ -40,6 +42,14 @@ static func place(
 	parent.add_child(zone)
 	zone.global_position = world_position
 	return zone
+
+
+## Which zone to free at the cap: one that has already blasted (it is only a flash now), else the oldest.
+static func _eviction_victim(zones: Array) -> BlastZone:
+	for zone in zones:
+		if (zone as BlastZone).is_detonated():
+			return zone
+	return zones[0]
 
 
 func _ready() -> void:

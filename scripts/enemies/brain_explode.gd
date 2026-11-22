@@ -13,6 +13,9 @@ var _zone: BlastZone
 
 func step(enemy: Enemy, _delta: float) -> Vector2:
 	if _fusing:
+		# If the zone cap pushed this enemy's zone out, it blows up now rather than standing there for ever.
+		if not _zone_is_pending():
+			enemy.explode_and_die()
 		return Vector2.ZERO
 	var player := enemy.target_player()
 	if player == null:
@@ -37,6 +40,10 @@ func _start_fuse(enemy: Enemy, behavior: EnemyBehaviorData) -> void:
 	)
 	_zone.detonated.connect(enemy.explode_and_die)
 	enemy.died.connect(_on_enemy_died)
+
+
+func _zone_is_pending() -> bool:
+	return is_instance_valid(_zone) and not _zone.is_queued_for_deletion()
 
 
 func _on_enemy_died(_enemy: Enemy) -> void:

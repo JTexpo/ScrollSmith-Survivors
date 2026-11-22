@@ -323,3 +323,35 @@ func test_support_heals_a_support_but_each_one_only_heals_others() -> void:
 	for i in 4:
 		brain.step(first, 0.25)
 	assert_almost_eq(_health(second).current_health, _health(second).max_health - 10.0 + 6.0, 0.001)
+
+
+func test_an_exploder_whose_zone_was_evicted_still_blows_up_instead_of_freezing() -> void:
+	var enemy := _enemy(&"exploder", Vector2(400 - 20, 300))
+	var brain := EnemyBrain.for_data(enemy.data)
+	var died := []
+	enemy.died.connect(func(e): died.append(e))
+	brain.step(enemy, 0.01)
+	var scene := load("res://scenes/enemies/blast_zone.tscn") as PackedScene
+	for i in BlastZone.MAX_ALIVE:
+		BlastZone.place(_root, scene, Vector2(800 + i, 50), 10.0, 1.0, 5.0)
+	assert_true(_zone_of_enemy_evicted(enemy), "the cap pushed the exploder's own zone out")
+	brain.step(enemy, 0.1)
+	assert_eq(died.size(), 1, "it blows up instead of standing there for ever")
+	assert_false(enemy.gives_rewards)
+	assert_true(_health(enemy).is_dead())
+
+
+func _zone_of_enemy_evicted(enemy: Enemy) -> bool:
+	for zone in get_tree().get_nodes_in_group(&"blast_zones"):
+		if zone.global_position == enemy.global_position and not zone.is_queued_for_deletion():
+			return false
+	return true
+
+
+func test_an_exploder_with_a_healthy_zone_is_not_blown_up_early() -> void:
+	var enemy := _enemy(&"exploder", Vector2(400 - 20, 300))
+	var brain := EnemyBrain.for_data(enemy.data)
+	brain.step(enemy, 0.01)
+	for i in 5:
+		brain.step(enemy, 0.1)
+	assert_false(_health(enemy).is_dead())
