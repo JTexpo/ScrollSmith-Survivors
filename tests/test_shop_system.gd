@@ -169,3 +169,80 @@ func test_can_afford() -> void:
 	assert_false(ShopSystem.can_afford(_profile, item))
 	_profile.add_gold(1)
 	assert_true(ShopSystem.can_afford(_profile, item))
+
+
+func _potions() -> PotionCatalog:
+	return PotionCatalog.default_catalog()
+
+
+func test_buy_potion_spends_gold_and_adds_one() -> void:
+	_profile.add_gold(100)
+	var result := ShopSystem.buy_potion(_profile, _potions(), &"potion_health")
+	assert_true(result.ok)
+	assert_eq(result.reason, "")
+	assert_eq(result.potion.id, &"potion_health")
+	assert_null(result.item)
+	assert_eq(_profile.gold, 60)
+	assert_eq(_profile.potion_count(&"potion_health"), 1)
+
+
+func test_buy_potion_with_exactly_enough_gold_succeeds() -> void:
+	_profile.add_gold(40)
+	assert_true(ShopSystem.buy_potion(_profile, _potions(), &"potion_health").ok)
+	assert_eq(_profile.gold, 0)
+
+
+func test_buy_potion_with_one_gold_too_few_fails_and_changes_nothing() -> void:
+	_profile.add_gold(39)
+	var before := _snapshot()
+	var result := ShopSystem.buy_potion(_profile, _potions(), &"potion_health")
+	assert_false(result.ok)
+	assert_eq(result.reason, ShopSystem.REASON_BROKE)
+	assert_eq(_snapshot(), before)
+
+
+func test_buy_potion_at_99_fails_and_changes_nothing() -> void:
+	_profile.add_gold(10000)
+	_profile.add_potion(&"potion_speed", 99)
+	var before := _snapshot()
+	var result := ShopSystem.buy_potion(_profile, _potions(), &"potion_speed")
+	assert_false(result.ok)
+	assert_eq(result.reason, ShopSystem.REASON_FULL)
+	assert_eq(_snapshot(), before)
+
+
+func test_buy_an_unknown_potion_fails_and_changes_nothing() -> void:
+	_profile.add_gold(500)
+	var before := _snapshot()
+	for id in [&"nothing", &"", &"robe_ember"]:
+		var result := ShopSystem.buy_potion(_profile, _potions(), id)
+		assert_false(result.ok)
+		assert_eq(result.reason, ShopSystem.REASON_UNKNOWN)
+		assert_null(result.potion)
+	assert_eq(_snapshot(), before)
+
+
+func test_buying_a_potion_does_not_touch_equipment() -> void:
+	_profile.add_gold(500)
+	ShopSystem.buy(_profile, _catalog, &"robe_ember")
+	var equipped := _profile.equipped.duplicate()
+	var owned := _profile.owned.duplicate()
+	ShopSystem.buy_potion(_profile, _potions(), &"potion_mana")
+	assert_eq(_profile.equipped, equipped)
+	assert_eq(_profile.owned, owned)
+
+
+func test_buying_several_potions_stacks() -> void:
+	_profile.add_gold(200)
+	for i in 3:
+		ShopSystem.buy_potion(_profile, _potions(), &"potion_speed")
+	assert_eq(_profile.potion_count(&"potion_speed"), 3)
+	assert_eq(_profile.gold, 110)
+
+
+func test_can_afford_potion() -> void:
+	var potion := _potions().find(&"potion_health")
+	_profile.add_gold(39)
+	assert_false(ShopSystem.can_afford_potion(_profile, potion))
+	_profile.add_gold(1)
+	assert_true(ShopSystem.can_afford_potion(_profile, potion))

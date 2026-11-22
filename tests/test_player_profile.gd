@@ -209,3 +209,89 @@ func test_from_dict_rejects_bad_gold_owned_and_equipped_shapes() -> void:
 		var data := base.duplicate()
 		data.merge(cases[name], true)
 		assert_null(PlayerProfile.from_dict(data), name)
+
+
+func test_fresh_profile_has_no_potions() -> void:
+	var profile := PlayerProfile.new()
+	assert_true(profile.potions.is_empty())
+	assert_eq(profile.potion_count(&"potion_health"), 0)
+
+
+func test_add_potion_counts_and_clamps_at_99() -> void:
+	var profile := PlayerProfile.new()
+	assert_eq(profile.add_potion(&"potion_health"), 1)
+	assert_eq(profile.add_potion(&"potion_health", 5), 5)
+	assert_eq(profile.potion_count(&"potion_health"), 6)
+	assert_eq(profile.add_potion(&"potion_health", 500), 93)
+	assert_eq(profile.potion_count(&"potion_health"), PlayerProfile.MAX_POTIONS)
+	assert_eq(profile.add_potion(&"potion_health"), 0)
+	assert_eq(profile.potion_count(&"potion_health"), 99)
+
+
+func test_add_potion_ignores_zero_and_negative_and_reports_what_was_added() -> void:
+	var profile := PlayerProfile.new()
+	assert_eq(profile.add_potion(&"potion_mana", 0), 0)
+	assert_eq(profile.add_potion(&"potion_mana", -4), 0)
+	assert_eq(profile.potion_count(&"potion_mana"), 0)
+	assert_false(profile.potions.has(&"potion_mana"))
+
+
+func test_use_potion_consumes_one_and_removes_a_zero_count() -> void:
+	var profile := PlayerProfile.new()
+	profile.add_potion(&"potion_speed", 2)
+	assert_true(profile.use_potion(&"potion_speed"))
+	assert_eq(profile.potion_count(&"potion_speed"), 1)
+	assert_true(profile.use_potion(&"potion_speed"))
+	assert_false(profile.potions.has(&"potion_speed"))
+
+
+func test_use_potion_with_none_returns_false() -> void:
+	var profile := PlayerProfile.new()
+	assert_false(profile.use_potion(&"potion_speed"))
+	assert_false(profile.use_potion(&""))
+
+
+func test_potions_round_trip_through_a_dictionary() -> void:
+	var profile := PlayerProfile.new()
+	profile.add_potion(&"potion_health", 3)
+	profile.add_potion(&"potion_luck", 99)
+	var parsed = JSON.parse_string(JSON.stringify(profile.to_dict()))
+	var restored := PlayerProfile.from_dict(parsed)
+	assert_not_null(restored)
+	assert_eq(restored.potion_count(&"potion_health"), 3)
+	assert_eq(restored.potion_count(&"potion_luck"), 99)
+	assert_eq(restored.potion_count(&"potion_mana"), 0)
+
+
+func test_zero_counts_are_not_written_and_not_stored_on_load() -> void:
+	var profile := PlayerProfile.new()
+	profile.add_potion(&"potion_health", 1)
+	profile.use_potion(&"potion_health")
+	assert_true(profile.to_dict()["potions"].is_empty())
+	var loaded := PlayerProfile.from_dict({"version": SaveGame.VERSION, "total_xp": 0, "potions": {"potion_health": 0}})
+	assert_not_null(loaded)
+	assert_true(loaded.potions.is_empty())
+
+
+func test_old_save_without_potions_loads_empty() -> void:
+	var profile := PlayerProfile.from_dict({"version": SaveGame.VERSION, "total_xp": 8})
+	assert_not_null(profile)
+	assert_true(profile.potions.is_empty())
+
+
+func test_from_dict_rejects_bad_potion_fields() -> void:
+	var base := {"version": SaveGame.VERSION, "total_xp": 5}
+	var cases := {
+		"not a dictionary": {"potions": []},
+		"string count": {"potions": {"potion_health": "3"}},
+		"fractional count": {"potions": {"potion_health": 1.5}},
+		"negative count": {"potions": {"potion_health": -1}},
+		"count of 100": {"potions": {"potion_health": 100}},
+		"huge count": {"potions": {"potion_health": 1.0e19}},
+		"null count": {"potions": {"potion_health": null}},
+		"null potions": {"potions": null},
+	}
+	for name in cases:
+		var data := base.duplicate()
+		data.merge(cases[name], true)
+		assert_null(PlayerProfile.from_dict(data), name)

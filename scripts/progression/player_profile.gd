@@ -7,12 +7,16 @@ extends RefCounted
 ## The largest XP or Gold a save accepts (2^53, the last whole number a JSON float holds exactly).
 const MAX_VALUE := 9007199254740992
 const SLOT_COUNT := 3
+## The most of one potion type a player can hold.
+const MAX_POTIONS := 99
 
 var total_xp: int = 0
 var gold: int = 0
 var owned: Array[StringName] = []
 ## Slot (int, 0 to SLOT_COUNT - 1) to equipment id (StringName).
 var equipped: Dictionary = {}
+## Potion id (StringName) to how many the player holds (1 to MAX_POTIONS, a zero count is removed).
+var potions: Dictionary = {}
 
 
 ## Null if a field is missing (version and total_xp), has a wrongly typed or out-of-range value, or
@@ -47,6 +51,15 @@ static func from_dict(data: Dictionary) -> PlayerProfile:
 			var id := StringName(data["equipped"][key])
 			if profile.owns(id):
 				profile.equipped[slot] = id
+	if data.has("potions"):
+		if not data["potions"] is Dictionary:
+			return null
+		for key in data["potions"]:
+			var count = data["potions"][key]
+			if not key is String or not _is_whole_in_range(count) or int(count) > MAX_POTIONS:
+				return null
+			if int(count) > 0:
+				profile.potions[StringName(key)] = int(count)
 	return profile
 
 
@@ -102,6 +115,32 @@ func equipped_id(slot: int) -> StringName:
 	return equipped.get(slot, &"")
 
 
+func potion_count(id: StringName) -> int:
+	return int(potions.get(id, 0))
+
+
+## Adds potions, never past MAX_POTIONS, and returns how many were really added.
+func add_potion(id: StringName, amount: int = 1) -> int:
+	if amount <= 0:
+		return 0
+	var added := mini(amount, MAX_POTIONS - potion_count(id))
+	if added > 0:
+		potions[id] = potion_count(id) + added
+	return maxi(added, 0)
+
+
+## Consumes one potion. False, with nothing changed, if there is none.
+func use_potion(id: StringName) -> bool:
+	var count := potion_count(id)
+	if count <= 0:
+		return false
+	if count == 1:
+		potions.erase(id)
+	else:
+		potions[id] = count - 1
+	return true
+
+
 func to_dict() -> Dictionary:
 	var owned_ids: Array[String] = []
 	for id in owned:
@@ -109,12 +148,17 @@ func to_dict() -> Dictionary:
 	var equipped_ids := {}
 	for slot in equipped:
 		equipped_ids[str(slot)] = str(equipped[slot])
+	var potion_counts := {}
+	for id in potions:
+		if int(potions[id]) > 0:
+			potion_counts[str(id)] = int(potions[id])
 	return {
 		"version": SaveGame.VERSION,
 		"total_xp": total_xp,
 		"gold": gold,
 		"owned": owned_ids,
 		"equipped": equipped_ids,
+		"potions": potion_counts,
 	}
 
 

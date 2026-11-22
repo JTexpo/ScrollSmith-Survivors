@@ -7,6 +7,7 @@ const REASON_UNKNOWN := "That item is not for sale."
 const REASON_OWNED := "You already own that."
 const REASON_BROKE := "Not enough Gold."
 const REASON_NOT_OWNED := "You don't own that."
+const REASON_FULL := "You can't carry any more."
 
 
 ## Spends the Gold, grants the item and equips it into its slot (the item it replaces stays owned).
@@ -28,6 +29,28 @@ static func buy(profile: PlayerProfile, catalog: EquipmentCatalog, id: StringNam
 		result.ok = true
 		result.item = item
 	return result
+
+
+## Buys one potion. Nothing changes on any failure (unknown id, too little Gold, already at the limit).
+static func buy_potion(profile: PlayerProfile, catalog: PotionCatalog, id: StringName) -> ShopResult:
+	var result := ShopResult.new()
+	var potion := catalog.find(id)
+	if potion == null:
+		result.reason = REASON_UNKNOWN
+	elif not can_afford_potion(profile, potion):
+		result.reason = REASON_BROKE
+	elif profile.potion_count(id) >= PlayerProfile.MAX_POTIONS:
+		result.reason = REASON_FULL
+	else:
+		profile.spend_gold(potion.price)
+		profile.add_potion(id)
+		result.ok = true
+		result.potion = potion
+	return result
+
+
+static func can_afford_potion(profile: PlayerProfile, potion: PotionData) -> bool:
+	return profile.gold >= potion.price
 
 
 ## Puts an owned item on, for free.
