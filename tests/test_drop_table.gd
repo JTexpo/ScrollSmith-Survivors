@@ -238,3 +238,54 @@ func test_drop_chance_is_unchanged_by_luck() -> void:
 	lucky.seed = 17
 	for i in 500:
 		assert_eq(table.roll(plain) == null, table.roll(lucky, 3.0) == null, "roll %d" % i)
+
+
+func test_chance_scale_one_gives_exactly_the_old_rolls() -> void:
+	var table := _mixed_table(0.7)
+	var fresh := RandomNumberGenerator.new()
+	var legacy := RandomNumberGenerator.new()
+	fresh.seed = 41
+	legacy.seed = 41
+	for i in 200:
+		assert_eq(table.roll(fresh, 0.0, 1.0), _old_roll(table, legacy), "roll %d" % i)
+
+
+func test_chance_scale_raises_and_lowers_the_drop_chance() -> void:
+	var table := _mixed_table(0.2)
+	var counts := {}
+	for scale in [0.5, 1.0, 2.0]:
+		var rng := RandomNumberGenerator.new()
+		rng.seed = 8
+		var drops := 0
+		for i in 4000:
+			if table.roll(rng, 0.0, scale) != null:
+				drops += 1
+		counts[scale] = drops / 4000.0
+	assert_almost_eq(counts[0.5], 0.1, 0.03)
+	assert_almost_eq(counts[1.0], 0.2, 0.03)
+	assert_almost_eq(counts[2.0], 0.4, 0.03)
+
+
+func test_chance_scale_is_clamped() -> void:
+	var table := _mixed_table(0.1)
+	for i in 100:
+		assert_not_null(table.roll(_rng, 0.0, 100.0))
+	for i in 100:
+		assert_null(table.roll(_rng, 0.0, 0.0))
+		assert_null(table.roll(_rng, 0.0, -3.0))
+
+
+func test_chance_scale_and_luck_work_together() -> void:
+	var table := _mixed_table(0.2)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 12
+	var rares := 0
+	var drops := 0
+	for i in 4000:
+		var scroll := table.roll(rng, 1.0, 2.0)
+		if scroll != null:
+			drops += 1
+			if scroll.id == &"rare":
+				rares += 1
+	assert_almost_eq(drops / 4000.0, 0.4, 0.03)
+	assert_almost_eq(float(rares) / drops, 0.5, 0.05)

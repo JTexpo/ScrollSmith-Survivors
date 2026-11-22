@@ -146,3 +146,28 @@ func test_gold_cap_merges_and_loses_nothing() -> void:
 	for coin in get_tree().get_nodes_in_group(&"gold_coins"):
 		total += (coin as ValueGem).value
 	assert_eq(total, dropped)
+
+
+func test_an_elite_drops_triple_xp_and_gold() -> void:
+	var enemy := _enemy(5)
+	enemy.make_elite(EliteModifier.default_modifier())
+	assert_eq(_dropper.on_enemy_died(enemy).value, 15)
+	var gold := _gold_dropper()
+	assert_eq(gold.on_enemy_died(enemy).value, 3)
+
+
+func test_an_enemy_that_gives_no_rewards_drops_nothing() -> void:
+	var enemy := _enemy(5)
+	enemy.gives_rewards = false
+	assert_null(_dropper.on_enemy_died(enemy))
+	assert_null(_gold_dropper().on_enemy_died(enemy))
+	assert_eq(_dropper.gem_count(), 0)
+
+
+func test_the_dropper_reads_the_enemys_own_reward_not_the_datas() -> void:
+	var enemy := _enemy(4)
+	var scaled := EliteModifier.new()
+	scaled.reward_multiplier = 2.0
+	enemy.make_elite(scaled)
+	assert_eq(enemy.data.xp_reward, 4)
+	assert_eq(_dropper.on_enemy_died(enemy).value, 8)

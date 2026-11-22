@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EliteModifier" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/enemies/elite_modifier.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+health_multiplier = 3.0
+damage_multiplier = 1.5
+speed_multiplier = 1.15
+size_multiplier = 1.4
+reward_multiplier = 3.0
+drop_chance_multiplier = 2.0
+outline_color = Color(1, 0.85, 0.2, 1)

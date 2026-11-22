@@ -150,3 +150,27 @@ func _scroll_with_rarity(id: StringName, rarity: ScrollData.Rarity) -> ScrollDat
 	scroll.id = id
 	scroll.rarity = rarity
 	return scroll
+
+
+func test_an_elite_uses_its_drop_chance_scale() -> void:
+	var table := _table(0.1, [_entry(_scroll, 1.0)] as Array[DropEntry])
+	var elite := _enemy(table)
+	var tiny := EliteModifier.new()
+	tiny.drop_chance_multiplier = 1000.0
+	elite.make_elite(tiny)
+	for i in 20:
+		assert_not_null(_dropper.on_enemy_died(elite), "an elite with a huge scale always drops")
+
+
+func test_a_plain_enemy_keeps_the_tables_own_chance() -> void:
+	var table := _table(0.0, [_entry(_scroll, 1.0)] as Array[DropEntry])
+	var plain := _enemy(table)
+	for i in 20:
+		assert_null(_dropper.on_enemy_died(plain))
+
+
+func test_an_enemy_that_gives_no_rewards_drops_no_scroll() -> void:
+	var enemy := _enemy(_sure_drop())
+	enemy.gives_rewards = false
+	assert_null(_dropper.on_enemy_died(enemy))
+	assert_eq(_live_pickups().size(), 0)

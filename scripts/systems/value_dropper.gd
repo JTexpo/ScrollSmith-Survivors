@@ -17,9 +17,9 @@ var _gems: Array[ValueGem] = []
 
 ## The pickup that received the value, or null if the enemy gives none of this kind.
 func on_enemy_died(enemy: Enemy) -> ValueGem:
-	if enemy == null or enemy.data == null:
+	if enemy == null or enemy.data == null or not enemy.gives_rewards:
 		return null
-	var reward := enemy.data.xp_reward if kind == ValueGem.Kind.XP else enemy.data.gold_reward
+	var reward := enemy.xp_reward() if kind == ValueGem.Kind.XP else enemy.gold_reward()
 	if reward <= 0:
 		return null
 	return place(reward, enemy.global_position)

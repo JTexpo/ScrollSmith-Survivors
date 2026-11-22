@@ -25,7 +25,9 @@ func _ready() -> void:
 func on_enemy_died(enemy: Enemy) -> ScrollPickup:
 	if enemy == null or enemy.data == null or enemy.data.drop_table == null or pickup_scene == null:
 		return null
-	var scroll := enemy.data.drop_table.roll(rng, luck)
+	if not enemy.gives_rewards:
+		return null
+	var scroll := enemy.data.drop_table.roll(rng, luck, enemy.drop_chance_scale())
 	if scroll == null:
 		return null
 	return place(scroll, enemy.global_position)
