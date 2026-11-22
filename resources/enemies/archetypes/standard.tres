@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="EnemyArchetype" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://resources/enemies/enemy_archetype.gd" id="1"]
+[ext_resource type="Script" path="res://resources/enemies/enemy_behavior_data.gd" id="2"]
+
+[sub_resource type="Resource" id="behavior"]
+script = ExtResource("2")
+kind = 0
+
+[resource]
+script = ExtResource("1")
+id = &"standard"
+display_name = "Standard"
+max_health = 20.0
+speed = 40.0
+contact_damage = 10.0
+body_scale = 1.0
+speed_variation = 0.15
+offset_radius = 24.0
+contact_cooldown = 1.0
+contact_knockback = 80.0
+xp_reward = 5
+gold_reward = 1
+spawn_weight = 4.0
+unlock_seconds = 0.0
+cluster_size = 1
+drop_chance_scale = 1.0
+shade = 0.0
+behavior = SubResource("behavior")
