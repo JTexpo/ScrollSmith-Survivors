@@ -97,6 +97,7 @@ func _begin_progression() -> void:
 	_saver.bind(profile, save_path)
 	_xp_bar.bind(progress)
 	_gold_counter.bind(progress)
+	_player.bonuses_changed.connect(_on_bonuses_changed)
 	_player.collector.xp_collected.connect(progress.add_xp)
 	_player.collector.gold_collected.connect(progress.add_gold)
 	_spawner.enemy_died.connect(_xp_dropper.on_enemy_died)
@@ -125,6 +126,10 @@ func _begin_progression() -> void:
 
 func _on_xp_changed(_total_xp: int, _level: int) -> void:
 	_saver.mark_dirty()
+
+
+func _on_bonuses_changed(total: StatBonuses) -> void:
+	_dropper.luck = total.fraction(StatBonuses.Stat.LUCK)
 
 
 func _on_gold_changed(_total_gold: int) -> void:

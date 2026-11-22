@@ -126,3 +126,115 @@ func test_drop_chance_is_ten_percent_everywhere() -> void:
 	for file in ENEMY_FILES:
 		var data := load(ENEMY_DIR + file + ".tres") as EnemyData
 		assert_eq(data.drop_table.drop_chance, 0.1, file)
+
+
+func _rarity_scroll(id: StringName, rarity: ScrollData.Rarity) -> ScrollData:
+	var scroll := _scroll(id)
+	scroll.rarity = rarity
+	return scroll
+
+
+## The roll as it was before luck existed, kept here so luck 0 can be proven identical to it.
+func _old_roll(table: DropTable, rng: RandomNumberGenerator) -> ScrollData:
+	if table.drop_chance <= 0.0:
+		return null
+	var total := 0.0
+	var last_pickable: DropEntry = null
+	for entry in table.entries:
+		if entry != null and entry.scroll != null and entry.weight > 0.0:
+			total += entry.weight
+			last_pickable = entry
+	if last_pickable == null:
+		return null
+	if table.drop_chance < 1.0 and rng.randf() >= table.drop_chance:
+		return null
+	var pick := rng.randf() * total
+	for entry in table.entries:
+		if entry == null or entry.scroll == null or entry.weight <= 0.0:
+			continue
+		pick -= entry.weight
+		if pick < 0.0:
+			return entry.scroll
+	return last_pickable.scroll
+
+
+func _mixed_table(chance: float = 1.0) -> DropTable:
+	var entries: Array[DropEntry] = [
+		_entry(_rarity_scroll(&"common", ScrollData.Rarity.COMMON), 1.0),
+		_entry(_rarity_scroll(&"uncommon", ScrollData.Rarity.UNCOMMON), 1.0),
+		_entry(_rarity_scroll(&"rare", ScrollData.Rarity.RARE), 1.0),
+	]
+	return _table(chance, entries)
+
+
+func test_rarity_factor_per_rarity() -> void:
+	assert_eq(DropTable.rarity_factor(ScrollData.Rarity.COMMON, 1.0), 1.0)
+	assert_eq(DropTable.rarity_factor(ScrollData.Rarity.UNCOMMON, 1.0), 2.0)
+	assert_eq(DropTable.rarity_factor(ScrollData.Rarity.RARE, 1.0), 3.0)
+	assert_eq(DropTable.rarity_factor(ScrollData.Rarity.RARE, 0.0), 1.0)
+
+
+func test_rarity_factor_is_never_negative() -> void:
+	assert_eq(DropTable.rarity_factor(ScrollData.Rarity.COMMON, -5.0), 1.0)
+	assert_eq(DropTable.rarity_factor(ScrollData.Rarity.UNCOMMON, -5.0), 0.0)
+	assert_eq(DropTable.rarity_factor(ScrollData.Rarity.RARE, -5.0), 0.0)
+
+
+func test_luck_zero_gives_exactly_the_old_rolls() -> void:
+	var table := _mixed_table(0.7)
+	var fresh := RandomNumberGenerator.new()
+	var legacy := RandomNumberGenerator.new()
+	var explicit := RandomNumberGenerator.new()
+	fresh.seed = 99
+	legacy.seed = 99
+	explicit.seed = 99
+	for i in 200:
+		var expected := _old_roll(table, legacy)
+		assert_eq(table.roll(fresh), expected, "default luck, roll %d" % i)
+		assert_eq(table.roll(explicit, 0.0), expected, "explicit luck 0, roll %d" % i)
+
+
+func test_luck_raises_uncommon_and_rare_drops() -> void:
+	var table := _mixed_table()
+	_rng.seed = 5
+	var counts := {&"common": 0, &"uncommon": 0, &"rare": 0}
+	for i in 6000:
+		counts[table.roll(_rng, 1.0).id] += 1
+	assert_almost_eq(float(counts[&"common"]), 1000.0, 100.0)
+	assert_almost_eq(float(counts[&"uncommon"]), 2000.0, 200.0)
+	assert_almost_eq(float(counts[&"rare"]), 3000.0, 300.0)
+
+
+func test_huge_luck_still_rolls_a_scroll() -> void:
+	var table := _mixed_table()
+	for i in 50:
+		assert_not_null(table.roll(_rng, 1.0e9))
+
+
+func test_negative_luck_never_makes_every_weight_zero() -> void:
+	var entries: Array[DropEntry] = [
+		_entry(_rarity_scroll(&"rare_a", ScrollData.Rarity.RARE), 1.0),
+		_entry(_rarity_scroll(&"rare_b", ScrollData.Rarity.RARE), 1.0),
+	]
+	var table := _table(1.0, entries)
+	for i in 30:
+		assert_not_null(table.roll(_rng, -1.0))
+
+
+func test_negative_luck_makes_rarer_scrolls_less_likely() -> void:
+	var table := _mixed_table()
+	var counts := {&"common": 0, &"uncommon": 0, &"rare": 0}
+	for i in 3000:
+		counts[table.roll(_rng, -0.5).id] += 1
+	assert_gt(counts[&"common"], counts[&"uncommon"])
+	assert_gt(counts[&"uncommon"], counts[&"rare"])
+
+
+func test_drop_chance_is_unchanged_by_luck() -> void:
+	var table := _mixed_table(0.3)
+	var plain := RandomNumberGenerator.new()
+	var lucky := RandomNumberGenerator.new()
+	plain.seed = 17
+	lucky.seed = 17
+	for i in 500:
+		assert_eq(table.roll(plain) == null, table.roll(lucky, 3.0) == null, "roll %d" % i)

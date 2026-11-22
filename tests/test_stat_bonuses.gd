@@ -64,3 +64,10 @@ func test_combined_with_empty_bonuses_is_a_copy() -> void:
 	first.add(S.SPEED, 0.32)
 	var copy := StatBonuses.combined(first, StatBonuses.new())
 	assert_almost_eq(copy.fraction(S.SPEED), 0.32, 0.0001)
+
+
+func test_luck_is_the_last_stat_and_defaults_to_zero() -> void:
+	assert_eq(S.LUCK, 11)
+	assert_eq(S.DOUBLE_DAMAGE_CHANCE, 10)
+	assert_eq(StatBonuses.new().fraction(S.LUCK), 0.0)
+	assert_eq(StatBonuses.new().multiplier(S.LUCK), 1.0)

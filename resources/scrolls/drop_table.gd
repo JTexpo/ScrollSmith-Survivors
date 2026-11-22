@@ -7,15 +7,19 @@ extends Resource
 
 
 ## Returns the scroll that drops, or null for no drop. Empty slots, entries without a scroll and
-## weights at or below zero are never picked.
-func roll(rng: RandomNumberGenerator) -> ScrollData:
+## weights at or below zero are never picked. `luck` raises the weight of rarer scrolls (see
+## rarity_factor) and never changes whether anything drops. If luck would leave no weight at all, the
+## roll falls back to luck 0. At luck 0 the roll is exactly what it was before luck existed.
+func roll(rng: RandomNumberGenerator, luck: float = 0.0) -> ScrollData:
 	if drop_chance <= 0.0:
 		return null
+	var used_luck := luck if _total_weight(luck) > 0.0 else 0.0
 	var total := 0.0
 	var last_pickable: DropEntry = null
 	for entry in entries:
-		if _pickable(entry):
-			total += entry.weight
+		var weight := _effective_weight(entry, used_luck)
+		if weight > 0.0:
+			total += weight
 			last_pickable = entry
 	if last_pickable == null:
 		return null
@@ -23,12 +27,37 @@ func roll(rng: RandomNumberGenerator) -> ScrollData:
 		return null
 	var pick := rng.randf() * total
 	for entry in entries:
-		if not _pickable(entry):
+		var weight := _effective_weight(entry, used_luck)
+		if weight <= 0.0:
 			continue
-		pick -= entry.weight
+		pick -= weight
 		if pick < 0.0:
 			return entry.scroll
 	return last_pickable.scroll
+
+
+## How much luck scales a scroll's weight: Common x1, Uncommon x(1 + luck), Rare x(1 + 2 x luck),
+## never below 0.
+static func rarity_factor(rarity: int, luck: float) -> float:
+	match rarity:
+		ScrollData.Rarity.UNCOMMON:
+			return maxf(1.0 + luck, 0.0)
+		ScrollData.Rarity.RARE:
+			return maxf(1.0 + 2.0 * luck, 0.0)
+	return 1.0
+
+
+func _effective_weight(entry: DropEntry, luck: float) -> float:
+	if not _pickable(entry):
+		return 0.0
+	return entry.weight * rarity_factor(entry.scroll.rarity, luck)
+
+
+func _total_weight(luck: float) -> float:
+	var total := 0.0
+	for entry in entries:
+		total += _effective_weight(entry, luck)
+	return total
 
 
 func _pickable(entry: DropEntry) -> bool:

@@ -391,3 +391,17 @@ func test_the_temporary_layer_starts_empty_every_run() -> void:
 	var second := _new_main("")
 	assert_eq(_player(second).temporary_bonuses.fraction(StatBonuses.Stat.SPEED), 0.0)
 	assert_eq(_speed(second), 90.0)
+
+
+func test_the_scroll_dropper_follows_the_players_luck() -> void:
+	var main := _new_main("")
+	var dropper := main.get_node("ScrollDropper") as ScrollDropper
+	assert_eq(dropper.luck, 0.0)
+	var lucky := StatBonuses.new()
+	lucky.add(StatBonuses.Stat.LUCK, 1.0)
+	_player(main).temporary_bonuses = lucky
+	_player(main).refresh_bonuses()
+	assert_eq(dropper.luck, 1.0)
+	_player(main).temporary_bonuses = StatBonuses.new()
+	_player(main).refresh_bonuses()
+	assert_eq(dropper.luck, 0.0)

@@ -125,3 +125,28 @@ func test_place_puts_a_pickup_down_and_counts_against_the_cap() -> void:
 	assert_false(second.is_queued_for_deletion())
 	assert_eq(_live_pickups().size(), 2)
 	assert_null(_dropper.place(null, Vector2.ZERO))
+
+
+func test_the_dropper_rolls_with_its_luck() -> void:
+	var common := _scroll_with_rarity(&"common", ScrollData.Rarity.COMMON)
+	var rare := _scroll_with_rarity(&"rare", ScrollData.Rarity.RARE)
+	var entries: Array[DropEntry] = [_entry(common, 1.0), _entry(rare, 1.0)]
+	var table := _table(1.0, entries)
+	_dropper.luck = 1000.0
+	var rares := 0
+	for i in 40:
+		var pickup := _dropper.on_enemy_died(_enemy(table))
+		if pickup != null and pickup.scroll == rare:
+			rares += 1
+	assert_gte(rares, 35)
+
+
+func test_the_dropper_has_no_luck_by_default() -> void:
+	assert_eq(_dropper.luck, 0.0)
+
+
+func _scroll_with_rarity(id: StringName, rarity: ScrollData.Rarity) -> ScrollData:
+	var scroll := ScrollData.new()
+	scroll.id = id
+	scroll.rarity = rarity
+	return scroll
