@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EnemyElement" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/enemies/enemy_element.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/drops/fire_drops.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = &"fire"
+display_name = "Fire"
+element = 0
+color = Color(1, 0.45, 0.1, 1)
+drop_table = ExtResource("2")
+spawn_weight = 2.0

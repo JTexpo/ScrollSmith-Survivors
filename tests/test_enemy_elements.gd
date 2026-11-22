@@ -12,10 +12,10 @@ func _enemy_from(path: String, at: Vector2) -> Enemy:
 
 
 func test_one_cast_gives_each_element_its_own_multiplier() -> void:
-	var land := _enemy_from("res://resources/enemies/land_enemy.tres", O + Vector2(40, 0))
-	var sea := _enemy_from("res://resources/enemies/sea_enemy.tres", O + Vector2(90, 0))
-	var fire := _enemy_from("res://resources/enemies/fire_enemy.tres", O + Vector2(140, 0))
-	var plain := _enemy_from("res://resources/enemies/basic_enemy.tres", O + Vector2(40, 40))
+	var land := _enemy_from("res://tests/fixtures/enemies/land_enemy.tres", O + Vector2(40, 0))
+	var sea := _enemy_from("res://tests/fixtures/enemies/sea_enemy.tres", O + Vector2(90, 0))
+	var fire := _enemy_from("res://tests/fixtures/enemies/fire_enemy.tres", O + Vector2(140, 0))
+	var plain := _enemy_from("res://tests/fixtures/enemies/basic_enemy.tres", O + Vector2(40, 40))
 	_launch(_spell(LINE), O)
 	await wait_physics_frames(8)
 	assert_eq(_health(land).current_health, _health(land).max_health - 15.0, "Fire vs Land is strong")

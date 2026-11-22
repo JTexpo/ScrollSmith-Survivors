@@ -1,13 +1,26 @@
-[gd_resource type="Resource" script_class="SpawnConfig" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="SpawnConfig" load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://resources/spawning/spawn_config.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/base_enemy.tscn" id="2"]
-[ext_resource type="Script" path="res://resources/enemies/enemy_data.gd" id="3"]
-[ext_resource type="Resource" path="res://resources/enemies/basic_enemy.tres" id="4"]
-[ext_resource type="Resource" path="res://resources/enemies/fire_enemy.tres" id="5"]
-[ext_resource type="Resource" path="res://resources/enemies/thunder_enemy.tres" id="6"]
-[ext_resource type="Resource" path="res://resources/enemies/land_enemy.tres" id="7"]
-[ext_resource type="Resource" path="res://resources/enemies/sea_enemy.tres" id="8"]
+[ext_resource type="Script" path="res://resources/enemies/enemy_archetype.gd" id="3"]
+[ext_resource type="Script" path="res://resources/enemies/enemy_element.gd" id="4"]
+[ext_resource type="Resource" path="res://resources/enemies/difficulty_curve.tres" id="5"]
+[ext_resource type="Resource" path="res://resources/enemies/elite_modifier.tres" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/boss.tscn" id="b1"]
+[ext_resource type="Resource" path="res://resources/bosses/ember_titan.tres" id="b2"]
+[ext_resource type="Script" path="res://resources/bosses/boss_data.gd" id="b3"]
+[ext_resource type="Resource" path="res://resources/enemies/archetypes/standard.tres" id="a0"]
+[ext_resource type="Resource" path="res://resources/enemies/archetypes/swarmer.tres" id="a1"]
+[ext_resource type="Resource" path="res://resources/enemies/archetypes/chaser.tres" id="a2"]
+[ext_resource type="Resource" path="res://resources/enemies/archetypes/tank.tres" id="a3"]
+[ext_resource type="Resource" path="res://resources/enemies/archetypes/ranged.tres" id="a4"]
+[ext_resource type="Resource" path="res://resources/enemies/archetypes/exploder.tres" id="a5"]
+[ext_resource type="Resource" path="res://resources/enemies/archetypes/support.tres" id="a6"]
+[ext_resource type="Resource" path="res://resources/enemies/elements/none.tres" id="e0"]
+[ext_resource type="Resource" path="res://resources/enemies/elements/fire.tres" id="e1"]
+[ext_resource type="Resource" path="res://resources/enemies/elements/thunder.tres" id="e2"]
+[ext_resource type="Resource" path="res://resources/enemies/elements/land.tres" id="e3"]
+[ext_resource type="Resource" path="res://resources/enemies/elements/sea.tres" id="e4"]
 
 [resource]
 script = ExtResource("1")
@@ -15,4 +28,9 @@ interval = 0.5
 max_alive = 150
 spawn_margin = 24.0
 enemy_scene = ExtResource("2")
-enemy_pool = Array[ExtResource("3")]([ExtResource("4"), ExtResource("5"), ExtResource("6"), ExtResource("7"), ExtResource("8")])
+archetypes = Array[ExtResource("3")]([ExtResource("a0"), ExtResource("a1"), ExtResource("a2"), ExtResource("a3"), ExtResource("a4"), ExtResource("a5"), ExtResource("a6")])
+elements = Array[ExtResource("4")]([ExtResource("e0"), ExtResource("e1"), ExtResource("e2"), ExtResource("e3"), ExtResource("e4")])
+difficulty = ExtResource("5")
+elite_modifier = ExtResource("6")
+boss_scene = ExtResource("b1")
+bosses = Array[ExtResource("b3")]([ExtResource("b2")])

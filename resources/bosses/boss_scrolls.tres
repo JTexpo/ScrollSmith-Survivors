@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="DropTable" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://resources/scrolls/drop_table.gd" id="1"]
+[ext_resource type="Script" path="res://resources/scrolls/drop_entry.gd" id="2"]
+[ext_resource type="Resource" path="res://resources/scrolls/buff/double_vulnerability.tres" id="s0"]
+[ext_resource type="Resource" path="res://resources/scrolls/buff/duplicate_area.tres" id="s1"]
+[ext_resource type="Resource" path="res://resources/scrolls/buff/additional_base.tres" id="s2"]
+[ext_resource type="Resource" path="res://resources/scrolls/buff/ignore_resistance.tres" id="s3"]
+
+[sub_resource type="Resource" id="entry_0"]
+script = ExtResource("2")
+scroll = ExtResource("s0")
+weight = 1.0
+
+[sub_resource type="Resource" id="entry_1"]
+script = ExtResource("2")
+scroll = ExtResource("s1")
+weight = 1.0
+
+[sub_resource type="Resource" id="entry_2"]
+script = ExtResource("2")
+scroll = ExtResource("s2")
+weight = 1.0
+
+[sub_resource type="Resource" id="entry_3"]
+script = ExtResource("2")
+scroll = ExtResource("s3")
+weight = 1.0
+
+[resource]
+script = ExtResource("1")
+drop_chance = 1.0
+entries = Array[ExtResource("2")]([SubResource("entry_0"), SubResource("entry_1"), SubResource("entry_2"), SubResource("entry_3")])

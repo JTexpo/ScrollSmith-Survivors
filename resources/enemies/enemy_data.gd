@@ -24,3 +24,13 @@ extends Resource
 @export var xp_reward: int = 5
 ## Gold the enemy drops as a coin when it dies.
 @export var gold_reward: int = 1
+## "Thunder Tank": the composed name shown in damage notices and used by tests. Empty for hand-made data.
+@export var display_name: String = ""
+## Body size (the enemy node's scale), from the archetype.
+@export var body_scale: float = 1.0
+## Multiplies the drop table's chance for this enemy (Tanks and Supports drop more).
+@export var drop_chance_scale: float = 1.0
+## What the enemy does besides walking at the player. Null means it chases.
+@export var behavior: EnemyBehaviorData
+## The archetype this was composed from (empty for hand-made data).
+@export var archetype_id: StringName

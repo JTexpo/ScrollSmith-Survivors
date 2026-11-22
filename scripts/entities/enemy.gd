@@ -11,6 +11,20 @@ signal damaged(position: Vector2, amount: float, effect: int)
 
 var speed: float = 0.0
 var target_offset: Vector2 = Vector2.ZERO
+## An elite is tougher, bigger and worth more (see EliteModifier).
+var is_elite: bool = false
+## False for an enemy that dies by its own blast (an Exploder): no XP, Gold or drops.
+var gives_rewards: bool = true
+
+## The speed this enemy was given at setup (data speed with its random spread). Difficulty and elite
+## scales are always worked out from it, so applying them twice never compounds.
+var _base_speed: float = 0.0
+var _health_scale: float = 1.0
+var _damage_scale: float = 1.0
+var _speed_scale: float = 1.0
+var _elite: EliteModifier
+## What it does each step (chase, keep distance, explode, support), chosen from its data's behaviour.
+var _brain: EnemyBrain
 
 var _bounds: Rect2 = Rect2(0, 0, 960, 540)
 var _dead: bool = false
@@ -24,16 +38,20 @@ var _dead: bool = false
 
 
 func _ready() -> void:
+	add_to_group(&"enemies")
 	_hurtbox.hit_received.connect(_on_hit_received)
 	_health.died.connect(_on_died)
 	if data != null:
 		if speed == 0.0:
 			speed = data.speed
+		_base_speed = speed
 		_apply_data()
 
 
 func _physics_process(delta: float) -> void:
-	var velocity := direction_to_target() * speed + _knockback.update(delta)
+	if _brain == null:
+		_brain = EnemyBrain.for_data(data)
+	var velocity := _brain.step(self, delta) + _knockback.update(delta)
 	position += velocity * delta
 	position = position.clamp(_bounds.position, _bounds.end)
 
@@ -41,12 +59,83 @@ func _physics_process(delta: float) -> void:
 ## `arena_bounds` is in the parent's coordinate space.
 func setup(enemy_data: EnemyData, arena_bounds: Rect2, rng: RandomNumberGenerator) -> void:
 	data = enemy_data
+	_brain = null
 	_bounds = arena_bounds
 	speed = data.speed * rng.randf_range(1.0 - data.speed_variation, 1.0 + data.speed_variation)
+	_base_speed = speed
 	var angle := rng.randf_range(0.0, TAU)
 	target_offset = Vector2.from_angle(angle) * data.offset_radius * sqrt(rng.randf())
 	if is_node_ready():
 		_apply_data()
+
+
+## The player this enemy is after, or null when there is none (or the player is dead).
+func target_player() -> Node2D:
+	return get_tree().get_first_node_in_group(&"player") as Node2D
+
+
+## How much its difficulty scale and elite status multiply damage it deals other than by touching
+## (projectiles, blasts).
+func damage_multiplier() -> float:
+	return _damage_scale * (_elite.damage_multiplier if _elite != null else 1.0)
+
+
+## Restores health, never above the maximum. Does nothing once dead.
+func heal(amount: float) -> void:
+	_health.heal(amount)
+
+
+func is_dead() -> bool:
+	return _dead
+
+
+## Dies in its own blast: no XP, Gold or drops, and the usual death (one `died`, then the shrink).
+func explode_and_die() -> void:
+	if _dead:
+		return
+	gives_rewards = false
+	_health.take_damage(_health.max_health * 1000.0)
+
+
+## The difficulty scales for this one enemy (never edits the shared data). Setting them again replaces
+## them, so they never compound.
+func apply_scales(health_scale: float, damage_scale: float, speed_scale: float) -> void:
+	_health_scale = health_scale
+	_damage_scale = damage_scale
+	_speed_scale = speed_scale
+	if is_node_ready():
+		_apply_data()
+
+
+## Makes this enemy an elite. Calling it again does not compound.
+func make_elite(modifier: EliteModifier) -> void:
+	_elite = modifier
+	is_elite = modifier != null
+	if is_node_ready():
+		_apply_data()
+
+
+## XP this enemy drops: its data's value times the elite reward multiplier, never below 1 for an enemy
+## that rewards at all.
+func xp_reward() -> int:
+	return _scaled_reward(data.xp_reward) if data != null else 0
+
+
+func gold_reward() -> int:
+	return _scaled_reward(data.gold_reward) if data != null else 0
+
+
+## Multiplies the drop table's chance (archetype value times the elite multiplier).
+func drop_chance_scale() -> float:
+	if data == null:
+		return 1.0
+	return data.drop_chance_scale * (_elite.drop_chance_multiplier if _elite != null else 1.0)
+
+
+func display_name() -> String:
+	if data == null:
+		return ""
+	return ("Elite " if is_elite else "") + data.display_name
 
 
 ## Heads for the player plus a random offset that spreads the horde out while it is far away.
@@ -66,12 +155,41 @@ func direction_to_target() -> Vector2:
 
 
 func _apply_data() -> void:
-	_health.set_max_health(data.max_health)
-	_hitbox.damage = data.contact_damage
+	if _brain == null:
+		_brain = EnemyBrain.for_data(data)
+	_health.set_max_health(data.max_health * _health_scale * (_elite.health_multiplier if _elite != null else 1.0))
+	_hitbox.damage = data.contact_damage * _damage_scale * (_elite.damage_multiplier if _elite != null else 1.0)
+	if _base_speed > 0.0:
+		speed = _base_speed * _speed_scale * (_elite.speed_multiplier if _elite != null else 1.0)
+	scale = Vector2.ONE * data.body_scale * (_elite.size_multiplier if _elite != null else 1.0)
+	if _elite != null:
+		_ensure_outline()
 	_hitbox.hit_cooldown = data.contact_cooldown
 	_hitbox.knockback = data.contact_knockback
 	_hurtbox.element = data.element
 	_body.color = data.color
+
+
+func _scaled_reward(base: int) -> int:
+	if base <= 0:
+		return 0
+	return maxi(roundi(base * (_elite.reward_multiplier if _elite != null else 1.0)), 1)
+
+
+## A coloured square just behind the body, so an elite can be told apart at a glance.
+func _ensure_outline() -> void:
+	var outline := get_node_or_null("EliteOutline") as ColorRect
+	if outline == null:
+		outline = ColorRect.new()
+		outline.name = "EliteOutline"
+		outline.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		outline.offset_left = -8.0
+		outline.offset_top = -8.0
+		outline.offset_right = 8.0
+		outline.offset_bottom = 8.0
+		add_child(outline)
+		move_child(outline, 0)
+	outline.color = _elite.outline_color
 
 
 func _on_hit_received(damage: float, source_position: Vector2, knockback: float, effect: int) -> void:

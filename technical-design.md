@@ -235,6 +235,8 @@ extends Resource
 
 This allows different enemies to share the same behavior while using different statistics.
 
+Since Sprint 11 an enemy is composed from two resources instead of being written out by hand: an `EnemyArchetype` (the role: every stat, size, behaviour kind and numbers, unlock time, cluster size, drop scale) and an `EnemyElement` (affinity, colour, themed drops). An `EnemyComposer` builds one cached `EnemyData` per pair, so any element can combine with any role and an element never changes a stat. Difficulty scales and the elite modifier are applied to the spawned `Enemy` instance, never to the shared data.
+
 ---
 
 # 5. Spell System Architecture

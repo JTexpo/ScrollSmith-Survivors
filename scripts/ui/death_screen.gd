@@ -33,8 +33,11 @@ func _input(event: InputEvent) -> void:
 
 
 ## Adds a line under "You died": the XP and Gold gained this run and the level reached.
-func set_run_summary(run_xp: int, level: int, run_gold: int = 0) -> void:
+## `seconds` of 0 or more adds how long the run lasted.
+func set_run_summary(run_xp: int, level: int, run_gold: int = 0, seconds: float = -1.0) -> void:
 	_summary.text = "+%d XP, +%d Gold this run, level %d" % [run_xp, run_gold, level]
+	if seconds >= 0.0:
+		_summary.text += ", survived %s" % RunClockLabel.format(seconds)
 	_summary.visible = true
 
 

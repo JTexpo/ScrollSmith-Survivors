@@ -1,13 +1,14 @@
 extends GutTest
 
-const ENEMY_DIR := "res://resources/enemies/"
+const ELEMENT_DIR := "res://resources/enemies/elements/"
+## The themed drop tables now belong to the enemy elements.
 const ELEMENT_ENEMIES := {
-	"fire_enemy": SpellData.Element.FIRE,
-	"thunder_enemy": SpellData.Element.THUNDER,
-	"land_enemy": SpellData.Element.LAND,
-	"sea_enemy": SpellData.Element.SEA,
+	"fire": SpellData.Element.FIRE,
+	"thunder": SpellData.Element.THUNDER,
+	"land": SpellData.Element.LAND,
+	"sea": SpellData.Element.SEA,
 }
-const ENEMY_FILES := ["basic_enemy", "fire_enemy", "thunder_enemy", "land_enemy", "sea_enemy"]
+const ENEMY_FILES := ["none", "fire", "thunder", "land", "sea"]
 
 var _rng: RandomNumberGenerator
 
@@ -37,9 +38,9 @@ func _table(chance: float, entries: Array[DropEntry]) -> DropTable:
 	return table
 
 
-func _full_chance_table(enemy_file: String) -> DropTable:
-	var data := load(ENEMY_DIR + enemy_file + ".tres") as EnemyData
-	var table := data.drop_table.duplicate() as DropTable
+func _full_chance_table(element_file: String) -> DropTable:
+	var element := load(ELEMENT_DIR + element_file + ".tres") as EnemyElement
+	var table := element.drop_table.duplicate() as DropTable
 	table.drop_chance = 1.0
 	return table
 
@@ -80,7 +81,7 @@ func test_empty_and_all_unpickable_tables_return_null() -> void:
 	assert_null(_table(1.0, junk).roll(_rng))
 
 
-func test_every_enemy_has_a_themed_table() -> void:
+func test_every_element_has_a_themed_table() -> void:
 	for file in ELEMENT_ENEMIES:
 		var own: int = ELEMENT_ENEMIES[file]
 		var table := _full_chance_table(file)
@@ -99,8 +100,8 @@ func test_every_enemy_has_a_themed_table() -> void:
 		assert_between(float(own_total) / all_total, 0.35, 0.55, "%s own share of all drops" % file)
 
 
-func test_the_plain_enemy_favours_no_element() -> void:
-	var table := _full_chance_table("basic_enemy")
+func test_the_no_element_enemy_favours_no_element() -> void:
+	var table := _full_chance_table("none")
 	var counts := {}
 	var base_total := 0
 	for i in 6000:
@@ -116,16 +117,16 @@ func test_the_plain_enemy_favours_no_element() -> void:
 func test_every_catalog_scroll_can_drop() -> void:
 	var seen := {}
 	for file in ENEMY_FILES:
-		var data := load(ENEMY_DIR + file + ".tres") as EnemyData
-		for entry in data.drop_table.entries:
+		var element := load(ELEMENT_DIR + file + ".tres") as EnemyElement
+		for entry in element.drop_table.entries:
 			seen[entry.scroll.id] = true
 	assert_eq(seen.size(), 15)
 
 
 func test_drop_chance_is_ten_percent_everywhere() -> void:
 	for file in ENEMY_FILES:
-		var data := load(ENEMY_DIR + file + ".tres") as EnemyData
-		assert_eq(data.drop_table.drop_chance, 0.1, file)
+		var element := load(ELEMENT_DIR + file + ".tres") as EnemyElement
+		assert_eq(element.drop_table.drop_chance, 0.1, file)
 
 
 func _rarity_scroll(id: StringName, rarity: ScrollData.Rarity) -> ScrollData:
@@ -238,3 +239,54 @@ func test_drop_chance_is_unchanged_by_luck() -> void:
 	lucky.seed = 17
 	for i in 500:
 		assert_eq(table.roll(plain) == null, table.roll(lucky, 3.0) == null, "roll %d" % i)
+
+
+func test_chance_scale_one_gives_exactly_the_old_rolls() -> void:
+	var table := _mixed_table(0.7)
+	var fresh := RandomNumberGenerator.new()
+	var legacy := RandomNumberGenerator.new()
+	fresh.seed = 41
+	legacy.seed = 41
+	for i in 200:
+		assert_eq(table.roll(fresh, 0.0, 1.0), _old_roll(table, legacy), "roll %d" % i)
+
+
+func test_chance_scale_raises_and_lowers_the_drop_chance() -> void:
+	var table := _mixed_table(0.2)
+	var counts := {}
+	for scale in [0.5, 1.0, 2.0]:
+		var rng := RandomNumberGenerator.new()
+		rng.seed = 8
+		var drops := 0
+		for i in 4000:
+			if table.roll(rng, 0.0, scale) != null:
+				drops += 1
+		counts[scale] = drops / 4000.0
+	assert_almost_eq(counts[0.5], 0.1, 0.03)
+	assert_almost_eq(counts[1.0], 0.2, 0.03)
+	assert_almost_eq(counts[2.0], 0.4, 0.03)
+
+
+func test_chance_scale_is_clamped() -> void:
+	var table := _mixed_table(0.1)
+	for i in 100:
+		assert_not_null(table.roll(_rng, 0.0, 100.0))
+	for i in 100:
+		assert_null(table.roll(_rng, 0.0, 0.0))
+		assert_null(table.roll(_rng, 0.0, -3.0))
+
+
+func test_chance_scale_and_luck_work_together() -> void:
+	var table := _mixed_table(0.2)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 12
+	var rares := 0
+	var drops := 0
+	for i in 4000:
+		var scroll := table.roll(rng, 1.0, 2.0)
+		if scroll != null:
+			drops += 1
+			if scroll.id == &"rare":
+				rares += 1
+	assert_almost_eq(drops / 4000.0, 0.4, 0.03)
+	assert_almost_eq(float(rares) / drops, 0.5, 0.05)

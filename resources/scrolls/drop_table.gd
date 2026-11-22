@@ -9,9 +9,11 @@ extends Resource
 ## Returns the scroll that drops, or null for no drop. Empty slots, entries without a scroll and
 ## weights at or below zero are never picked. `luck` raises the weight of rarer scrolls (see
 ## rarity_factor) and never changes whether anything drops. If luck would leave no weight at all, the
-## roll falls back to luck 0. At luck 0 the roll is exactly what it was before luck existed.
-func roll(rng: RandomNumberGenerator, luck: float = 0.0) -> ScrollData:
-	if drop_chance <= 0.0:
+## roll falls back to luck 0. `chance_scale` multiplies the drop chance (elites and Tanks drop more),
+## held between 0 and 1. At luck 0 and scale 1 the roll is exactly what it was before either existed.
+func roll(rng: RandomNumberGenerator, luck: float = 0.0, chance_scale: float = 1.0) -> ScrollData:
+	var chance := clampf(drop_chance * chance_scale, 0.0, 1.0)
+	if chance <= 0.0:
 		return null
 	var used_luck := luck if _total_weight(luck) > 0.0 else 0.0
 	var total := 0.0
@@ -23,7 +25,7 @@ func roll(rng: RandomNumberGenerator, luck: float = 0.0) -> ScrollData:
 			last_pickable = entry
 	if last_pickable == null:
 		return null
-	if drop_chance < 1.0 and rng.randf() >= drop_chance:
+	if chance < 1.0 and rng.randf() >= chance:
 		return null
 	var pick := rng.randf() * total
 	for entry in entries:

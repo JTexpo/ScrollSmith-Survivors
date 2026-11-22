@@ -4,7 +4,8 @@ extends Node2D
 ## attacker fires, and reports frame time. Not part of the player-facing game.
 ##
 ## Run: godot --path . res://scenes/world/stress_test.tscn -- --enemies=300 --seconds=10
-## Options: --area=<missile|cone|zone|line|wave> --drops --copies=N --interval=SECONDS
+## Options: --area=<missile|cone|zone|line|wave> --drops --boss --minutes=M --copies=N --interval=SECONDS
+## The clock starts at --minutes (default 5), so by default every archetype is unlocked and elites are in the mix.
 
 const WARMUP_FRAMES := 30
 const SPAWN_RADIUS_MIN := 40.0
@@ -27,6 +28,10 @@ const AREA_SPELLS := {
 @export var area_name: String = ""
 ## --drops: kills drop real scrolls, XP gems and Gold coins, and the arena starts with a full 100 pickups on the ground.
 @export var drops: bool = false
+## --minutes=M sets the run clock the spawner sees (0 means only Standard enemies at base strength).
+@export var minutes: float = 5.0
+## --boss: spawns an Ember Titan next to the player at the start, so its warnings, shots and summons are measured.
+@export var boss: bool = false
 ## --copies=N makes the stress spell fire N copies per cast (Duplicate Area), as a ring.
 @export var copies: int = 1
 ## --interval=S overrides the stress spell's cast interval (seconds), to measure at a real one.
@@ -56,6 +61,7 @@ func _ready() -> void:
 	_read_command_line()
 	_rng.randomize()
 	_spawner.set_process(false)
+	_spawner.elapsed_override = minutes * 60.0
 	_spawner.enemy_damaged.connect(_damage_numbers.show_number)
 	if drops:
 		_spawner.enemy_died.connect(_dropper.on_enemy_died)
@@ -68,8 +74,13 @@ func _ready() -> void:
 	if run_seconds > 0.0:
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 		Engine.max_fps = 0
-	for i in enemy_count:
-		_spawn_one()
+	_spawner.enemy_died.connect(_on_enemy_died)
+	while _spawner.alive < enemy_count:
+		if not _spawn_one():
+			break
+	if boss:
+		var titan := _spawner.spawn_boss(_spawner.config.bosses[0], 1)
+		titan.global_position = _player.global_position + Vector2(110, -30)
 
 
 func _physics_process(delta: float) -> void:
@@ -113,20 +124,26 @@ func _stress_spell() -> SpellData:
 
 ## Puts `count` scrolls from the plain enemy's drop table on the ground around the player.
 func _scatter_pickups(count: int) -> void:
-	var entries := _spawner.config.enemy_pool[0].drop_table.entries
+	var entries := _spawner.config.elements[0].drop_table.entries
 	for i in count:
 		var offset := Vector2.from_angle(_rng.randf_range(0.0, TAU)) * _rng.randf_range(SPAWN_RADIUS_MIN, SPAWN_RADIUS_MAX)
 		_dropper.place(entries[i % entries.size()].scroll, _player.global_position + offset)
 
 
-func _spawn_one() -> void:
+## Adds enemies up to `enemy_count` alive (a Swarmer cluster is trimmed to fit). False if nothing spawned.
+func _spawn_one() -> bool:
 	var offset := Vector2.from_angle(_rng.randf_range(0.0, TAU)) * _rng.randf_range(SPAWN_RADIUS_MIN, SPAWN_RADIUS_MAX)
-	var enemy := _spawner.spawn_at(_player.global_position + offset)
-	enemy.died.connect(_on_enemy_died)
+	return _spawner.spawn_at(_player.global_position + offset, enemy_count - _spawner.alive) != null
 
 
 func _on_enemy_died(_enemy: Enemy) -> void:
-	_spawn_one.call_deferred()
+	_refill.call_deferred()
+
+
+func _refill() -> void:
+	while _spawner.alive < enemy_count:
+		if not _spawn_one():
+			break
 
 
 func _read_command_line() -> void:
@@ -137,6 +154,10 @@ func _read_command_line() -> void:
 			run_seconds = float(argument.get_slice("=", 1))
 		elif argument == "--drops":
 			drops = true
+		elif argument == "--boss":
+			boss = true
+		elif argument.begins_with("--minutes="):
+			minutes = maxf(float(argument.get_slice("=", 1)), 0.0)
 		elif argument.begins_with("--copies="):
 			copies = maxi(int(argument.get_slice("=", 1)), 1)
 		elif argument.begins_with("--interval="):

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="DifficultyCurve" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/enemies/difficulty_curve.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+health_per_minute = 0.12
+damage_per_minute = 0.06
+speed_per_minute = 0.02
+speed_cap = 0.25
+base_interval = 0.5
+interval_rate = 0.15
+min_interval = 0.12
+base_max_alive = 150
+max_alive_per_minute = 20.0
+max_alive_cap = 300
+elite_start_seconds = 120.0
+elite_per_minute = 0.02
+elite_cap = 0.2
+boss_interval_seconds = 300.0
+boss_health_per_extra = 0.5
+boss_damage_per_extra = 0.2

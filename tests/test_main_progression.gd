@@ -111,7 +111,7 @@ func test_death_saves_the_profile_and_shows_the_summary() -> void:
 	assert_false(FileAccess.file_exists(_path()), "20 XP is no level-up, so nothing is saved yet")
 	(_player(main).get_node("HurtboxComponent") as HurtboxComponent).receive_hit(1000.0, Vector2.ZERO)
 	assert_eq(SaveGame.load_profile(_path()).total_xp, 20)
-	assert_eq((main.get_node("DeathScreen") as DeathScreen).summary_text(), "+20 XP, +0 Gold this run, level 1")
+	assert_string_starts_with((main.get_node("DeathScreen") as DeathScreen).summary_text(), "+20 XP, +0 Gold this run, level 1")
 
 
 func test_random_buff_reward_mid_run_changes_nothing_until_next_run() -> void:
@@ -239,7 +239,7 @@ func test_gold_survives_death_and_a_new_run() -> void:
 	var first := _new_main(_path())
 	_player(first).progress.add_gold(40)
 	(_player(first).get_node("HurtboxComponent") as HurtboxComponent).receive_hit(1000.0, Vector2.ZERO)
-	assert_eq((first.get_node("DeathScreen") as DeathScreen).summary_text(), "+0 XP, +40 Gold this run, level 1")
+	assert_string_starts_with((first.get_node("DeathScreen") as DeathScreen).summary_text(), "+0 XP, +40 Gold this run, level 1")
 	first.free()
 	var second := _new_main(_path())
 	assert_eq(second.profile.gold, 40)
@@ -546,3 +546,77 @@ func test_a_potion_slot_press_blocks_casting_until_the_cast_input_is_released() 
 	var main := _new_main(_path())
 	(main.get_node("Hud/PotionBar") as PotionBar).slot_pressed.emit(0)
 	assert_true(_player(main)._cast_blocked, "a click on a slot must not also fire a spell")
+
+
+func test_main_starts_the_run_clock_at_zero() -> void:
+	await wait_seconds(0.2)
+	var main := _new_main("")
+	assert_lt(RunClock.seconds(), 0.1)
+
+
+func test_the_main_scene_spawns_composed_enemies() -> void:
+	var main := _new_main("")
+	var spawner := main.get_node("EnemySpawner") as EnemySpawner
+	var enemy := spawner.spawn_at(Vector2(300, 300))
+	assert_not_null(enemy)
+	assert_false(enemy.data.display_name.is_empty())
+	assert_eq(enemy.data.archetype_id, &"standard", "only the Standard role is unlocked at the start")
+
+
+func test_main_has_a_run_director_wired_to_the_droppers() -> void:
+	var main := _new_main("")
+	var director := main.get_node("RunDirector") as RunDirector
+	assert_not_null(director)
+	assert_eq(director.spawner, main.get_node("EnemySpawner"))
+	assert_eq(director.xp_dropper, main.get_node("XpDropper"))
+	assert_eq(director.gold_dropper, main.get_node("GoldDropper"))
+	assert_eq(director.scroll_dropper, main.get_node("ScrollDropper"))
+
+
+func test_a_boss_defeat_in_main_drops_rewards_and_keeps_the_run_going() -> void:
+	var main := _new_main("")
+	var director := main.get_node("RunDirector") as RunDirector
+	director.tick(300.0)
+	var boss := director.current_boss()
+	assert_not_null(boss)
+	boss.set_physics_process(false)
+	(boss.get_node("HurtboxComponent") as HurtboxComponent).receive_hit(1.0e9, Vector2.ZERO)
+	assert_eq(get_tree().get_nodes_in_group(&"xp_gems").filter(func(n): return (n as ValueGem).value == 300).size(), 1)
+	assert_eq(get_tree().get_nodes_in_group(&"gold_coins").filter(func(n): return (n as ValueGem).value == 150).size(), 1)
+	assert_false(_player(main).health.is_dead(), "the run goes on")
+	assert_eq(director.boss_number, 1)
+
+
+func test_the_boss_toast_and_bar_appear_when_a_boss_spawns() -> void:
+	var main := _new_main("")
+	var director := main.get_node("RunDirector") as RunDirector
+	director.tick(300.0)
+	director.current_boss().set_physics_process(false)
+	var bar := main.get_node("Hud/BossBar") as BossBar
+	assert_true(bar.is_showing())
+	assert_eq(bar.title_text(), "Ember Titan")
+	var toast := main.get_node("Hud/LevelToast") as LevelToast
+	assert_true(toast.is_showing())
+	assert_string_contains(toast.text, "Ember Titan")
+
+
+func test_defeating_the_boss_hides_the_bar_and_shows_the_defeat_toast() -> void:
+	var main := _new_main("")
+	var director := main.get_node("RunDirector") as RunDirector
+	director.tick(300.0)
+	var boss := director.current_boss()
+	boss.set_physics_process(false)
+	(boss.get_node("HurtboxComponent") as HurtboxComponent).receive_hit(1.0e9, Vector2.ZERO)
+	assert_false((main.get_node("Hud/BossBar") as BossBar).is_showing())
+	assert_string_contains((main.get_node("Hud/LevelToast") as LevelToast).text, "Boss defeated")
+
+
+func test_the_death_summary_shows_time_survived() -> void:
+	var main := _new_main("")
+	(_player(main).get_node("HurtboxComponent") as HurtboxComponent).receive_hit(1000.0, Vector2.ZERO)
+	assert_string_contains((main.get_node("DeathScreen") as DeathScreen).summary_text(), "survived 0:0")
+
+
+func test_the_hud_has_a_run_clock() -> void:
+	var main := _new_main("")
+	assert_not_null(main.get_node("Hud/RunClockLabel") as RunClockLabel)
