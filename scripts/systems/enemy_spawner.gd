@@ -4,11 +4,15 @@ extends Node
 
 signal enemy_damaged(position: Vector2, amount: float, effect: int)
 signal enemy_died(enemy: Enemy)
+signal boss_spawned(boss: Boss, number: int)
+signal boss_died(boss: Boss, number: int)
 
 const MAX_SPAWNS_PER_TICK := 4
 const SPAWN_ANGLE_ATTEMPTS := 8
 ## How far a cluster member can start from the first one.
 const CLUSTER_RADIUS := 24.0
+## How far from a boss its summoned minions appear.
+const SUMMON_RADIUS := 40.0
 
 @export var config: SpawnConfig
 @export var arena_bounds: Rect2 = Rect2(0, 0, 960, 540)
@@ -16,6 +20,8 @@ const CLUSTER_RADIUS := 24.0
 
 var rng := RandomNumberGenerator.new()
 var alive: int = 0
+## The living boss, or null. A boss does not count toward `alive`.
+var boss: Boss
 ## Builds (and caches) the EnemyData of each archetype and element pair.
 var composer := EnemyComposer.new()
 ## When 0 or more it replaces the run clock (tests and the stress scene use it).
@@ -163,6 +169,51 @@ func spawn_at(position: Vector2, cluster_limit: int = 0) -> Enemy:
 		if first == null:
 			first = enemy
 	return first
+
+
+## Spawns a boss just outside the view and returns it, or null without a player, a boss scene or data.
+func spawn_boss(boss_data: BossData, number: int) -> Boss:
+	if config == null or config.boss_scene == null or boss_data == null:
+		return null
+	var player := get_tree().get_first_node_in_group(&"player") as Node2D
+	if player == null:
+		return null
+	var spot := spawn_position(player.global_position)
+	if spot == Vector2.INF:
+		spot = arena_bounds.get_center()
+	var instance := config.boss_scene.instantiate() as Boss
+	instance.setup(boss_data, number, config.difficulty, arena_bounds, rng)
+	var root := spawn_root if spawn_root != null else get_parent()
+	root.add_child(instance)
+	instance.global_position = spot
+	instance.damaged.connect(enemy_damaged.emit)
+	instance.summon_requested.connect(_on_boss_summon.bind(instance))
+	instance.died.connect(_on_boss_died.bind(number))
+	boss = instance
+	boss_spawned.emit(instance, number)
+	return instance
+
+
+func _on_boss_summon(archetype: EnemyArchetype, count: int, source: Boss) -> void:
+	var element := pick_element()
+	if archetype == null or element == null:
+		return
+	var composed := composer.compose(archetype, element)
+	var seconds := elapsed_seconds()
+	for i in count:
+		# Summons ignore the plain cap but never push the horde past twice it.
+		if alive >= current_max_alive() * 2:
+			break
+		var at := (source.global_position + Vector2.from_angle(TAU * i / count) * SUMMON_RADIUS).clamp(arena_bounds.position, arena_bounds.end)
+		var enemy := _spawn_enemy(composed, at)
+		if config.difficulty != null:
+			enemy.apply_scales(config.difficulty.health_scale(seconds), config.difficulty.damage_scale(seconds), config.difficulty.speed_scale(seconds))
+
+
+func _on_boss_died(dead: Boss, number: int) -> void:
+	if boss == dead:
+		boss = null
+	boss_died.emit(dead, number)
 
 
 func _spawn_enemy(data: EnemyData, position: Vector2) -> Enemy:

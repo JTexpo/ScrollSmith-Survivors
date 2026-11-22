@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SpawnConfig" load_steps=19 format=3]
+[gd_resource type="Resource" script_class="SpawnConfig" load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://resources/spawning/spawn_config.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/base_enemy.tscn" id="2"]
@@ -6,6 +6,9 @@
 [ext_resource type="Script" path="res://resources/enemies/enemy_element.gd" id="4"]
 [ext_resource type="Resource" path="res://resources/enemies/difficulty_curve.tres" id="5"]
 [ext_resource type="Resource" path="res://resources/enemies/elite_modifier.tres" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/boss.tscn" id="b1"]
+[ext_resource type="Resource" path="res://resources/bosses/ember_titan.tres" id="b2"]
+[ext_resource type="Script" path="res://resources/bosses/boss_data.gd" id="b3"]
 [ext_resource type="Resource" path="res://resources/enemies/archetypes/standard.tres" id="a0"]
 [ext_resource type="Resource" path="res://resources/enemies/archetypes/swarmer.tres" id="a1"]
 [ext_resource type="Resource" path="res://resources/enemies/archetypes/chaser.tres" id="a2"]
@@ -29,3 +32,5 @@ archetypes = Array[ExtResource("3")]([ExtResource("a0"), ExtResource("a1"), ExtR
 elements = Array[ExtResource("4")]([ExtResource("e0"), ExtResource("e1"), ExtResource("e2"), ExtResource("e3"), ExtResource("e4")])
 difficulty = ExtResource("5")
 elite_modifier = ExtResource("6")
+boss_scene = ExtResource("b1")
+bosses = Array[ExtResource("b3")]([ExtResource("b2")])

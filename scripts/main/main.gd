@@ -27,6 +27,7 @@ extends Node2D
 @onready var _gold_counter: GoldCounter = $Hud/GoldCounter
 @onready var _shop_screen: ShopScreen = $ShopScreen
 @onready var _potion_bar: PotionBar = $Hud/PotionBar
+@onready var _director: RunDirector = $RunDirector
 
 ## Where the profile is saved. Empty means "do not load or save": tests set it before adding Main to
 ## the tree so they never touch the player's real save.
@@ -68,6 +69,9 @@ func _ready() -> void:
 			lectern.interacted.connect(_open_crafting)
 	# The click that confirmed a craft is probably still held when the world resumes.
 	_crafting_screen.closed.connect(_player.require_cast_release)
+	_director.xp_dropper = _xp_dropper
+	_director.gold_dropper = _gold_dropper
+	_director.scroll_dropper = _dropper
 	_begin_progression()
 
 

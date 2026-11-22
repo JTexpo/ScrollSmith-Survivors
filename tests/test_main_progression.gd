@@ -561,3 +561,27 @@ func test_the_main_scene_spawns_composed_enemies() -> void:
 	assert_not_null(enemy)
 	assert_false(enemy.data.display_name.is_empty())
 	assert_eq(enemy.data.archetype_id, &"standard", "only the Standard role is unlocked at the start")
+
+
+func test_main_has_a_run_director_wired_to_the_droppers() -> void:
+	var main := _new_main("")
+	var director := main.get_node("RunDirector") as RunDirector
+	assert_not_null(director)
+	assert_eq(director.spawner, main.get_node("EnemySpawner"))
+	assert_eq(director.xp_dropper, main.get_node("XpDropper"))
+	assert_eq(director.gold_dropper, main.get_node("GoldDropper"))
+	assert_eq(director.scroll_dropper, main.get_node("ScrollDropper"))
+
+
+func test_a_boss_defeat_in_main_drops_rewards_and_keeps_the_run_going() -> void:
+	var main := _new_main("")
+	var director := main.get_node("RunDirector") as RunDirector
+	director.tick(300.0)
+	var boss := director.current_boss()
+	assert_not_null(boss)
+	boss.set_physics_process(false)
+	(boss.get_node("HurtboxComponent") as HurtboxComponent).receive_hit(1.0e9, Vector2.ZERO)
+	assert_eq(get_tree().get_nodes_in_group(&"xp_gems").filter(func(n): return (n as ValueGem).value == 300).size(), 1)
+	assert_eq(get_tree().get_nodes_in_group(&"gold_coins").filter(func(n): return (n as ValueGem).value == 150).size(), 1)
+	assert_false(_player(main).health.is_dead(), "the run goes on")
+	assert_eq(director.boss_number, 1)

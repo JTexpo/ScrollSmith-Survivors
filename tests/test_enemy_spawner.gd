@@ -448,3 +448,48 @@ func test_a_cluster_limit_of_zero_or_less_means_no_limit() -> void:
 	assert_eq(spawner.alive, 5)
 	spawner.spawn_at(Vector2(300, 300), -3)
 	assert_eq(spawner.alive, 10)
+
+
+func _boss_spawner() -> EnemySpawner:
+	var spawner := _composed_spawner([&"standard"], [&"none"], _no_elites())
+	spawner.config.boss_scene = load("res://scenes/enemies/boss.tscn")
+	spawner.config.bosses = [load("res://resources/bosses/ember_titan.tres") as BossData] as Array[BossData]
+	return spawner
+
+
+func test_spawn_boss_adds_it_outside_the_view_and_forwards_damage() -> void:
+	var spawner := _boss_spawner()
+	var boss := spawner.spawn_boss(spawner.config.bosses[0], 1)
+	boss.set_physics_process(false)
+	assert_not_null(boss)
+	assert_eq(spawner.boss, boss)
+	assert_eq(boss.get_parent(), spawner.get_parent())
+	var view_center := _player.global_position.clamp(BOUNDS.position + VIEW / 2.0, BOUNDS.end - VIEW / 2.0)
+	assert_false(Rect2(view_center - VIEW / 2.0, VIEW).has_point(boss.global_position))
+	assert_true(BOUNDS.has_point(boss.global_position))
+	watch_signals(spawner)
+	(boss.get_node("HurtboxComponent") as HurtboxComponent).receive_hit(10.0, Vector2.ZERO)
+	assert_signal_emit_count(spawner, "enemy_damaged", 1)
+
+
+func test_a_boss_does_not_count_toward_alive() -> void:
+	var spawner := _boss_spawner()
+	spawner.spawn_boss(spawner.config.bosses[0], 1).set_physics_process(false)
+	assert_eq(spawner.alive, 0)
+
+
+func test_boss_signals_and_clearing_the_boss_on_death() -> void:
+	var spawner := _boss_spawner()
+	watch_signals(spawner)
+	var boss := spawner.spawn_boss(spawner.config.bosses[0], 2)
+	boss.set_physics_process(false)
+	assert_signal_emitted_with_parameters(spawner, "boss_spawned", [boss, 2])
+	(boss.get_node("HurtboxComponent") as HurtboxComponent).receive_hit(1.0e9, Vector2.ZERO)
+	assert_signal_emitted_with_parameters(spawner, "boss_died", [boss, 2])
+	assert_null(spawner.boss)
+
+
+func test_spawn_boss_without_a_player_or_scene_returns_null() -> void:
+	var spawner := _boss_spawner()
+	spawner.config.boss_scene = null
+	assert_null(spawner.spawn_boss(spawner.config.bosses[0], 1))

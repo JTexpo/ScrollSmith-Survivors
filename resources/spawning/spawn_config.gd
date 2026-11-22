@@ -14,3 +14,6 @@ extends Resource
 @export var difficulty: DifficultyCurve
 ## What makes an enemy an elite. Null means no elites.
 @export var elite_modifier: EliteModifier
+## The boss scene and the roster the RunDirector cycles through (boss 1 is the first entry, and so on).
+@export var boss_scene: PackedScene
+@export var bosses: Array[BossData] = []
