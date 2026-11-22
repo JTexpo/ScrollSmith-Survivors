@@ -21,6 +21,7 @@ const SLOT_ACTIONS: Array[StringName] = [
 @onready var collector: PickupCollector = $PickupCollector
 @onready var interaction: InteractionComponent = $InteractionComponent
 @onready var progress: RunProgress = $RunProgress
+@onready var effects: ActiveEffects = $ActiveEffects
 
 
 ## The values the scene starts with. Bonuses are always worked out from these, so applying the same
@@ -38,6 +39,12 @@ var temporary_bonuses := StatBonuses.new()
 var _cast_blocked: bool = false
 
 
+## The player's hurtbox, for the things that grant it a timed window.
+var hurtbox: HurtboxComponent:
+	get:
+		return _hurtbox
+
+
 ## Call when a menu closes. The player will not cast until the cast input has been released once,
 ## so the click that confirmed something in the menu cannot also fire a spell.
 func require_cast_release() -> void:
@@ -49,6 +56,7 @@ func _ready() -> void:
 	base_health = health.max_health
 	_hurtbox.hit_received.connect(_on_hit_received)
 	health.died.connect(_on_died)
+	effects.bind(self)
 
 
 ## Adds the level, equipment and temporary layers and pushes the total, so a bonus can neither be
