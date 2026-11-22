@@ -94,18 +94,42 @@ func test_boss_interval_is_300_seconds() -> void:
 	assert_almost_eq(_curve.boss_interval_seconds, 300.0, 0.0001)
 
 
+func test_run_clock_starts_at_zero_when_reset() -> void:
+	RunClock.reset()
+	assert_lt(RunClock.seconds(), 0.2)
+	assert_gte(RunClock.seconds(), 0.0)
+
+
 func test_run_clock_follows_game_time_and_freezes_with_it() -> void:
 	GameTime.reset()
-	assert_lt(RunClock.seconds(), 0.2)
+	RunClock.reset()
+	var started := Time.get_ticks_msec()
 	await wait_seconds(0.15)
+	var real := (Time.get_ticks_msec() - started) / 1000.0
 	var running := RunClock.seconds()
-	assert_gt(running, 0.1)
+	assert_gt(running, 0.03)
+	assert_almost_eq(running, real, 0.03, "the run clock tracks real time while running")
 	GameTime.freeze()
 	var frozen := RunClock.seconds()
 	await wait_seconds(0.15)
-	assert_eq(RunClock.seconds(), frozen)
+	assert_eq(RunClock.seconds(), frozen, "frozen while paused")
 	GameTime.unfreeze()
 	await wait_seconds(0.12)
-	assert_gt(RunClock.seconds(), frozen + 0.05)
+	assert_gt(RunClock.seconds(), frozen + 0.02)
+
+
+func test_a_new_reset_starts_the_clock_again() -> void:
+	await wait_seconds(0.12)
+	assert_gt(RunClock.seconds(), 0.0)
+	RunClock.reset()
+	assert_lt(RunClock.seconds(), 0.05)
+
+
+func test_the_clock_never_goes_negative_after_game_time_resets() -> void:
 	GameTime.reset()
-	assert_lt(RunClock.seconds(), 0.2)
+	RunClock.reset()
+	GameTime.freeze()
+	await wait_seconds(0.05)
+	GameTime.unfreeze()
+	GameTime.reset()
+	assert_gte(RunClock.seconds(), 0.0)

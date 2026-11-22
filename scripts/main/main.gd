@@ -42,6 +42,7 @@ var _rng := RandomNumberGenerator.new()
 
 func _ready() -> void:
 	GameTime.reset()
+	RunClock.reset()
 	_health_bar.bind(_player.health)
 	_player.died.connect(_death_screen.show_death)
 	# A hidden bar ignores touches, so a dead player can't change spell and the restart tap gets through.

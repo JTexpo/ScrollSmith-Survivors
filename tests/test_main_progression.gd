@@ -546,3 +546,9 @@ func test_a_potion_slot_press_blocks_casting_until_the_cast_input_is_released() 
 	var main := _new_main(_path())
 	(main.get_node("Hud/PotionBar") as PotionBar).slot_pressed.emit(0)
 	assert_true(_player(main)._cast_blocked, "a click on a slot must not also fire a spell")
+
+
+func test_main_starts_the_run_clock_at_zero() -> void:
+	await wait_seconds(0.2)
+	var main := _new_main("")
+	assert_lt(RunClock.seconds(), 0.1)
