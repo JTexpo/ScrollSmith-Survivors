@@ -28,6 +28,7 @@ extends Node2D
 @onready var _shop_screen: ShopScreen = $ShopScreen
 @onready var _potion_bar: PotionBar = $Hud/PotionBar
 @onready var _director: RunDirector = $RunDirector
+@onready var _boss_bar: BossBar = $Hud/BossBar
 
 ## Where the profile is saved. Empty means "do not load or save": tests set it before adding Main to
 ## the tree so they never touch the player's real save.
@@ -72,6 +73,9 @@ func _ready() -> void:
 	_director.xp_dropper = _xp_dropper
 	_director.gold_dropper = _gold_dropper
 	_director.scroll_dropper = _dropper
+	_boss_bar.bind(_director)
+	_director.boss_spawned.connect(_on_boss_spawned)
+	_director.boss_defeated.connect(_on_boss_defeated)
 	_begin_progression()
 
 
@@ -164,6 +168,14 @@ func _on_potion_used(_potion: PotionData) -> void:
 	_saver.save_now()
 
 
+func _on_boss_spawned(boss: Boss, _number: int) -> void:
+	_level_toast.show_message("The %s approaches!" % boss.data.display_name)
+
+
+func _on_boss_defeated(_number: int) -> void:
+	_level_toast.show_message("Boss defeated!")
+
+
 func _on_gold_changed(_total_gold: int) -> void:
 	_saver.mark_dirty()
 
@@ -186,7 +198,7 @@ func _on_shop_requested() -> void:
 
 
 func _on_player_died() -> void:
-	_death_screen.set_run_summary(_player.progress.run_xp, _player.progress.level(), _player.progress.run_gold)
+	_death_screen.set_run_summary(_player.progress.run_xp, _player.progress.level(), _player.progress.run_gold, RunClock.seconds())
 	_saver.save_now()
 
 

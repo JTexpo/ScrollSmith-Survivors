@@ -197,3 +197,20 @@ func test_a_tap_on_the_shop_button_inside_the_delay_does_nothing() -> void:
 	_screen.handle_event(_touch_at(_shop_button().get_global_rect().get_center()))
 	assert_signal_not_emitted(_screen, "shop_requested")
 	assert_signal_not_emitted(_screen, "restart_requested")
+
+
+func test_summary_includes_time_survived() -> void:
+	_screen.set_run_summary(120, 7, 45, 307.0)
+	assert_eq(_screen.summary_text(), "+120 XP, +45 Gold this run, level 7, survived 5:07")
+
+
+func test_summary_without_seconds_is_unchanged() -> void:
+	_screen.set_run_summary(120, 7, 45)
+	assert_eq(_screen.summary_text(), "+120 XP, +45 Gold this run, level 7")
+	_screen.set_run_summary(1, 1, 0, -1.0)
+	assert_eq(_screen.summary_text(), "+1 XP, +0 Gold this run, level 1")
+
+
+func test_zero_seconds_still_shows_the_time() -> void:
+	_screen.set_run_summary(0, 1, 0, 0.0)
+	assert_eq(_screen.summary_text(), "+0 XP, +0 Gold this run, level 1, survived 0:00")

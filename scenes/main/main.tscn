@@ -31,6 +31,8 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/gold_counter.tscn" id="57"]
 [ext_resource type="PackedScene" path="res://scenes/ui/shop_screen.tscn" id="58"]
 [ext_resource type="PackedScene" path="res://scenes/ui/potion_bar.tscn" id="59"]
+[ext_resource type="PackedScene" path="res://scenes/ui/boss_bar.tscn" id="61"]
+[ext_resource type="PackedScene" path="res://scenes/ui/run_clock_label.tscn" id="62"]
 [ext_resource type="Resource" path="res://resources/scrolls/base/fire.tres" id="20"]
 [ext_resource type="Resource" path="res://resources/scrolls/base/thunder.tres" id="21"]
 [ext_resource type="Resource" path="res://resources/scrolls/base/land.tres" id="22"]
@@ -113,6 +115,14 @@ offset_left = 8.0
 offset_top = 8.0
 offset_right = 88.0
 offset_bottom = 22.0
+
+[node name="BossBar" parent="Hud" instance=ExtResource("61")]
+
+[node name="RunClockLabel" parent="Hud" instance=ExtResource("62")]
+offset_left = 92.0
+offset_top = 26.0
+offset_right = 150.0
+offset_bottom = 39.0
 
 [node name="PotionBar" parent="Hud" instance=ExtResource("59")]
 
