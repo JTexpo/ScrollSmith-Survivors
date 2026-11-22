@@ -506,3 +506,36 @@ func test_a_potion_tap_does_not_cast_a_spell() -> void:
 	bar.widgets[0]._input(touch)
 	assert_eq(_player(main).loadout.slots[0].current_mana, mana)
 	assert_false(_player(main).aim.is_firing)
+
+
+func test_a_potion_bought_in_the_death_screen_shop_is_saved_at_once() -> void:
+	var profile := PlayerProfile.new()
+	profile.add_gold(100)
+	SaveGame.save_profile(profile, _path())
+	var main := _new_main(_path())
+	_die(main)
+	(main.get_node("DeathScreen") as DeathScreen).input_delay_msec = 0
+	(main.get_node("DeathScreen/ShopButton") as Button).pressed.emit()
+	var shop := main.get_node("ShopScreen") as ShopScreen
+	shop.input_guard_msec = 0
+	shop.buy_potion(&"potion_health")
+	var saved := SaveGame.load_profile(_path())
+	assert_eq(saved.potion_count(&"potion_health"), 1)
+	assert_eq(saved.gold, 60)
+
+
+func test_next_run_has_the_bought_potion_in_the_bar() -> void:
+	var profile := PlayerProfile.new()
+	profile.add_gold(100)
+	SaveGame.save_profile(profile, _path())
+	var first := _new_main(_path())
+	_die(first)
+	(first.get_node("DeathScreen") as DeathScreen).input_delay_msec = 0
+	(first.get_node("DeathScreen/ShopButton") as Button).pressed.emit()
+	var shop := first.get_node("ShopScreen") as ShopScreen
+	shop.input_guard_msec = 0
+	shop.buy_potion(&"potion_health")
+	first.free()
+	var second := _new_main(_path())
+	assert_eq(_player(second).belt.count(&"potion_health"), 1)
+	assert_eq((second.get_node("Hud/PotionBar") as PotionBar).widgets[0].count, 1)

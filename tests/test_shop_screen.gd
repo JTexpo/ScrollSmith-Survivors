@@ -166,3 +166,97 @@ func test_the_close_button_works_inside_the_input_guard() -> void:
 	var close := _screen.find_children("*", "Button", true, false).filter(func(b): return b.text == "Close")[0] as Button
 	close.pressed.emit()
 	assert_false(_screen.is_open())
+
+
+func test_open_lists_the_six_potions() -> void:
+	_screen.open(_profile, _catalog)
+	assert_eq(_screen.potion_button_count(), 6)
+	assert_eq(_screen.item_button_count(), 15, "the equipment list is unchanged")
+	assert_string_contains(_screen.potion_button_text(&"potion_health"), "Health")
+	assert_string_contains(_screen.potion_button_text(&"potion_health"), "40g")
+	assert_string_contains(_screen.potion_button_text(&"potion_health"), "x0")
+
+
+func test_buy_potion_through_the_screen_spends_gold_adds_one_and_emits_changed() -> void:
+	_profile.add_gold(100)
+	_screen.open(_profile, _catalog)
+	watch_signals(_screen)
+	_screen.buy_potion(&"potion_health")
+	assert_eq(_profile.gold, 60)
+	assert_eq(_profile.potion_count(&"potion_health"), 1)
+	assert_signal_emit_count(_screen, "changed", 1)
+	assert_eq(_screen.gold_text(), "Gold 60")
+	assert_string_contains(_screen.message_text(), "Health")
+
+
+func test_failed_potion_buy_shows_the_reason_and_emits_nothing() -> void:
+	_profile.add_gold(39)
+	_screen.open(_profile, _catalog)
+	watch_signals(_screen)
+	_screen.buy_potion(&"potion_health")
+	assert_eq(_screen.message_text(), ShopSystem.REASON_BROKE)
+	assert_signal_not_emitted(_screen, "changed")
+	assert_eq(_profile.potion_count(&"potion_health"), 0)
+	assert_eq(_profile.gold, 39)
+
+
+func test_potion_labels_show_the_count_and_update() -> void:
+	_profile.add_gold(500)
+	_screen.open(_profile, _catalog)
+	_screen.buy_potion(&"potion_speed")
+	_screen.buy_potion(&"potion_speed")
+	assert_string_contains(_screen.potion_button_text(&"potion_speed"), "x2")
+	assert_string_contains(_screen.potion_button_text(&"potion_luck"), "x0")
+
+
+func test_buying_a_potion_does_not_change_equipment() -> void:
+	_profile.add_gold(500)
+	_screen.open(_profile, _catalog)
+	_screen.buy(&"robe_ember")
+	var equipped := _profile.equipped.duplicate()
+	_screen.buy_potion(&"potion_mana")
+	assert_eq(_profile.equipped, equipped)
+	assert_eq(_profile.owned, [&"robe_ember"] as Array[StringName])
+
+
+func test_potion_presses_inside_the_input_guard_do_nothing() -> void:
+	_profile.add_gold(500)
+	_screen.input_guard_msec = 300
+	_screen.open(_profile, _catalog)
+	watch_signals(_screen)
+	_screen._on_potion_pressed(&"potion_health")
+	assert_eq(_profile.potion_count(&"potion_health"), 0)
+	assert_eq(_profile.gold, 500)
+	assert_signal_not_emitted(_screen, "changed")
+	_screen.input_guard_msec = 0
+	_screen._on_potion_pressed(&"potion_health")
+	assert_eq(_profile.potion_count(&"potion_health"), 1)
+
+
+func test_potion_buy_stops_at_99() -> void:
+	_profile.add_gold(100000)
+	_profile.add_potion(&"potion_health", 98)
+	_screen.open(_profile, _catalog)
+	_screen.buy_potion(&"potion_health")
+	assert_eq(_profile.potion_count(&"potion_health"), 99)
+	var gold := _profile.gold
+	_screen.buy_potion(&"potion_health")
+	assert_eq(_profile.potion_count(&"potion_health"), 99)
+	assert_eq(_profile.gold, gold)
+	assert_eq(_screen.message_text(), ShopSystem.REASON_FULL)
+
+
+func test_a_custom_potion_catalog_can_be_passed() -> void:
+	var small := PotionCatalog.new()
+	small.potions = [PotionCatalog.default_catalog().potions[0]] as Array[PotionData]
+	_screen.open(_profile, _catalog, small)
+	assert_eq(_screen.potion_button_count(), 1)
+
+
+func test_reopening_shows_the_current_potion_counts() -> void:
+	_profile.add_gold(200)
+	_screen.open(_profile, _catalog)
+	_screen.buy_potion(&"potion_damage")
+	_screen.close()
+	_screen.open(_profile, _catalog)
+	assert_string_contains(_screen.potion_button_text(&"potion_damage"), "x1")

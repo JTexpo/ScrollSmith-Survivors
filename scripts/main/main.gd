@@ -170,7 +170,7 @@ func _rolled_notice(run_buffs: RunBuffs, reward_level: int) -> String:
 
 
 func _on_shop_requested() -> void:
-	_shop_screen.open(profile, catalog)
+	_shop_screen.open(profile, catalog, potion_catalog)
 
 
 func _on_player_died() -> void:
