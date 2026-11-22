@@ -452,14 +452,22 @@ Potions are consumable items that provide temporary benefits during an adventure
 
 Unlike Robes, Staffs, Wands, and Hats, potions are consumed when used.
 
-Potential potion types:
+Potions are bought one at a time in the death-screen shop. You carry everything you own into every run (up to 99 of each type), and unused potions are kept when you die. A potion bar shows each type with how many you have, its cooldown and, while a timed effect runs, how long is left. Drinking saves at once, so quitting can't refund a potion.
 
-- Health Potion: Restores a percentage of maximum health.
-- Mana Potion: Restores mana to all spells.
-- Speed Potion: Temporarily increases movement speed.
-- Damage Potion: Temporarily increases spell damage.
-- Invulnerability Potion: Temporarily prevents incoming damage.
-- Luck Potion: Temporarily increases the chance of finding rare scrolls.
+| Potion | Price | Effect | Cooldown |
+|---|---|---|---|
+| Health | 40 | Restores 40% of maximum health | 10 s |
+| Mana | 60 | Restores 50% of every spell's mana pool | 15 s |
+| Speed | 30 | +40% movement speed for 15 s | 30 s |
+| Damage | 50 | +50% spell damage for 15 s | 30 s |
+| Invulnerability | 100 | No damage for 5 s | 60 s |
+| Luck | 40 | +100% luck for 60 s | 90 s |
+
+Luck makes Uncommon scrolls (weight x(1 + luck)) and Rare scrolls (weight x(1 + 2 x luck)) more likely to drop. It never changes whether something drops. Mana is the one way spent mana comes back, so a Mana Potion restores only half of each pool.
+
+A potion is only drunk, and consumed, when its effect really happens. It is refused (and kept) when you have none left, its cooldown is running, another potion was drunk in the last second, its timed effect is still running, Health is already full, every spell is already full, or you are dead. Cooldowns and effect timers stop while the game is paused.
+
+Keys: Z, X, C, V, B and N drink the six potions in bar order. On a controller, D-pad left and right select a potion and D-pad up drinks it. On a touchscreen or with the mouse, tap or click a slot.
 
 Potions introduce another layer of resource management and allow players to prepare for particularly difficult encounters.
 

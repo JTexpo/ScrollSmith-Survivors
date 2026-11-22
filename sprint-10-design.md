@@ -1,6 +1,6 @@
 # Sprint 10 Design: Potions and Consumables
 
-**Status:** Proposed (awaiting approval).
+**Status:** Built (Sprint 10).
 
 Scope comes from `sprint-development.md` (Sprint 10), the README (section 6.2, Potions) and `technical-design.md` (section 12). Architecture follows `CLAUDE.md` and `sprint-0` to `sprint-9-design.md`. Decisions below were agreed with the user in conversation, except where marked "my call".
 
