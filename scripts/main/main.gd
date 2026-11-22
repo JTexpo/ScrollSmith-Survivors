@@ -34,6 +34,7 @@ extends Node2D
 var profile: PlayerProfile
 var track: LevelTrack
 var catalog: EquipmentCatalog
+var potion_catalog: PotionCatalog
 
 var _rng := RandomNumberGenerator.new()
 
@@ -91,9 +92,12 @@ func _begin_progression() -> void:
 	_rng.randomize()
 	track = LevelTrack.default_track()
 	catalog = EquipmentCatalog.default_catalog()
+	potion_catalog = PotionCatalog.default_catalog()
 	profile = SaveGame.load_profile(save_path) if not save_path.is_empty() else PlayerProfile.new()
 	var progress := _player.progress
 	progress.bind(_player, profile, track)
+	_player.belt.bind(_player, profile, potion_catalog)
+	_player.belt.used.connect(_on_potion_used)
 	_saver.bind(profile, save_path)
 	_xp_bar.bind(progress)
 	_gold_counter.bind(progress)
@@ -130,6 +134,11 @@ func _on_xp_changed(_total_xp: int, _level: int) -> void:
 
 func _on_bonuses_changed(total: StatBonuses) -> void:
 	_dropper.luck = total.fraction(StatBonuses.Stat.LUCK)
+
+
+## A drunk potion is saved at once, so quitting cannot refund it.
+func _on_potion_used(_potion: PotionData) -> void:
+	_saver.save_now()
 
 
 func _on_gold_changed(_total_gold: int) -> void:

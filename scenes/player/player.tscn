@@ -15,6 +15,7 @@
 [ext_resource type="Script" path="res://scripts/components/interaction_component.gd" id="22"]
 [ext_resource type="Script" path="res://scripts/components/run_progress.gd" id="23"]
 [ext_resource type="Script" path="res://scripts/components/active_effects.gd" id="24"]
+[ext_resource type="Script" path="res://scripts/components/potion_belt.gd" id="25"]
 
 [sub_resource type="RectangleShape2D" id="shape"]
 size = Vector2(12, 12)
@@ -105,3 +106,6 @@ script = ExtResource("23")
 
 [node name="ActiveEffects" type="Node" parent="."]
 script = ExtResource("24")
+
+[node name="PotionBelt" type="Node" parent="."]
+script = ExtResource("25")

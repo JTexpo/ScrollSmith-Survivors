@@ -405,3 +405,44 @@ func test_the_scroll_dropper_follows_the_players_luck() -> void:
 	_player(main).temporary_bonuses = StatBonuses.new()
 	_player(main).refresh_bonuses()
 	assert_eq(dropper.luck, 0.0)
+
+
+func _save_with_potions(counts: Dictionary) -> void:
+	var profile := PlayerProfile.new()
+	for id in counts:
+		profile.add_potion(id, counts[id])
+	SaveGame.save_profile(profile, _path())
+
+
+func test_drinking_a_potion_is_saved_at_once() -> void:
+	_save_with_potions({&"potion_health": 2})
+	var main := _new_main(_path())
+	_player(main).health.take_damage(50.0)
+	assert_true(_player(main).belt.use(&"potion_health").ok)
+	assert_eq(SaveGame.load_profile(_path()).potion_count(&"potion_health"), 1)
+
+
+func test_a_refused_drink_does_not_change_the_save() -> void:
+	_save_with_potions({&"potion_health": 2})
+	var main := _new_main(_path())
+	var before := FileAccess.get_file_as_string(_path())
+	assert_false(_player(main).belt.use(&"potion_health").ok, "full health")
+	assert_eq(FileAccess.get_file_as_string(_path()), before)
+	assert_eq(SaveGame.load_profile(_path()).potion_count(&"potion_health"), 2)
+
+
+func test_a_new_run_has_fresh_cooldowns_and_no_effects_but_keeps_the_stock() -> void:
+	_save_with_potions({&"potion_health": 2, &"potion_speed": 2})
+	var first := _new_main(_path())
+	_player(first).health.take_damage(50.0)
+	_player(first).belt.use(&"potion_health")
+	_player(first).belt._process(1.01)
+	_player(first).belt.use(&"potion_speed")
+	first.free()
+	var second := _new_main(_path())
+	assert_eq(_player(second).belt.cooldown_left(&"potion_health"), 0.0)
+	assert_eq(_player(second).belt.shared_left(), 0.0)
+	assert_false(_player(second).effects.is_active(&"potion_speed"))
+	assert_eq(_speed(second), 90.0)
+	assert_eq(_player(second).belt.count(&"potion_health"), 1)
+	assert_eq(_player(second).belt.count(&"potion_speed"), 1)

@@ -22,6 +22,7 @@ const SLOT_ACTIONS: Array[StringName] = [
 @onready var interaction: InteractionComponent = $InteractionComponent
 @onready var progress: RunProgress = $RunProgress
 @onready var effects: ActiveEffects = $ActiveEffects
+@onready var belt: PotionBelt = $PotionBelt
 
 
 ## The values the scene starts with. Bonuses are always worked out from these, so applying the same
