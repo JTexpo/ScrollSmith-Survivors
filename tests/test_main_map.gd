@@ -55,11 +55,13 @@ func test_the_spawn_ring_works_at_every_corner() -> void:
 	var half := spawner.view_size / 2.0
 	for corner: Vector2 in [Vector2.ZERO, Vector2(MAP_SIZE.x, 0), Vector2(0, MAP_SIZE.y), MAP_SIZE]:
 		(main.get_node("Player") as Player).global_position = corner
-		var at := spawner.spawn_position(corner)
-		assert_ne(at, Vector2.INF, "no spawn point at %s" % corner)
-		assert_true(bounds.has_point(at), "outside the map at %s" % corner)
 		var center: Vector2 = corner.clamp(bounds.position + half, bounds.end - half)
-		assert_false(Rect2(center - half, spawner.view_size).grow(-0.5).has_point(at), "inside the view at %s" % corner)
+		# The spawner clamps to the far edge inclusively, which Rect2.has_point does not count as inside.
+		for attempt in 30:
+			var at := spawner.spawn_position(corner)
+			assert_ne(at, Vector2.INF, "no spawn point at %s" % corner)
+			assert_true(bounds.grow(0.001).has_point(at), "outside the map at %s" % corner)
+			assert_false(Rect2(center - half, spawner.view_size).grow(-0.5).has_point(at), "inside the view at %s" % corner)
 
 
 func test_f7_toggles_the_overlay() -> void:

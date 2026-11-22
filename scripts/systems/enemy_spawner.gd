@@ -8,7 +8,8 @@ signal boss_spawned(boss: Boss, number: int)
 signal boss_died(boss: Boss, number: int)
 
 const MAX_SPAWNS_PER_TICK := 4
-const SPAWN_ANGLE_ATTEMPTS := 8
+## At a map corner only about a quarter of the directions lead outside the view, so this must be generous.
+const SPAWN_ANGLE_ATTEMPTS := 64
 ## How far a cluster member can start from the first one.
 const CLUSTER_RADIUS := 24.0
 ## How far from a boss its summoned minions appear.
