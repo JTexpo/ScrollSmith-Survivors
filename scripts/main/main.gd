@@ -222,9 +222,11 @@ func _on_point_used(point: PointOfInterest, _actor: Node) -> void:
 	point.start_cooldown()
 
 
-## A potion bought from a merchant is saved at once, so quitting cannot undo the sale.
+## A potion bought from a merchant is saved at once, so quitting cannot undo the sale. The sale spent Gold on the
+## profile directly, so the HUD is told too.
 func _on_merchant_purchase() -> void:
 	_player.belt.refresh()
+	_player.progress.announce_gold()
 	_saver.save_now()
 
 

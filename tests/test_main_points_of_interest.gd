@@ -196,3 +196,16 @@ func test_the_first_maps_points_are_all_wired_to_main() -> void:
 	assert_eq(points.size(), 6, "two Rare scroll spots, a chest, a Mana Shrine, a Health Shrine and a merchant")
 	for point in points:
 		assert_false((point as PointOfInterest).used.get_connections().is_empty(), "%s is not wired" % (point as PointOfInterest).data.display_name)
+
+
+func test_the_hud_gold_counter_follows_a_merchant_purchase() -> void:
+	_start()
+	var merchant := _point("merchant")
+	_main.profile.add_gold(1000)
+	_player.progress.announce_gold()
+	var counter := _main.get_node("Hud/GoldCounter") as GoldCounter
+	assert_eq(counter.gold_text(), "Gold 1000")
+	merchant.interact(_player)
+	(_main.get_node("MerchantScreen") as MerchantScreen).activate(&"potion_health")
+	assert_lt(_main.profile.gold, 1000)
+	assert_eq(counter.gold_text(), "Gold %d" % _main.profile.gold, "the HUD still shows the old amount")
