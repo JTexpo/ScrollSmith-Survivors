@@ -42,6 +42,10 @@ The characters now look like a cartoon fantasy game, but everything they stand i
 | Performance (my call) | Few textures, many uses: one texture per material and floor style, so draw batches stay large (13a found that 300 sprites from about 35 sheets cost about 30% of the frame rate). Measure the stress run with `--obstacles` before and after, and if walls cost much, merge each zone's floor and each material's walls into a baked texture at load. |
 | Tests (my call) | The 13a asset test covers every new source. New tests: a tile and 9-slice tile seamlessly, every material and style named in `first_map.tres` has art, a missing one falls back to a flat colour without error, an obstacle's look never changes its shape or the layout tests, and the drawn layers still skip off-screen chunks. |
 
+### Revision during the build (user feedback after seeing the floors)
+
+The first floors and decorations were low-contrast and detailed. The user asked for a **simpler, brighter, more cartoon** look and for **natural transitions** between regions instead of hard rectangle edges. So: floor tiles use few big shapes and bright, saturated colours (the "low-contrast mid-tone" rule is dropped for floors, and readability is now kept by the tiles being flat and simple instead); decorations are fewer, bigger-shaped and bolder; and a zone's floor draws with a **ragged, organic edge** (the outer 16 px is drawn cell by cell with some cells left out, so the floor below shows through), with the flat tint under a zone hidden whenever the zone has art. The map-level floor and border stay hard-edged.
+
 ## 3. Approaches considered
 
 1. **A tilemap (`TileMapLayer`) with auto-tiling.** The engine's standard way, but this map is data made of arbitrary rectangles and circles, so every shape would need converting to grid tiles and keeping in sync, and circles would look blocky.

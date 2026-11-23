@@ -123,6 +123,21 @@
 - [ ] **Step 4: Run** the three files, `test_art_assets`, `test_first_map_layout`, the whole suite, one MCP run, and the stress run. Expected: PASS, no warnings, within the Task 4 rule.
 - [ ] **Step 5: Commit** `feat: decoration sprites for every region`.
 
+### Task 5b: Brighter, simpler floors and decorations, and soft zone edges (user feedback)
+
+**Files:**
+- Modify: `scripts/world/floor_patch.gd`, `scripts/world/game_map.gd`, `art/palette.txt` (the floor colours only), `art/sprites/tile_*.sprite`, `art/sprites/decor_*.sprite`, `resources/maps/first_map.tres` (fewer decorations), `tests/test_game_map.gd`, `tests/test_floor_patch.gd` (new)
+
+**Interfaces:**
+- Produces: `FloorPatch.setup(covered: Rect2, set_data: SpriteSetData, soft: bool = false, seed_value: int = 0)`. When `soft`, the interior (`interior_rect()`, the area shrunk by 16 px) is one tiled rectangle and the outer 16 px is drawn in 8 px cells of the same tile (same phase), with the outermost row of cells left out with probability 0.45 and the second row 0.18, seeded by `seed_value`; `omitted_cells() -> Array[Rect2]` lists them. A hard patch (the default, used for the border and the map) draws one tiled rectangle and omits nothing. `GameMap` draws each zone's patch soft, seeded from the zone's area, and sets the zone's flat tint `ColorRect` to `visible = false` when the zone has floor art (it stays, with its colour, otherwise).
+- Art: the floor colours become bright and saturated (vivid grass greens, warm cream cobbles, lavender ruin stone, sandy hall flags); each tile uses few large shapes (a handful of simple tufts, four big flagstones, a tidy square grid); decorations are simpler and bolder with a dark outline where it helps; the first map's decoration counts drop to about half.
+
+- [ ] **Step 1: Write the failing tests.** `test_floor_patch`: `test_a_hard_patch_omits_nothing_and_draws_the_whole_area`, `test_a_soft_patch_leaves_gaps_only_in_the_outer_16_pixels`, `test_the_outer_row_has_more_gaps_than_the_second_row`, `test_the_same_seed_gives_the_same_gaps_and_another_seed_differs`, `test_the_interior_is_the_area_shrunk_by_16`, `test_a_tiny_area_never_fails`. `test_game_map`: `test_a_zone_with_floor_art_hides_its_flat_tint_and_one_without_keeps_it`, `test_zone_patches_are_soft_and_the_base_patches_are_hard`.
+- [ ] **Step 2: Run** `-gselect=test_floor_patch` and `test_game_map`. Expected: FAIL.
+- [ ] **Step 3: Implement** the patch and `GameMap` change; redraw the five tiles and six decoration sprites in the new style, brighten the floor colours in `art/palette.txt`, lower the decoration counts in `first_map.tres`, build, import. Look at screenshots of every region (including each zone boundary and a boundary with enemies and pickups nearby).
+- [ ] **Step 4: Run** the touched tests, `test_art_assets`, `test_first_map_layout`, `test_first_map_regions`, the whole suite, one MCP run and the stress run. Expected: PASS, no warnings, within the Task 4 rule.
+- [ ] **Step 5: Commit** `feat: brighter cartoon floors, simpler decorations and soft zone edges`.
+
 ### Task 6: The Lectern and the points of interest
 
 **Files:**
