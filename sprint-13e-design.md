@@ -81,4 +81,4 @@ The game is silent. Sprint 13e gives it the sound of its look: **chirpy, whimsic
 - Hits sound like the element of the last cast, because the hit signal carries no element.
 - The mute button takes left mouse clicks as well as touches (like the potion slots), so a desktop player can click it.
 - `ShopScreen.last_action` tells a purchase from an equip, so they sound different.
-
+- Sound starts at once on a desktop game (no gesture is needed there), and also on a gamepad press; only the web and headless runs wait for a tap, click, key or gamepad press. The M key is handled by the board so it works under a pause menu.
