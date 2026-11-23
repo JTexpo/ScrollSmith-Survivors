@@ -16,5 +16,5 @@ loop = true
 script = ExtResource("1")
 sheet = ExtResource("3")
 frame_size = Vector2i(4, 6)
-slice = Vector4i(1, 0, 1, 0)
+slice = Vector4i(1, 1, 1, 1)
 animations = Array[ExtResource("2")]([SubResource("anim_0")])

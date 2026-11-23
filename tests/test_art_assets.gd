@@ -236,6 +236,10 @@ func test_each_committed_font_equals_what_the_tool_builds() -> void:
 		assert_eq(FileAccess.get_file_as_string(fnt_path), FontBuilder.fnt_text(source, "ui_%s.png" % build, outlined), "%s is stale: run the art tool" % fnt_path)
 
 
+func test_the_committed_theme_equals_what_the_tool_writes() -> void:
+	assert_eq(FileAccess.get_file_as_string("res://resources/ui/game_theme.tres"), ThemeBuilder.theme_text(), "game_theme.tres is stale: run the art tool")
+
+
 func test_the_font_outline_is_the_palette_outline_color() -> void:
 	assert_eq(FontBuilder.OUTLINE_COLOR, _palette().colors["K"])
 

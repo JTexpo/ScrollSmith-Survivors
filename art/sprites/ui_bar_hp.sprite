@@ -1,5 +1,5 @@
 # The pink health fill, 6 px tall (inside the 8 px trough).
-slice 1 0 1 0
+slice 1 1 1 1
 size 4 6
 anim idle 0 0 1 loop
 frame

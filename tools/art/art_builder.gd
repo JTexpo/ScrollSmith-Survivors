@@ -1,6 +1,6 @@
 extends SceneTree
 ## The art tool. Reads `art/palette.txt`, every `art/sprites/*.sprite` and every `art/fonts/*.pixelfont` and writes the sheets,
-## sprite sets and font sheets into `assets/`. Run it, then import:
+## sprite sets, font sheets and the game theme into `assets/` and `resources/ui/`. Run it, then import:
 ##   godot --headless -s tools/art/art_builder.gd
 ##   godot --headless --import
 ## It exits with a non-zero code when anything is wrong.
@@ -11,6 +11,8 @@ func _init() -> void:
 	var written := ArtBuilder.files_written
 	problems.append_array(FontBuilder.build_all("res://art/fonts", "res://assets/fonts"))
 	written += FontBuilder.files_written
+	problems.append_array(ThemeBuilder.write())
+	written += 1
 	for problem in problems:
 		print("ART ERROR: ", problem)
 	if problems.is_empty():

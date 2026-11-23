@@ -1,0 +1,17 @@
+# The keyboard and controller focus ring, drawn over a button: a 1 px yellow outline, clear inside.
+slice 4 4 4 4
+size 12 12
+anim idle 0 0 1 loop
+frame
+...!!!!!!...
+.!!......!!.
+.!........!.
+!..........!
+!..........!
+!..........!
+!..........!
+!..........!
+!..........!
+.!........!.
+.!!......!!.
+...!!!!!!...
