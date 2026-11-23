@@ -44,6 +44,10 @@ The player's own spells and the enemies' attacks are still flat coloured shapes,
 | Depth (my call) | Effects draw above enemies (they are on top of the fight) and below the HUD. No shadows on effects. |
 | Tests (my call) | A missing effect sprite or element falls back to today's flat polygon and square; effect counts and caps; effects sit inside the hit polygon; the exact polygon and hitboxes are unchanged by the skin; the three missile size classes; enemy shots take the shooter's element; layers stay on the wizard in every frame and flip with it; no equipment looks like today's wizard; the 13a asset test covers every new sprite. |
 
+### Revision during the build (user feedback after seeing the equipment)
+
+The wizard's head looked too big for its hat and hood, it lacked the iconic white beard, and the user asked for a design that **hides as much skin tone as possible** so no one feels left out, using the beard and the shadow of the hat or hood. So the bare wizard is redrawn with **no skin at all**: a shadowed face (the hat's shadow) with only the two eyes showing, a **white beard layer** over the robe, a wider hat (a 12 px band and a 14 px brim) and a wider hood with drapes to match, so the head reads smaller under them. The beard is a fourth layer (robe, beard, headwear, weapon), always worn, and the starter wizard is still pixel-for-pixel its own composite.
+
 ## 3. Approaches considered
 
 1. **Shader patterns on the polygon.** Cheap and always fits, but the art lives in code (not replaceable) and rising or falling motion is hard.
