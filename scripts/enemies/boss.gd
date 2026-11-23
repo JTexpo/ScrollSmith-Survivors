@@ -28,6 +28,8 @@ var phase: int = 0
 var vulnerable: bool = false
 
 var _bounds: Rect2 = Rect2(0, 0, 960, 540)
+## The map's obstacles, found once at `_ready`. Null means there are none.
+var _obstacle_map: ObstacleMap
 var _rng: RandomNumberGenerator
 var _health_scale: float = 1.0
 var _damage_scale: float = 1.0
@@ -50,6 +52,7 @@ var _dead: bool = false
 
 
 func _ready() -> void:
+	_obstacle_map = get_tree().get_first_node_in_group(&"obstacle_map") as ObstacleMap
 	_hurtbox.hit_received.connect(_on_hit_received)
 	_health.died.connect(_on_died)
 	if data != null:
@@ -136,11 +139,24 @@ func _chase(player: Node2D, delta: float) -> void:
 	var multiplier := current.speed_multiplier if current != null else 1.0
 	var to_player := player.global_position - global_position
 	if to_player.length() > 1.0:
-		_move(to_player.normalized() * data.speed * multiplier * delta)
+		var direction := to_player.normalized()
+		if _obstacle_map != null:
+			var routed := _obstacle_map.direction_from(position)
+			if routed != Vector2.ZERO:
+				direction = routed
+		_move(direction * data.speed * multiplier * delta)
 
 
-func _move(offset: Vector2) -> void:
-	position = (position + offset).clamp(_bounds.position, _bounds.end)
+## Moves by `offset`, kept out of obstacles and inside the arena. True when an obstacle changed the move.
+func _move(offset: Vector2) -> bool:
+	var next := position + offset
+	var blocked := false
+	if _obstacle_map != null:
+		var resolved := _obstacle_map.resolve_move(position, next)
+		blocked = resolved != next
+		next = resolved
+	position = next.clamp(_bounds.position, _bounds.end)
+	return blocked
 
 
 func _begin_attack(player: Node2D) -> void:
@@ -183,9 +199,10 @@ func _start_action() -> void:
 
 
 func _dash(delta: float) -> void:
-	_move(_dash_direction * _attack.dash_speed * delta)
+	var blocked := _move(_dash_direction * _attack.dash_speed * delta)
 	_act_left -= delta
-	if _act_left <= EPSILON:
+	# An obstacle in the way ends the dash at once. The recovery and the vulnerability window still follow.
+	if blocked or _act_left <= EPSILON:
 		_hitbox.damage = data.contact_damage * _damage_scale
 		_finish_attack()
 

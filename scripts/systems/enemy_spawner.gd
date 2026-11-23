@@ -186,7 +186,7 @@ func spawn_boss(boss_data: BossData, number: int) -> Boss:
 	instance.setup(boss_data, number, config.difficulty, arena_bounds, rng)
 	var root := spawn_root if spawn_root != null else get_parent()
 	root.add_child(instance)
-	instance.global_position = spot
+	instance.global_position = _unblocked(spot)
 	instance.damaged.connect(enemy_damaged.emit)
 	instance.summon_requested.connect(_on_boss_summon.bind(instance))
 	instance.died.connect(_on_boss_died.bind(number))
@@ -222,7 +222,7 @@ func _spawn_enemy(data: EnemyData, position: Vector2) -> Enemy:
 	enemy.setup(data, arena_bounds, rng)
 	var root := spawn_root if spawn_root != null else get_parent()
 	root.add_child(enemy)
-	enemy.global_position = position
+	enemy.global_position = _unblocked(position)
 	alive += 1
 	enemy.died.connect(_on_enemy_died)
 	enemy.damaged.connect(enemy_damaged.emit)
@@ -244,9 +244,25 @@ func spawn_position(player_position: Vector2) -> Vector2:
 		var scale := maxf(absf(direction.x) / ring_half.x, absf(direction.y) / ring_half.y)
 		var point := view_center + direction / scale
 		point = point.clamp(arena_bounds.position, arena_bounds.end)
-		if not _inside_inclusive(view_rect, point):
+		if not _inside_inclusive(view_rect, point) and not _blocked(point):
 			return point
 	return Vector2.INF
+
+
+## The map's obstacles, or null when the world has none.
+func _obstacles() -> ObstacleMap:
+	return get_tree().get_first_node_in_group(&"obstacle_map") as ObstacleMap
+
+
+func _blocked(point: Vector2) -> bool:
+	var obstacles := _obstacles()
+	return obstacles != null and obstacles.is_blocked(point)
+
+
+## `point`, or the nearest free spot when an obstacle covers it.
+func _unblocked(point: Vector2) -> Vector2:
+	var obstacles := _obstacles()
+	return obstacles.push_out(point) if obstacles != null else point
 
 
 func _inside_inclusive(rect: Rect2, point: Vector2) -> bool:

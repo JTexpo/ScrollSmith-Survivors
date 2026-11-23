@@ -13,6 +13,8 @@ const MAX_ALIVE := 60
 var _direction: Vector2 = Vector2.RIGHT
 var _speed: float = 0.0
 var _remaining: float = 0.0
+## The map's obstacles, found once at `_ready`. Null means there are none.
+var _obstacle_map: ObstacleMap
 
 
 ## Adds a shot to `parent` and launches it. Frees the oldest live shot first when the cap is reached.
@@ -36,12 +38,18 @@ static func fire(
 
 func _ready() -> void:
 	add_to_group(&"enemy_projectiles")
+	_obstacle_map = get_tree().get_first_node_in_group(&"obstacle_map") as ObstacleMap
 	hitbox.hit_landed.connect(_on_hit_landed)
 
 
 func _physics_process(delta: float) -> void:
 	var step := _speed * delta
+	var from := position
 	position += _direction * step
+	# A shot that crosses an obstacle is spent before its hit can land.
+	if _obstacle_map != null and _obstacle_map.blocks_segment(from, position):
+		queue_free()
+		return
 	_remaining -= step
 	if _remaining <= 0.0:
 		queue_free()
