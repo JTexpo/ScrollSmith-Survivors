@@ -19,6 +19,7 @@ func test_everything_is_on_by_default() -> void:
 	assert_true(FxSettings.heart_beat)
 	assert_true(FxSettings.hurt_feedback)
 	assert_true(FxSettings.hit_indicators)
+	assert_true(FxSettings.low_mana_pulse)
 
 
 func test_reset_turns_everything_back_on() -> void:
@@ -29,8 +30,9 @@ func test_reset_turns_everything_back_on() -> void:
 	FxSettings.heart_beat = false
 	FxSettings.hurt_feedback = false
 	FxSettings.hit_indicators = false
+	FxSettings.low_mana_pulse = false
 	FxSettings.reset()
-	assert_eq(FxSettings.to_dict(), {"shake_scale": 1.0, "flash_scale": 1.0, "particles": true, "low_health_frame": true, "heart_beat": true, "hurt_feedback": true, "hit_indicators": true})
+	assert_eq(FxSettings.to_dict(), {"shake_scale": 1.0, "flash_scale": 1.0, "particles": true, "low_health_frame": true, "heart_beat": true, "hurt_feedback": true, "hit_indicators": true, "low_mana_pulse": true})
 
 
 func test_reduce_motion_turns_off_shake_flashes_and_the_hurt_jitter_but_keeps_the_information() -> void:

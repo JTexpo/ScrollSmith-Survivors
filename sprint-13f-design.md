@@ -21,7 +21,7 @@ Two things feel flat in play (the user's words): **how much health is left** ("s
 - **Where the weight comes from:** the base class every spell area shares (`AreaEffect._configure_hitbox`, the one place all five areas already build their hits through) announces each hit with its weight, so no individual area is edited.
 - **Light touches:** a spark burst when a pickup is collected, a pulsing slot fill and a faint blip when a spell is low on mana, a star burst round the wizard on level-up, and a sparkle burst when a Rare scroll drops. Each reuses the same burst layer.
 - **Comfort:** shake is small (at most 4 px, whole pixels) and flashes are soft and rare (at most about 3 a second, never full-screen white), with no flicker faster than that. One `FxSettings` pair of numbers (`shake_scale`, `flash_scale`, default 1.0) controls them, so Sprint 15's settings screen only has to set two numbers.
-- **One new sound** (`heartbeat`, a soft two-beat), made by the audio pipeline like the rest.
+- **Two new sounds** (`heartbeat`, a soft two-beat, and `mana_low`, a faint low double blip), made by the audio pipeline like the rest.
 
 **Non-goals (later sprints)**
 - Hit-stop (freezing the game for a moment), slow motion, camera zoom and any change to timing or numbers.

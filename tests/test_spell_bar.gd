@@ -196,3 +196,49 @@ func test_the_mana_fill_still_follows_the_ratio() -> void:
 
 func test_the_slot_numbers_use_the_outlined_hud_label() -> void:
 	assert_eq(_bar.widgets[0].number_variation(), &"HudLabel")
+
+
+func test_a_slot_pulses_when_low_but_not_empty_and_stops_when_refilled() -> void:
+	var widget := _bar.widgets[0]
+	widget.set_mana(100.0, 100.0)
+	assert_eq(widget.mana_fill_color(), SpellSlotWidget.MANA_COLOR)
+	assert_false(widget.is_pulsing())
+	widget.set_mana(20.0, 100.0)
+	assert_true(widget.is_pulsing())
+	assert_eq(widget.mana_fill_color(), SpellSlotWidget.MANA_COLOR, "starts on its own colour")
+	widget._process(0.26)
+	assert_eq(widget.mana_fill_color(), SpellSlotWidget.LOW_COLOR, "then red (two pulses a second)")
+	widget._process(0.26)
+	assert_eq(widget.mana_fill_color(), SpellSlotWidget.MANA_COLOR)
+	widget.set_mana(0.0, 100.0)
+	assert_false(widget.is_pulsing(), "empty keeps today's tint and dry flash")
+	widget.set_mana(80.0, 100.0)
+	assert_false(widget.is_pulsing())
+	assert_eq(widget.mana_fill_color(), SpellSlotWidget.MANA_COLOR)
+
+
+func test_went_low_fires_once_per_drop_below_the_threshold() -> void:
+	var widget := _bar.widgets[1]
+	var heard := []
+	widget.went_low.connect(func(index: int) -> void: heard.append(index))
+	widget.set_mana(100.0, 100.0)
+	widget.set_mana(30.0, 100.0)
+	assert_eq(heard.size(), 0)
+	widget.set_mana(25.0, 100.0)
+	assert_eq(heard, [1])
+	widget.set_mana(20.0, 100.0)
+	widget.set_mana(10.0, 100.0)
+	assert_eq(heard.size(), 1, "still low is not a new drop")
+	widget.set_mana(90.0, 100.0)
+	widget.set_mana(10.0, 100.0)
+	assert_eq(heard.size(), 2)
+
+
+func test_the_low_mana_pulse_can_be_switched_off() -> void:
+	FxSettings.low_mana_pulse = false
+	var widget := _bar.widgets[2]
+	widget.set_mana(20.0, 100.0)
+	assert_false(widget.is_pulsing())
+	widget._process(0.3)
+	assert_eq(widget.mana_fill_color(), SpellSlotWidget.MANA_COLOR)
+	FxSettings.reset()

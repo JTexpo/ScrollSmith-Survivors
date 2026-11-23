@@ -16,6 +16,14 @@ const HURT_JITTER_PX := 2.0
 const HURT_JITTER_STEP := 0.05
 const HURT_KICK := 0.45
 const HURT_TINT := Color(1.0, 0.55, 0.55)
+## The light touches: sparks when something is collected, stars on a level-up and sparkles where a Rare scroll lands.
+const PICKUP_SPARKS := 4
+const LEVEL_STARS := 14
+const LEVEL_DUST := 8
+const RARE_SPARKLES := 10
+const XP_COLORS: Array[Color] = [Color("6fd3ff"), Color("a8dcff")]
+const GOLD_COLORS: Array[Color] = [Color("ffd24a"), Color("fff1a8")]
+const STAR_COLORS: Array[Color] = [Color("ffd24a"), Color("ffffff"), Color("ff6f8f")]
 
 var _burst: BurstLayer
 var _shake: CameraShake
@@ -24,6 +32,7 @@ var _config: ImpactConfig
 var _connected: bool = false
 var _bursts: int = 0
 var _frame_bursts: int = 0
+var _world: Node2D
 var _body: BodyView
 var _indicator: HitIndicator
 var _hurt_left: float = 0.0
@@ -58,6 +67,13 @@ func bind(main: Node) -> void:
 	shake.bind(main.get_node("Player/Camera2D") as Camera2D)
 	setup(burst, shake, flash)
 	(main.get_node("RunDirector") as RunDirector).boss_spawned.connect(_on_boss_spawned)
+	var hero := main.get_node("Player") as Player
+	setup_world(hero)
+	hero.collector.collected.connect(on_scroll_collected)
+	hero.collector.xp_collected.connect(func(_amount: int) -> void: on_xp_collected())
+	hero.collector.gold_collected.connect(func(_amount: int) -> void: on_gold_collected())
+	hero.progress.leveled_up.connect(func(_level: int, _reward: LevelReward) -> void: on_level_up())
+	(main.get_node("ScrollDropper") as ScrollDropper).placed.connect(func(pickup: ScrollPickup) -> void: on_scroll_placed(pickup.scroll, pickup.global_position))
 	var indicator := HitIndicator.new()
 	indicator.name = "HitIndicator"
 	add_child(indicator)
@@ -99,6 +115,35 @@ func camera_shake() -> CameraShake:
 	return _shake
 
 
+## The node the pickup and level-up effects appear on (the player).
+func setup_world(world: Node2D) -> void:
+	_world = world
+
+
+func on_scroll_collected(scroll: ScrollData) -> void:
+	_light_burst(&"sparks", [scroll.color, scroll.color.lightened(0.4)], PICKUP_SPARKS)
+
+
+func on_xp_collected() -> void:
+	_light_burst(&"sparks", XP_COLORS, PICKUP_SPARKS)
+
+
+func on_gold_collected() -> void:
+	_light_burst(&"sparks", GOLD_COLORS, PICKUP_SPARKS)
+
+
+## Stars rise round the wizard and a ring of dust puffs out.
+func on_level_up() -> void:
+	_light_burst(&"stars", STAR_COLORS, LEVEL_STARS)
+	_light_burst(&"dust", [Color("fff6e8"), Color("e9dcf2")], LEVEL_DUST)
+
+
+## A Rare scroll that lands sparkles where it lies (the Rare pickup also has its own sparkle drawing).
+func on_scroll_placed(scroll: ScrollData, at: Vector2) -> void:
+	if scroll != null and scroll.rarity == ScrollData.Rarity.RARE:
+		_light_burst(&"sparkle", STAR_COLORS, RARE_SPARKLES, at)
+
+
 ## The wizard's body and the arc indicator (Main's `bind` passes the real ones).
 func setup_player(body: BodyView, indicator: HitIndicator) -> void:
 	_body = body
@@ -124,6 +169,16 @@ func on_player_hit(at: Vector2, source: Vector2) -> void:
 
 func hurt_active() -> bool:
 	return _hurt_left > 0.0
+
+
+## One of the light-touch bursts at the player (or `at`), inside the frame budget and honouring the particles switch.
+func _light_burst(style: StringName, colors: Array[Color], count: int, at: Vector2 = Vector2.INF) -> void:
+	if _burst == null or not FxSettings.particles or _frame_bursts >= MAX_BURSTS_PER_FRAME:
+		return
+	var where := at if at.is_finite() else (_world.global_position if _world != null else Vector2.ZERO)
+	_frame_bursts += 1
+	_bursts += 1
+	_burst.burst(where, style, colors, count)
 
 
 func _end_hurt() -> void:

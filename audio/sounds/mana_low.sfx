@@ -1,0 +1,4 @@
+# A faint low double blip: a spell is nearly out of mana.
+length 0.2
+voice triangle 330 330 0.5 0.003 0.06
+voice triangle 262 262 0.5 0.003 0.09 delay 0.08

@@ -354,3 +354,10 @@ func test_a_level_two_beat_plays_the_heartbeat_and_level_one_does_not() -> void:
 	assert_false(heard.has(&"heartbeat"), "the slow heart beat is silent")
 	_board.on_health_beat(2)
 	assert_true(heard.has(&"heartbeat"))
+
+
+func test_a_low_mana_slot_plays_the_blip_once() -> void:
+	var heard: Array[StringName] = []
+	_board.requested.connect(func(id: StringName) -> void: heard.append(id))
+	_board.on_mana_low(0)
+	assert_eq(heard, [&"mana_low"] as Array[StringName])

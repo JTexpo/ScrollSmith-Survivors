@@ -174,3 +174,10 @@ func test_an_enemy_that_gives_no_rewards_drops_no_scroll() -> void:
 	enemy.gives_rewards = false
 	assert_null(_dropper.on_enemy_died(enemy))
 	assert_eq(_live_pickups().size(), 0)
+
+
+func test_placed_is_emitted_with_the_pickup() -> void:
+	watch_signals(_dropper)
+	var pickup := _dropper.place(_scroll, Vector2(40, 50))
+	assert_signal_emit_count(_dropper, "placed", 1)
+	assert_signal_emitted_with_parameters(_dropper, "placed", [pickup])

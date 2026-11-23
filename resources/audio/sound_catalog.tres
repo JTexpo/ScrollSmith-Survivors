@@ -372,6 +372,14 @@ volume_db = -12.0
 max_voices = 1
 min_gap_msec = 250
 
+[sub_resource type="Resource" id="mana_low"]
+script = ExtResource("2")
+id = &"mana_low"
+volume_db = -14.0
+max_voices = 1
+min_gap_msec = 400
+priority = 0
+
 [resource]
 script = ExtResource("1")
-sounds = Array[ExtResource("2")]([SubResource("cast_fire"), SubResource("cast_thunder"), SubResource("cast_land"), SubResource("cast_sea"), SubResource("hit_fire"), SubResource("hit_thunder"), SubResource("hit_land"), SubResource("hit_sea"), SubResource("hit_strong"), SubResource("hit_resisted"), SubResource("enemy_shot"), SubResource("blast_warn"), SubResource("blast_boom"), SubResource("enemy_die"), SubResource("enemy_die_big"), SubResource("enemy_die_elite"), SubResource("boss_spawn"), SubResource("boss_slam"), SubResource("boss_charge"), SubResource("boss_burst"), SubResource("boss_die"), SubResource("player_hurt"), SubResource("player_die"), SubResource("level_up"), SubResource("step"), SubResource("pickup_scroll"), SubResource("pickup_xp"), SubResource("pickup_gold"), SubResource("potion_drink"), SubResource("potion_refused"), SubResource("ui_click"), SubResource("ui_back"), SubResource("ui_hover"), SubResource("lectern_open"), SubResource("craft_confirm"), SubResource("craft_fail"), SubResource("shop_buy"), SubResource("shop_fail"), SubResource("shop_equip"), SubResource("shrine_heal"), SubResource("shrine_mana"), SubResource("chest_open"), SubResource("merchant_open"), SubResource("music_run"), SubResource("music_boss"), SubResource("heartbeat")])
+sounds = Array[ExtResource("2")]([SubResource("cast_fire"), SubResource("cast_thunder"), SubResource("cast_land"), SubResource("cast_sea"), SubResource("hit_fire"), SubResource("hit_thunder"), SubResource("hit_land"), SubResource("hit_sea"), SubResource("hit_strong"), SubResource("hit_resisted"), SubResource("enemy_shot"), SubResource("blast_warn"), SubResource("blast_boom"), SubResource("enemy_die"), SubResource("enemy_die_big"), SubResource("enemy_die_elite"), SubResource("boss_spawn"), SubResource("boss_slam"), SubResource("boss_charge"), SubResource("boss_burst"), SubResource("boss_die"), SubResource("player_hurt"), SubResource("player_die"), SubResource("level_up"), SubResource("step"), SubResource("pickup_scroll"), SubResource("pickup_xp"), SubResource("pickup_gold"), SubResource("potion_drink"), SubResource("potion_refused"), SubResource("ui_click"), SubResource("ui_back"), SubResource("ui_hover"), SubResource("lectern_open"), SubResource("craft_confirm"), SubResource("craft_fail"), SubResource("shop_buy"), SubResource("shop_fail"), SubResource("shop_equip"), SubResource("shrine_heal"), SubResource("shrine_mana"), SubResource("chest_open"), SubResource("merchant_open"), SubResource("music_run"), SubResource("music_boss"), SubResource("heartbeat"), SubResource("mana_low")])

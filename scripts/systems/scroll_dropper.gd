@@ -4,6 +4,10 @@ extends Node
 ## this is where the roll happens. Keeps at most `max_pickups` scrolls out: a new drop removes
 ## the oldest one, so a drop that rolled always appears.
 
+## A scroll was put on the ground (a drop or a loot spot). The screen effects listen: a Rare one sparkles.
+@warning_ignore("unused_signal")
+signal placed(pickup: ScrollPickup)
+
 @export var pickup_scene: PackedScene
 @export var max_pickups: int = 100
 ## Raises the chance of rarer scrolls (a Luck Potion). Main keeps it in step with the player's bonuses.
@@ -46,6 +50,7 @@ func place(scroll: ScrollData, world_position: Vector2) -> ScrollPickup:
 	pickup.setup(scroll)
 	pickup.global_position = world_position
 	_pickups.append(pickup)
+	placed.emit(pickup)
 	return pickup
 
 

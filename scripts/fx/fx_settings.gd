@@ -16,9 +16,11 @@ static var heart_beat: bool = true
 static var hurt_feedback: bool = true
 ## The arcs at the screen edge that point at where a hit came from.
 static var hit_indicators: bool = true
+## A spell slot's mana fill pulsing red when the spell is nearly out of mana.
+static var low_mana_pulse: bool = true
 
 const SCALE_KEYS := ["shake_scale", "flash_scale"]
-const SWITCH_KEYS := ["particles", "low_health_frame", "heart_beat", "hurt_feedback", "hit_indicators"]
+const SWITCH_KEYS := ["particles", "low_health_frame", "heart_beat", "hurt_feedback", "hit_indicators", "low_mana_pulse"]
 
 
 static func reset() -> void:
@@ -29,6 +31,7 @@ static func reset() -> void:
 	heart_beat = true
 	hurt_feedback = true
 	hit_indicators = true
+	low_mana_pulse = true
 
 
 ## A comfort preset: no shake, no flashes and no jitter. The low-health frame, the heart and the hit arcs stay, because they tell the
@@ -49,6 +52,7 @@ static func to_dict() -> Dictionary:
 		"heart_beat": heart_beat,
 		"hurt_feedback": hurt_feedback,
 		"hit_indicators": hit_indicators,
+		"low_mana_pulse": low_mana_pulse,
 	}
 
 
@@ -74,3 +78,5 @@ static func apply(data: Dictionary) -> void:
 					hurt_feedback = data[key]
 				"hit_indicators":
 					hit_indicators = data[key]
+				"low_mana_pulse":
+					low_mana_pulse = data[key]

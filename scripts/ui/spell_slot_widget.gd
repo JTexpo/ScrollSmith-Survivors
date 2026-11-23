@@ -5,6 +5,8 @@ extends Control
 ## in _ready, so add it to the tree before calling setup().
 
 signal pressed(index: int)
+## The pool just dropped to a quarter or less (once per drop, not while it stays low).
+signal went_low(index: int)
 
 const SIZE := Vector2(34, 24)
 ## The frame's outline, so everything inside sits 2 px from the edge.
@@ -14,6 +16,10 @@ const FILL_HEIGHT := 4.0
 const FLASH_TIME := 0.25
 const DEPLETED_TINT := Color(0.4, 0.4, 0.4, 1)
 const MANA_COLOR := Color("6fd3ff")
+const LOW_COLOR := Color("e0483c")
+## At or below this fraction of the pool (and above 0) the fill pulses red, twice a second.
+const LOW_RATIO := 0.25
+const PULSE_HALF_SECONDS := 0.25
 const FLASH_COLOR := Color(0.88, 0.28, 0.24, 0.7)
 
 var slot_index: int = 0
@@ -25,6 +31,8 @@ var depleted: bool = false
 var selected: bool = false
 
 var _flash_left: float = 0.0
+var _was_low: bool = false
+var _pulse_time: float = 0.0
 
 var _frame: Panel
 var _swatch: ColorRect
@@ -54,7 +62,8 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_flash_left = maxf(_flash_left - delta, 0.0)
-	if _flash_left <= 0.0:
+	_pulse_time += delta
+	if _flash_left <= 0.0 and not is_pulsing():
 		set_process(false)
 	_refresh()
 
@@ -92,6 +101,13 @@ func set_mana(current: float, maximum: float) -> void:
 	ratio = current / maximum if maximum > 0.0 else 0.0
 	# The widget only knows ratios, so "depleted" means nothing is left at all.
 	depleted = current <= 0.0
+	var low := ratio > 0.0 and ratio <= LOW_RATIO
+	if low and not _was_low:
+		_pulse_time = 0.0
+		went_low.emit(slot_index)
+	_was_low = low
+	if is_pulsing():
+		set_process(true)
 	_refresh()
 
 
@@ -104,6 +120,18 @@ func flash_dry() -> void:
 	_flash_left = FLASH_TIME
 	set_process(true)
 	_refresh()
+
+
+## Whether the mana fill is pulsing: the pool is low but not empty (and the switch is on).
+func is_pulsing() -> bool:
+	return FxSettings.low_mana_pulse and ratio > 0.0 and ratio <= LOW_RATIO and not empty and not locked
+
+
+## The colour of the mana fill now: its own, or red on every other half-second of a low pulse.
+func mana_fill_color() -> Color:
+	if is_pulsing() and int(_pulse_time / PULSE_HALF_SECONDS) % 2 == 1:
+		return LOW_COLOR
+	return MANA_COLOR
 
 
 func is_flashing() -> bool:
@@ -131,6 +159,7 @@ func _refresh() -> void:
 	_label.text = "x" if locked else str(slot_index + 1)
 	_swatch.color = DEPLETED_TINT if depleted else element_color
 	_fill.size.x = (SIZE.x - 2.0 * FRAME) * ratio
+	_fill.color = mana_fill_color()
 	_flash.visible = is_flashing()
 
 
