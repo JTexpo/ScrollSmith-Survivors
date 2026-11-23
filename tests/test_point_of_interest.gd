@@ -200,3 +200,7 @@ func test_the_prompt_and_the_used_signal_are_unchanged_with_art() -> void:
 	point.interact(Node.new())
 	assert_eq(seen.size(), 1)
 
+
+func test_the_prompt_uses_the_outlined_hud_label() -> void:
+	var prompt := _point("point_of_interest").get_node("Prompt") as Label
+	assert_eq(prompt.theme_type_variation, &"HudLabel")

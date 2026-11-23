@@ -48,7 +48,7 @@ func test_effect_bar_shows_only_while_running() -> void:
 	assert_false(_widget.effect_bar_visible())
 	_widget.set_effect(0.75)
 	assert_true(_widget.effect_bar_visible())
-	assert_almost_eq(_widget.effect_bar_width(), (PotionSlotWidget.SIZE.x - 2.0) * 0.75, 0.0001)
+	assert_almost_eq(_widget.effect_bar_width(), PotionSlotWidget.effect_bar_full_width() * 0.75, 0.0001)
 	_widget.set_effect(0.0)
 	assert_false(_widget.effect_bar_visible())
 
@@ -115,3 +115,13 @@ func test_a_click_while_hidden_is_ignored() -> void:
 	_widget.hide()
 	assert_false(_widget.handle_mouse_click(_click(_widget.get_global_rect().get_center())))
 	assert_signal_not_emitted(_widget, "pressed")
+
+
+func test_the_slot_draws_the_slot_frame_and_the_selected_variation() -> void:
+	assert_eq(_widget.frame_variation(), &"PanelSlot")
+	_widget.set_selected(true)
+	assert_eq(_widget.frame_variation(), &"PanelSlotSelected")
+
+
+func test_the_count_and_key_use_the_outlined_hud_label() -> void:
+	assert_eq(_widget.text_variation(), &"HudLabel")

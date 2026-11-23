@@ -68,3 +68,15 @@ func test_messages_and_level_ups_share_the_four_line_cap() -> void:
 	assert_eq(lines.size(), 4)
 	assert_eq(lines[0], "note 1")
 	assert_true(lines[3].begins_with("Level 3!"))
+
+
+func test_the_level_toast_is_a_dark_pill_with_outlined_text() -> void:
+	assert_eq(_toast.theme_type_variation, &"HudToast")
+	assert_eq(_toast.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+
+
+func test_the_pill_shrinks_to_its_text() -> void:
+	_show(3)
+	var one_line := _toast.size.y
+	_show(4)
+	assert_gt(_toast.size.y, one_line, "a second line makes the pill taller")

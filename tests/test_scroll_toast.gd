@@ -46,3 +46,9 @@ func test_a_new_pickup_replaces_the_text_and_restarts_the_timer() -> void:
 	assert_eq(_toast.modulate.a, 1.0)
 	_toast._process(0.5)
 	assert_true(_toast.is_showing())
+
+
+func test_the_scroll_toast_is_a_dark_pill_and_keeps_the_scrolls_colour() -> void:
+	_toast.show_scroll(_scroll("Fire", Color(1, 0.45, 0.1)))
+	assert_eq(_toast.theme_type_variation, &"HudToast")
+	assert_eq(_toast.get_theme_color("font_color"), Color(1, 0.45, 0.1))

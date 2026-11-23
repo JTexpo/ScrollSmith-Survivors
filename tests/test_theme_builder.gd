@@ -9,6 +9,7 @@ const VARIATIONS := {
 	&"ButtonGreen": &"Button",
 	&"ButtonYellow": &"Button",
 	&"HudLabel": &"Label",
+	&"HudToast": &"Label",
 	&"HudGold": &"Label",
 	&"Heading": &"Label",
 	&"Muted": &"Label",
@@ -57,6 +58,8 @@ func test_the_pinned_variations_carry_their_looks() -> void:
 		assert_true(_theme.has_stylebox(&"fill", name_of), String(name_of))
 	assert_eq(_theme.get_font(&"font", &"HudLabel").resource_path, UiFont.outlined_path)
 	assert_eq(_theme.get_font(&"font", &"HudGold").resource_path, UiFont.outlined_path)
+	assert_eq(_theme.get_font(&"font", &"HudToast").resource_path, UiFont.outlined_path)
+	assert_true(_theme.has_stylebox(&"normal", &"HudToast"), "the toast pill")
 
 
 func test_every_stylebox_tiles_and_never_stretches() -> void:

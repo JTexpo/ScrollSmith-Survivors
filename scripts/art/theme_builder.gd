@@ -33,6 +33,7 @@ const STYLES := [
 	["PanelContainer", "panel", "ui_panel", 0, PANEL_CONTENT],
 	["TooltipPanel", "panel", "ui_panel", 0, Vector4(4, 4, 4, 4)],
 	["PanelDark", "panel", "ui_panel_dark", 0, PANEL_CONTENT],
+	["HudToast", "normal", "ui_panel_dark", 0, Vector4(6, 3, 6, 3)],
 	["PanelSlot", "panel", "ui_slot", 0, SLOT_CONTENT],
 	["PanelSlotSelected", "panel", "ui_slot", 1, SLOT_CONTENT],
 	["Button", "normal", "ui_button_cream", 0, BUTTON_CONTENT],
@@ -69,7 +70,7 @@ const STYLES := [
 const VARIATIONS := {
 	"PanelDark": "Panel", "PanelSlot": "Panel", "PanelSlotSelected": "Panel",
 	"ButtonRed": "Button", "ButtonGreen": "Button", "ButtonYellow": "Button",
-	"HudLabel": "Label", "HudGold": "Label", "Heading": "Label", "Muted": "Label", "Warning": "Label",
+	"HudLabel": "Label", "HudToast": "Label", "HudGold": "Label", "Heading": "Label", "Muted": "Label", "Warning": "Label",
 	"BarHp": "ProgressBar", "BarXp": "ProgressBar", "BarBoss": "ProgressBar",
 }
 
@@ -77,6 +78,7 @@ const VARIATIONS := {
 const COLORS := [
 	["Label", "font_color", PLUM],
 	["HudLabel", "font_color", WHITE],
+	["HudToast", "font_color", CREAM],
 	["HudGold", "font_color", YELLOW],
 	["Heading", "font_color", RED_DARK],
 	["Muted", "font_color", PLUM_LIGHT],
@@ -144,7 +146,7 @@ static func theme_text(sprite_dir: String = SPRITE_DIR, sheet_dir: String = SHEE
 		props.append("default_font = ExtResource(\"%s\")" % _external(externals, "FontFile", UiFont.plain_path))
 		props.append("default_font_size = %d" % UiFont.SIZE)
 	if FileAccess.file_exists(UiFont.outlined_path):
-		for variation in ["HudLabel", "HudGold"]:
+		for variation in ["HudLabel", "HudToast", "HudGold"]:
 			props.append("%s/fonts/font = ExtResource(\"%s\")" % [variation, _external(externals, "FontFile", UiFont.outlined_path)])
 	props.sort()
 	var out := PackedStringArray(["[gd_resource type=\"Theme\" format=3]", ""])

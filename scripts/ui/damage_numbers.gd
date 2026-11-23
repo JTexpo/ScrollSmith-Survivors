@@ -36,14 +36,14 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
-	var number_font := DamageNumbers.number_font()
+	var face := DamageNumbers.number_font()
 	for number in _numbers:
 		var progress: float = number["age"] / LIFETIME
 		var style: Dictionary = number["style"]
 		var color: Color = style["color"]
 		color.a = 1.0 - progress * progress
 		var at: Vector2 = (to_local(number["position"]) + Vector2(-LABEL_WIDTH * 0.5, -RISE * progress)).round()
-		draw_string(number_font, at, number["text"], HORIZONTAL_ALIGNMENT_CENTER, LABEL_WIDTH, FONT_SIZE, color)
+		draw_string(face, at, number["text"], HORIZONTAL_ALIGNMENT_CENTER, LABEL_WIDTH, FONT_SIZE, color)
 
 
 ## `world_position` is global. `effect` is an ElementTable.Effect.

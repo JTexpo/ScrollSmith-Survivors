@@ -1,6 +1,6 @@
 class_name PotionSlotWidget
 extends Control
-## TEMPORARY (Sprint 10): one slot in the placeholder potion bar. Shows the potion's colour, how many
+## One slot in the potion bar: a cream frame (yellow ring when selected). Shows the potion's colour, how many
 ## are left, the key that drinks it, a cooldown overlay and, while a timed effect runs, a shrinking
 ## timer bar. A tap on a touchscreen or a left click drinks it (Main also blocks casting until the cast
 ## input is released, so a click here never fires a spell). Build children in _ready, so add it to the
@@ -9,7 +9,10 @@ extends Control
 signal pressed(index: int)
 
 const SIZE := Vector2(24, 16)
-const SWATCH_SIZE := Vector2(22, 9)
+## The frame's outline, so everything inside sits 2 px from the edge.
+const FRAME := 2.0
+const SWATCH_SIZE := Vector2(20, 8)
+const EFFECT_COLOR := Color("ffd24a")
 
 var slot_index: int = 0
 var key_text: String = ""
@@ -20,8 +23,7 @@ var cooldown: float = 0.0
 var effect: float = 0.0
 var selected: bool = false
 
-var _highlight: ColorRect
-var _background: ColorRect
+var _frame: Panel
 var _swatch: ColorRect
 var _cooldown_overlay: ColorRect
 var _effect_bar: ColorRect
@@ -33,13 +35,15 @@ func _ready() -> void:
 	custom_minimum_size = SIZE
 	size = SIZE
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_highlight = _add_rect(Vector2(-1, -1), SIZE + Vector2(2, 2), Color.WHITE)
-	_background = _add_rect(Vector2.ZERO, SIZE, Color(0.1, 0.1, 0.12, 0.85))
-	_swatch = _add_rect(Vector2(1, 1), SWATCH_SIZE, Color.WHITE)
-	_cooldown_overlay = _add_rect(Vector2(1, 1), Vector2(SWATCH_SIZE.x, 0.0), Color(0, 0, 0, 0.65))
-	_effect_bar = _add_rect(Vector2(1, SIZE.y - 5), Vector2(SIZE.x - 2.0, 2), Color(1.0, 1.0, 0.5))
-	_count_label = _label(Vector2(10, 4))
-	_key_label = _label(Vector2(1, -1))
+	_frame = Panel.new()
+	_frame.size = SIZE
+	_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_frame)
+	_swatch = _add_rect(Vector2(FRAME, FRAME), SWATCH_SIZE, Color.WHITE)
+	_cooldown_overlay = _add_rect(Vector2(FRAME, FRAME), Vector2(SWATCH_SIZE.x, 0.0), Color(0, 0, 0, 0.65))
+	_effect_bar = _add_rect(Vector2(FRAME, SIZE.y - FRAME - 2.0), Vector2(effect_bar_full_width(), 2), EFFECT_COLOR)
+	_count_label = _label(Vector2(11, 3))
+	_key_label = _label(Vector2(FRAME + 1.0, 0.0))
 	_refresh()
 
 
@@ -113,27 +117,39 @@ func effect_bar_width() -> float:
 
 
 func highlight_visible() -> bool:
-	return _highlight.visible
+	return frame_variation() == &"PanelSlotSelected"
+
+
+## The theme variation the frame uses now: the selected frame has a yellow ring.
+func frame_variation() -> StringName:
+	return _frame.theme_type_variation
+
+
+func text_variation() -> StringName:
+	return _count_label.theme_type_variation
+
+
+## The effect timer's width when a timed effect has just started.
+static func effect_bar_full_width() -> float:
+	return SIZE.x - 2.0 * FRAME
 
 
 func _refresh() -> void:
-	if _background == null:
+	if _frame == null:
 		return
-	_highlight.visible = selected
+	_frame.theme_type_variation = &"PanelSlotSelected" if selected else &"PanelSlot"
 	modulate.a = 0.35 if dimmed else 1.0
 	_swatch.color = swatch_color
 	_cooldown_overlay.size.y = SWATCH_SIZE.y * cooldown
 	_effect_bar.visible = effect > 0.0
-	_effect_bar.size.x = (SIZE.x - 2.0) * effect
+	_effect_bar.size.x = effect_bar_full_width() * effect
 	_count_label.text = count_text()
 	_key_label.text = key_text
 
 
 func _label(at: Vector2) -> Label:
-	var label := Label.new()
+	var label := UiKit.label("", &"HudLabel")
 	label.position = at
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.add_theme_font_size_override("font_size", 8)
 	add_child(label)
 	return label
 

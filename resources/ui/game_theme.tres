@@ -73,11 +73,11 @@ axis_stretch_vertical = 1
 region_rect = Rect2(0, 0, 12, 12)
 
 [sub_resource type="StyleBoxTexture" id="style_5"]
-content_margin_left = 2.0
-content_margin_top = 2.0
-content_margin_right = 2.0
-content_margin_bottom = 2.0
-texture = ExtResource("3")
+content_margin_left = 6.0
+content_margin_top = 3.0
+content_margin_right = 6.0
+content_margin_bottom = 3.0
+texture = ExtResource("2")
 texture_margin_left = 4.0
 texture_margin_top = 4.0
 texture_margin_right = 4.0
@@ -98,21 +98,21 @@ texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
-region_rect = Rect2(12, 0, 12, 12)
+region_rect = Rect2(0, 0, 12, 12)
 
 [sub_resource type="StyleBoxTexture" id="style_7"]
-content_margin_left = 4.0
+content_margin_left = 2.0
 content_margin_top = 2.0
-content_margin_right = 4.0
-content_margin_bottom = 3.0
-texture = ExtResource("4")
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+texture = ExtResource("3")
 texture_margin_left = 4.0
 texture_margin_top = 4.0
 texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
-region_rect = Rect2(0, 0, 12, 12)
+region_rect = Rect2(12, 0, 12, 12)
 
 [sub_resource type="StyleBoxTexture" id="style_8"]
 content_margin_left = 4.0
@@ -126,7 +126,7 @@ texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
-region_rect = Rect2(12, 0, 12, 12)
+region_rect = Rect2(0, 0, 12, 12)
 
 [sub_resource type="StyleBoxTexture" id="style_9"]
 content_margin_left = 4.0
@@ -140,7 +140,7 @@ texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
-region_rect = Rect2(24, 0, 12, 12)
+region_rect = Rect2(12, 0, 12, 12)
 
 [sub_resource type="StyleBoxTexture" id="style_10"]
 content_margin_left = 4.0
@@ -154,28 +154,28 @@ texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
-region_rect = Rect2(36, 0, 12, 12)
+region_rect = Rect2(24, 0, 12, 12)
 
 [sub_resource type="StyleBoxTexture" id="style_11"]
 content_margin_left = 4.0
 content_margin_top = 2.0
 content_margin_right = 4.0
 content_margin_bottom = 3.0
-texture = ExtResource("5")
+texture = ExtResource("4")
 texture_margin_left = 4.0
 texture_margin_top = 4.0
 texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
-region_rect = Rect2(0, 0, 12, 12)
+region_rect = Rect2(36, 0, 12, 12)
 
 [sub_resource type="StyleBoxTexture" id="style_12"]
 content_margin_left = 4.0
 content_margin_top = 2.0
 content_margin_right = 4.0
 content_margin_bottom = 3.0
-texture = ExtResource("6")
+texture = ExtResource("5")
 texture_margin_left = 4.0
 texture_margin_top = 4.0
 texture_margin_right = 4.0
@@ -196,7 +196,7 @@ texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
-region_rect = Rect2(12, 0, 12, 12)
+region_rect = Rect2(0, 0, 12, 12)
 
 [sub_resource type="StyleBoxTexture" id="style_14"]
 content_margin_left = 4.0
@@ -210,7 +210,7 @@ texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
-region_rect = Rect2(24, 0, 12, 12)
+region_rect = Rect2(12, 0, 12, 12)
 
 [sub_resource type="StyleBoxTexture" id="style_15"]
 content_margin_left = 4.0
@@ -224,28 +224,28 @@ texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
-region_rect = Rect2(36, 0, 12, 12)
+region_rect = Rect2(24, 0, 12, 12)
 
 [sub_resource type="StyleBoxTexture" id="style_16"]
 content_margin_left = 4.0
 content_margin_top = 2.0
 content_margin_right = 4.0
 content_margin_bottom = 3.0
-texture = ExtResource("5")
+texture = ExtResource("6")
 texture_margin_left = 4.0
 texture_margin_top = 4.0
 texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
-region_rect = Rect2(0, 0, 12, 12)
+region_rect = Rect2(36, 0, 12, 12)
 
 [sub_resource type="StyleBoxTexture" id="style_17"]
 content_margin_left = 4.0
 content_margin_top = 2.0
 content_margin_right = 4.0
 content_margin_bottom = 3.0
-texture = ExtResource("7")
+texture = ExtResource("5")
 texture_margin_left = 4.0
 texture_margin_top = 4.0
 texture_margin_right = 4.0
@@ -266,7 +266,7 @@ texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
-region_rect = Rect2(12, 0, 12, 12)
+region_rect = Rect2(0, 0, 12, 12)
 
 [sub_resource type="StyleBoxTexture" id="style_19"]
 content_margin_left = 4.0
@@ -280,7 +280,7 @@ texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
-region_rect = Rect2(24, 0, 12, 12)
+region_rect = Rect2(12, 0, 12, 12)
 
 [sub_resource type="StyleBoxTexture" id="style_20"]
 content_margin_left = 4.0
@@ -294,28 +294,28 @@ texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
-region_rect = Rect2(36, 0, 12, 12)
+region_rect = Rect2(24, 0, 12, 12)
 
 [sub_resource type="StyleBoxTexture" id="style_21"]
 content_margin_left = 4.0
 content_margin_top = 2.0
 content_margin_right = 4.0
 content_margin_bottom = 3.0
-texture = ExtResource("5")
+texture = ExtResource("7")
 texture_margin_left = 4.0
 texture_margin_top = 4.0
 texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
-region_rect = Rect2(0, 0, 12, 12)
+region_rect = Rect2(36, 0, 12, 12)
 
 [sub_resource type="StyleBoxTexture" id="style_22"]
 content_margin_left = 4.0
 content_margin_top = 2.0
 content_margin_right = 4.0
 content_margin_bottom = 3.0
-texture = ExtResource("8")
+texture = ExtResource("5")
 texture_margin_left = 4.0
 texture_margin_top = 4.0
 texture_margin_right = 4.0
@@ -336,7 +336,7 @@ texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
-region_rect = Rect2(12, 0, 12, 12)
+region_rect = Rect2(0, 0, 12, 12)
 
 [sub_resource type="StyleBoxTexture" id="style_24"]
 content_margin_left = 4.0
@@ -350,7 +350,7 @@ texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
-region_rect = Rect2(24, 0, 12, 12)
+region_rect = Rect2(12, 0, 12, 12)
 
 [sub_resource type="StyleBoxTexture" id="style_25"]
 content_margin_left = 4.0
@@ -364,9 +364,23 @@ texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
-region_rect = Rect2(36, 0, 12, 12)
+region_rect = Rect2(24, 0, 12, 12)
 
 [sub_resource type="StyleBoxTexture" id="style_26"]
+content_margin_left = 4.0
+content_margin_top = 2.0
+content_margin_right = 4.0
+content_margin_bottom = 3.0
+texture = ExtResource("8")
+texture_margin_left = 4.0
+texture_margin_top = 4.0
+texture_margin_right = 4.0
+texture_margin_bottom = 4.0
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+region_rect = Rect2(36, 0, 12, 12)
+
+[sub_resource type="StyleBoxTexture" id="style_27"]
 content_margin_left = 4.0
 content_margin_top = 2.0
 content_margin_right = 4.0
@@ -380,7 +394,7 @@ axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
 region_rect = Rect2(0, 0, 12, 12)
 
-[sub_resource type="StyleBoxTexture" id="style_27"]
+[sub_resource type="StyleBoxTexture" id="style_28"]
 content_margin_left = 1.0
 content_margin_top = 1.0
 content_margin_right = 1.0
@@ -393,18 +407,18 @@ texture_margin_bottom = 0.0
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
 region_rect = Rect2(0, 0, 6, 8)
-
-[sub_resource type="StyleBoxTexture" id="style_28"]
-texture = ExtResource("10")
-texture_margin_left = 1.0
-texture_margin_top = 1.0
-texture_margin_right = 1.0
-texture_margin_bottom = 1.0
-axis_stretch_horizontal = 1
-axis_stretch_vertical = 1
-region_rect = Rect2(0, 0, 4, 6)
 
 [sub_resource type="StyleBoxTexture" id="style_29"]
+texture = ExtResource("10")
+texture_margin_left = 1.0
+texture_margin_top = 1.0
+texture_margin_right = 1.0
+texture_margin_bottom = 1.0
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+region_rect = Rect2(0, 0, 4, 6)
+
+[sub_resource type="StyleBoxTexture" id="style_30"]
 content_margin_left = 1.0
 content_margin_top = 1.0
 content_margin_right = 1.0
@@ -418,7 +432,7 @@ axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
 region_rect = Rect2(0, 0, 6, 8)
 
-[sub_resource type="StyleBoxTexture" id="style_30"]
+[sub_resource type="StyleBoxTexture" id="style_31"]
 texture = ExtResource("10")
 texture_margin_left = 1.0
 texture_margin_top = 1.0
@@ -428,7 +442,7 @@ axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
 region_rect = Rect2(0, 0, 4, 6)
 
-[sub_resource type="StyleBoxTexture" id="style_31"]
+[sub_resource type="StyleBoxTexture" id="style_32"]
 content_margin_left = 1.0
 content_margin_top = 1.0
 content_margin_right = 1.0
@@ -442,7 +456,7 @@ axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
 region_rect = Rect2(0, 0, 6, 4)
 
-[sub_resource type="StyleBoxTexture" id="style_32"]
+[sub_resource type="StyleBoxTexture" id="style_33"]
 texture = ExtResource("12")
 texture_margin_left = 1.0
 texture_margin_top = 0.0
@@ -452,7 +466,7 @@ axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
 region_rect = Rect2(0, 0, 4, 2)
 
-[sub_resource type="StyleBoxTexture" id="style_33"]
+[sub_resource type="StyleBoxTexture" id="style_34"]
 content_margin_left = 1.0
 content_margin_top = 1.0
 content_margin_right = 1.0
@@ -466,7 +480,7 @@ axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
 region_rect = Rect2(0, 0, 6, 8)
 
-[sub_resource type="StyleBoxTexture" id="style_34"]
+[sub_resource type="StyleBoxTexture" id="style_35"]
 texture = ExtResource("13")
 texture_margin_left = 1.0
 texture_margin_top = 1.0
@@ -478,57 +492,57 @@ region_rect = Rect2(0, 0, 4, 6)
 
 [resource]
 BarBoss/base_type = &"ProgressBar"
-BarBoss/styles/background = SubResource("style_33")
-BarBoss/styles/fill = SubResource("style_34")
+BarBoss/styles/background = SubResource("style_34")
+BarBoss/styles/fill = SubResource("style_35")
 BarHp/base_type = &"ProgressBar"
-BarHp/styles/background = SubResource("style_29")
-BarHp/styles/fill = SubResource("style_30")
+BarHp/styles/background = SubResource("style_30")
+BarHp/styles/fill = SubResource("style_31")
 BarXp/base_type = &"ProgressBar"
-BarXp/styles/background = SubResource("style_31")
-BarXp/styles/fill = SubResource("style_32")
+BarXp/styles/background = SubResource("style_32")
+BarXp/styles/fill = SubResource("style_33")
 Button/colors/font_color = Color(0.23137255, 0.16470589, 0.36078432, 1)
 Button/colors/font_disabled_color = Color(0.41960785, 0.3529412, 0.54901963, 1)
 Button/colors/font_focus_color = Color(0.23137255, 0.16470589, 0.36078432, 1)
 Button/colors/font_hover_color = Color(0.23137255, 0.16470589, 0.36078432, 1)
 Button/colors/font_pressed_color = Color(0.23137255, 0.16470589, 0.36078432, 1)
-Button/styles/disabled = SubResource("style_10")
-Button/styles/focus = SubResource("style_11")
-Button/styles/hover = SubResource("style_8")
-Button/styles/normal = SubResource("style_7")
-Button/styles/pressed = SubResource("style_9")
+Button/styles/disabled = SubResource("style_11")
+Button/styles/focus = SubResource("style_12")
+Button/styles/hover = SubResource("style_9")
+Button/styles/normal = SubResource("style_8")
+Button/styles/pressed = SubResource("style_10")
 ButtonGreen/base_type = &"Button"
 ButtonGreen/colors/font_color = Color(1, 0.9647059, 0.9098039, 1)
 ButtonGreen/colors/font_disabled_color = Color(0.41960785, 0.3529412, 0.54901963, 1)
 ButtonGreen/colors/font_focus_color = Color(1, 0.9647059, 0.9098039, 1)
 ButtonGreen/colors/font_hover_color = Color(1, 1, 1, 1)
 ButtonGreen/colors/font_pressed_color = Color(1, 0.9647059, 0.9098039, 1)
-ButtonGreen/styles/disabled = SubResource("style_20")
-ButtonGreen/styles/focus = SubResource("style_21")
-ButtonGreen/styles/hover = SubResource("style_18")
-ButtonGreen/styles/normal = SubResource("style_17")
-ButtonGreen/styles/pressed = SubResource("style_19")
+ButtonGreen/styles/disabled = SubResource("style_21")
+ButtonGreen/styles/focus = SubResource("style_22")
+ButtonGreen/styles/hover = SubResource("style_19")
+ButtonGreen/styles/normal = SubResource("style_18")
+ButtonGreen/styles/pressed = SubResource("style_20")
 ButtonRed/base_type = &"Button"
 ButtonRed/colors/font_color = Color(1, 0.9647059, 0.9098039, 1)
 ButtonRed/colors/font_disabled_color = Color(0.41960785, 0.3529412, 0.54901963, 1)
 ButtonRed/colors/font_focus_color = Color(1, 0.9647059, 0.9098039, 1)
 ButtonRed/colors/font_hover_color = Color(1, 1, 1, 1)
 ButtonRed/colors/font_pressed_color = Color(1, 0.9647059, 0.9098039, 1)
-ButtonRed/styles/disabled = SubResource("style_15")
-ButtonRed/styles/focus = SubResource("style_16")
-ButtonRed/styles/hover = SubResource("style_13")
-ButtonRed/styles/normal = SubResource("style_12")
-ButtonRed/styles/pressed = SubResource("style_14")
+ButtonRed/styles/disabled = SubResource("style_16")
+ButtonRed/styles/focus = SubResource("style_17")
+ButtonRed/styles/hover = SubResource("style_14")
+ButtonRed/styles/normal = SubResource("style_13")
+ButtonRed/styles/pressed = SubResource("style_15")
 ButtonYellow/base_type = &"Button"
 ButtonYellow/colors/font_color = Color(0.23137255, 0.16470589, 0.36078432, 1)
 ButtonYellow/colors/font_disabled_color = Color(0.41960785, 0.3529412, 0.54901963, 1)
 ButtonYellow/colors/font_focus_color = Color(0.23137255, 0.16470589, 0.36078432, 1)
 ButtonYellow/colors/font_hover_color = Color(0.23137255, 0.16470589, 0.36078432, 1)
 ButtonYellow/colors/font_pressed_color = Color(0.23137255, 0.16470589, 0.36078432, 1)
-ButtonYellow/styles/disabled = SubResource("style_25")
-ButtonYellow/styles/focus = SubResource("style_26")
-ButtonYellow/styles/hover = SubResource("style_23")
-ButtonYellow/styles/normal = SubResource("style_22")
-ButtonYellow/styles/pressed = SubResource("style_24")
+ButtonYellow/styles/disabled = SubResource("style_26")
+ButtonYellow/styles/focus = SubResource("style_27")
+ButtonYellow/styles/hover = SubResource("style_24")
+ButtonYellow/styles/normal = SubResource("style_23")
+ButtonYellow/styles/pressed = SubResource("style_25")
 Heading/base_type = &"Label"
 Heading/colors/font_color = Color(0.61960787, 0.16470589, 0.13333334, 1)
 HudGold/base_type = &"Label"
@@ -537,6 +551,10 @@ HudGold/fonts/font = ExtResource("15")
 HudLabel/base_type = &"Label"
 HudLabel/colors/font_color = Color(1, 1, 1, 1)
 HudLabel/fonts/font = ExtResource("15")
+HudToast/base_type = &"Label"
+HudToast/colors/font_color = Color(1, 0.9647059, 0.9098039, 1)
+HudToast/fonts/font = ExtResource("15")
+HudToast/styles/normal = SubResource("style_5")
 Label/colors/font_color = Color(0.23137255, 0.16470589, 0.36078432, 1)
 Muted/base_type = &"Label"
 Muted/colors/font_color = Color(0.41960785, 0.3529412, 0.54901963, 1)
@@ -545,11 +563,11 @@ PanelContainer/styles/panel = SubResource("style_2")
 PanelDark/base_type = &"Panel"
 PanelDark/styles/panel = SubResource("style_4")
 PanelSlot/base_type = &"Panel"
-PanelSlot/styles/panel = SubResource("style_5")
+PanelSlot/styles/panel = SubResource("style_6")
 PanelSlotSelected/base_type = &"Panel"
-PanelSlotSelected/styles/panel = SubResource("style_6")
-ProgressBar/styles/background = SubResource("style_27")
-ProgressBar/styles/fill = SubResource("style_28")
+PanelSlotSelected/styles/panel = SubResource("style_7")
+ProgressBar/styles/background = SubResource("style_28")
+ProgressBar/styles/fill = SubResource("style_29")
 TooltipPanel/styles/panel = SubResource("style_3")
 Warning/base_type = &"Label"
 Warning/colors/font_color = Color(0.8784314, 0.28235295, 0.23529412, 1)

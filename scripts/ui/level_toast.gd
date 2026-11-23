@@ -1,6 +1,6 @@
 class_name LevelToast
 extends Label
-## TEMPORARY (Sprint 8): "Level 4! More spell mana" shown when a level is reached. Level-ups in a row
+## "Level 4! More spell mana" shown when a level is reached, on a dark pill. Level-ups in a row
 ## are listed one per line (the newest last, at most MAX_LINES) so a big XP gain does not hide the
 ## earlier rewards. It only processes while it is showing.
 
@@ -17,8 +17,6 @@ func _ready() -> void:
 	set_process(false)
 	horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_theme_font_size_override("font_size", 8)
-	add_theme_color_override("font_color", Color(1.0, 0.92, 0.55))
 
 
 func _process(delta: float) -> void:
@@ -42,6 +40,7 @@ func _add_line(line: String) -> void:
 	while _lines.size() > MAX_LINES:
 		_lines.pop_front()
 	text = "\n".join(_lines)
+	reset_size()
 	modulate.a = 1.0
 	_time_left = DURATION
 	visible = true

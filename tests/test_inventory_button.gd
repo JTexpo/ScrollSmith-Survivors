@@ -45,3 +45,11 @@ func test_set_total_updates_the_label() -> void:
 	_button.set_total(7)
 	assert_eq(_button.total, 7)
 	assert_true(_button.label_text().contains("7"))
+
+
+func test_the_touch_button_is_a_themed_green_button_that_takes_no_input() -> void:
+	var themed := _button.get_node("Face") as Button
+	assert_eq(themed.theme_type_variation, &"ButtonGreen")
+	assert_eq(themed.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+	assert_eq(themed.focus_mode, Control.FOCUS_NONE)
+	assert_eq(_button.label_text(), themed.text)

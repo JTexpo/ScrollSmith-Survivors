@@ -1,6 +1,6 @@
 class_name PotionBar
 extends Control
-## TEMPORARY (Sprint 10): a column of six potion slots at the top right, in catalog order. It reads
+## A column of six potion slots at the top right, in catalog order. It reads
 ## the potion belt and the active effects and never changes them. A tap on a slot is forwarded as
 ## slot_pressed, and Main routes it to the belt. It only processes while a cooldown or an effect runs.
 

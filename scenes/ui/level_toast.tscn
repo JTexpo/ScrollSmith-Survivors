@@ -3,4 +3,5 @@
 [ext_resource type="Script" path="res://scripts/ui/level_toast.gd" id="1"]
 
 [node name="LevelToast" type="Label"]
+theme_type_variation = &"HudToast"
 script = ExtResource("1")

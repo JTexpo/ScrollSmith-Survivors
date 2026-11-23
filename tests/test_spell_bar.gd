@@ -174,3 +174,25 @@ func test_a_replaced_slot_follows_the_new_instances_mana() -> void:
 	old.current_mana = 1.0
 	old.mana_changed.emit(1.0, old.data.max_mana)
 	assert_eq(_bar.widgets[2].ratio, shown, "the old instance no longer drives the widget")
+
+
+func test_a_slot_draws_the_slot_frame_with_a_selected_variation() -> void:
+	var selected := _loadout.selected_index
+	var other := 1 if selected != 1 else 2
+	assert_eq(_bar.widgets[selected].frame_variation(), &"PanelSlotSelected")
+	assert_eq(_bar.widgets[other].frame_variation(), &"PanelSlot")
+	_loadout.select(other)
+	assert_eq(_bar.widgets[other].frame_variation(), &"PanelSlotSelected")
+	assert_eq(_bar.widgets[selected].frame_variation(), &"PanelSlot")
+
+
+func test_the_mana_fill_still_follows_the_ratio() -> void:
+	var widget := _bar.widgets[0]
+	widget.set_mana(50.0, 100.0)
+	assert_almost_eq(widget.mana_fill_width(), (SpellSlotWidget.SIZE.x - 4.0) * 0.5, 0.0001)
+	widget.set_mana(0.0, 100.0)
+	assert_eq(widget.mana_fill_width(), 0.0)
+
+
+func test_the_slot_numbers_use_the_outlined_hud_label() -> void:
+	assert_eq(_bar.widgets[0].number_variation(), &"HudLabel")

@@ -107,3 +107,14 @@ func test_every_control_ignores_the_mouse() -> void:
 	assert_eq(_bar.mouse_filter, Control.MOUSE_FILTER_IGNORE)
 	for child in _bar.find_children("*", "Control", true, false):
 		assert_eq((child as Control).mouse_filter, Control.MOUSE_FILTER_IGNORE, str(child.name))
+
+
+func test_the_boss_bar_is_a_themed_bar_with_an_outlined_name() -> void:
+	var boss := _boss()
+	_bar.show_boss(boss)
+	var themed := _bar.get_node("Bar") as ProgressBar
+	assert_eq(themed.theme_type_variation, &"BarBoss")
+	assert_eq(themed.value, 1.0)
+	_hit(boss, _data.max_health * 0.25)
+	assert_almost_eq(themed.value, _bar.ratio(), 0.0001)
+	assert_eq((_bar.get_node("Title") as Label).theme_type_variation, &"HudLabel")

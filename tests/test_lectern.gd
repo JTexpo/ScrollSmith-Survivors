@@ -57,3 +57,7 @@ func test_the_lectern_without_art_shows_the_fallback_square() -> void:
 	assert_false(body.has_art())
 	assert_true((body.get_node("Fallback") as ColorRect).visible)
 
+
+func test_the_prompt_uses_the_outlined_hud_label() -> void:
+	var prompt := _lectern().get_node("Prompt") as Label
+	assert_eq(prompt.theme_type_variation, &"HudLabel")
