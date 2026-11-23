@@ -407,3 +407,39 @@ func test_draw_chunks_with_art_still_split_the_layer() -> void:
 	var layer := _map_node(data).get_node("Obstacles") as ObstacleLayer
 	assert_gt(layer.chunk_count(), 1, "far apart obstacles are in different chunks")
 
+
+func _decor_art(file: String, frames: int) -> void:
+	_tile_art(file)
+	var set_data := load("%s/%s" % [_art_dir, file]) as SpriteSetData
+	set_data.tile = false
+	set_data.frame_size = Vector2i(8, 8)
+	set_data.sheet = ImageTexture.create_from_image(Image.create(8 * frames, 8, false, Image.FORMAT_RGBA8))
+	assert_eq(ResourceSaver.save(set_data, "%s/%s" % [_art_dir, file]), OK)
+
+
+func _decor_art_count(node: GameMap) -> int:
+	var count := 0
+	for chunk in (node.get_node("Decor") as MapDecorLayer).get_children():
+		count += (chunk as DrawChunk).art_decor_count()
+	return count
+
+
+func test_decor_with_art_is_drawn_as_art_and_item_counts_do_not_change() -> void:
+	var data := _data()
+	data.decoration_styles = PackedStringArray(["moss"])
+	var plain := _map_node(_data())
+	_decor_art("decor_moss_base.tres", 3)
+	var styled := _map_node(data)
+	assert_eq((styled.get_node("Decor") as MapDecorLayer).item_count(), (styled.get_node("Decor") as MapDecorLayer).item_count())
+	assert_gt(_decor_art_count(styled), 0)
+	assert_eq(_decor_art_count(styled), (styled.get_node("Decor") as MapDecorLayer).item_count(), "every item has art")
+	assert_eq(_decor_art_count(plain), 0, "a map with no styles keeps its coloured squares")
+
+
+func test_decor_with_a_missing_style_keeps_its_coloured_squares() -> void:
+	var data := _data()
+	data.decoration_styles = PackedStringArray(["no_such_decoration"])
+	var node := _map_node(data)
+	assert_gt((node.get_node("Decor") as MapDecorLayer).item_count(), 0)
+	assert_eq(_decor_art_count(node), 0)
+

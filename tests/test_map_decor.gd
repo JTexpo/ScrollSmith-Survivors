@@ -157,3 +157,69 @@ func test_the_layer_splits_its_drawing_into_chunks_and_keeps_the_count() -> void
 	assert_eq(layer.item_count(), 0)
 	await wait_frames(1)
 	assert_eq(layer.chunk_count(), 0, "old chunks are gone")
+
+
+func test_a_map_without_styles_scatters_exactly_as_before() -> void:
+	# Captured from the scatter before styles existed (seed 3): the first three rects and the count.
+	var items := MapDecor.scatter(_map(3))
+	assert_eq(items.size(), 50)
+	var expected := [Vector2(285.97, 101.1249), Vector2(311.542, 117.432), Vector2(275.9686, 283.9378)]
+	var sizes := [2.998982, 2.610193, 2.954839]
+	for i in 3:
+		assert_almost_eq((items[i]["rect"] as Rect2).position.x, expected[i].x, 0.001)
+		assert_almost_eq((items[i]["rect"] as Rect2).position.y, expected[i].y, 0.001)
+		assert_almost_eq((items[i]["rect"] as Rect2).size.x, sizes[i], 0.001)
+	for item in items:
+		assert_eq(item["style"], &"", "no styles means an empty style")
+		assert_eq(item["frame"], 0)
+
+
+func _styled_map(seed_value: int = 3) -> MapData:
+	var map := _map(seed_value)
+	map.decoration_styles = PackedStringArray(["moss", "pebbles"])
+	return map
+
+
+func test_items_carry_a_style_from_the_list_and_a_frame() -> void:
+	var seen := {}
+	for item in MapDecor.scatter(_styled_map()):
+		assert_true(item["style"] in [&"moss", &"pebbles"], str(item["style"]))
+		assert_gte(item["frame"], 0)
+		seen[item["style"]] = true
+	assert_eq(seen.size(), 2, "both styles are used")
+
+
+func test_the_same_seed_gives_the_same_styles() -> void:
+	assert_eq(MapDecor.scatter(_styled_map(5)), MapDecor.scatter(_styled_map(5)))
+	assert_ne(MapDecor.scatter(_styled_map(5)), MapDecor.scatter(_styled_map(6)))
+
+
+func test_art_decorations_still_keep_clear_of_walls_the_start_and_placements() -> void:
+	var map := _styled_map()
+	var wall := MapObstacle.new()
+	wall.kind = MapObstacle.Kind.RECT
+	wall.position = Vector2(300, 200)
+	wall.size = Vector2(100, 16)
+	map.obstacles = [wall] as Array[MapObstacle]
+	var items := MapDecor.scatter(map)
+	assert_gt(items.size(), 0)
+	for item in items:
+		var centre := (item["rect"] as Rect2).get_center()
+		assert_false(wall.contains(centre, MapDecor.SHAPE_MARGIN), "not on the wall")
+		assert_gte(centre.distance_to(map.player_start), MapDecor.CLEAR_RADIUS)
+		assert_gte(centre.distance_to(Vector2(50, 50)), MapDecor.CLEAR_RADIUS)
+
+
+func test_a_zone_with_only_styles_still_scatters() -> void:
+	var map := _map()
+	var zone := MapZone.new()
+	zone.area = Rect2(200, 100, 160, 120)
+	zone.decoration_count = 20
+	zone.decoration_styles = PackedStringArray(["cracks"])
+	map.zones = [zone] as Array[MapZone]
+	var items := MapDecor.scatter_zone(map, 0)
+	assert_gt(items.size(), 0)
+	for item in items:
+		assert_eq(item["style"], &"cracks")
+		assert_true(zone.area.encloses(item["rect"]))
+

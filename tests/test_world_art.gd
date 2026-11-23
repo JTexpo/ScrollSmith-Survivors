@@ -114,3 +114,21 @@ func test_every_obstacle_and_maze_material_in_first_map_has_art() -> void:
 		else:
 			assert_not_null(WorldArt.wall_set(obstacle.material), "wall_%s" % obstacle.material)
 
+
+func test_every_decoration_style_in_first_map_has_art() -> void:
+	SpriteLibrary.root = "res://assets/sprites"
+	var map := load("res://resources/maps/first_map.tres") as MapData
+	var styles := {}
+	for style in map.decoration_styles:
+		styles[style] = true
+	for zone in map.zones:
+		for style in zone.decoration_styles:
+			styles[style] = true
+	assert_gt(styles.size(), 0, "the first map names decoration styles")
+	for style in styles:
+		var set_data := WorldArt.decor_set(StringName(style))
+		assert_not_null(set_data, "decor_%s has art" % style)
+		assert_gte(set_data.frame_count(), 2, "decor_%s has variants" % style)
+		assert_lte(set_data.frame_size.x, 8)
+		assert_lte(set_data.frame_size.y, 8)
+
