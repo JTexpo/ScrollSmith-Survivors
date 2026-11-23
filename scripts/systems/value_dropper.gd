@@ -7,6 +7,9 @@ extends Node
 @export var kind: ValueGem.Kind = ValueGem.Kind.XP
 @export var gem_scene: PackedScene
 @export var max_gems: int = 150
+## Where from the dead enemy a drop lands. XP and Gold are fanned out to either side of where a scroll lands (Main sets
+## them), so the three never sit exactly on top of each other. `place` is always exact.
+@export var drop_offset: Vector2 = Vector2.ZERO
 
 ## Where pickups are added. Defaults to this node's parent.
 var drop_root: Node
@@ -22,7 +25,7 @@ func on_enemy_died(enemy: Enemy) -> ValueGem:
 	var reward := enemy.xp_reward() if kind == ValueGem.Kind.XP else enemy.gold_reward()
 	if reward <= 0:
 		return null
-	return place(reward, enemy.global_position)
+	return place(reward, enemy.global_position + drop_offset)
 
 
 ## Puts value on the ground at a world position. Returns the pickup now holding it.

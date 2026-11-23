@@ -142,3 +142,77 @@ func test_it_ignores_the_mouse() -> void:
 	for child in _body.get_children():
 		if child is Control:
 			assert_eq((child as Control).mouse_filter, Control.MOUSE_FILTER_IGNORE, child.name)
+
+
+func test_set_sprite_material_applies_to_the_sprite_and_its_outline() -> void:
+	var material := ShaderMaterial.new()
+	_body.set_sprite_material(material)
+	assert_eq(_sprite().material, material)
+	assert_eq((_body.get_node("Outline") as AnimatedSprite2D).material, material)
+
+
+func _shadow() -> Sprite2D:
+	return _body.get_node_or_null("Shadow") as Sprite2D
+
+
+func test_a_shadow_is_drawn_behind_the_sprite_below_its_feet() -> void:
+	_body.shadow_enabled = true
+	_body.set_look(&"player")
+	var shadow := _shadow()
+	assert_not_null(shadow)
+	assert_true(shadow.visible)
+	assert_lt(shadow.get_index(), _sprite().get_index(), "the shadow is under the sprite")
+	assert_lt(shadow.get_index(), (_body.get_node("Outline") as Node).get_index(), "and under the elite outline")
+	assert_gt(shadow.modulate.a, 0.0)
+	assert_lt(shadow.modulate.a, 1.0, "a soft shadow, not a black blob")
+	assert_gt(shadow.position.y, 0.0, "on the ground, below the middle of the sprite")
+
+
+func test_there_is_no_shadow_when_disabled_or_when_there_is_no_art() -> void:
+	_body.set_look(&"player")
+	assert_true(_shadow() == null or not _shadow().visible, "a body shadows only when asked")
+	var other := BodyView.new()
+	add_child_autofree(other)
+	other.shadow_enabled = true
+	assert_false(other.set_look(&"no_such_sprite"))
+	assert_true(other.get_node_or_null("Shadow") == null or not (other.get_node("Shadow") as Sprite2D).visible, "no art, no shadow")
+
+
+func test_the_shadow_is_as_wide_as_the_sprite_allows() -> void:
+	_body.shadow_enabled = true
+	_body.set_look(&"player")
+	var player_width := _body.shadow_width()
+	_body.set_look(&"enemy_swarmer", &"none")
+	var swarmer_width := _body.shadow_width()
+	_body.set_look(&"boss_ember_titan")
+	var boss_width := _body.shadow_width()
+	assert_gt(player_width, swarmer_width, "a 16 px player has a wider shadow than a 10 px slime")
+	assert_gt(boss_width, player_width, "and the boss a wider one still")
+	assert_lte(player_width, 16, "never wider than the sprite")
+
+
+func test_the_shadow_stays_one_to_one_and_on_the_ground_under_a_scaled_owner() -> void:
+	var owner_node := Node2D.new()
+	add_child_autofree(owner_node)
+	var body := BodyView.new()
+	owner_node.add_child(body)
+	body.shadow_enabled = true
+	body.set_look(&"enemy_tank", &"none")
+	owner_node.scale = Vector2(1.5, 1.5)
+	body.counter_scale(owner_node.scale)
+	var shadow := body.get_node("Shadow") as Sprite2D
+	assert_almost_eq(shadow.global_transform.get_scale().x, 1.0, 0.001)
+	var sprite_height := float((body.get_node("Sprite") as AnimatedSprite2D).sprite_frames.get_frame_texture(&"move", 0).get_height())
+	assert_almost_eq(shadow.global_position.y - body.global_position.y, sprite_height / 2.0 - 1.0, 0.6, "at the feet in world pixels, however the owner is scaled")
+
+
+func test_every_shadow_is_drawn_at_one_depth_just_under_the_world() -> void:
+	# One shared depth keeps all the shadows together in the draw order, so they batch into a few draws instead of
+	# alternating with every sprite (which cost about half the frame rate at 300 enemies).
+	_body.shadow_enabled = true
+	_body.set_look(&"player")
+	var shadow := _shadow()
+	assert_eq(shadow.z_index, BodyView.SHADOW_Z)
+	assert_false(shadow.z_as_relative, "the same depth whatever its owner's depth")
+	assert_lt(BodyView.SHADOW_Z, 0, "under the sprites, which are at depth 0")
+

@@ -19,6 +19,8 @@ extends Resource
 ## Turns the whole generated maze half a turn (entrances included). A second maze with the same data and this set is
 ## an exact mirror image of the first, for the opposite corner of the map.
 @export var rotated: bool = false
+## What the walls are made of (`hedge` ...), stamped on every wall it generates.
+@export var material: StringName = &""
 
 const MIN_CELLS := 3
 ## North, east, south, west.
@@ -127,6 +129,7 @@ func _wall(center: Vector2, size: Vector2) -> MapObstacle:
 	wall.kind = MapObstacle.Kind.RECT
 	wall.position = center
 	wall.size = size
+	wall.material = material
 	return wall
 
 

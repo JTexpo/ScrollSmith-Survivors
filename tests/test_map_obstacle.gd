@@ -86,3 +86,9 @@ func test_a_grown_segment_test_catches_a_near_miss() -> void:
 	# The circle (centre (200, 100), radius 10): a segment 14 px above the centre.
 	assert_false(_circle().blocks_segment(Vector2(160, 86), Vector2(240, 86)))
 	assert_true(_circle().blocks_segment(Vector2(160, 86), Vector2(240, 86), 6.0))
+
+
+func test_material_defaults_to_empty_for_both_shapes() -> void:
+	assert_eq(_rect().material, &"")
+	assert_eq(_circle().material, &"")
+

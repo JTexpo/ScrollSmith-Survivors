@@ -1,0 +1,22 @@
+# The one stone wall of the mazes, the stronghold and the tunnel: dark purple-grey blocks with a light top edge.
+tile
+slice 4 4 4 4
+size 16 16
+anim idle 0 0 1 loop
+frame
+KKKKKKKKKKKKKKKK
+KkkkkkkkkkkkkkkK
+KkjjjjjjjjjjjjkK
+KkjlllllllllljkK
+KkjlqjjlllllljkK
+KkjlqlllllllljkK
+KkjlqlllllllljkK
+KkjlqqqqqqqqljkK
+KkjlllllqjjlljkK
+KkjlllllqlllljkK
+KkjlllllqlllljkK
+KkjlqqqqqqqqljkK
+KkjlllllllllljkK
+KkjjjjjjjjjjjjkK
+KkkkkkkkkkkkkkkK
+KKKKKKKKKKKKKKKK

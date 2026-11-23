@@ -702,9 +702,11 @@ The intended art direction is comedic, colorful, and cartoon-inspired pixel art.
 
 The world should feel like a playful fantasy adventure rather than a grim-dark survival experience.
 
-Sprint 13 is split into four: **13a** the art foundation (built), **13b** the world's art, **13c** audio, **13d** polish. 13b also takes equipment sprites that change what the wizard looks like (user request during 13a: the robe, hat or hood and weapon shown on the player).
+Sprint 13 is split into six: **13a** the art foundation (built), **13b** the world's art (built), **13c** spells and equipment (spell and projectile art, enemy projectiles and blast zones, the reticle, and the wizard visibly wearing the equipped robe, headwear and weapon, a user request during 13a), **13d** the interface (a font and one look for every HUD piece and screen), **13e** audio, **13f** polish.
 
-**Built note (13a):** a replaceable art pipeline. Sprites are text pixel grids (`art/sprites/*.sprite`) in one palette (`art/palette.txt`), built by `tools/art/art_builder.gd` into committed PNG sheets and `SpriteSetData` resources, and shown by `BodyView`, which falls back to the old coloured square when there is no art. The player (idle, move, cast), all seven enemy archetypes in the five element colourways (move, death, and the Ranged shot, Exploder fuse and Support pulse) and the Ember Titan (idle, telegraph, attack, vulnerable) have sprites; elites get a silhouette outline. Overwriting a sheet PNG replaces that art with no code change. Gameplay and hit shapes are unchanged. Stress is about 30% lower than before (about 139 against 199 fps at 300 enemies), still more than twice the 60 fps target. Not yet drawn: player damage and hurt poses, spell and projectile art, scrolls, equipment, Lecterns, tiles and UI (13b).
+**Built note (13a):** a replaceable art pipeline. Sprites are text pixel grids (`art/sprites/*.sprite`) in one palette (`art/palette.txt`), built by `tools/art/art_builder.gd` into committed PNG sheets and `SpriteSetData` resources, and shown by `BodyView`, which falls back to the old coloured square when there is no art. The player (idle, move, cast), all seven enemy archetypes in the five element colourways (move, death, and the Ranged shot, Exploder fuse and Support pulse) and the Ember Titan (idle, telegraph, attack, vulnerable) have sprites; elites get a silhouette outline. Overwriting a sheet PNG replaces that art with no code change. Gameplay and hit shapes are unchanged. Stress is about 30% lower than before (about 139 against 199 fps at 300 enemies), still more than twice the 60 fps target. Not yet drawn: player damage and hurt poses, spell and projectile art, equipment and UI.
+
+**Built note (13b):** the world has the same look. Each zone of the first map has a tiled floor (grass, and one lavender stone floor for the mazes, the stronghold and the tunnel) with a wavy, organic edge instead of a straight one, walls are a 9-slice of one stone-block tile (mazes, stronghold, tunnel) or a leafy hedge (the plaza's small walls), every round post is a tree, decorations are bold 12 by 12 sprites spread evenly (flowers, mushrooms and pebbles on the grass, pebbles and cracks on the stone), and the Lectern, the five points of interest (a ready and a dimmed refreshing look) and the scroll, XP gem and Gold coin pickups have sprites. The map names its art (`MapObstacle.material`, `MapZone.floor_style`, `decoration_styles`) and a missing name keeps today's flat colour, so collision, pathfinding and the layout tests did not change. Overwriting a tile or wall PNG replaces it with no code change (checked in a copy of the project). Several rounds of user feedback during the build made the floors brighter, simpler and more cartoon, softened the zone edges, replaced emerald-looking hedge mazes with brick and then with one stone look, and swapped marble pillars for trees. Stress is the same as main within noise (about 141 against about 135 fps median at 300 enemies). Unused but kept: the brick wall, path and hall floors and the marble post sprites.
 
 ### Art Direction
 
@@ -717,10 +719,10 @@ Sprint 13 is split into four: **13a** the art foundation (built), **13b** the wo
 - [x] Create enemy movement animations.
 - [x] Create enemy attack animations.
 - [ ] Create elemental spell sprites.
-- [ ] Create scroll sprites.
+- [x] Create scroll sprites.
 - [ ] Create equipment sprites.
-- [ ] Create Lectern sprites.
-- [ ] Create environmental tiles.
+- [x] Create Lectern sprites.
+- [x] Create environmental tiles.
 - [ ] Create UI elements.
 
 ### Animation

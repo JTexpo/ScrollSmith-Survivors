@@ -21,5 +21,7 @@ enum Kind { HEAL, RESTORE_MANA, LOOT, MERCHANT }
 @export var stock_per_potion: int = 0
 @export var price_multiplier: float = 1.0
 @export var refresh_seconds: float = 180.0
-## Placeholder look until there is art.
+## The sprite (`poi_<name>`, with `ready` and `used` animations). Empty, or a name with no art, keeps the drawn shape.
+@export var sprite_name: StringName = &""
+## The colour of the ring and of the drawn shape that stands in when there is no art.
 @export var color: Color = Color.WHITE

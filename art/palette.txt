@@ -22,6 +22,45 @@ color y #c98e1a
 color R #e8483f
 color r #a82626
 
+# The world (Sprint 13b): bright, saturated, flat cartoon colours. Floors stay simple (few big shapes) so sprites read on top.
+# Grass: dark, mid, light
+color c #4fb83a
+color a #6fd650
+color b #8ee86a
+# Stone path (the mazes): dark, mid, light
+color i #c9b88a
+color f #e8d9a8
+color h #f6ecc4
+# Ruin flagstones (the island): dark, mid, light
+color l #8a7fc0
+color j #b5abe0
+color k #d0c8f0
+# Hall flagstones (the corridor): dark, mid, light
+color o #e2bd80
+color m #f2d49a
+color n #fae6b8
+# The world's edge
+color q #3a2c5a
+color t #4f3f78
+# Hedge: dark, mid, light
+color u #2c5e2e
+color v #3d7d3a
+color w #5fa050
+# Brick: mid, light (the mortar is the dark red r)
+color x #b5533d
+color z #cf6f55
+# Marble: light, mid (the shade is the grey g)
+color B #e8e4dc
+color C #c4bfb4
+# Wood: trunk mid, dark
+color E #7a4e2a
+color F #53331a
+# Flower pink
+color H #ff8fb8
+# Mana blue: dark and light
+color e #3aa0ff
+color D #a8dcff
+
 # Element variants (README: Fire orange, red, yellow; Thunder yellow, white, electric blue; Land brown, green; Sea blue, cyan, turquoise)
 variant none    #5a5470 #8a829c #c9c3d6 #7a5a3a #c9a06a
 variant fire    #b3261e #f0561d #ffb02e #7a1d12 #ffe36a

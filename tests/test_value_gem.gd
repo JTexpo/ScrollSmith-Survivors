@@ -64,3 +64,30 @@ func test_coin_and_gem_look_different() -> void:
 	var coin := _coin(1)
 	assert_ne((gem.get_node("Shape") as Polygon2D).polygon, (coin.get_node("Shape") as Polygon2D).polygon)
 	assert_ne((gem.get_node("Shape") as Polygon2D).color, (coin.get_node("Shape") as Polygon2D).color)
+
+
+func after_each() -> void:
+	SpriteLibrary.root = "res://assets/sprites"
+
+
+func test_xp_and_gold_show_different_sprites_that_sparkle() -> void:
+	var gem := _gem(1)
+	var coin := (load("res://scenes/progression/gold_coin.tscn") as PackedScene).instantiate() as ValueGem
+	add_child_autofree(coin)
+	coin.setup(1)
+	for pickup in [gem, coin]:
+		var body := pickup.get_node("Body") as BodyView
+		assert_true(body.has_art())
+		assert_eq(body.current_animation(), &"sparkle")
+		assert_false((pickup.get_node("Shape") as Polygon2D).visible)
+		assert_true((pickup.get_node("Body/Sprite") as AnimatedSprite2D).material is ShaderMaterial, "it bobs")
+	assert_ne((gem.get_node("Body/Sprite") as AnimatedSprite2D).sprite_frames, (coin.get_node("Body/Sprite") as AnimatedSprite2D).sprite_frames)
+
+
+func test_a_gem_without_art_keeps_its_polygon() -> void:
+	SpriteLibrary.root = "res://.godot/art_tests/no_such_folder"
+	var gem := _gem(1)
+	assert_false((gem.get_node("Body") as BodyView).has_art())
+	assert_true((gem.get_node("Shape") as Polygon2D).visible)
+	assert_gt((gem.get_node("Shape") as Polygon2D).polygon.size(), 0)
+

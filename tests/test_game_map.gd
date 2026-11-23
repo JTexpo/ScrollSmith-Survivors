@@ -262,3 +262,235 @@ func test_the_obstacle_layer_is_split_into_chunks_and_keeps_the_count() -> void:
 	assert_eq(layer.item_count(), 12)
 	assert_eq(layer.chunk_count(), keys.size())
 	assert_gt(layer.chunk_count(), 1)
+
+
+const ART_ROOT := "res://.godot/art_tests"
+
+var _art_dir: String
+
+
+func _tile_art(file: String) -> void:
+	if _art_dir == "":
+		_art_dir = "%s/g_%s" % [ART_ROOT, str(randi())]
+		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_art_dir))
+		SpriteLibrary.root = _art_dir
+	var set_data := SpriteSetData.new()
+	set_data.sheet = ImageTexture.create_from_image(Image.create(16, 16, false, Image.FORMAT_RGBA8))
+	set_data.frame_size = Vector2i(16, 16)
+	set_data.tile = true
+	assert_eq(ResourceSaver.save(set_data, "%s/%s" % [_art_dir, file]), OK)
+
+
+func after_each() -> void:
+	if _art_dir != "":
+		SpriteLibrary.root = "res://assets/sprites"
+		var absolute := ProjectSettings.globalize_path(_art_dir)
+		for file in DirAccess.get_files_at(absolute):
+			DirAccess.remove_absolute("%s/%s" % [absolute, file])
+		DirAccess.remove_absolute(absolute)
+		_art_dir = ""
+
+
+func _styled_data() -> MapData:
+	var data := _zoned_data()
+	data.floor_style = &"grass"
+	data.border_style = &"border"
+	data.zones[0].floor_style = &"path"
+	return data
+
+
+func test_floor_styles_add_patches_in_draw_order() -> void:
+	_tile_art("tile_grass_base.tres")
+	_tile_art("tile_border_base.tres")
+	_tile_art("tile_path_base.tres")
+	var data := _styled_data()
+	var node := _map_node(data)
+	var base := node.get_node("BaseArt")
+	assert_eq(base.get_child_count(), 2, "the border and the map")
+	assert_eq((base.get_child(0) as FloorPatch).area, Rect2(-Vector2(GameMap.BORDER_MARGIN, GameMap.BORDER_MARGIN), data.size + Vector2(GameMap.BORDER_MARGIN, GameMap.BORDER_MARGIN) * 2.0))
+	assert_eq((base.get_child(1) as FloorPatch).area, data.bounds())
+	var zone_art := node.get_node("ZoneArt")
+	assert_eq(zone_art.get_child_count(), 1, "only the zone with a style")
+	assert_eq((zone_art.get_child(0) as FloorPatch).area, data.zones[0].area)
+	assert_lt(node.get_node("Floor").get_index(), base.get_index())
+	assert_lt(base.get_index(), node.get_node("Zones").get_index())
+	assert_lt(node.get_node("Zones").get_index(), zone_art.get_index())
+	assert_lt(zone_art.get_index(), node.get_node("Decor").get_index())
+
+
+func test_a_missing_style_adds_no_patch_and_keeps_the_colour() -> void:
+	var data := _styled_data()
+	data.floor_style = &"no_such_floor"
+	data.border_style = &"no_such_border"
+	data.zones[0].floor_style = &"no_such_zone_floor"
+	var node := _map_node(data)
+	assert_eq(node.get_node("BaseArt").get_child_count(), 0)
+	assert_eq(node.get_node("ZoneArt").get_child_count(), 0)
+	assert_eq((node.get_node("Floor") as ColorRect).color, data.floor_color)
+	assert_eq((node.get_node("Zones").get_child(0) as ColorRect).color, data.zones[0].floor_color)
+
+
+func test_floor_patches_never_catch_touches() -> void:
+	_tile_art("tile_grass_base.tres")
+	_tile_art("tile_path_base.tres")
+	var data := _styled_data()
+	var node := _map_node(data)
+	var patches: Array[Node] = node.get_node("BaseArt").get_children() + node.get_node("ZoneArt").get_children()
+	assert_gt(patches.size(), 0)
+	for patch in patches:
+		assert_true(patch is Node2D and not patch is Control, "%s is a drawing, not a Control" % patch.name)
+
+
+func _wall_art(file: String, tile: bool = true) -> void:
+	_tile_art(file)
+	var set_data := load("%s/%s" % [_art_dir, file]) as SpriteSetData
+	set_data.slice = Vector4i(4, 4, 4, 4) if tile else Vector4i.ZERO
+	assert_eq(ResourceSaver.save(set_data, "%s/%s" % [_art_dir, file]), OK)
+
+
+func _art_obstacle(kind: MapObstacle.Kind, at: Vector2, material: StringName) -> MapObstacle:
+	var obstacle := MapObstacle.new()
+	obstacle.kind = kind
+	obstacle.position = at
+	obstacle.size = Vector2(160, 16)
+	obstacle.radius = 20.0
+	obstacle.material = material
+	return obstacle
+
+
+func _art_obstacle_data(material: StringName) -> MapData:
+	var data := _data()
+	data.obstacles = [_art_obstacle(MapObstacle.Kind.RECT, Vector2(150, 200), material), _art_obstacle(MapObstacle.Kind.CIRCLE, Vector2(300, 100), material)] as Array[MapObstacle]
+	return data
+
+
+func test_obstacle_art_never_changes_the_shapes_bodies_or_blocking() -> void:
+	var plain := _map_node(_art_obstacle_data(&""))
+	_wall_art("wall_hedge_base.tres")
+	_wall_art("post_hedge_base.tres", false)
+	var styled := _map_node(_art_obstacle_data(&"hedge"))
+	assert_eq((styled.get_node("Obstacles") as ObstacleLayer).item_count(), (plain.get_node("Obstacles") as ObstacleLayer).item_count())
+	assert_eq(styled.get_node("ObstacleBodies").get_child_count(), plain.get_node("ObstacleBodies").get_child_count())
+	for i in styled.get_node("ObstacleBodies").get_child_count():
+		var a := styled.get_node("ObstacleBodies").get_child(i) as StaticBody2D
+		var b := plain.get_node("ObstacleBodies").get_child(i) as StaticBody2D
+		assert_eq(a.position, b.position)
+		assert_eq((a.get_node("CollisionShape2D") as CollisionShape2D).shape.get_rect(), (b.get_node("CollisionShape2D") as CollisionShape2D).shape.get_rect())
+	var plain_map := plain.get_node("ObstacleMap") as ObstacleMap
+	var styled_map := styled.get_node("ObstacleMap") as ObstacleMap
+	for point in [Vector2(150, 200), Vector2(300, 100), Vector2(50, 50), Vector2(150, 230)]:
+		assert_eq(styled_map.is_blocked(point), plain_map.is_blocked(point), "%s" % point)
+
+
+func test_a_wall_with_art_is_drawn_as_art_and_one_without_keeps_the_flat_colour() -> void:
+	_wall_art("wall_hedge_base.tres")
+	_wall_art("post_hedge_base.tres", false)
+	var chunks := (_map_node(_art_obstacle_data(&"hedge")).get_node("Obstacles") as ObstacleLayer)
+	var with_art := 0
+	for chunk in chunks.chunks():
+		with_art += chunk.art_obstacle_count()
+	assert_eq(with_art, 2, "the wall and the post use their art")
+	for material in [&"", &"no_such_material"]:
+		var flat := (_map_node(_art_obstacle_data(material)).get_node("Obstacles") as ObstacleLayer)
+		var count := 0
+		for chunk in flat.chunks():
+			count += chunk.art_obstacle_count()
+		assert_eq(count, 0, "no art for '%s' keeps the flat fill" % material)
+
+
+func test_draw_chunks_with_art_still_split_the_layer() -> void:
+	_wall_art("wall_hedge_base.tres")
+	var data := _art_obstacle_data(&"hedge")
+	data.obstacles[0].position = Vector2(250, 220)
+	data.obstacles[1].position = Vector2(900, 700)
+	data.size = Vector2(1200, 900)
+	var layer := _map_node(data).get_node("Obstacles") as ObstacleLayer
+	assert_gt(layer.chunk_count(), 1, "far apart obstacles are in different chunks")
+
+
+func _decor_art(file: String, frames: int) -> void:
+	_tile_art(file)
+	var set_data := load("%s/%s" % [_art_dir, file]) as SpriteSetData
+	set_data.tile = false
+	set_data.frame_size = Vector2i(8, 8)
+	set_data.sheet = ImageTexture.create_from_image(Image.create(8 * frames, 8, false, Image.FORMAT_RGBA8))
+	assert_eq(ResourceSaver.save(set_data, "%s/%s" % [_art_dir, file]), OK)
+
+
+func _decor_art_count(node: GameMap) -> int:
+	var count := 0
+	for chunk in (node.get_node("Decor") as MapDecorLayer).get_children():
+		count += (chunk as DrawChunk).art_decor_count()
+	return count
+
+
+func test_decor_with_art_is_drawn_as_art_and_item_counts_do_not_change() -> void:
+	var data := _data()
+	data.decoration_styles = PackedStringArray(["moss"])
+	var plain := _map_node(_data())
+	_decor_art("decor_moss_base.tres", 3)
+	var styled := _map_node(data)
+	assert_eq((styled.get_node("Decor") as MapDecorLayer).item_count(), (styled.get_node("Decor") as MapDecorLayer).item_count())
+	assert_gt(_decor_art_count(styled), 0)
+	assert_eq(_decor_art_count(styled), (styled.get_node("Decor") as MapDecorLayer).item_count(), "every item has art")
+	assert_eq(_decor_art_count(plain), 0, "a map with no styles keeps its coloured squares")
+
+
+func test_decor_with_a_missing_style_keeps_its_coloured_squares() -> void:
+	var data := _data()
+	data.decoration_styles = PackedStringArray(["no_such_decoration"])
+	var node := _map_node(data)
+	assert_gt((node.get_node("Decor") as MapDecorLayer).item_count(), 0)
+	assert_eq(_decor_art_count(node), 0)
+
+
+func test_a_zone_with_floor_art_hides_its_flat_tint_and_one_without_keeps_it() -> void:
+	_tile_art("tile_path_base.tres")
+	var data := _zoned_data()
+	data.zones[0].floor_style = &"path"
+	var node := _map_node(data)
+	var zones := node.get_node("Zones")
+	assert_false((zones.get_child(0) as ColorRect).visible, "the art covers it, so a hard-edged tint must not show through the ragged edge")
+	assert_true((zones.get_child(1) as ColorRect).visible, "a zone with no art keeps its tint")
+	assert_eq((zones.get_child(0) as ColorRect).color, data.zones[0].floor_color, "the node and its colour stay")
+
+
+func test_zone_patches_are_soft_and_the_base_patches_are_hard() -> void:
+	_tile_art("tile_grass_base.tres")
+	_tile_art("tile_border_base.tres")
+	_tile_art("tile_path_base.tres")
+	var node := _map_node(_styled_data())
+	for patch in node.get_node("BaseArt").get_children():
+		assert_eq((patch as FloorPatch).omitted_cells().size(), 0, "%s is hard-edged" % patch.name)
+	var zone_patch := node.get_node("ZoneArt").get_child(0) as FloorPatch
+	assert_gt(zone_patch.omitted_cells().size(), 0, "the zone's edge is ragged")
+
+
+func test_wall_centres_are_drawn_after_every_border_even_across_chunks() -> void:
+	_wall_art("wall_hedge_base.tres")
+	var data := _data()
+	data.size = Vector2(1200, 900)
+	# A long wall and a short one that crosses it, with their centres in different 512 px chunks.
+	var long_wall := _art_obstacle(MapObstacle.Kind.RECT, Vector2(400, 400), &"hedge")
+	long_wall.size = Vector2(700, 16)
+	var crossing := _art_obstacle(MapObstacle.Kind.RECT, Vector2(600, 400), &"hedge")
+	crossing.size = Vector2(16, 200)
+	data.obstacles = [long_wall, crossing] as Array[MapObstacle]
+	var layer := _map_node(data).get_node("Obstacles") as ObstacleLayer
+	assert_gt(layer.chunk_count(), 1, "the two walls are in different chunks")
+	var centres := layer.get_node("Centres")
+	assert_gt(centres.get_child_count(), 0)
+	for chunk in layer.chunks():
+		assert_false(chunk.centres_only)
+		assert_lt(chunk.get_index(), centres.get_index(), "every border chunk draws before the centres")
+	for chunk in centres.get_children():
+		assert_true((chunk as DrawChunk).centres_only)
+
+
+func test_the_floor_layers_draw_below_the_shadows_and_the_walls_above_them() -> void:
+	var node := _map_node(_data())
+	for layer in ["Border", "Floor", "BaseArt", "Zones", "ZoneArt", "Decor"]:
+		assert_lt((node.get_node(layer) as CanvasItem).z_index, BodyView.SHADOW_Z, "%s is under the shadows" % layer)
+		assert_true((node.get_node(layer) as CanvasItem).z_as_relative)
+	assert_eq((node.get_node("Obstacles") as CanvasItem).z_index, 0, "walls and trees are over the shadows")
+

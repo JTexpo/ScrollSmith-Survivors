@@ -62,3 +62,56 @@ func test_pickup_does_no_per_frame_work_but_still_bobs() -> void:
 	assert_false(pickup.is_physics_processing())
 	assert_eq(get_tree().get_processed_tweens().size(), 0, "no tween per pickup")
 	assert_true((pickup.get_node("Shape") as Polygon2D).material is ShaderMaterial, "the bob is a shader")
+
+
+func after_each() -> void:
+	SpriteLibrary.root = "res://assets/sprites"
+
+
+func _sprite_of(pickup: ScrollPickup) -> AnimatedSprite2D:
+	return pickup.get_node("Body/Sprite") as AnimatedSprite2D
+
+
+func test_each_category_shows_its_sprite_tinted_by_the_scroll_colour() -> void:
+	for category in [C.BASE, C.AREA, C.BUFF]:
+		var scroll := _scroll(category, Color(0.2, 0.7, 0.9))
+		var pickup := _pickup(scroll)
+		var body := pickup.get_node("Body") as BodyView
+		assert_true(body.has_art(), "category %d has a sprite" % category)
+		assert_false((pickup.get_node("Shape") as Polygon2D).visible, "the polygon stands down when there is art")
+		assert_eq(_sprite_of(pickup).self_modulate, scroll.color)
+		assert_eq(body.current_animation(), &"idle")
+	assert_ne(_sprite_of(_pickup(_scroll(C.BASE))).sprite_frames, _sprite_of(_pickup(_scroll(C.AREA))).sprite_frames, "each category has its own sprite")
+
+
+func test_a_rare_scroll_sparkles_and_a_common_one_does_not() -> void:
+	var rare := _scroll()
+	rare.rarity = ScrollData.Rarity.RARE
+	assert_eq((_pickup(rare).get_node("Body") as BodyView).current_animation(), &"sparkle")
+	assert_eq((_pickup(_scroll()).get_node("Body") as BodyView).current_animation(), &"idle")
+
+
+func test_a_pickup_without_art_keeps_its_polygon_shape_visible() -> void:
+	SpriteLibrary.root = "res://.godot/art_tests/no_such_folder"
+	var pickup := _pickup(_scroll(C.BUFF))
+	assert_false((pickup.get_node("Body") as BodyView).has_art())
+	assert_false((pickup.get_node("Body") as BodyView).visible)
+	assert_true((pickup.get_node("Shape") as Polygon2D).visible)
+	assert_eq((pickup.get_node("Shape") as Polygon2D).polygon, ScrollPickup.shape_points(C.BUFF))
+
+
+func test_the_bob_shader_is_on_the_sprite_when_there_is_art() -> void:
+	var pickup := _pickup(_scroll())
+	assert_true(_sprite_of(pickup).material is ShaderMaterial, "the sprite bobs")
+	assert_same(_sprite_of(pickup).material, (pickup.get_node("Shape") as Polygon2D).material)
+
+
+func test_pickups_are_drawn_by_value_a_scroll_over_a_gem_over_a_coin() -> void:
+	var scroll := (load(SCENE) as PackedScene).instantiate() as CanvasItem
+	var gem := (load("res://scenes/progression/xp_gem.tscn") as PackedScene).instantiate() as CanvasItem
+	var coin := (load("res://scenes/progression/gold_coin.tscn") as PackedScene).instantiate() as CanvasItem
+	assert_gt(scroll.z_index, gem.z_index, "a scroll is never hidden by an XP gem")
+	assert_gt(gem.z_index, coin.z_index, "an XP gem is never hidden by a coin")
+	for node in [scroll, gem, coin]:
+		node.free()
+

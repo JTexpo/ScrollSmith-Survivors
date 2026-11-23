@@ -76,6 +76,7 @@ side = 2
 
 [sub_resource type="Resource" id="maze_nw"]
 script = ExtResource("6")
+material = &"stone"
 area = Rect2(60, 60, 720, 480)
 cell_size = 80.0
 wall_thickness = 16.0
@@ -87,6 +88,7 @@ rotated = false
 
 [sub_resource type="Resource" id="maze_se"]
 script = ExtResource("6")
+material = &"stone"
 area = Rect2(1140, 540, 720, 480)
 cell_size = 80.0
 wall_thickness = 16.0
@@ -98,202 +100,239 @@ rotated = true
 
 [sub_resource type="Resource" id="zone_maze"]
 script = ExtResource("8")
-area = Rect2(40, 40, 780, 520)
+floor_style = &"ruin"
+decoration_styles = PackedStringArray("pebbles", "cracks")
+area = Rect2(4, 4, 832, 592)
 display_name = "Maze"
 floor_color = Color(0.12, 0.17, 0.2, 1)
 decoration_colors = PackedColorArray(0.1, 0.14, 0.18, 1, 0.14, 0.2, 0.22, 1)
-decoration_count = 150
+decoration_count = 70
 
 [sub_resource type="Resource" id="zone_labyrinth"]
 script = ExtResource("8")
-area = Rect2(1100, 520, 780, 520)
+floor_style = &"ruin"
+decoration_styles = PackedStringArray("pebbles", "cracks")
+area = Rect2(1084, 484, 832, 592)
 display_name = "Labyrinth"
 floor_color = Color(0.17, 0.12, 0.2, 1)
 decoration_colors = PackedColorArray(0.14, 0.1, 0.18, 1, 0.2, 0.14, 0.22, 1)
-decoration_count = 150
+decoration_count = 70
 
 [sub_resource type="Resource" id="zone_island"]
 script = ExtResource("8")
-area = Rect2(1360, 40, 420, 330)
+floor_style = &"ruin"
+decoration_styles = PackedStringArray("pebbles", "cracks")
+area = Rect2(1316, 8, 520, 384)
 display_name = "Island"
 floor_color = Color(0.2, 0.2, 0.22, 1)
 decoration_colors = PackedColorArray(0.26, 0.26, 0.28, 1, 0.16, 0.16, 0.18, 1)
-decoration_count = 70
+decoration_count = 36
 
 [sub_resource type="Resource" id="zone_corridor"]
 script = ExtResource("8")
-area = Rect2(460, 900, 600, 150)
+floor_style = &"ruin"
+decoration_styles = PackedStringArray("pebbles", "cracks")
+area = Rect2(420, 880, 680, 200)
 display_name = "Corridor"
 floor_color = Color(0.22, 0.19, 0.14, 1)
 decoration_colors = PackedColorArray(0.28, 0.24, 0.17, 1, 0.18, 0.15, 0.1, 1)
-decoration_count = 50
+decoration_count = 26
 
 [sub_resource type="Resource" id="zone_plaza"]
 script = ExtResource("8")
+decoration_styles = PackedStringArray("flowers", "mushrooms", "pebbles")
+floor_style = &"grass"
 area = Rect2(830, 380, 260, 320)
 display_name = "Plaza"
 floor_color = Color(0.19, 0.24, 0.19, 1)
 decoration_colors = PackedColorArray(0.3, 0.36, 0.25, 1, 0.36, 0.3, 0.22, 1)
-decoration_count = 40
+decoration_count = 12
 
 [sub_resource type="Resource" id="o01"]
 script = ExtResource("5")
+material = &"tree"
 kind = 1
 position = Vector2(820, 690)
 radius = 22
 
 [sub_resource type="Resource" id="o02"]
 script = ExtResource("5")
+material = &"tree"
 kind = 1
 position = Vector2(857, 712)
 radius = 20
 
 [sub_resource type="Resource" id="o03"]
 script = ExtResource("5")
+material = &"tree"
 kind = 1
 position = Vector2(839, 730)
 radius = 18
 
 [sub_resource type="Resource" id="o07"]
 script = ExtResource("5")
+material = &"tree"
 kind = 1
 position = Vector2(690, 750)
 radius = 24
 
 [sub_resource type="Resource" id="o08"]
 script = ExtResource("5")
+material = &"tree"
 kind = 1
 position = Vector2(727, 772)
 radius = 20
 
 [sub_resource type="Resource" id="o09"]
 script = ExtResource("5")
+material = &"tree"
 kind = 1
 position = Vector2(706, 792)
 radius = 18
 
 [sub_resource type="Resource" id="o10"]
 script = ExtResource("5")
+material = &"tree"
 kind = 1
 position = Vector2(1000, 810)
 radius = 22
 
 [sub_resource type="Resource" id="o11"]
 script = ExtResource("5")
+material = &"tree"
 kind = 1
 position = Vector2(1037, 832)
 radius = 20
 
 [sub_resource type="Resource" id="o12"]
 script = ExtResource("5")
+material = &"tree"
 kind = 1
 position = Vector2(1019, 850)
 radius = 18
 
 [sub_resource type="Resource" id="o13"]
 script = ExtResource("5")
+material = &"tree"
 kind = 1
 position = Vector2(510, 630)
 radius = 22
 
 [sub_resource type="Resource" id="o14"]
 script = ExtResource("5")
+material = &"tree"
 kind = 1
 position = Vector2(547, 652)
 radius = 20
 
 [sub_resource type="Resource" id="o15"]
 script = ExtResource("5")
+material = &"tree"
 kind = 1
 position = Vector2(529, 670)
 radius = 18
 
 [sub_resource type="Resource" id="o16"]
 script = ExtResource("5")
+material = &"hedge"
 kind = 0
 position = Vector2(990, 180)
 size = Vector2(220, 16)
 
 [sub_resource type="Resource" id="o17"]
 script = ExtResource("5")
+material = &"hedge"
 kind = 0
 position = Vector2(990, 260)
 size = Vector2(220, 16)
 
 [sub_resource type="Resource" id="o18"]
 script = ExtResource("5")
+material = &"hedge"
 kind = 0
 position = Vector2(200, 740)
 size = Vector2(16, 280)
 
 [sub_resource type="Resource" id="o19"]
 script = ExtResource("5")
+material = &"hedge"
 kind = 0
 position = Vector2(280, 740)
 size = Vector2(16, 280)
 
 [sub_resource type="Resource" id="o20"]
 script = ExtResource("5")
+material = &"hedge"
 kind = 0
 position = Vector2(1210, 170)
 size = Vector2(16, 96)
 
 [sub_resource type="Resource" id="o21"]
 script = ExtResource("5")
+material = &"hedge"
 kind = 0
 position = Vector2(1290, 170)
 size = Vector2(16, 96)
 
 [sub_resource type="Resource" id="o22"]
 script = ExtResource("5")
+material = &"hedge"
 kind = 0
 position = Vector2(1250, 114)
 size = Vector2(96, 16)
 
 [sub_resource type="Resource" id="o23"]
 script = ExtResource("5")
+material = &"stone"
 kind = 0
 position = Vector2(1568, 68)
 size = Vector2(376, 16)
 
 [sub_resource type="Resource" id="o24"]
 script = ExtResource("5")
+material = &"stone"
 kind = 0
 position = Vector2(1748, 204)
 size = Vector2(16, 288)
 
 [sub_resource type="Resource" id="o25"]
 script = ExtResource("5")
+material = &"stone"
 kind = 0
 position = Vector2(1388, 135)
 size = Vector2(16, 150)
 
 [sub_resource type="Resource" id="o26"]
 script = ExtResource("5")
+material = &"stone"
 kind = 0
 position = Vector2(1388, 319)
 size = Vector2(16, 58)
 
 [sub_resource type="Resource" id="o27"]
 script = ExtResource("5")
+material = &"stone"
 kind = 0
 position = Vector2(1455, 340)
 size = Vector2(150, 16)
 
 [sub_resource type="Resource" id="o28"]
 script = ExtResource("5")
+material = &"stone"
 kind = 0
 position = Vector2(1683, 340)
 size = Vector2(146, 16)
 
 [sub_resource type="Resource" id="o29"]
 script = ExtResource("5")
+material = &"stone"
 kind = 0
 position = Vector2(760, 930)
 size = Vector2(560, 16)
 
 [sub_resource type="Resource" id="o30"]
 script = ExtResource("5")
+material = &"stone"
 kind = 0
 position = Vector2(760, 1010)
 size = Vector2(560, 16)
@@ -305,13 +344,16 @@ display_name = "The Lectern Grounds"
 size = Vector2(1920, 1080)
 floor_color = Color(0.16, 0.2, 0.17, 1)
 border_color = Color(0.08, 0.1, 0.09, 1)
+floor_style = &"grass"
+border_style = &"border"
 player_start = Vector2(960, 540)
 spawn_config = ExtResource("4")
 placements = Array[ExtResource("2")]([SubResource("west"), SubResource("east"), SubResource("south"), SubResource("poi_rare_nw"), SubResource("poi_rare_se"), SubResource("poi_chest"), SubResource("poi_mana"), SubResource("poi_health"), SubResource("poi_merchant")])
 obstacles = Array[ExtResource("5")]([SubResource("o01"), SubResource("o02"), SubResource("o03"), SubResource("o07"), SubResource("o08"), SubResource("o09"), SubResource("o10"), SubResource("o11"), SubResource("o12"), SubResource("o13"), SubResource("o14"), SubResource("o15"), SubResource("o16"), SubResource("o17"), SubResource("o18"), SubResource("o19"), SubResource("o20"), SubResource("o21"), SubResource("o22"), SubResource("o23"), SubResource("o24"), SubResource("o25"), SubResource("o26"), SubResource("o27"), SubResource("o28"), SubResource("o29"), SubResource("o30")])
 mazes = Array[ExtResource("6")]([SubResource("maze_nw"), SubResource("maze_se")])
 zones = Array[ExtResource("8")]([SubResource("zone_maze"), SubResource("zone_labyrinth"), SubResource("zone_island"), SubResource("zone_corridor"), SubResource("zone_plaza")])
-decoration_count = 160
+decoration_count = 70
 decoration_seed = 12
 decoration_colors = PackedColorArray(0.2, 0.26, 0.2, 1, 0.14, 0.18, 0.15, 1, 0.24, 0.3, 0.22, 1)
 decoration_size = Vector2(2, 5)
+decoration_styles = PackedStringArray("flowers", "mushrooms", "pebbles")

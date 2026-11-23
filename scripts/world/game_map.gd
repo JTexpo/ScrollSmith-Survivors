@@ -18,16 +18,33 @@ func _ready() -> void:
 		push_error("Map '%s': %s" % [map_data.id, problem])
 	for problem in ObstacleGrid.reachability_problems(map_data):
 		push_error("Map '%s': %s" % [map_data.id, problem])
-	_add_rect(&"Border", Rect2(-Vector2(BORDER_MARGIN, BORDER_MARGIN), map_data.size + Vector2(BORDER_MARGIN, BORDER_MARGIN) * 2.0), map_data.border_color)
+	var border_rect := Rect2(-Vector2(BORDER_MARGIN, BORDER_MARGIN), map_data.size + Vector2(BORDER_MARGIN, BORDER_MARGIN) * 2.0)
+	_add_rect(&"Border", border_rect, map_data.border_color)
 	_add_rect(&"Floor", map_data.bounds(), map_data.floor_color)
+	# The floor art goes over the flat colours, which stay as the fallback. A zone's own tint comes after the map's art, so
+	# a zone with no style still shows its colour, and a zone's art comes after its tint.
+	var base_art := Node2D.new()
+	base_art.name = &"BaseArt"
+	add_child(base_art)
+	_add_patch(base_art, border_rect, map_data.border_style, false)
+	_add_patch(base_art, map_data.bounds(), map_data.floor_style, false)
 	var zones := Node2D.new()
 	zones.name = &"Zones"
 	add_child(zones)
+	var tints := {}
 	for zone in map_data.zones:
 		if zone != null:
 			var floor_rect := _make_rect(zone.area, zone.floor_color)
 			floor_rect.name = StringName("Zone_%s" % zone.display_name)
 			zones.add_child(floor_rect)
+			tints[zone] = floor_rect
+	var zone_art := Node2D.new()
+	zone_art.name = &"ZoneArt"
+	add_child(zone_art)
+	for zone in map_data.zones:
+		if zone != null and _add_patch(zone_art, zone.area, zone.floor_style, true):
+			# The art has a ragged edge, so a hard-edged flat tint under it must not show through the gaps.
+			(tints[zone] as ColorRect).visible = false
 	var decor := MapDecorLayer.new()
 	decor.name = &"Decor"
 	add_child(decor)
@@ -35,6 +52,7 @@ func _ready() -> void:
 	for i in map_data.zones.size():
 		items.append_array(MapDecor.scatter_zone(map_data, i))
 	decor.set_decor(items)
+	_put_floor_layers_under_the_shadows()
 	var obstacles := ObstacleLayer.new()
 	obstacles.name = &"Obstacles"
 	add_child(obstacles)
@@ -76,6 +94,26 @@ func bounds() -> Rect2:
 
 func player_start() -> Vector2:
 	return map_data.player_start if map_data != null else Vector2.ZERO
+
+
+## The floor, its art and the decorations draw just below the shadows (`BodyView.SHADOW_Z`), and the walls and everything that
+## stands on the world stay at depth 0 above them. All shadows share one depth, so they draw together and batch.
+func _put_floor_layers_under_the_shadows() -> void:
+	for layer_name in [&"Border", &"Floor", &"BaseArt", &"Zones", &"ZoneArt", &"Decor"]:
+		(get_node(NodePath(layer_name)) as CanvasItem).z_index = BodyView.SHADOW_Z - 1
+
+
+## A tiled floor over `rect` when `style` has art (true), nothing otherwise (false). A soft patch has a ragged edge,
+## seeded from its rectangle so the same map always looks the same.
+func _add_patch(parent: Node, rect: Rect2, style: StringName, soft: bool) -> bool:
+	var set_data := WorldArt.floor_set(style)
+	if set_data == null:
+		return false
+	var patch := FloorPatch.new()
+	patch.name = StringName("Patch_%s" % style)
+	parent.add_child(patch)
+	patch.setup(rect, set_data, soft, hash([rect.position, rect.size]))
+	return true
 
 
 func _add_rect(node_name: StringName, rect: Rect2, color: Color) -> void:

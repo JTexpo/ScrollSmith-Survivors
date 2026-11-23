@@ -1,0 +1,22 @@
+# A leafy hedge wall: clumps of leaves with no bevel, so it reads as a bush and not a gem.
+tile
+slice 4 4 4 4
+size 16 16
+anim idle 0 0 1 loop
+frame
+KKKKKKKKKKKKKKKK
+KvvvuwvvwuvvvwvK
+KvwwvvvvwvvvvuvK
+KuwwwwwvuvvvwvuK
+KwuwvwuvwvuvwuwK
+KuvuvvvuuvvwuvuK
+KwvuvwvvuwwvuvwK
+KvvwuvuvvvuvwvvK
+KvvvvvwuuvvuvvvK
+KuuvwwwvwvvvvuuK
+KuwvuwuvuvuvvwuK
+KwuvwvvuwuuuvuwK
+KwvvwwwvuvvvvuuK
+KwuuvvvvwvvvvuvK
+KuuuuwvvwuvvuwvK
+KKKKKKKKKKKKKKKK

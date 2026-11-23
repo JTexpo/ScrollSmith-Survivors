@@ -129,3 +129,29 @@ func test_a_hand_drawn_line_marks_a_source_whose_sheets_are_not_built() -> void:
 	var marked := SpriteSource.parse("hand_drawn\nsize 2 1\nanim a 0 0 1 loop\nframe\nKW", palette)
 	assert_eq(marked.errors.size(), 0, str(marked.errors))
 	assert_true(marked.hand_drawn)
+
+
+func test_a_tile_line_marks_a_full_bleed_source() -> void:
+	var palette := _palette()
+	var good := SpriteSource.parse("tile\nsize 2 2\nanim a 0 0 1 loop\nframe\nKW\nWK", palette)
+	assert_eq(good.errors.size(), 0, str(good.errors))
+	assert_true(good.tile)
+	assert_false(SpriteSource.parse("size 2 2\nanim a 0 0 1 loop\nframe\nKW\nWK", palette).tile)
+	var holey := SpriteSource.parse("tile\nsize 2 2\nanim a 0 0 1 loop\nframe\nK.\nWK", palette)
+	assert_eq(holey.errors.size(), 1, str(holey.errors))
+	assert_string_contains(holey.errors[0], "transparent")
+
+
+func test_a_slice_line_reads_four_margins_and_rejects_bad_ones() -> void:
+	var palette := _palette()
+	var rows := "frame\nKKKK\nKWWK\nKWWK\nKKKK"
+	var good := SpriteSource.parse("tile\nslice 1 1 1 1\nsize 4 4\nanim a 0 0 1 loop\n" + rows, palette)
+	assert_eq(good.errors.size(), 0, str(good.errors))
+	assert_eq(good.slice, Vector4i(1, 1, 1, 1))
+	assert_eq(SpriteSource.parse("tile\nsize 4 4\nanim a 0 0 1 loop\n" + rows, palette).slice, Vector4i.ZERO)
+	for bad in ["slice 2 1 2 1", "slice 1 2 1 2", "slice -1 1 1 1", "slice 1 1 1", "slice a b c d"]:
+		var source := SpriteSource.parse("tile\n%s\nsize 4 4\nanim a 0 0 1 loop\n%s" % [bad, rows], palette)
+		assert_gt(source.errors.size(), 0, bad)
+	var untiled := SpriteSource.parse("slice 1 1 1 1\nsize 4 4\nanim a 0 0 1 loop\n" + rows, palette)
+	assert_gt(untiled.errors.size(), 0, "slice needs tile")
+

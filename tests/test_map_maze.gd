@@ -220,3 +220,18 @@ func test_merging_walls_does_not_change_what_is_solid() -> void:
 	var maze := _maze(9, 2, true, [_entrance(Vector2i(0, 1), MazeEntrance.Edge.WEST)] as Array[MazeEntrance])
 	assert_eq(_reached(maze), 24)
 	assert_gte(_passages(maze), 23 + 2, "at least the spanning tree plus the extra openings")
+
+
+func test_every_wall_carries_the_mazes_material() -> void:
+	var maze := _maze(3, 1, true)
+	maze.material = &"hedge"
+	var walls := maze.shapes()
+	assert_gt(walls.size(), 0)
+	for wall in walls:
+		assert_eq(wall.material, &"hedge")
+
+
+func test_a_maze_without_a_material_gives_empty_materials() -> void:
+	for wall in _maze().shapes():
+		assert_eq(wall.material, &"")
+

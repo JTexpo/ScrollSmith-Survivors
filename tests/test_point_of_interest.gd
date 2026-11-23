@@ -143,3 +143,60 @@ func test_the_player_interaction_finds_a_point_like_a_lectern() -> void:
 	assert_eq(player.interaction.target(), point)
 	assert_true(_prompt(point).visible)
 	assert_eq(_prompt(point).text, point.prompt_text())
+
+
+func _body(point: PointOfInterest) -> BodyView:
+	return point.get_node("Body") as BodyView
+
+
+func test_each_shipped_point_has_a_sprite_with_ready_and_used() -> void:
+	for file in SCENES:
+		var point := _point(file)
+		assert_ne(point.data.sprite_name, &"", "%s names a sprite" % file)
+		assert_true(_body(point).has_art(), "%s has art" % file)
+		assert_true(_body(point).has_animation(&"ready"), "%s ready" % file)
+		assert_true(_body(point).has_animation(&"used"), "%s used" % file)
+		assert_eq(_body(point).current_animation(), &"ready", "%s starts ready" % file)
+
+
+func test_a_point_shows_used_while_refreshing_and_ready_after() -> void:
+	var point := _point("treasure_chest")
+	point.start_cooldown()
+	assert_eq(_body(point).current_animation(), &"used")
+	point._process(100.0)
+	assert_eq(_body(point).current_animation(), &"used", "still refreshing")
+	point._process(300.0)
+	assert_true(point.is_ready())
+	assert_eq(_body(point).current_animation(), &"ready")
+
+
+func test_a_merchant_always_shows_ready() -> void:
+	var point := _point("merchant")
+	assert_eq(_body(point).current_animation(), &"ready")
+	point._process(1000.0)
+	assert_eq(_body(point).current_animation(), &"ready")
+
+
+func test_a_point_without_art_still_draws_its_fallback_shape_and_ring() -> void:
+	var with_art := _point("health_shrine")
+	assert_false(with_art.draws_fallback_shape(), "with art only the ring is drawn")
+	var other := (load("res://scenes/interactables/point_of_interest.tscn") as PackedScene).instantiate() as PointOfInterest
+	other.data = with_art.data.duplicate()
+	other.data.sprite_name = &"no_such_sprite"
+	_root.add_child(other)
+	assert_false(_body(other).has_art())
+	assert_false(_body(other).visible, "no square on top of the drawn shape")
+	assert_true(other.draws_fallback_shape(), "the old rectangles are drawn")
+
+
+func test_the_prompt_and_the_used_signal_are_unchanged_with_art() -> void:
+	var point := _point("health_shrine")
+	assert_false(_prompt(point).visible)
+	point.set_prompt_visible(true)
+	assert_true(_prompt(point).visible)
+	assert_eq(_prompt(point).text, "Health Shrine (E)")
+	var seen: Array = []
+	point.used.connect(func(who: PointOfInterest, actor: Node) -> void: seen.append(who))
+	point.interact(Node.new())
+	assert_eq(seen.size(), 1)
+

@@ -600,6 +600,10 @@ Each element should have a recognizable visual identity:
 
 Sprites are 16 by 16 (the player), 10 to 24 (enemies by kind) and 32 by 32 (the Ember Titan), drawn at 1:1 on the 480 by 270 screen in one shared palette (`art/palette.txt`, at most 40 colours). An enemy's element changes its colours, never its drawing. To change a sprite either edit its grid (`art/sprites/<name>.sprite`) and run `godot --headless -s tools/art/art_builder.gd` then `godot --headless --import`, or draw the sheet yourself: overwrite its PNGs in `assets/sprites/` (frames side by side, same frame size) and add the line `hand_drawn` to its `.sprite` file. The tool then keeps your sheets and only rewrites the animation data and the elite outline, and the tests stop checking its pixels against the grid. The game shows the new art with no code change.
 
+### The world (Sprint 13b)
+
+The first map is a bright cartoon world: a grass plaza with flowers and mushrooms, brick-and-stone mazes and a walled stronghold and tunnel on one lavender stone floor, and trees for the pillar groves. Floors are 16 by 16 tiles, walls a 9-slice of a 16 by 16 tile, posts and decorations ordinary sprites, all in the one palette. A zone's floor has a wavy edge so regions blend into each other. A map names its art (a floor style per zone, a material per wall or post, a list of decoration styles) and a missing name keeps the flat colour. To change one, overwrite its PNG in `assets/sprites/` (`tile_<style>`, `wall_<material>`, `post_<material>`, `decor_<style>`) and add the line `hand_drawn` to its `.sprite`, or edit its grid and run the art tool.
+
 ### User Interface
 
 The interface should prioritize readability during combat.

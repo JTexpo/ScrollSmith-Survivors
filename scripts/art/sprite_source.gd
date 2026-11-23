@@ -3,12 +3,18 @@ extends RefCounted
 ## One sprite read from a `.sprite` text file: `size <w> <h>`, `anim <name> <first> <last> <fps> <loop|once>` lines, then
 ## each frame as the line `frame` followed by `h` rows of exactly `w` letters (`.` transparent, a palette letter, or a ramp
 ## slot 1 to 5). `#` starts a comment. A line `hand_drawn` says the sheets were drawn by hand: the tool then keeps them
-## and only writes the animation data and silhouette (the grid is a placeholder). Mistakes are collected in `errors`,
+## and only writes the animation data and silhouette (the grid is a placeholder). A line `tile` marks a full-bleed
+## repeating tile (no transparent pixel, no 1 px margin, no silhouette), and `slice <left> <top> <right> <bottom>` gives a
+## tile's 9-slice margins in pixels, for walls. Mistakes are collected in `errors`,
 ## never thrown.
 
 var errors := PackedStringArray()
 ## True when the sheets were replaced by hand and the tool must not rebuild them.
 var hand_drawn := false
+## True for a full-bleed repeating tile (a floor or a wall).
+var tile := false
+## The 9-slice margins (left, top, right, bottom) of a tile, zero when it has none.
+var slice := Vector4i.ZERO
 var frame_size := Vector2i.ZERO
 ## Each: {"name": StringName, "first": int, "last": int, "fps": float, "loop": bool}.
 var animations: Array[Dictionary] = []
@@ -26,6 +32,10 @@ static func parse(text: String, palette: ArtPalette) -> SpriteSource:
 			continue
 		if line == "hand_drawn":
 			source.hand_drawn = true
+		elif line == "tile":
+			source.tile = true
+		elif line.begins_with("slice "):
+			source._read_slice(number, line)
 		elif line.begins_with("size "):
 			source._read_size(number, line)
 		elif line.begins_with("anim "):
@@ -71,6 +81,18 @@ func _read_size(number: int, line: String) -> void:
 	frame_size = Vector2i(int(parts[1]), int(parts[2]))
 
 
+func _read_slice(number: int, line: String) -> void:
+	var parts := line.replace("\t", " ").split(" ", false)
+	if parts.size() != 5:
+		errors.append("line %d: expected 'slice <left> <top> <right> <bottom>'" % number)
+		return
+	for i in range(1, 5):
+		if not parts[i].is_valid_int() or int(parts[i]) < 0:
+			errors.append("line %d: a slice margin must be a whole number, zero or more" % number)
+			return
+	slice = Vector4i(int(parts[1]), int(parts[2]), int(parts[3]), int(parts[4]))
+
+
 func _read_animation(number: int, line: String) -> void:
 	var parts := line.replace("\t", " ").split(" ", false)
 	if parts.size() != 6 or not parts[2].is_valid_int() or not parts[3].is_valid_int() or not parts[4].is_valid_float():
@@ -85,6 +107,11 @@ func _read_animation(number: int, line: String) -> void:
 func _validate(palette: ArtPalette) -> void:
 	if frame_size == Vector2i.ZERO:
 		errors.append("missing a valid 'size' line")
+	if slice != Vector4i.ZERO:
+		if not tile:
+			errors.append("'slice' needs a 'tile' line")
+		elif frame_size != Vector2i.ZERO and (slice.x + slice.z >= frame_size.x or slice.y + slice.w >= frame_size.y):
+			errors.append("the slice margins leave no middle in a %dx%d tile" % [frame_size.x, frame_size.y])
 	if frames.is_empty():
 		errors.append("no frames")
 	elif frame_size != Vector2i.ZERO:
@@ -97,8 +124,10 @@ func _validate(palette: ArtPalette) -> void:
 				if rows[r].length() != frame_size.x:
 					errors.append("frame %d row %d is %d wide, expected %d" % [f, r, rows[r].length(), frame_size.x])
 					continue
+				if tile and rows[r].contains(ArtPalette.TRANSPARENT_LETTER):
+					errors.append("frame %d row %d: a tile is full-bleed, it cannot have a transparent pixel" % [f, r])
 				for letter in rows[r]:
-					if not palette.has_letter(letter):
+					if letter != ArtPalette.TRANSPARENT_LETTER and not palette.has_letter(letter):
 						errors.append("frame %d row %d uses the unknown letter '%s'" % [f, r, letter])
 	var names := {}
 	for animation in animations:

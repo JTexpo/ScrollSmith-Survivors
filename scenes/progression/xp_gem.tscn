@@ -3,6 +3,8 @@
 [ext_resource type="Script" path="res://scripts/progression/value_gem.gd" id="1"]
 [ext_resource type="Shader" path="res://scenes/scrolls/pickup_bob.gdshader" id="2"]
 
+[ext_resource type="Script" path="res://scripts/entities/body_view.gd" id="9"]
+
 [sub_resource type="CircleShape2D" id="shape"]
 radius = 5.0
 
@@ -10,6 +12,7 @@ radius = 5.0
 shader = ExtResource("2")
 
 [node name="XpGem" type="Area2D"]
+z_index = 1
 collision_layer = 32
 collision_mask = 0
 monitoring = false
@@ -20,3 +23,7 @@ shape = SubResource("shape")
 
 [node name="Shape" type="Polygon2D" parent="."]
 material = SubResource("bob")
+
+[node name="Body" type="Node2D" parent="."]
+script = ExtResource("9")
+shadow_enabled = true

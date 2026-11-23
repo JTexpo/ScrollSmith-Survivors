@@ -9,6 +9,9 @@ signal interacted(actor: Node)
 
 func _ready() -> void:
 	add_to_group(&"lecterns")
+	var body := $Body as BodyView
+	if body.set_look(&"lectern"):
+		body.play(&"idle")
 
 
 func interact(actor: Node) -> void:

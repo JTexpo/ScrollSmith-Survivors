@@ -1,0 +1,36 @@
+# A gold coin.
+size 10 10
+anim sparkle 0 2 6 loop
+frame
+..........
+...KKKK...
+..KYYYYK..
+.KYYWYYyK.
+.KYWyyYyK.
+.KYWyyYyK.
+.KYYyyyyK.
+..KyyyyK..
+...KKKK...
+..........
+frame
+..........
+...KKKK.W.
+..KYYYYK..
+.KYYWYYyK.
+.KYWyyYyK.
+.KYWyyYyK.
+.KYYyyyyK.
+..KyyyyK..
+...KKKK...
+..........
+frame
+..........
+...KKKK...
+.WKYYYYK..
+.KYYWYYyK.
+.KYWyyYyK.
+.KYWyyYyK.
+.KYYyyyyK.
+..KyyyyKW.
+...KKKK...
+..........

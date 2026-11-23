@@ -103,6 +103,8 @@ wizard-survivor/
 │
 ├── tools/
 │   └── art/art_builder.gd    # builds assets/sprites from art/
+# Sprint 13b added scripts/world/{world_art,floor_patch,nine_slice}.gd: WorldArt looks art up by name, FloorPatch tiles a floor
+# (with a wavy edge for zones), NineSlice draws walls of any size from one tile. Map data names its art.
 │
 ├── assets/
 │   ├── sprites/              # built sheets, silhouettes and SpriteSetData (committed)

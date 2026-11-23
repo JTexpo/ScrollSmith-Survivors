@@ -1,0 +1,36 @@
+# A blue XP gem, which stands out on grass and on stone.
+size 10 10
+anim sparkle 0 2 6 loop
+frame
+..........
+...KKKK...
+..KDWDeK..
+.KDDWeeeK.
+.KDeeeeeK.
+.KeeeeepK.
+..KeeeppK.
+...KpppK..
+....KKK...
+..........
+frame
+..........
+...KKKK.W.
+..KDWDeK..
+.KDDWeeeK.
+.KDeeeeeK.
+.KeeeeepK.
+..KeeeppK.
+...KpppK..
+....KKK...
+..........
+frame
+..........
+...KKKK...
+.WKDWDeK..
+.KDDWeeeK.
+.KDeeeeeK.
+.KeeeeepK.
+..KeeeppK.
+...KpppKW.
+....KKK...
+..........

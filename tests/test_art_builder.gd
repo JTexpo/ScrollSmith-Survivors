@@ -248,3 +248,38 @@ func test_a_hand_drawn_sprite_without_its_sheet_is_reported() -> void:
 	assert_eq(problems.size(), 1, str(problems))
 	assert_string_contains(problems[0], "hero_base.png")
 	assert_false(FileAccess.file_exists(_dir + "/out/hero_base.tres"))
+
+
+const TILE_SPRITE := """
+tile
+slice 1 1 1 1
+size 4 4
+anim a 0 0 1 loop
+frame
+KKKK
+KWWK
+KWWK
+KKKK
+"""
+
+
+func test_a_tile_gets_no_silhouette_and_its_set_records_tile_and_slice() -> void:
+	_write("palette.txt", PALETTE_TEXT)
+	_write("sources/floor.sprite", TILE_SPRITE)
+	var problems := ArtBuilder.build_all(_dir + "/sources", _dir + "/palette.txt", _dir + "/out")
+	assert_eq(problems.size(), 0, str(problems))
+	var files := Array(DirAccess.get_files_at(ProjectSettings.globalize_path(_dir + "/out")))
+	assert_true(files.has("floor_base.png"))
+	assert_true(files.has("floor_base.tres"))
+	assert_false(files.has("floor_silhouette.png"), "a tile has no outline")
+	assert_false(files.has("floor_silhouette.tres"))
+	var text := FileAccess.get_file_as_string(_dir + "/out/floor_base.tres")
+	assert_string_contains(text, "tile = true")
+	assert_string_contains(text, "slice = Vector4i(1, 1, 1, 1)")
+
+
+func test_a_plain_set_text_has_no_tile_line() -> void:
+	var text := ArtBuilder.set_text("res://x.png", SpriteSource.parse(PLAIN_SPRITE, _palette()))
+	assert_false(text.contains("tile ="))
+	assert_false(text.contains("slice ="))
+
