@@ -86,3 +86,28 @@ func test_a_tiny_area_never_fails() -> void:
 		var patch := _patch(Rect2(0, 0, size.x, size.y))
 		assert_not_null(patch.omitted_cells(), "%s" % size)
 		assert_lte(patch.interior_rect().size.x, maxf(size.x - 64.0, 0.0))
+
+
+## Every whole pixel of a soft patch is covered exactly once: by the tiled middle, by a drawn edge cell, or by a left-out
+## cell (where the floor below is meant to show). A strip in none of them is a bare line through the floor.
+func test_every_pixel_is_covered_once_for_any_size() -> void:
+	for size in [Vector2(420, 330), Vector2(780, 520), Vector2(70, 70), Vector2(600, 150), Vector2(260, 320), Vector2(65, 41), Vector2(400, 240)]:
+		var patch := _patch(Rect2(10, 20, size.x, size.y), true, 3)
+		var interior := patch.interior_rect()
+		var uncovered := 0
+		var doubled := 0
+		for y in range(0, int(size.y), 1):
+			for x in range(0, int(size.x), 1):
+				var point := Vector2(x + 0.5, y + 0.5)
+				var hits := 1 if interior.has_point(point) else 0
+				for cell in patch.omitted_cells():
+					hits += 1 if cell.has_point(point) else 0
+				for cell in patch.drawn_edge_cells():
+					hits += 1 if cell.has_point(point) else 0
+				if hits == 0:
+					uncovered += 1
+				elif hits > 1:
+					doubled += 1
+		assert_eq(uncovered, 0, "%s has a bare strip" % size)
+		assert_eq(doubled, 0, "%s draws a pixel twice" % size)
+

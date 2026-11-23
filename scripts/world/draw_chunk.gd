@@ -9,6 +9,8 @@ const OUTLINE := Color(0.2, 0.2, 0.25, 1)
 
 var _rects: Array[Dictionary] = []
 var _obstacles: Array[MapObstacle] = []
+## True for the second pass of a wall layer: only the centres of the walls with art, drawn after every border.
+var centres_only: bool = false
 ## The art of each obstacle in `_obstacles`, null where it has none.
 var _art: Array[SpriteSetData] = []
 ## The decoration sprites by style name, null for a style with no art.
@@ -16,9 +18,10 @@ var _decor_art: Dictionary = {}
 
 
 ## `rects` are {"rect": Rect2, "color": Color} decorations, `obstacles` are solid shapes.
-func set_items(rects: Array[Dictionary], obstacles: Array[MapObstacle]) -> void:
+func set_items(rects: Array[Dictionary], obstacles: Array[MapObstacle], centres: bool = false) -> void:
 	_rects = rects
 	_obstacles = obstacles
+	centres_only = centres
 	_art.clear()
 	_decor_art.clear()
 	for item in rects:
@@ -57,7 +60,7 @@ func art_obstacle_count() -> int:
 
 
 func _draw() -> void:
-	for item in _rects:
+	for item in ([] if centres_only else _rects):
 		var set_data := _decor_set(item)
 		if set_data == null:
 			draw_rect(item["rect"], item["color"])
@@ -66,7 +69,7 @@ func _draw() -> void:
 			var frames := maxi(set_data.frame_count(), 1)
 			var origin := ((item["rect"] as Rect2).get_center() - frame_size / 2.0).floor()
 			draw_texture_rect_region(set_data.sheet, Rect2(origin, frame_size), Rect2(Vector2(frame_size.x * (int(item["frame"]) % frames), 0.0), frame_size))
-	for i in _obstacles.size():
+	for i in (0 if centres_only else _obstacles.size()):
 		var obstacle := _obstacles[i]
 		if obstacle == null or not obstacle.is_valid():
 			continue
@@ -83,8 +86,9 @@ func _draw() -> void:
 			draw_texture_rect_region(set_data.sheet, Rect2(obstacle.position - size / 2.0, size), Rect2(Vector2.ZERO, size))
 		else:
 			NineSlice.draw(self, set_data.sheet, Vector2(set_data.frame_size), set_data.slice, obstacle.bounds(), false)
-	# The centres come last, so where two walls cross the border of one never shows across the other.
-	for i in _obstacles.size():
+	# The centres come last (a second pass over the whole layer, see ObstacleLayer), so where two walls cross the border
+	# of one never shows across the other, even when they are in different chunks.
+	for i in (_obstacles.size() if centres_only else 0):
 		var obstacle := _obstacles[i]
 		if obstacle != null and obstacle.is_valid() and obstacle.kind == MapObstacle.Kind.RECT and _art[i] != null:
 			var set_data := _art[i]

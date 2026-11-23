@@ -46,14 +46,21 @@ func omitted_cells() -> Array[Rect2]:
 	return _omitted
 
 
-## The part drawn as one tiled rectangle, in the patch's own coordinates: everything for a hard patch, and the area
-## shrunk by the soft band for a soft one (empty when the area is too small to have a middle).
+## The edge cells that are drawn, in the patch's own coordinates. Empty for a hard patch.
+func drawn_edge_cells() -> Array[Rect2]:
+	return _edge_cells
+
+
+## The part drawn as one tiled rectangle, in the patch's own coordinates: everything for a hard patch. For a soft one it
+## is bounded by the 8 px grid the edge cells are cut from, so the middle and the edge cells meet exactly (cutting the
+## middle at "size minus 32 px" left a bare strip through every zone whose size is not a multiple of 8). Empty when the
+## area is too small to have a middle.
 func interior_rect() -> Rect2:
 	if not _soft:
 		return Rect2(Vector2.ZERO, area.size)
 	var band := CELL * BAND_CELLS
-	var size := Vector2(maxf(area.size.x - band * 2.0, 0.0), maxf(area.size.y - band * 2.0, 0.0))
-	return Rect2(Vector2(band, band), size)
+	var end := Vector2(CELL * (ceili(area.size.x / CELL) - BAND_CELLS), CELL * (ceili(area.size.y / CELL) - BAND_CELLS))
+	return Rect2(Vector2(band, band), Vector2(maxf(end.x - band, 0.0), maxf(end.y - band, 0.0)))
 
 
 func _pick_edge_cells(seed_value: int) -> void:

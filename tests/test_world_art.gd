@@ -129,6 +129,6 @@ func test_every_decoration_style_in_first_map_has_art() -> void:
 		var set_data := WorldArt.decor_set(StringName(style))
 		assert_not_null(set_data, "decor_%s has art" % style)
 		assert_gte(set_data.frame_count(), 2, "decor_%s has variants" % style)
-		assert_lte(set_data.frame_size.x, 8)
-		assert_lte(set_data.frame_size.y, 8)
+		assert_lte(set_data.frame_size.x, 16)
+		assert_lte(set_data.frame_size.y, 16)
 

@@ -387,14 +387,14 @@ func test_a_wall_with_art_is_drawn_as_art_and_one_without_keeps_the_flat_colour(
 	_wall_art("post_hedge_base.tres", false)
 	var chunks := (_map_node(_art_obstacle_data(&"hedge")).get_node("Obstacles") as ObstacleLayer)
 	var with_art := 0
-	for chunk in chunks.get_children():
-		with_art += (chunk as DrawChunk).art_obstacle_count()
+	for chunk in chunks.chunks():
+		with_art += chunk.art_obstacle_count()
 	assert_eq(with_art, 2, "the wall and the post use their art")
 	for material in [&"", &"no_such_material"]:
 		var flat := (_map_node(_art_obstacle_data(material)).get_node("Obstacles") as ObstacleLayer)
 		var count := 0
-		for chunk in flat.get_children():
-			count += (chunk as DrawChunk).art_obstacle_count()
+		for chunk in flat.chunks():
+			count += chunk.art_obstacle_count()
 		assert_eq(count, 0, "no art for '%s' keeps the flat fill" % material)
 
 
@@ -464,4 +464,25 @@ func test_zone_patches_are_soft_and_the_base_patches_are_hard() -> void:
 		assert_eq((patch as FloorPatch).omitted_cells().size(), 0, "%s is hard-edged" % patch.name)
 	var zone_patch := node.get_node("ZoneArt").get_child(0) as FloorPatch
 	assert_gt(zone_patch.omitted_cells().size(), 0, "the zone's edge is ragged")
+
+
+func test_wall_centres_are_drawn_after_every_border_even_across_chunks() -> void:
+	_wall_art("wall_hedge_base.tres")
+	var data := _data()
+	data.size = Vector2(1200, 900)
+	# A long wall and a short one that crosses it, with their centres in different 512 px chunks.
+	var long_wall := _art_obstacle(MapObstacle.Kind.RECT, Vector2(400, 400), &"hedge")
+	long_wall.size = Vector2(700, 16)
+	var crossing := _art_obstacle(MapObstacle.Kind.RECT, Vector2(600, 400), &"hedge")
+	crossing.size = Vector2(16, 200)
+	data.obstacles = [long_wall, crossing] as Array[MapObstacle]
+	var layer := _map_node(data).get_node("Obstacles") as ObstacleLayer
+	assert_gt(layer.chunk_count(), 1, "the two walls are in different chunks")
+	var centres := layer.get_node("Centres")
+	assert_gt(centres.get_child_count(), 0)
+	for chunk in layer.chunks():
+		assert_false(chunk.centres_only)
+		assert_lt(chunk.get_index(), centres.get_index(), "every border chunk draws before the centres")
+	for chunk in centres.get_children():
+		assert_true((chunk as DrawChunk).centres_only)
 
