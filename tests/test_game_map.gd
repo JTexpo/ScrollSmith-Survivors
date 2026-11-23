@@ -209,3 +209,38 @@ func test_a_maze_is_drawn_and_has_wall_bodies() -> void:
 	assert_gt(walls, 10)
 	assert_eq((node.get_node("Obstacles") as ObstacleLayer).item_count(), walls)
 	assert_eq(node.get_node("ObstacleBodies").get_child_count(), walls)
+
+
+func _zoned_data() -> MapData:
+	var data := _data()
+	var first := MapZone.new()
+	first.area = Rect2(0, 0, 200, 150)
+	first.floor_color = Color(0.5, 0.2, 0.2)
+	first.decoration_count = 15
+	first.decoration_colors = PackedColorArray([Color(0.6, 0.3, 0.3)])
+	var second := MapZone.new()
+	second.area = Rect2(200, 150, 200, 150)
+	second.floor_color = Color(0.2, 0.2, 0.5)
+	data.zones = [first, second] as Array[MapZone]
+	return data
+
+
+func test_each_zone_has_a_floor_under_the_decorations() -> void:
+	var data := _zoned_data()
+	var node := _map_node(data)
+	var zones := node.get_node("Zones")
+	assert_eq(zones.get_child_count(), 2)
+	for i in 2:
+		var floor_rect := zones.get_child(i) as ColorRect
+		assert_eq(Rect2(floor_rect.position, floor_rect.size), data.zones[i].area)
+		assert_eq(floor_rect.color, data.zones[i].floor_color)
+		assert_eq(floor_rect.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+	assert_lt(node.get_node("Floor").get_index(), zones.get_index())
+	assert_lt(zones.get_index(), node.get_node("Decor").get_index())
+
+
+func test_the_decor_layer_holds_global_and_zone_items() -> void:
+	var data := _zoned_data()
+	var node := _map_node(data)
+	var expected := MapDecor.scatter(data).size() + MapDecor.scatter_zone(data, 0).size() + MapDecor.scatter_zone(data, 1).size()
+	assert_eq((node.get_node("Decor") as MapDecorLayer).item_count(), expected)
