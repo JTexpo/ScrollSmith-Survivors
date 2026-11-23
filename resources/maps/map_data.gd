@@ -9,6 +9,11 @@ const OBSTACLE_CLEARANCE := 24.0
 @export var size: Vector2 = Vector2(1920, 1080)
 @export var floor_color: Color = Color(0.16, 0.2, 0.17, 1)
 @export var border_color: Color = Color(0.08, 0.1, 0.09, 1)
+## Names of the art for the floor and the world's edge (empty keeps the flat colours).
+@export var floor_style: StringName = &""
+@export var border_style: StringName = &""
+## Names of the decoration sprites scattered over the map, used in place of `decoration_colors` when set.
+@export var decoration_styles: PackedStringArray = PackedStringArray()
 @export var player_start: Vector2 = Vector2(960, 540)
 ## Null keeps the spawn config the scene already has.
 @export var spawn_config: SpawnConfig

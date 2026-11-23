@@ -12,6 +12,8 @@ enum Kind { RECT, CIRCLE }
 @export var size: Vector2 = Vector2.ZERO
 ## CIRCLE.
 @export var radius: float = 0.0
+## What it is made of (`hedge`, `brick`, `marble` ...), which picks its art. Empty draws the flat colour.
+@export var material: StringName = &""
 
 
 func is_valid() -> bool:

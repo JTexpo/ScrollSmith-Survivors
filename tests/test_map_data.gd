@@ -161,3 +161,14 @@ func test_a_valid_maze_and_zone_are_fine() -> void:
 	map.mazes = [_maze_at(Rect2(40, 30, 320, 240))] as Array[MapMaze]
 	map.zones = [_zone(Rect2(0, 0, 200, 150))] as Array[MapZone]
 	assert_true(map.problems().is_empty(), str(map.problems()))
+
+
+func test_art_names_default_to_empty_on_the_map_and_its_zones() -> void:
+	var data := MapData.new()
+	assert_eq(data.floor_style, &"")
+	assert_eq(data.border_style, &"")
+	assert_eq(data.decoration_styles.size(), 0)
+	var zone := MapZone.new()
+	assert_eq(zone.floor_style, &"")
+	assert_eq(zone.decoration_styles.size(), 0)
+
