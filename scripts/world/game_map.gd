@@ -16,13 +16,20 @@ func _ready() -> void:
 		return
 	for problem in map_data.problems():
 		push_error("Map '%s': %s" % [map_data.id, problem])
+	for problem in ObstacleGrid.reachability_problems(map_data):
+		push_error("Map '%s': %s" % [map_data.id, problem])
 	_add_rect(&"Border", Rect2(-Vector2(BORDER_MARGIN, BORDER_MARGIN), map_data.size + Vector2(BORDER_MARGIN, BORDER_MARGIN) * 2.0), map_data.border_color)
 	_add_rect(&"Floor", map_data.bounds(), map_data.floor_color)
 	var decor := MapDecorLayer.new()
 	decor.name = &"Decor"
 	add_child(decor)
 	decor.set_decor(MapDecor.scatter(map_data))
+	var obstacles := ObstacleLayer.new()
+	obstacles.name = &"Obstacles"
+	add_child(obstacles)
+	obstacles.set_obstacles(map_data.obstacles)
 	_build_walls()
+	_build_obstacle_bodies()
 	var placements := Node2D.new()
 	placements.name = &"Placements"
 	add_child(placements)
@@ -32,11 +39,16 @@ func _ready() -> void:
 		var placed := placement.scene.instantiate() as Node2D
 		placed.position = placement.position
 		placements.add_child(placed)
+	var obstacle_map := ObstacleMap.new()
+	obstacle_map.name = &"ObstacleMap"
+	add_child(obstacle_map)
+	obstacle_map.setup(map_data)
 	var overlay := MapDebugOverlay.new()
 	overlay.name = &"Debug"
 	overlay.visible = false
 	add_child(overlay)
 	overlay.setup(map_data)
+	overlay.bind(obstacle_map)
 
 
 ## DEBUG: shows or hides the layout overlay (F7).
@@ -91,3 +103,30 @@ func _add_wall(parent: Node, center: Vector2, wall_size: Vector2) -> void:
 	shape.shape = rectangle
 	body.add_child(shape)
 	parent.add_child(body)
+
+
+## One static body per obstacle on the world layer, so the player's physics collide with the same exact
+## shapes the grid and the shape tests are built from.
+func _build_obstacle_bodies() -> void:
+	var bodies := Node2D.new()
+	bodies.name = &"ObstacleBodies"
+	add_child(bodies)
+	for obstacle in map_data.obstacles:
+		if obstacle == null or not obstacle.is_valid():
+			continue
+		var body := StaticBody2D.new()
+		body.collision_layer = PhysicsLayers.WORLD
+		body.collision_mask = 0
+		body.position = obstacle.position
+		var shape := CollisionShape2D.new()
+		shape.name = &"CollisionShape2D"
+		if obstacle.kind == MapObstacle.Kind.CIRCLE:
+			var circle := CircleShape2D.new()
+			circle.radius = obstacle.radius
+			shape.shape = circle
+		else:
+			var rectangle := RectangleShape2D.new()
+			rectangle.size = obstacle.size
+			shape.shape = rectangle
+		body.add_child(shape)
+		bodies.add_child(body)

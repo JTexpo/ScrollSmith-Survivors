@@ -117,3 +117,74 @@ func test_an_invalid_map_is_reported_when_it_loads() -> void:
 	data.player_start = Vector2(5000, 5000)
 	_map_node(data)
 	assert_push_error("player start")
+
+
+func _obstacle_data() -> MapData:
+	var data := _data()
+	var rect := MapObstacle.new()
+	rect.kind = MapObstacle.Kind.RECT
+	rect.position = Vector2(300, 60)
+	rect.size = Vector2(40, 20)
+	var circle := MapObstacle.new()
+	circle.kind = MapObstacle.Kind.CIRCLE
+	circle.position = Vector2(300, 240)
+	circle.radius = 15.0
+	data.obstacles = [rect, circle] as Array[MapObstacle]
+	return data
+
+
+func test_each_obstacle_is_drawn_and_has_a_wall_body() -> void:
+	var node := _map_node(_obstacle_data())
+	assert_eq((node.get_node("Obstacles") as ObstacleLayer).item_count(), 2)
+	var bodies := node.get_node("ObstacleBodies")
+	assert_eq(bodies.get_child_count(), 2)
+	for body in bodies.get_children():
+		assert_eq((body as StaticBody2D).collision_layer, PhysicsLayers.WORLD)
+		assert_eq((body as StaticBody2D).collision_mask, 0)
+	var rect_shape := (bodies.get_child(0).get_node("CollisionShape2D") as CollisionShape2D).shape as RectangleShape2D
+	assert_eq(rect_shape.size, Vector2(40, 20))
+	assert_eq(bodies.get_child(0).position, Vector2(300, 60))
+	var circle_shape := (bodies.get_child(1).get_node("CollisionShape2D") as CollisionShape2D).shape as CircleShape2D
+	assert_eq(circle_shape.radius, 15.0)
+
+
+func test_it_builds_an_obstacle_map() -> void:
+	var node := _map_node(_obstacle_data())
+	var obstacle_map := node.get_node("ObstacleMap") as ObstacleMap
+	assert_true(obstacle_map.is_in_group(&"obstacle_map"))
+	assert_true(obstacle_map.is_blocked(Vector2(300, 60)))
+	assert_false(obstacle_map.is_blocked(Vector2(40, 280)))
+
+
+func test_a_body_pushed_at_an_obstacle_is_stopped() -> void:
+	_map_node(_obstacle_data())
+	var body := CharacterBody2D.new()
+	body.collision_mask = PhysicsLayers.WORLD
+	var shape := CollisionShape2D.new()
+	var circle := CircleShape2D.new()
+	circle.radius = 4.0
+	shape.shape = circle
+	body.add_child(shape)
+	add_child_autofree(body)
+	body.position = Vector2(250, 60)
+	await wait_physics_frames(3)
+	body.move_and_collide(Vector2(100, 0))
+	assert_lte(body.position.x, 276.1)
+
+
+func test_an_unreachable_placement_is_reported_when_it_loads() -> void:
+	var data := _data()
+	data.size = Vector2(320, 160)
+	data.player_start = Vector2(8, 8)
+	data.body_clearance = 0.0
+	data.placements[0].position = Vector2(160, 80)
+	var walls: Array[MapObstacle] = []
+	for spec in [[Vector2(160, 40), Vector2(96, 8)], [Vector2(160, 120), Vector2(96, 8)], [Vector2(120, 80), Vector2(8, 96)], [Vector2(200, 80), Vector2(8, 96)]]:
+		var wall := MapObstacle.new()
+		wall.kind = MapObstacle.Kind.RECT
+		wall.position = spec[0]
+		wall.size = spec[1]
+		walls.append(wall)
+	data.obstacles = walls
+	_map_node(data)
+	assert_push_error("not reachable")
