@@ -98,7 +98,7 @@ func test_every_tile_is_full_bleed_and_its_slice_fits() -> void:
 		if source.slice != Vector4i.ZERO:
 			assert_lt(source.slice.x + source.slice.z, source.frame_size.x, "%s slice fits the width" % sprite_name)
 			assert_lt(source.slice.y + source.slice.w, source.frame_size.y, "%s slice fits the height" % sprite_name)
-	assert_gte(tiles, 0, "Task 3 adds the first tiles")
+	assert_gt(tiles, 0, "the world has floor tiles")
 
 
 func test_the_committed_sheets_exist_for_every_variant_and_the_silhouette() -> void:

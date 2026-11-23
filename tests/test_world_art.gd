@@ -45,3 +45,16 @@ func test_a_name_finds_its_set_by_the_naming_rule() -> void:
 	assert_eq(WorldArt.post_set(&"marble").frame_size, Vector2i(5, 5))
 	assert_eq(WorldArt.decor_set(&"moss").frame_size, Vector2i(6, 6))
 	assert_null(WorldArt.wall_set(&"grass"), "a floor is not a wall")
+
+
+func test_every_floor_style_in_first_map_has_art() -> void:
+	SpriteLibrary.root = "res://assets/sprites"
+	var map := load("res://resources/maps/first_map.tres") as MapData
+	var styles: Array[StringName] = [map.floor_style, map.border_style]
+	for zone in map.zones:
+		styles.append(zone.floor_style)
+	for style in styles:
+		assert_ne(style, &"", "every region of the first map names a floor")
+		assert_not_null(WorldArt.floor_set(style), "tile_%s has art" % style)
+		assert_true(WorldArt.floor_set(style).tile, "tile_%s is a tile" % style)
+

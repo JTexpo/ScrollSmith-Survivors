@@ -262,3 +262,81 @@ func test_the_obstacle_layer_is_split_into_chunks_and_keeps_the_count() -> void:
 	assert_eq(layer.item_count(), 12)
 	assert_eq(layer.chunk_count(), keys.size())
 	assert_gt(layer.chunk_count(), 1)
+
+
+const ART_ROOT := "res://.godot/art_tests"
+
+var _art_dir: String
+
+
+func _tile_art(file: String) -> void:
+	if _art_dir == "":
+		_art_dir = "%s/g_%s" % [ART_ROOT, str(randi())]
+		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_art_dir))
+		SpriteLibrary.root = _art_dir
+	var set_data := SpriteSetData.new()
+	set_data.sheet = ImageTexture.create_from_image(Image.create(16, 16, false, Image.FORMAT_RGBA8))
+	set_data.frame_size = Vector2i(16, 16)
+	set_data.tile = true
+	assert_eq(ResourceSaver.save(set_data, "%s/%s" % [_art_dir, file]), OK)
+
+
+func after_each() -> void:
+	if _art_dir != "":
+		SpriteLibrary.root = "res://assets/sprites"
+		var absolute := ProjectSettings.globalize_path(_art_dir)
+		for file in DirAccess.get_files_at(absolute):
+			DirAccess.remove_absolute("%s/%s" % [absolute, file])
+		DirAccess.remove_absolute(absolute)
+		_art_dir = ""
+
+
+func _styled_data() -> MapData:
+	var data := _zoned_data()
+	data.floor_style = &"grass"
+	data.border_style = &"border"
+	data.zones[0].floor_style = &"path"
+	return data
+
+
+func test_floor_styles_add_patches_in_draw_order() -> void:
+	_tile_art("tile_grass_base.tres")
+	_tile_art("tile_border_base.tres")
+	_tile_art("tile_path_base.tres")
+	var data := _styled_data()
+	var node := _map_node(data)
+	var base := node.get_node("BaseArt")
+	assert_eq(base.get_child_count(), 2, "the border and the map")
+	assert_eq((base.get_child(0) as FloorPatch).area, Rect2(-Vector2(GameMap.BORDER_MARGIN, GameMap.BORDER_MARGIN), data.size + Vector2(GameMap.BORDER_MARGIN, GameMap.BORDER_MARGIN) * 2.0))
+	assert_eq((base.get_child(1) as FloorPatch).area, data.bounds())
+	var zone_art := node.get_node("ZoneArt")
+	assert_eq(zone_art.get_child_count(), 1, "only the zone with a style")
+	assert_eq((zone_art.get_child(0) as FloorPatch).area, data.zones[0].area)
+	assert_lt(node.get_node("Floor").get_index(), base.get_index())
+	assert_lt(base.get_index(), node.get_node("Zones").get_index())
+	assert_lt(node.get_node("Zones").get_index(), zone_art.get_index())
+	assert_lt(zone_art.get_index(), node.get_node("Decor").get_index())
+
+
+func test_a_missing_style_adds_no_patch_and_keeps_the_colour() -> void:
+	var data := _styled_data()
+	data.floor_style = &"no_such_floor"
+	data.border_style = &"no_such_border"
+	data.zones[0].floor_style = &"no_such_zone_floor"
+	var node := _map_node(data)
+	assert_eq(node.get_node("BaseArt").get_child_count(), 0)
+	assert_eq(node.get_node("ZoneArt").get_child_count(), 0)
+	assert_eq((node.get_node("Floor") as ColorRect).color, data.floor_color)
+	assert_eq((node.get_node("Zones").get_child(0) as ColorRect).color, data.zones[0].floor_color)
+
+
+func test_floor_patches_never_catch_touches() -> void:
+	_tile_art("tile_grass_base.tres")
+	_tile_art("tile_path_base.tres")
+	var data := _styled_data()
+	var node := _map_node(data)
+	var patches: Array[Node] = node.get_node("BaseArt").get_children() + node.get_node("ZoneArt").get_children()
+	assert_gt(patches.size(), 0)
+	for patch in patches:
+		assert_true(patch is Node2D and not patch is Control, "%s is a drawing, not a Control" % patch.name)
+

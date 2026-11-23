@@ -1,0 +1,21 @@
+# A border floor tile: full-bleed, repeats every 16 px.
+tile
+size 16 16
+anim idle 0 0 1 loop
+frame
+qqqqqqqqqqqqqqqq
+qtttttttqttttttt
+qtttttttqttttttt
+qtttttttqttttttt
+qqqqqqqqqqqqqqqq
+ttttqtttttttqttt
+ttttqtttttttqttt
+ttttqtttttttqttt
+qqqqqqqqqqqqqqqq
+qtttttttqttttttt
+qtttttttqttttttt
+qtttttttqttttttt
+qqqqqqqqqqqqqqqq
+ttttqtttttttqttt
+ttttqtttttttqttt
+ttttqtttttttqttt

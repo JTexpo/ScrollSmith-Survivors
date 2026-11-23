@@ -98,6 +98,7 @@ rotated = true
 
 [sub_resource type="Resource" id="zone_maze"]
 script = ExtResource("8")
+floor_style = &"path"
 area = Rect2(40, 40, 780, 520)
 display_name = "Maze"
 floor_color = Color(0.12, 0.17, 0.2, 1)
@@ -106,6 +107,7 @@ decoration_count = 150
 
 [sub_resource type="Resource" id="zone_labyrinth"]
 script = ExtResource("8")
+floor_style = &"path"
 area = Rect2(1100, 520, 780, 520)
 display_name = "Labyrinth"
 floor_color = Color(0.17, 0.12, 0.2, 1)
@@ -114,6 +116,7 @@ decoration_count = 150
 
 [sub_resource type="Resource" id="zone_island"]
 script = ExtResource("8")
+floor_style = &"ruin"
 area = Rect2(1360, 40, 420, 330)
 display_name = "Island"
 floor_color = Color(0.2, 0.2, 0.22, 1)
@@ -122,6 +125,7 @@ decoration_count = 70
 
 [sub_resource type="Resource" id="zone_corridor"]
 script = ExtResource("8")
+floor_style = &"hall"
 area = Rect2(460, 900, 600, 150)
 display_name = "Corridor"
 floor_color = Color(0.22, 0.19, 0.14, 1)
@@ -130,6 +134,7 @@ decoration_count = 50
 
 [sub_resource type="Resource" id="zone_plaza"]
 script = ExtResource("8")
+floor_style = &"grass"
 area = Rect2(830, 380, 260, 320)
 display_name = "Plaza"
 floor_color = Color(0.19, 0.24, 0.19, 1)
@@ -305,6 +310,8 @@ display_name = "The Lectern Grounds"
 size = Vector2(1920, 1080)
 floor_color = Color(0.16, 0.2, 0.17, 1)
 border_color = Color(0.08, 0.1, 0.09, 1)
+floor_style = &"grass"
+border_style = &"border"
 player_start = Vector2(960, 540)
 spawn_config = ExtResource("4")
 placements = Array[ExtResource("2")]([SubResource("west"), SubResource("east"), SubResource("south"), SubResource("poi_rare_nw"), SubResource("poi_rare_se"), SubResource("poi_chest"), SubResource("poi_mana"), SubResource("poi_health"), SubResource("poi_merchant")])

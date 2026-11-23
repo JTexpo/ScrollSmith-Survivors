@@ -1,0 +1,21 @@
+# A hall floor tile: full-bleed, repeats every 16 px.
+tile
+size 16 16
+anim idle 0 0 1 loop
+frame
+oooooooooooooooo
+onnmmmmnonnmmmmm
+onmmmmmmonmmmmmm
+ommmmmmmommmmmmm
+ommmmmmmommmmmmm
+ommmmmmmommmmmmm
+ommmmmmmommmmmmm
+ommmmmmmommmmmmm
+oooooooooooooooo
+onnnmmmmonnmmmmm
+onommmmmonmmmmmm
+ommmmmmmommmmmnm
+onommmmmommmmmmm
+ommmmmmoommmmmnm
+ommmmmmmomommmmm
+ommmmmmmommmmmmm

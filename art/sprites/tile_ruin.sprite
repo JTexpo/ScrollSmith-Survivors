@@ -1,0 +1,21 @@
+# A ruin floor tile: full-bleed, repeats every 16 px.
+tile
+size 16 16
+anim idle 0 0 1 loop
+frame
+llllllllllllllll
+lkkjjjjllkkjjjjj
+lkjjjjjjlkjjjjjj
+ljjjjjjjljjjjjjj
+ljljjjjjljjjjjkj
+ljjjjjljljjjljjj
+ljjjjjjlljjjjjjj
+lljjjjjjljjjjjjj
+llllllllllllllll
+jjjjlkkjjjjjlkkj
+jjjjlkljjjjjlkjj
+jjjkljjlljjjljjj
+jjjjljjljjjjljjj
+jjjjljkjjjjjljjj
+ljjjljjjjjjjljjj
+jjjjljjjjjjjljjj
