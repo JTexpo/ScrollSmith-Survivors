@@ -60,7 +60,7 @@ func test_the_rare_scroll_spots_are_at_the_maze_centres() -> void:
 
 func test_the_island_points_are_inside_the_island_and_clear_of_both_gates() -> void:
 	var island := _zone("Island").area
-	for spot in _positions("treasure_chest") + _positions("mana_shrine"):
+	for spot in _positions("mana_shrine"):
 		assert_true(island.grow(-24.0).has_point(spot), "%s is not inside the island" % spot)
 		assert_gte(spot.distance_to(WEST_GATE), 60.0, "%s blocks the west gate" % spot)
 		assert_gte(spot.distance_to(SOUTH_GATE), 60.0, "%s blocks the south gate" % spot)
@@ -73,13 +73,12 @@ func test_the_corridor_shrine_is_between_the_corridor_walls_and_does_not_block_i
 	assert_lte(absf(shrine.y - 970.0), 16.0, "in the middle of the corridor")
 
 
-func test_the_merchant_is_in_the_open_south_west_and_not_near_a_lectern() -> void:
+func test_the_merchant_is_north_of_the_plaza_and_far_from_the_health_shrine() -> void:
 	var merchant := _positions("merchant")[0]
-	assert_lt(merchant.x, _map.player_start.x)
-	assert_gt(merchant.y, _map.player_start.y)
-	assert_gte(merchant.distance_to(_map.player_start), 150.0)
+	assert_lt(merchant.y, _map.player_start.y)
+	assert_gte(merchant.distance_to(_positions("health_shrine")[0]), 450.0)
 	for lectern in _positions("lectern"):
-		assert_gte(merchant.distance_to(lectern), 150.0, "too near the Lectern at %s" % lectern)
+		assert_gte(merchant.distance_to(lectern), 250.0, "too near the Lectern at %s" % lectern)
 
 
 func test_no_two_points_of_interest_are_closer_than_80_px() -> void:

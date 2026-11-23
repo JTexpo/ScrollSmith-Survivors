@@ -172,3 +172,10 @@ func test_art_names_default_to_empty_on_the_map_and_its_zones() -> void:
 	assert_eq(zone.floor_style, &"")
 	assert_eq(zone.decoration_styles.size(), 0)
 
+
+
+func test_first_map_lecterns_are_at_least_400_from_the_start() -> void:
+	var map := load("res://resources/maps/first_map.tres") as MapData
+	for placement in map.placements:
+		if placement.scene.resource_path == LECTERN:
+			assert_gte(placement.position.distance_to(map.player_start), 400.0, "Lectern at %s is too near the start" % placement.position)
