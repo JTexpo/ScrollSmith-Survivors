@@ -111,7 +111,7 @@ func test_setup_takes_element_colour_and_size_from_the_data() -> void:
 	var boss := _boss(data)
 	assert_eq((boss.get_node("HurtboxComponent") as HurtboxComponent).element, SpellData.Element.FIRE)
 	assert_eq(boss.scale, Vector2.ONE * 3.0)
-	assert_eq((boss.get_node("Body") as ColorRect).color, data.color)
+	assert_eq((boss.get_node("Body") as BodyView).fallback_color, data.color)
 	assert_eq(boss.phase, 0)
 	assert_eq(boss.state, Boss.State.IDLE)
 
