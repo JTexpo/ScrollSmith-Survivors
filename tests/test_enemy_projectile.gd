@@ -105,3 +105,40 @@ func test_every_control_in_the_projectile_ignores_the_mouse() -> void:
 	var projectile := _fire(Vector2(10, 10))
 	for child in projectile.find_children("*", "Control", true, false):
 		assert_eq((child as Control).mouse_filter, Control.MOUSE_FILTER_IGNORE, str(child.name))
+
+
+func after_each() -> void:
+	SpriteLibrary.root = "res://assets/sprites"
+
+
+func _fire_as(element_id: StringName) -> EnemyProjectile:
+	return EnemyProjectile.fire(_root, _scene, Vector2(100, 100), Vector2.RIGHT, 200.0, 8.0, 300.0, element_id)
+
+
+func _sheet_path(projectile: EnemyProjectile) -> String:
+	var frames := (projectile.get_node("Orb/Sprite") as AnimatedSprite2D).sprite_frames
+	return ((frames.get_frame_texture(&"fly", 0) as AtlasTexture).atlas).resource_path
+
+
+func test_a_shot_takes_the_shooters_element_colours() -> void:
+	var fire := _fire_as(&"fire")
+	var sea := _fire_as(&"sea")
+	assert_true((fire.get_node("Orb") as BodyView).has_art())
+	assert_ne(_sheet_path(fire), _sheet_path(sea), "a Fire Kobold and a Sea Kobold throw different orbs")
+	assert_string_contains(_sheet_path(fire), "fire")
+	assert_string_contains(_sheet_path(_fire_as(&"")), "none", "no element gets the plain colours")
+	assert_string_contains(_sheet_path(_fire_as(&"none")), "none")
+	assert_false((fire.get_node("Body") as ColorRect).visible, "the old square steps aside")
+
+
+func test_a_shot_without_art_keeps_its_square() -> void:
+	SpriteLibrary.root = "res://.godot/art_tests/no_such_folder"
+	var shot := _fire_as(&"fire")
+	assert_false((shot.get_node("Orb") as BodyView).has_art())
+	assert_true((shot.get_node("Body") as ColorRect).visible)
+
+
+func test_a_shot_is_drawn_one_to_one() -> void:
+	var shot := _fire_as(&"land")
+	assert_almost_eq((shot.get_node("Orb/Sprite") as Node2D).global_transform.get_scale().x, 1.0, 0.001)
+

@@ -9,6 +9,8 @@ extends Node2D
 const MAX_ALIVE := 60
 
 @onready var hitbox: HitboxComponent = $Hitbox
+@onready var _body: ColorRect = $Body
+@onready var _orb: BodyView = $Orb
 
 var _direction: Vector2 = Vector2.RIGHT
 var _speed: float = 0.0
@@ -26,12 +28,14 @@ static func fire(
 	speed: float,
 	damage: float,
 	max_range: float,
+	element_id: StringName = &"",
 ) -> EnemyProjectile:
 	var live := parent.get_tree().get_nodes_in_group(&"enemy_projectiles").filter(func(node: Node) -> bool: return not node.is_queued_for_deletion())
 	while live.size() >= MAX_ALIVE:
 		live.pop_front().queue_free()
 	var projectile := scene.instantiate() as EnemyProjectile
 	parent.add_child(projectile)
+	projectile.show_element(element_id)
 	projectile.launch(origin, direction, speed, damage, max_range)
 	return projectile
 
@@ -62,6 +66,16 @@ func launch(origin: Vector2, direction: Vector2, speed: float, damage: float, ma
 	_remaining = max_range
 	hitbox.damage = damage
 	hitbox.one_shot = true
+
+
+## Shows the shot as an outlined orb in its shooter's element colours (plain grey for none or an unknown element). With no art
+## the old square stays.
+func show_element(element_id: StringName) -> void:
+	var has_orb := _orb.set_look(&"fx_enemy_orb", element_id if element_id != &"" else &"none")
+	_orb.visible = has_orb
+	_body.visible = not has_orb
+	if has_orb:
+		_orb.play(&"fly")
 
 
 func _on_hit_landed(_target: HurtboxComponent) -> void:

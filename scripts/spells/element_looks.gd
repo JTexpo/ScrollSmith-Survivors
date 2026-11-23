@@ -13,6 +13,20 @@ const PATHS := {
 static var _cache: Dictionary = {}
 
 
+## The id an enemy's element carries (`fire`, `thunder`, `land`, `sea`), and `none` for no element or an unknown value.
+static func id_of(element: int) -> StringName:
+	match element:
+		SpellData.Element.FIRE:
+			return &"fire"
+		SpellData.Element.THUNDER:
+			return &"thunder"
+		SpellData.Element.LAND:
+			return &"land"
+		SpellData.Element.SEA:
+			return &"sea"
+	return &"none"
+
+
 static func for_element(element: int) -> ElementLook:
 	if not PATHS.has(element):
 		return null

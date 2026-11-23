@@ -17,6 +17,8 @@ enum State { IDLE, TELEGRAPH, ACT, RECOVER }
 
 ## Timers count down to this, not to exactly zero, so float error never costs a step.
 const EPSILON := 0.0001
+## The gap between the warning marks along a charge's dash line.
+const CHARGE_MARK_SPACING := 12.0
 const BLAST_SCENE := preload("res://scenes/enemies/blast_zone.tscn")
 const PROJECTILE_SCENE := preload("res://scenes/enemies/enemy_projectile.tscn")
 
@@ -43,6 +45,8 @@ var _dash_direction: Vector2 = Vector2.RIGHT
 var _zone: BlastZone
 var _vulnerability_bonus: float = 0.0
 var _dead: bool = false
+## The warning marks along a Charge's dash line while it winds up (none without art, then the old line is drawn).
+var _charge_marks: Array[Sprite2D] = []
 
 @onready var _health: HealthComponent = $HealthComponent
 @onready var _hurtbox: HurtboxComponent = $HurtboxComponent
@@ -85,7 +89,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _draw() -> void:
-	if state == State.TELEGRAPH and _attack != null and _attack.kind == BossAttack.Kind.CHARGE:
+	if state == State.TELEGRAPH and _attack != null and _attack.kind == BossAttack.Kind.CHARGE and _charge_marks.is_empty():
 		var end := to_local(global_position + _dash_direction * _attack.dash_speed * _attack.dash_time)
 		draw_line(Vector2.ZERO, end, Color(1.0, 0.3, 0.1, 0.8), 2.0)
 
@@ -179,6 +183,7 @@ func _begin_attack(player: Node2D) -> void:
 		BossAttack.Kind.CHARGE:
 			var to_player := player.global_position - global_position
 			_dash_direction = to_player.normalized() if to_player.length() > 0.0 else Vector2.RIGHT
+			_show_charge_marks()
 		_:
 			_body.fallback_color = data.color.lightened(0.3)
 	_show(&"telegraph")
@@ -189,6 +194,7 @@ func _begin_attack(player: Node2D) -> void:
 func _start_action() -> void:
 	match _attack.kind:
 		BossAttack.Kind.CHARGE:
+			_clear_charge_marks()
 			state = State.ACT
 			_act_left = _attack.dash_time
 			_hitbox.damage = _attack.damage * _damage_scale
@@ -227,6 +233,7 @@ func _fire_burst() -> void:
 			_attack.projectile_speed,
 			_attack.damage * _damage_scale,
 			_attack.projectile_range,
+			ElementLooks.id_of(data.element),
 		)
 
 
@@ -249,6 +256,28 @@ func _end_recover() -> void:
 	_body.fallback_color = data.color
 	_show(&"idle")
 	_idle_left = _interval()
+	queue_redraw()
+
+
+## The marks of the charge's warning: one about every 12 px along the dash line, upright and 1:1 though the boss is scaled.
+func charge_marks() -> Array[Sprite2D]:
+	return _charge_marks
+
+
+func _show_charge_marks() -> void:
+	_clear_charge_marks()
+	var length := _attack.dash_speed * _attack.dash_time
+	for i in int(length / CHARGE_MARK_SPACING):
+		var mark := WarningMark.make(self, global_position + _dash_direction * CHARGE_MARK_SPACING * (i + 1), false)
+		if mark == null:
+			return
+		_charge_marks.append(mark)
+
+
+func _clear_charge_marks() -> void:
+	for mark in _charge_marks:
+		mark.queue_free()
+	_charge_marks.clear()
 	queue_redraw()
 
 
@@ -297,6 +326,7 @@ func _on_died() -> void:
 	if _dead:
 		return
 	_dead = true
+	_clear_charge_marks()
 	if is_instance_valid(_zone) and not _zone.is_detonated():
 		_zone.cancel()
 	_hurtbox.set_deferred("monitorable", false)

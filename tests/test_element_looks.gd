@@ -37,3 +37,13 @@ func test_no_element_and_unknown_values_have_no_look() -> void:
 
 func test_the_looks_are_cached() -> void:
 	assert_same(ElementLooks.for_element(SpellData.Element.FIRE), ElementLooks.for_element(SpellData.Element.FIRE))
+
+
+func test_the_element_id_names_each_element_and_falls_back_to_none() -> void:
+	assert_eq(ElementLooks.id_of(SpellData.Element.FIRE), &"fire")
+	assert_eq(ElementLooks.id_of(SpellData.Element.THUNDER), &"thunder")
+	assert_eq(ElementLooks.id_of(SpellData.Element.LAND), &"land")
+	assert_eq(ElementLooks.id_of(SpellData.Element.SEA), &"sea")
+	assert_eq(ElementLooks.id_of(SpellData.NO_ELEMENT), &"none")
+	assert_eq(ElementLooks.id_of(42), &"none")
+

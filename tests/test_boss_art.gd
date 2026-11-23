@@ -156,3 +156,19 @@ func test_the_hit_flash_still_works() -> void:
 	(boss.get_node("HurtboxComponent") as HurtboxComponent).receive_hit(5.0, Vector2.ZERO, 0.0, SpellData.NO_ELEMENT)
 	assert_true((boss.get_node("HitFlashComponent") as HitFlashComponent).is_flashing)
 	assert_ne(_view(boss).modulate, Color.WHITE)
+
+
+func test_the_charge_warning_uses_marks_along_the_dash_line_then_clears() -> void:
+	var boss := _titan(_attack(K.CHARGE, 0.5))
+	_step(boss, 0.5)
+	assert_eq(boss.state, Boss.State.TELEGRAPH)
+	var marks := boss.charge_marks()
+	assert_gt(marks.size(), 3, "a dashed line of marks")
+	var to_player := (_player.global_position - boss.global_position).normalized()
+	for mark in marks:
+		var along := (mark.global_position - boss.global_position)
+		assert_almost_eq(absf(along.normalized().dot(to_player)), 1.0, 0.05, "on the dash line")
+		assert_almost_eq(mark.global_transform.get_scale().x, 1.0, 0.001, "never scaled, though the boss is x3")
+	_step(boss, 0.6)
+	assert_eq(boss.charge_marks().size(), 0, "gone when the charge starts")
+
