@@ -702,7 +702,7 @@ The intended art direction is comedic, colorful, and cartoon-inspired pixel art.
 
 The world should feel like a playful fantasy adventure rather than a grim-dark survival experience.
 
-Sprint 13 is split into six: **13a** the art foundation (built), **13b** the world's art (built), **13c** spells and equipment (spell and projectile art, enemy projectiles and blast zones, the reticle, and the wizard visibly wearing the equipped robe, headwear and weapon, a user request during 13a), **13d** the interface (built: a font and one look for every HUD piece and screen), **13e** audio, **13f** polish.
+Sprint 13 is split into six: **13a** the art foundation (built), **13b** the world's art (built), **13c** spells and equipment (spell and projectile art, enemy projectiles and blast zones, the reticle, and the wizard visibly wearing the equipped robe, headwear and weapon, a user request during 13a), **13d** the interface (built: a font and one look for every HUD piece and screen), **13e** audio (built), **13f** polish.
 
 **Built note (13a):** a replaceable art pipeline. Sprites are text pixel grids (`art/sprites/*.sprite`) in one palette (`art/palette.txt`), built by `tools/art/art_builder.gd` into committed PNG sheets and `SpriteSetData` resources, and shown by `BodyView`, which falls back to the old coloured square when there is no art. The player (idle, move, cast), all seven enemy archetypes in the five element colourways (move, death, and the Ranged shot, Exploder fuse and Support pulse) and the Ember Titan (idle, telegraph, attack, vulnerable) have sprites; elites get a silhouette outline. Overwriting a sheet PNG replaces that art with no code change. Gameplay and hit shapes are unchanged. Stress is about 30% lower than before (about 139 against 199 fps at 300 enemies), still more than twice the 60 fps target. Not yet drawn: player damage and hurt poses, spell and projectile art, equipment and UI.
 
@@ -711,6 +711,8 @@ Sprint 13 is split into six: **13a** the art foundation (built), **13b** the wor
 **Built note (13c):** combat has the cartoon look and the wizard wears what is equipped. Area spells keep their exact hit shape as a faint tint with a bright edge and play element effect sprites over it: Fire flames and Land rock spikes rise from the ground (nearest the caster first), Thunder bolts and Sea splashes fall from the sky; a Zone plays a fresh set at each damage tick, and a hybrid spell cycles through its elements. Missiles are one flying object per element in three size classes (the hit shape follows the exact size, the drawing never scales), and a Wave is a row of them along its front. Enemy shots take their shooter's element colours as small dark-outlined orbs, blast zones warn with rings of pixel marks that grow with the fuse and end in a burst, the boss's charge warning is a dashed line of the same marks, and the target reticle is a pixel crosshair. The wizard is drawn in layers (bare body, robe, beard, headwear, weapon): five robe colourways, a pointed hat and a hood in three trims each, and a wand and a staff in two looks each, set from `EquipmentData.sprite_name` and `sprite_variant` at run start. After feedback the wizard shows no skin at all (a shadowed face with only the eyes, and a white beard over the robe) and the hat and hood are wider so the head reads smaller. Stress with the effects is within about 15% of main (the full scene about 98 against about 113 fps, a Zone about 187 against about 222, a Line and a Wave equal). Not yet done: the HUD and menus (13d), audio (13e), polish (13f).
 
 **Built note (13d):** the interface has one whimsical look. A slim pixel font (`art/fonts/ui.pixelfont`, 5 px letters, a plain and an outlined build with identical metrics) is built by the art tool into BMFont sheets; cream panels with a plum outline, red, green and yellow buttons, slot frames, pink, sky and red bars and icons are sliced sprites (`slice` without `tile`, so corners may be transparent) tiled and never stretched; one committed theme (`resources/ui/game_theme.tres`, written as text by `ThemeBuilder` and set as `gui/theme/custom`) styles every `Control`, and `UiKit` builds themed labels, buttons, bars, icons and the full-screen `window`. Text over the world (Gold, the clock, damage numbers, toasts, prompts) uses the outlined font and is readable on grass, stone and a boss fight; "TEMP HP BAR" is a heart and a bar. Every screen (death, buff pick, inventory, merchant, shop, crafting) sits on a cream page and wraps or fits its longest text (tests measure it). Behaviour, layouts and input did not change (checked in a real window: touch and mouse buy exactly once, focus walks and the death screen's Shop tap never restarts). Stress is about 104 fps median against about 115 before, inside the usual noise. Play-test follow-up (user feedback, before merging): the scattered map decoration was removed from the first map, green now means go (Confirm, Buy, Shop) and red stop (Cancel, Close), buttons and slots were enlarged for touch (the crafting screen got Spell and Buffs tabs), and the starting-buff screen is colourful (each buff has its own colour and icon in data). Not done: a confirm dialog in the shop, sound (13e) and polish (13f).
+
+**Built note (13e):** the game has chiptune audio. About 43 sound recipes (`audio/sounds/*.sfx`: wave shapes, pitch slides, envelopes, noise) and two looping tunes (`audio/music/*.tune`: a run loop and a faster boss loop, four voices each) are rendered by the art tool into committed WAVs (22,050 Hz mono, about 2.5 MB), with stale and orphan tests. One `SoundBoard` node in `main.tscn` (not an autoload) owns a fixed pool of 12 voices, the Music and Sfx buses, the mute state, the first-input unlock the web needs and the music (the boss loop crossfades in and out, music drops 9 dB while a screen pauses the game, jingles duck it); a pure `VoiceLimiter` applies per-sound caps, gaps and priorities so a 300-enemy fight stays quiet and warnings, deaths and level-ups always get a voice. It listens to signals that already exist (a few got a one-line announcement signal: enemy shots and blast zones through the static `EnemyAttackEvents`, crafting, shop and merchant refusals, `Main.point_effect_applied`), and every `Button` clicks and ticks through one hook. The M key and a speaker button on the HUD mute everything and the choice is saved in the profile. `scenes/world/sound_test.tscn` lets you audition every sound and tune, and the stress scene has a `--sound` option (no measurable cost: about 105 to 118 fps against 110 to 124). **Nothing was judged by ear:** the recipes and tunes are chiptune-idiom guesses for the user to audition and tune. Not done: volume sliders and the audio settings screen (Sprint 15).
 
 ### Art Direction
 
@@ -744,15 +746,15 @@ Sprint 13 is split into six: **13a** the art foundation (built), **13b** the wor
 
 ### Audio
 
-- [ ] Implement background music.
-- [ ] Implement player movement sounds where appropriate.
-- [ ] Implement spell casting sounds.
-- [ ] Implement spell impact sounds.
-- [ ] Implement enemy sounds.
-- [ ] Implement enemy death sounds.
-- [ ] Implement item pickup sounds.
-- [ ] Implement UI sounds.
-- [ ] Implement boss encounter music.
+- [x] Implement background music.
+- [x] Implement player movement sounds where appropriate.
+- [x] Implement spell casting sounds.
+- [x] Implement spell impact sounds.
+- [x] Implement enemy sounds.
+- [x] Implement enemy death sounds.
+- [x] Implement item pickup sounds.
+- [x] Implement UI sounds.
+- [x] Implement boss encounter music.
 
 ### Polish
 

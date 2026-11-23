@@ -103,6 +103,9 @@ wizard-survivor/
 │
 ├── tools/
 │   └── art/art_builder.gd    # builds assets/sprites from art/
+# Sprint 13e added scripts/audio/ (sfx_source, tune_source, audio_builder, wav_writer: recipes and tunes rendered into WAVs; sound_id, sound_library,
+# voice_limiter, sound_board, enemy_attack_events: the playing side), resources/audio/ (SoundData and the catalog), audio/ (the text sources) and
+# assets/audio/ (the built WAVs). Only the SoundBoard in main.tscn plays sounds; gameplay code only announces events.
 # Sprint 13d added scripts/art/{font_source,font_builder,theme_builder}.gd (the pixel font and the game theme, written by the art tool),
 # scripts/ui/{ui_font,ui_kit}.gd (the font lookup and the themed label, button, bar, icon and window builders), art/fonts/, assets/fonts/
 # and resources/ui/game_theme.tres (set as gui/theme/custom). Every UI scene uses theme variations, never hand-set fonts or styles.

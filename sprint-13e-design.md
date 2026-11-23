@@ -1,6 +1,6 @@
 # Sprint 13e Design: Audio
 
-**Status:** Proposed, awaiting approval.
+**Status:** Built (Sprint 13e).
 
 Sprint 13 is six parts: **13a** art foundation, **13b** the world, **13c** spells and equipment, **13d** the interface (all done), **13e** audio (this doc), **13f** polish. Scope comes from the conversation, the Audio list in `sprint-development.md`, `CLAUDE.md` and the art pipeline of 13a to 13d. Decisions below were agreed with the user in conversation, except where marked "my call".
 
@@ -73,3 +73,12 @@ The game is silent. Sprint 13e gives it the sound of its look: **chirpy, whimsic
 - **Route tests:** with a stub `SoundBoard`, each signal listed above produces the expected sound id (one test per route).
 - **Real window:** the sound-test scene, then the game with a spell, a crowd and a boss, to confirm nothing hitches. The stress scene with sound on, compared with today's frame rate. Whether it sounds right is judged by the user's ears; I cannot hear it, and say so.
 - `godot --headless --import` after adding a `class_name`, then the full suite.
+
+## 6. Revisions during the build
+
+- Both music loops are 12 bars (about 22 s and 18 s), not 25 to 40 s: at 22,050 Hz mono 16 bit a longer pair would pass the 3 MB budget.
+- The board's `requested` signal (before any silencing rule) is how tests and tools hear a sound; `plays_started()` and `stop_all()` were added for tests and the stress scene.
+- Hits sound like the element of the last cast, because the hit signal carries no element.
+- The mute button takes left mouse clicks as well as touches (like the potion slots), so a desktop player can click it.
+- `ShopScreen.last_action` tells a purchase from an equip, so they sound different.
+
