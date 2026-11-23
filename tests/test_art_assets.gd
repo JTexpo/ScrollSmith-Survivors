@@ -90,6 +90,9 @@ func test_each_committed_png_equals_what_the_tool_builds() -> void:
 	var palette := _palette()
 	for sprite_name in _names():
 		var source := _source(sprite_name)
+		if source.hand_drawn:
+			_check_hand_drawn(sprite_name, source, palette)
+			continue
 		for variant in source.variants_needed(palette):
 			var png_path := "%s/%s_%s.png" % [OUT_DIR, sprite_name, variant]
 			var built := ArtBuilder.build_sheet(source, palette, variant)
@@ -104,6 +107,8 @@ func test_every_pixel_is_a_palette_color_or_transparent() -> void:
 	var allowed := _allowed_colors()
 	for sprite_name in _names():
 		var palette := _palette()
+		if _source(sprite_name).hand_drawn:
+			continue
 		for variant in _source(sprite_name).variants_needed(palette):
 			var image := _load_png("%s/%s_%s.png" % [OUT_DIR, sprite_name, variant])
 			for y in image.get_height():
@@ -128,3 +133,48 @@ func test_each_set_loads_with_the_right_sheet_width_and_animation_ranges() -> vo
 			for animation in set_data.animations:
 				assert_between(animation.first_frame, 0, set_data.frame_count() - 1)
 				assert_between(animation.last_frame, animation.first_frame, set_data.frame_count() - 1)
+
+
+## A hand-drawn sprite's sheets are the user's: only their size and the silhouette made from them are checked.
+func _check_hand_drawn(sprite_name: String, source: SpriteSource, palette: ArtPalette) -> void:
+	var variants := source.variants_needed(palette)
+	for variant in variants:
+		var png_path := "%s/%s_%s.png" % [OUT_DIR, sprite_name, variant]
+		assert_eq(_load_png(png_path).get_size(), Vector2i(source.frame_size.x * source.frames.size(), source.frame_size.y), "%s size" % png_path)
+	var silhouette_path := "%s/%s_silhouette.png" % [OUT_DIR, sprite_name]
+	var expected := ArtBuilder.silhouette_of(_load_png("%s/%s_%s.png" % [OUT_DIR, sprite_name, variants[0]]), source.frame_size)
+	assert_true(_load_png(silhouette_path).get_data() == expected.get_data(), "%s is stale: run the art tool" % silhouette_path)
+
+
+func _wanted_files() -> Dictionary:
+	var wanted := {}
+	var palette := _palette()
+	for sprite_name in _names():
+		var variants: Array[String] = ["silhouette"]
+		for variant in _source(sprite_name).variants_needed(palette):
+			variants.append(String(variant))
+		for variant in variants:
+			for extension in ["png", "tres"]:
+				wanted["%s_%s.%s" % [sprite_name, variant, extension]] = true
+	return wanted
+
+
+func test_each_committed_set_equals_what_the_tool_writes() -> void:
+	var palette := _palette()
+	for sprite_name in _names():
+		var source := _source(sprite_name)
+		var variants: Array[String] = ["silhouette"]
+		for variant in source.variants_needed(palette):
+			variants.append(String(variant))
+		for variant in variants:
+			var png_path := "%s/%s_%s.png" % [OUT_DIR, sprite_name, variant]
+			var set_path := "%s/%s_%s.tres" % [OUT_DIR, sprite_name, variant]
+			assert_eq(FileAccess.get_file_as_string(set_path), ArtBuilder.set_text(png_path, source), "%s has stale animation data: run the art tool" % set_path)
+
+
+func test_no_output_belongs_to_nothing() -> void:
+	var wanted := _wanted_files()
+	for file in DirAccess.get_files_at(OUT_DIR):
+		var file_name := String(file)
+		if file_name.ends_with(".png") or file_name.ends_with(".tres"):
+			assert_true(wanted.has(file_name), "%s has no source or variant any more: delete it, because the game would still load it" % file_name)

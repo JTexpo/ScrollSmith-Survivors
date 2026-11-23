@@ -2,9 +2,13 @@ class_name SpriteSource
 extends RefCounted
 ## One sprite read from a `.sprite` text file: `size <w> <h>`, `anim <name> <first> <last> <fps> <loop|once>` lines, then
 ## each frame as the line `frame` followed by `h` rows of exactly `w` letters (`.` transparent, a palette letter, or a ramp
-## slot 1 to 5). `#` starts a comment. Mistakes are collected in `errors`, never thrown.
+## slot 1 to 5). `#` starts a comment. A line `hand_drawn` says the sheets were drawn by hand: the tool then keeps them
+## and only writes the animation data and silhouette (the grid is a placeholder). Mistakes are collected in `errors`,
+## never thrown.
 
 var errors := PackedStringArray()
+## True when the sheets were replaced by hand and the tool must not rebuild them.
+var hand_drawn := false
 var frame_size := Vector2i.ZERO
 ## Each: {"name": StringName, "first": int, "last": int, "fps": float, "loop": bool}.
 var animations: Array[Dictionary] = []
@@ -20,7 +24,9 @@ static func parse(text: String, palette: ArtPalette) -> SpriteSource:
 		var line := raw.strip_edges()
 		if line.is_empty() or line.begins_with("#"):
 			continue
-		if line.begins_with("size "):
+		if line == "hand_drawn":
+			source.hand_drawn = true
+		elif line.begins_with("size "):
 			source._read_size(number, line)
 		elif line.begins_with("anim "):
 			source._read_animation(number, line)

@@ -86,19 +86,70 @@ static func build_all(source_dir: String, palette_path: String, out_dir: String)
 				problems.append("%s: %s" % [source_path, error])
 			continue
 		var sprite_name := String(file).get_basename()
+		if source.hand_drawn:
+			problems.append_array(_build_hand_drawn(out_dir, sprite_name, source, palette))
+			continue
 		for variant in source.variants_needed(palette):
-			_write(out_dir, sprite_name, String(variant), build_sheet(source, palette, variant), source)
-		_write(out_dir, sprite_name, "silhouette", build_silhouette(source), source)
+			_write_image(out_dir, sprite_name, String(variant), build_sheet(source, palette, variant), source)
+		_write_image(out_dir, sprite_name, "silhouette", build_silhouette(source), source)
 	return problems
 
 
-static func _write(out_dir: String, sprite_name: String, variant: String, sheet: Image, source: SpriteSource) -> void:
+## A hand-drawn sprite keeps the sheets already in `out_dir` and gets fresh animation data. Its silhouette is made
+## from the first sheet. A missing sheet is reported and nothing is written for the sprite.
+static func _build_hand_drawn(out_dir: String, sprite_name: String, source: SpriteSource, palette: ArtPalette) -> PackedStringArray:
+	var problems := PackedStringArray()
+	var variants := source.variants_needed(palette)
+	for variant in variants:
+		var png_path := "%s/%s_%s.png" % [out_dir, sprite_name, variant]
+		if not FileAccess.file_exists(png_path):
+			problems.append("%s: hand_drawn needs its sheet %s" % [sprite_name, png_path])
+	if not problems.is_empty():
+		return problems
+	for variant in variants:
+		var png_path := "%s/%s_%s.png" % [out_dir, sprite_name, variant]
+		_write_set(out_dir, sprite_name, String(variant), png_path, source)
+	var first := Image.load_from_file(ProjectSettings.globalize_path("%s/%s_%s.png" % [out_dir, sprite_name, variants[0]]))
+	first.convert(Image.FORMAT_RGBA8)
+	_write_image(out_dir, sprite_name, "silhouette", silhouette_of(first, source.frame_size), source)
+	return problems
+
+
+## White pixels on and within one pixel of the drawn pixels of any sheet, frame by frame.
+static func silhouette_of(sheet: Image, frame_size: Vector2i) -> Image:
+	var image := Image.create(sheet.get_width(), sheet.get_height(), false, Image.FORMAT_RGBA8)
+	@warning_ignore("integer_division")
+	var frames := sheet.get_width() / frame_size.x
+	for f in frames:
+		for y in frame_size.y:
+			for x in frame_size.x:
+				if _near_pixel(sheet, f * frame_size.x, x, y, frame_size):
+					image.set_pixel(f * frame_size.x + x, y, Color.WHITE)
+	return image
+
+
+static func _near_pixel(sheet: Image, left: int, x: int, y: int, size: Vector2i) -> bool:
+	for dy in range(-1, 2):
+		for dx in range(-1, 2):
+			var nx := x + dx
+			var ny := y + dy
+			if nx >= 0 and ny >= 0 and nx < size.x and ny < size.y and sheet.get_pixel(left + nx, ny).a > 0.0:
+				return true
+	return false
+
+
+static func _write_image(out_dir: String, sprite_name: String, variant: String, sheet: Image, source: SpriteSource) -> void:
 	var png_path := "%s/%s_%s.png" % [out_dir, sprite_name, variant]
 	sheet.save_png(png_path)
+	_write_set(out_dir, sprite_name, variant, png_path, source)
+	files_written += 1
+
+
+static func _write_set(out_dir: String, sprite_name: String, variant: String, png_path: String, source: SpriteSource) -> void:
 	var handle := FileAccess.open("%s/%s_%s.tres" % [out_dir, sprite_name, variant], FileAccess.WRITE)
 	handle.store_string(set_text(png_path, source))
 	handle.close()
-	files_written += 2
+	files_written += 1
 
 
 static func _near_shape(rows: PackedStringArray, x: int, y: int, size: Vector2i) -> bool:

@@ -202,3 +202,49 @@ func test_the_library_finds_a_variant_falls_back_to_base_and_returns_null_when_m
 	assert_eq(SpriteLibrary.find_silhouette(&"thing").frame_size, Vector2i(7, 7))
 	assert_null(SpriteLibrary.find(&"nothing", &"fire"))
 	assert_null(SpriteLibrary.find_silhouette(&"nothing"))
+
+
+## The grid is only a placeholder here: the user drew the sheet. A pixel at (2, 2), where the grid has none.
+const HAND_SPRITE := """
+hand_drawn
+size 4 4
+anim a 0 0 1 loop
+frame
+K...
+....
+....
+....
+"""
+
+
+func _drawn_sheet() -> Image:
+	var image := Image.create(4, 4, false, Image.FORMAT_RGBA8)
+	image.set_pixel(2, 2, Color(0.3, 0.6, 0.9))
+	return image
+
+
+func test_a_hand_drawn_sprite_keeps_its_sheet_and_takes_its_silhouette_from_it() -> void:
+	_write("palette.txt", PALETTE_TEXT)
+	_write("sources/hero.sprite", HAND_SPRITE)
+	var sheet := _drawn_sheet()
+	sheet.save_png(ProjectSettings.globalize_path(_dir + "/out/hero_base.png"))
+	var problems := ArtBuilder.build_all(_dir + "/sources", _dir + "/palette.txt", _dir + "/out")
+	assert_eq(problems.size(), 0, str(problems))
+	var kept := Image.load_from_file(ProjectSettings.globalize_path(_dir + "/out/hero_base.png"))
+	kept.convert(Image.FORMAT_RGBA8)
+	assert_true(kept.get_data() == sheet.get_data(), "the drawn sheet is never overwritten")
+	assert_true(FileAccess.file_exists(_dir + "/out/hero_base.tres"), "its animation data is still written")
+	var silhouette := Image.load_from_file(ProjectSettings.globalize_path(_dir + "/out/hero_silhouette.png"))
+	silhouette.convert(Image.FORMAT_RGBA8)
+	assert_eq(silhouette.get_pixel(1, 1), Color.WHITE, "one pixel around the drawn pixel")
+	assert_eq(silhouette.get_pixel(3, 3), Color.WHITE)
+	assert_eq(silhouette.get_pixel(0, 0).a, 0.0, "the placeholder grid is ignored")
+
+
+func test_a_hand_drawn_sprite_without_its_sheet_is_reported() -> void:
+	_write("palette.txt", PALETTE_TEXT)
+	_write("sources/hero.sprite", HAND_SPRITE)
+	var problems := ArtBuilder.build_all(_dir + "/sources", _dir + "/palette.txt", _dir + "/out")
+	assert_eq(problems.size(), 1, str(problems))
+	assert_string_contains(problems[0], "hero_base.png")
+	assert_false(FileAccess.file_exists(_dir + "/out/hero_base.tres"))

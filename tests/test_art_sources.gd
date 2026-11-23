@@ -121,3 +121,11 @@ func test_animation_ranges_must_exist() -> void:
 	var palette := _palette()
 	assert_gt(SpriteSource.parse("size 1 1\nanim a 1 0 1 loop\nframe\nK\nframe\nK", palette).errors.size(), 0, "first after last")
 	assert_eq(SpriteSource.parse("size 1 1\nanim a 0 1 1 loop\nframe\nK\nframe\nK", palette).errors.size(), 0)
+
+
+func test_a_hand_drawn_line_marks_a_source_whose_sheets_are_not_built() -> void:
+	var palette := _palette()
+	assert_false(SpriteSource.parse("size 2 1\nanim a 0 0 1 loop\nframe\nKW", palette).hand_drawn)
+	var marked := SpriteSource.parse("hand_drawn\nsize 2 1\nanim a 0 0 1 loop\nframe\nKW", palette)
+	assert_eq(marked.errors.size(), 0, str(marked.errors))
+	assert_true(marked.hand_drawn)
