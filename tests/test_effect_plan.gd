@@ -77,3 +77,10 @@ func test_every_delay_is_within_the_window() -> void:
 			assert_gte(delay, 0.0)
 			assert_lte(delay, 0.4)
 	assert_eq(EffectPlan.delays([] as Array[Vector2], true, Vector2.ZERO, 0.4, _rng()).size(), 0)
+
+
+func test_area_of_a_polygon() -> void:
+	assert_almost_eq(EffectPlan.area_of(_rectangle()), 24000.0, 0.01)
+	assert_almost_eq(EffectPlan.area_of(PackedVector2Array([Vector2(0, 0), Vector2(10, 0), Vector2(0, 10)])), 50.0, 0.01)
+	assert_eq(EffectPlan.area_of(PackedVector2Array()), 0.0)
+

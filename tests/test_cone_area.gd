@@ -68,3 +68,10 @@ func test_cone_follows_direction() -> void:
 	await wait_physics_frames(8)
 	assert_true(_damaged(down))
 	assert_false(_damaged(right))
+
+func test_the_cone_polygon_and_hitbox_are_unchanged_by_the_skin() -> void:
+	var spell := _spell(CONE)
+	var cone := _launch(spell, O) as ConeArea
+	var expected := ConeArea._sector(spell.effective_range(), spell.effective_size())
+	assert_eq((cone.get_node("Hitbox/Shape") as CollisionPolygon2D).polygon, expected, "what hits is the exact sector")
+	assert_eq((cone.get_node("Visual") as Polygon2D).polygon, expected, "and what is tinted is the same sector")

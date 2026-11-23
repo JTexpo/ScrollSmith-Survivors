@@ -79,6 +79,11 @@ static func delays(spot_list: Array[Vector2], rises: bool, origin: Vector2, wind
 	return result
 
 
+## The area of a polygon in square pixels (0 for fewer than three points).
+static func area_of(polygon: PackedVector2Array) -> float:
+	return absf(_signed_area(polygon))
+
+
 static func _signed_area(polygon: PackedVector2Array) -> float:
 	var total := 0.0
 	for i in polygon.size():

@@ -59,3 +59,11 @@ func test_line_follows_direction() -> void:
 	await wait_physics_frames(8)
 	assert_true(_damaged(down))
 	assert_false(_damaged(right))
+
+func test_the_line_rectangle_and_hitbox_are_unchanged_by_the_skin() -> void:
+	var spell := _spell("res://resources/spells/areas/line_area.tres")
+	var line := _launch(spell, Vector2(300, 150)) as LineArea
+	var length := spell.effective_range()
+	var width := spell.effective_size()
+	assert_eq(((line.get_node("Hitbox/Shape") as CollisionShape2D).shape as RectangleShape2D).size, Vector2(length, width))
+	assert_eq((line.get_node("Visual") as Polygon2D).polygon.size(), 4)

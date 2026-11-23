@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="SpriteSetData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://resources/art/sprite_set_data.gd" id="1"]
+[ext_resource type="Script" path="res://resources/art/sprite_animation_data.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/fx_sea_splash_silhouette.png" id="3"]
+
+[sub_resource type="Resource" id="anim_0"]
+script = ExtResource("2")
+name = &"play"
+first_frame = 0
+last_frame = 5
+fps = 14.0
+loop = false
+
+[resource]
+script = ExtResource("1")
+sheet = ExtResource("3")
+frame_size = Vector2i(16, 24)
+animations = Array[ExtResource("2")]([SubResource("anim_0")])

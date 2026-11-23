@@ -73,3 +73,19 @@ func test_zone_carries_damage_and_knockback() -> void:
 	var hitbox := _zone(spell, O).get_node("Hitbox") as HitboxComponent
 	assert_eq(hitbox.damage, DamageSystem.calculate(spell.damage, spell.primary_element()))
 	assert_eq(hitbox.knockback, 40.0)
+
+func test_the_zone_radius_and_hitbox_are_unchanged_by_the_skin() -> void:
+	var spell := _spell(ZONE)
+	var zone := _zone(spell, O + Vector2(80, 0))
+	assert_eq(((zone.get_node("Hitbox/Shape") as CollisionShape2D).shape as CircleShape2D).radius, spell.effective_size())
+
+
+func test_a_zone_spawns_a_fresh_set_at_each_tick_and_not_between() -> void:
+	var zone := _zone(_spell(ZONE), O + Vector2(80, 0))
+	var live := func() -> int: return get_tree().get_nodes_in_group(&"effect_sprites").filter(func(node: Node) -> bool: return not node.is_queued_for_deletion()).size()
+	var first: int = live.call()
+	assert_gt(first, 0, "the first set plays when it lands")
+	zone._physics_process(0.2)
+	assert_eq(live.call(), first, "nothing new between ticks")
+	zone._physics_process(0.31)
+	assert_gt(live.call(), first, "a fresh set at the tick")

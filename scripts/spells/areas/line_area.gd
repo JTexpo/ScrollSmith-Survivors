@@ -27,12 +27,16 @@ func launch(spell: SpellData, origin: Vector2, direction: Vector2, _target: Vect
 	rectangle.size = Vector2(length, width)
 	_shape.shape = rectangle
 	_shape.position = Vector2(length * 0.5, 0.0)
-	_visual.polygon = PackedVector2Array([
+	var beam := PackedVector2Array([
 		Vector2(0.0, -width * 0.5), Vector2(length, -width * 0.5),
 		Vector2(length, width * 0.5), Vector2(0.0, width * 0.5),
 	])
+	_visual.polygon = beam
 	_visual.color = spell.color
 	_duration = spell.area_data.duration
 	_life_left = _duration
 	# One hit per enemy per cast: the cooldown outlasts the beam.
 	_configure_hitbox(_hitbox, spell, _duration + 1.0)
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	SpellSkin.dress(self, _visual, beam, spell, Vector2.ZERO, SpellSkin.INSTANT_LIFE, rng)
