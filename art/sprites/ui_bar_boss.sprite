@@ -1,0 +1,11 @@
+# The red boss fill, 6 px tall.
+slice 1 1 1 1
+size 4 6
+anim idle 0 0 1 loop
+frame
+WWWW
+UUUU
+UUUU
+UUUU
+UUUU
+VVVV

@@ -1,0 +1,17 @@
+# The cream panel: a thick plum outline, stepped corners and a pale lavender shade along the bottom.
+slice 4 4 4 4
+size 12 12
+anim idle 0 0 1 loop
+frame
+...JJJJJJ...
+.JJJJJJJJJJ.
+.JJAAAAAAJJ.
+JJAAAAAAAAJJ
+JJAAAAAAAAJJ
+JJAAAAAAAAJJ
+JJAAAAAAAAJJ
+JJAAAAAAAAJJ
+JJAAAAAAAAJJ
+.JJIIIIIIJJ.
+.JJJJJJJJJJ.
+...JJJJJJ...

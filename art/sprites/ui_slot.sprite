@@ -1,0 +1,30 @@
+# A spell or potion slot frame. Frames: normal (plum outline), selected (plum outside, yellow inside).
+slice 4 4 4 4
+size 12 12
+anim idle 0 1 1 loop
+frame
+...JJJJJJ...
+.JJJJJJJJJJ.
+.JJAAAAAAJJ.
+JJAAAAAAAAJJ
+JJAAAAAAAAJJ
+JJAAAAAAAAJJ
+JJAAAAAAAAJJ
+JJAAAAAAAAJJ
+JJAAAAAAAAJJ
+.JJAAAAAAJJ.
+.JJJJJJJJJJ.
+...JJJJJJ...
+frame
+...JJJJJJ...
+.JJ!!!!!!JJ.
+.J!AAAAAA!J.
+J!AAAAAAAA!J
+J!AAAAAAAA!J
+J!AAAAAAAA!J
+J!AAAAAAAA!J
+J!AAAAAAAA!J
+J!AAAAAAAA!J
+.J!AAAAAA!J.
+.JJ!!!!!!JJ.
+...JJJJJJ...

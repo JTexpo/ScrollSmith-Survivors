@@ -111,3 +111,58 @@ func test_touch_event_is_bridged_while_open() -> void:
 	_screen.open(_options, "Choose a buff")
 	assert_true(_screen.handle_input(touch), "open")
 	assert_false(_screen.handle_input(InputEventScreenDrag.new()), "only touches are bridged")
+
+
+func test_the_screen_sits_on_a_window_panel() -> void:
+	_screen.open(_options, "Choose a buff")
+	assert_not_null(_screen.find_child("Window", true, false))
+	assert_not_null(_screen.find_child("Backdrop", true, false))
+
+
+func test_every_buff_text_wraps_inside_its_button() -> void:
+	for scroll in LevelTrack.default_track().buff_pool:
+		_screen.open([scroll] as Array[ScrollData], "Choose a buff")
+		var button := _screen.find_children("*", "Button", true, false)[0] as Button
+		assert_ne(button.autowrap_mode, TextServer.AUTOWRAP_OFF, "buttons wrap long text")
+		var wrapped := UiFont.plain().get_multiline_string_size(_screen.button_text(0), HORIZONTAL_ALIGNMENT_LEFT, BuffPickScreen.BUTTON_SIZE.x - 8.0, UiFont.SIZE, -1, TextServer.BREAK_WORD_BOUND | TextServer.BREAK_MANDATORY)
+		assert_lte(wrapped.y, 3.0 * UiFont.SIZE, "%s fits in three lines" % scroll.display_name)
+		_screen.choose(0)
+
+
+func test_no_buff_pick_widget_sets_a_font_size() -> void:
+	_screen.open(_options, "Choose a buff")
+	for node in _screen.find_children("*", "Control", true, false):
+		assert_false((node as Control).has_theme_font_size_override("font_size"), str(node.name))
+
+
+func test_every_option_is_a_tall_tinted_button_with_an_icon() -> void:
+	_screen.open(_options, "Choose a buff")
+	for button in _screen.find_children("*", "Button", true, false):
+		assert_gte((button as Button).custom_minimum_size.y, 38.0, "tall enough to hit")
+		assert_not_null((button as Button).icon, "each option shows its buff's icon")
+		assert_ne((button as Button).self_modulate, Color.WHITE, "each option is tinted by its buff")
+
+
+func test_options_get_their_buffs_own_colour() -> void:
+	_screen.open(_options, "Choose a buff")
+	var tints := {}
+	for button in _screen.find_children("*", "Button", true, false):
+		tints[(button as Button).self_modulate.to_html()] = true
+	assert_eq(tints.size(), 3, "three different buffs, three different colours")
+
+
+func test_the_header_is_a_bright_banner_with_the_title() -> void:
+	_screen.open(_options, "Choose a buff")
+	var banner := _screen.find_child("Banner", true, false) as ColorRect
+	assert_not_null(banner)
+	assert_ne(banner.color, Color.WHITE)
+	assert_eq(banner.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+
+
+func test_all_the_options_fit_on_the_screen() -> void:
+	var all: Array[ScrollData] = []
+	for scroll in LevelTrack.default_track().buff_pool:
+		all.append(scroll)
+	_screen.open(all, "Choose a buff")
+	var box := _screen.find_child("Options", true, false) as VBoxContainer
+	assert_lte(box.position.y + box.get_combined_minimum_size().y, 264.0, "every option is inside the page")

@@ -1,30 +1,26 @@
 class_name InventoryButton
 extends Control
-## TEMPORARY (Sprint 5): a small touch button that opens the inventory panel and shows how many
+## A small touch button that opens the inventory panel and shows how many
 ## scrolls are held. Handles touches itself (mouse emulation is off) and ignores mouse clicks.
 
 signal pressed
 
-const SIZE := Vector2(28, 14)
+const SIZE := Vector2(44, 28)
 
 var total: int = 0
 
-var _label: Label
+var _label: Button
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	custom_minimum_size = SIZE
 	size = SIZE
-	var background := ColorRect.new()
-	background.size = SIZE
-	background.color = Color(0.1, 0.1, 0.12, 0.85)
-	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(background)
-	_label = Label.new()
-	_label.position = Vector2(2, -1)
-	_label.add_theme_font_size_override("font_size", 8)
+	_label = UiKit.button("", &"ButtonYellow")
+	_label.name = "Face"
+	_label.focus_mode = Control.FOCUS_NONE
 	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_label.size = SIZE
 	add_child(_label)
 	_refresh()
 

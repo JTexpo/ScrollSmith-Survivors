@@ -103,6 +103,9 @@ wizard-survivor/
 │
 ├── tools/
 │   └── art/art_builder.gd    # builds assets/sprites from art/
+# Sprint 13d added scripts/art/{font_source,font_builder,theme_builder}.gd (the pixel font and the game theme, written by the art tool),
+# scripts/ui/{ui_font,ui_kit}.gd (the font lookup and the themed label, button, bar, icon and window builders), art/fonts/, assets/fonts/
+# and resources/ui/game_theme.tres (set as gui/theme/custom). Every UI scene uses theme variations, never hand-set fonts or styles.
 # Sprint 13c added scripts/spells/{element_looks,effect_plan,effect_sprite,spell_skin}.gd (an element's look, where and when effect
 # sprites play, the capped one-shot sprite, and the skin that dresses an area), scripts/enemies/warning_mark.gd and
 # scripts/entities/player_look.gd (the wizard's layers), with resources/spells/element_looks/.

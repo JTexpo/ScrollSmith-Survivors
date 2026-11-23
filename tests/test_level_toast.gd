@@ -68,3 +68,29 @@ func test_messages_and_level_ups_share_the_four_line_cap() -> void:
 	assert_eq(lines.size(), 4)
 	assert_eq(lines[0], "note 1")
 	assert_true(lines[3].begins_with("Level 3!"))
+
+
+func test_the_level_toast_is_a_dark_pill_with_outlined_text() -> void:
+	assert_eq(_toast.theme_type_variation, &"HudToast")
+	assert_eq(_toast.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+
+
+func test_the_pill_shrinks_to_its_text() -> void:
+	_show(3)
+	var one_line := _toast.size.y
+	_show(4)
+	assert_gt(_toast.size.y, one_line, "a second line makes the pill taller")
+
+
+func test_the_toast_stays_centred_when_its_text_changes() -> void:
+	var toast := load("res://scenes/ui/level_toast.tscn").instantiate() as LevelToast
+	toast.position = Vector2(150, 44)
+	toast.size = Vector2(180, 46)
+	add_child_autofree(toast)
+	toast.show_message("Boss defeated!")
+	assert_almost_eq(toast.position.x + toast.size.x * 0.5, 240.0, 0.51)
+	toast.show_message("A much longer message on a second line")
+	assert_almost_eq(toast.position.x + toast.size.x * 0.5, 240.0, 0.51)
+	toast.show_message("W".repeat(50))
+	assert_gte(toast.position.x, 0.0)
+	assert_lte(toast.position.x + toast.size.x, UiKit.SCREEN_WIDTH)

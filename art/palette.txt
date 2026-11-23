@@ -1,4 +1,4 @@
-# The game's one palette. At most 40 distinct colours (a test enforces it).
+# The game's one palette. At most 96 distinct colours (a test enforces it).
 # `color <letter> <hex>`: a fixed colour. `variant <id> <slot1> .. <slot5>`: the colours of ramp slots 1 to 5 for one
 # element, so a single sprite grid yields every element. Slots: 1 body dark, 2 body mid, 3 body light, 4 trim dark, 5 trim light.
 
@@ -60,6 +60,28 @@ color H #ff8fb8
 # Mana blue: dark and light
 color e #3aa0ff
 color D #a8dcff
+
+# UI (Sprint 13d): cream panels with a plum outline, pink and sky bars, red, green and yellow buttons.
+# Cream and its shade, plum and its light shade
+color A #fff6e8
+color I #e9dcf2
+color J #3b2a5c
+color L #6b5a8c
+# Pink (health) and sky (XP): light, dark
+color M #ff6f8f
+color N #c9446a
+color O #6fd3ff
+color T #3a9fd6
+# Red and green buttons: light, dark
+color U #e0483c
+color V #9e2a22
+color X #5fbf5a
+color Z #348a3a
+# Heading blue (so a heading never reads as the red 'stop' colour)
+color 6 #2a5aa0
+# Yellow (Gold, highlights): light, dark
+color ! #ffd24a
+color % #d99a1a
 
 # Element variants (README: Fire orange, red, yellow; Thunder yellow, white, electric blue; Land brown, green; Sea blue, cyan, turquoise)
 variant none    #5a5470 #8a829c #c9c3d6 #7a5a3a #c9a06a

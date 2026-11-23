@@ -1,21 +1,22 @@
 class_name ScrollToast
 extends Label
-## TEMPORARY (Sprint 5): a short "+ Fire Scroll" message shown when a scroll is collected, in the
-## scroll's colour. A newer pickup replaces it. It only processes while it is showing.
+## A short "+ Fire Scroll" message shown when a scroll is collected, on a dark pill in the scroll's colour. A newer pickup replaces it. It only processes while it is showing.
 
 ## Seconds the message stays, including the fade at the end.
 const DURATION := 1.2
 const FADE := 0.4
 
 var _time_left: float = 0.0
+## Where the middle of the pill is in the scene; it stays there however wide the text makes it.
+var _center_x: float = 0.0
 
 
 func _ready() -> void:
+	_center_x = position.x + size.x * 0.5
 	visible = false
 	set_process(false)
 	horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_theme_font_size_override("font_size", 8)
 
 
 func _process(delta: float) -> void:
@@ -29,6 +30,8 @@ func _process(delta: float) -> void:
 
 func show_scroll(scroll: ScrollData) -> void:
 	text = "+ %s Scroll" % scroll.display_name
+	reset_size()
+	UiKit.fit_centered(self, _center_x)
 	add_theme_color_override("font_color", scroll.color)
 	modulate.a = 1.0
 	_time_left = DURATION

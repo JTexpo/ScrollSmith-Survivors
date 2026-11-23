@@ -1,0 +1,13 @@
+# The 8 px trough of a bar: a plum outline and a pale lavender inside.
+slice 2 0 2 0
+size 6 8
+anim idle 0 0 1 loop
+frame
+.JJJJ.
+JIIIIJ
+JIIIIJ
+JIIIIJ
+JIIIIJ
+JIIIIJ
+JIIIIJ
+.JJJJ.

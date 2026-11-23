@@ -1,6 +1,6 @@
 class_name SpellBar
 extends Control
-## TEMPORARY (Sprint 2): placeholder row of five spell slots. Reads the loadout and never
+## A row of five spell slots. Reads the loadout and never
 ## changes it. A tap on a slot is forwarded as slot_pressed, and Main routes it to select().
 ## Locked slots are dimmed, and a slot follows its spell when crafting replaces it.
 

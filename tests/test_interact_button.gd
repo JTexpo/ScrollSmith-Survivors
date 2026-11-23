@@ -55,3 +55,11 @@ func test_mouse_clicks_are_ignored() -> void:
 	click.position = _button.get_global_rect().get_center()
 	_button._input(click)
 	assert_signal_not_emitted(_button, "pressed")
+
+
+func test_the_touch_button_is_a_themed_yellow_button_that_takes_no_input() -> void:
+	var themed := _button.get_node("Face") as Button
+	assert_eq(themed.theme_type_variation, &"ButtonYellow")
+	assert_eq(themed.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+	assert_eq(themed.focus_mode, Control.FOCUS_NONE)
+	assert_eq(themed.text, "Use")

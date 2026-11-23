@@ -12,3 +12,5 @@ ignores_resistance = false
 extra_copies = 1
 extra_bases = 0
 max_stacks = 4
+color = Color(1, 0.82, 0.29, 1)
+icon = &"icon_buff_copy"

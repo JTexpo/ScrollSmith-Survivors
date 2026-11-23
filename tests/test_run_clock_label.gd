@@ -55,3 +55,7 @@ func test_the_label_stops_while_the_clock_is_frozen() -> void:
 
 func test_ignores_the_mouse() -> void:
 	assert_eq(_label.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+
+
+func test_the_clock_uses_the_outlined_hud_label() -> void:
+	assert_eq(_label.theme_type_variation, &"HudLabel")

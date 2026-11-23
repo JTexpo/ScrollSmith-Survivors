@@ -39,3 +39,7 @@ func test_follows_gold_changed() -> void:
 
 func test_ignores_the_mouse() -> void:
 	assert_eq(_counter.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+
+
+func test_the_counter_uses_the_outlined_gold_label() -> void:
+	assert_eq(_counter.theme_type_variation, &"HudGold")

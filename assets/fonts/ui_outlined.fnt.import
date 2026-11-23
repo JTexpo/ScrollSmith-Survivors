@@ -1,0 +1,17 @@
+[remap]
+
+importer="font_data_bmfont"
+type="FontFile"
+uid="uid://cqetv0uxdj1fs"
+path="res://.godot/imported/ui_outlined.fnt-22ddc094a59a7d520a2052ac9529da3d.fontdata"
+
+[deps]
+
+source_file="res://assets/fonts/ui_outlined.fnt"
+dest_files=["res://.godot/imported/ui_outlined.fnt-22ddc094a59a7d520a2052ac9529da3d.fontdata"]
+
+[params]
+
+fallbacks=[]
+compress=true
+scaling_mode=2

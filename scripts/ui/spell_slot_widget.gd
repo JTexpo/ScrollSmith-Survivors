@@ -1,15 +1,20 @@
 class_name SpellSlotWidget
 extends Control
-## TEMPORARY (Sprint 2): one slot in the placeholder spell bar. Shows the spell's colour, its
-## mana and whether it is selected. Taps on a touchscreen select it. Mouse clicks are ignored
-## on purpose, so clicking here never casts. Build children in _ready, so add it to the tree
-## before calling setup().
+## One slot in the spell bar: a cream frame (yellow ring when selected), the spell's colour, its slot number and a mana
+## fill. Taps on a touchscreen select it. Mouse clicks are ignored on purpose, so clicking here never casts. Build children
+## in _ready, so add it to the tree before calling setup().
 
 signal pressed(index: int)
 
-const SIZE := Vector2(28, 18)
+const SIZE := Vector2(34, 24)
+## The frame's outline, so everything inside sits 2 px from the edge.
+const FRAME := 2.0
+const SWATCH_HEIGHT := 14.0
+const FILL_HEIGHT := 4.0
 const FLASH_TIME := 0.25
 const DEPLETED_TINT := Color(0.4, 0.4, 0.4, 1)
+const MANA_COLOR := Color("6fd3ff")
+const FLASH_COLOR := Color(0.88, 0.28, 0.24, 0.7)
 
 var slot_index: int = 0
 var empty: bool = true
@@ -21,9 +26,9 @@ var selected: bool = false
 
 var _flash_left: float = 0.0
 
-var _highlight: ColorRect
-var _background: ColorRect
+var _frame: Panel
 var _swatch: ColorRect
+var _flash: ColorRect
 var _fill: ColorRect
 var _label: Label
 
@@ -32,14 +37,16 @@ func _ready() -> void:
 	custom_minimum_size = SIZE
 	size = SIZE
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_highlight = _add_rect(Vector2(-1, -1), SIZE + Vector2(2, 2), Color.WHITE)
-	_background = _add_rect(Vector2.ZERO, SIZE, Color(0.1, 0.1, 0.12, 0.85))
-	_swatch = _add_rect(Vector2(1, 1), Vector2(SIZE.x - 2, 10), Color.WHITE)
-	_fill = _add_rect(Vector2(1, 13), Vector2(SIZE.x - 2, 4), Color(0.4, 0.7, 1.0))
-	_label = Label.new()
-	_label.position = Vector2(2, -1)
-	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_label.add_theme_font_size_override("font_size", 8)
+	_frame = Panel.new()
+	_frame.size = SIZE
+	_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_frame)
+	var inner := SIZE.x - 2.0 * FRAME
+	_swatch = _add_rect(Vector2(FRAME, FRAME), Vector2(inner, SWATCH_HEIGHT), Color.WHITE)
+	_flash = _add_rect(Vector2(FRAME, FRAME), Vector2(inner, SIZE.y - 2.0 * FRAME), FLASH_COLOR)
+	_fill = _add_rect(Vector2(FRAME, SIZE.y - FRAME - FILL_HEIGHT), Vector2(inner, FILL_HEIGHT), MANA_COLOR)
+	_label = UiKit.label("", &"HudLabel")
+	_label.position = Vector2(FRAME + 1.0, 1.0)
 	add_child(_label)
 	set_process(false)
 	_refresh()
@@ -103,15 +110,28 @@ func is_flashing() -> bool:
 	return _flash_left > 0.0
 
 
+## The theme variation the frame uses now: the selected frame has a yellow ring.
+func frame_variation() -> StringName:
+	return _frame.theme_type_variation
+
+
+func number_variation() -> StringName:
+	return _label.theme_type_variation
+
+
+func mana_fill_width() -> float:
+	return _fill.size.x
+
+
 func _refresh() -> void:
-	if _background == null:
+	if _frame == null:
 		return
-	_highlight.visible = selected
+	_frame.theme_type_variation = &"PanelSlotSelected" if selected else &"PanelSlot"
 	modulate.a = 0.2 if locked else (0.35 if empty else 1.0)
 	_label.text = "x" if locked else str(slot_index + 1)
 	_swatch.color = DEPLETED_TINT if depleted else element_color
-	_fill.size.x = (SIZE.x - 2) * ratio
-	_background.color = Color(0.6, 0.1, 0.1, 0.9) if is_flashing() else Color(0.1, 0.1, 0.12, 0.85)
+	_fill.size.x = (SIZE.x - 2.0 * FRAME) * ratio
+	_flash.visible = is_flashing()
 
 
 func _add_rect(rect_position: Vector2, rect_size: Vector2, color: Color) -> ColorRect:

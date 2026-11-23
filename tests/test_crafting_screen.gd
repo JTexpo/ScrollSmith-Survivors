@@ -376,3 +376,202 @@ func test_focus_survives_a_stepper_becoming_disabled() -> void:
 	var owner := _screen.get_viewport().gui_get_focus_owner()
 	assert_not_null(owner, "the last owned stack disabled the plus button")
 	assert_false((owner as Button).disabled)
+
+
+func _stock_everything() -> void:
+	for category in ["base", "area", "buff"]:
+		for file in DirAccess.get_files_at("res://resources/scrolls/%s" % category):
+			if String(file).ends_with(".tres"):
+				_inventory.add(_scroll("%s/%s" % [category, String(file).get_basename()]), 9)
+
+
+func _wrapped(text: String, width: float) -> Vector2:
+	return UiFont.plain().get_multiline_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, width, UiFont.SIZE, -1, TextServer.BREAK_WORD_BOUND | TextServer.BREAK_MANDATORY)
+
+
+func _button_with_text(text: String) -> Button:
+	for button in _screen.find_children("*", "Button", true, false):
+		if (button as Button).text == text:
+			return button as Button
+	return null
+
+
+func test_the_screen_sits_on_a_window_panel() -> void:
+	_screen.open(_inventory, _loadout)
+	assert_not_null(_screen.find_child("Window", true, false))
+	assert_not_null(_screen.find_child("Backdrop", true, false))
+
+
+func test_the_confirm_button_is_green_and_cancel_is_red() -> void:
+	_screen.open(_inventory, _loadout)
+	assert_eq(_button_with_text("Confirm").theme_type_variation, &"ButtonGreen")
+	assert_eq(_button_with_text("Cancel").theme_type_variation, &"ButtonRed")
+
+
+func test_the_chosen_scrolls_are_yellow_buttons() -> void:
+	_inventory.add(_fire)
+	_inventory.add(_missile)
+	_screen.open(_inventory, _loadout)
+	_screen.choose_base(_fire)
+	var found := false
+	for button in _screen.find_children("*", "Button", true, false):
+		if str(button.get_meta(&"key", "")) == "scroll:%s" % _fire.id:
+			found = true
+			assert_eq((button as Button).theme_type_variation, &"ButtonYellow")
+	assert_true(found, "the Fire button")
+
+
+func test_no_crafting_widget_sets_a_font_size() -> void:
+	_stock_everything()
+	_screen.open(_inventory, _loadout)
+	for node in _screen.find_children("*", "Control", true, false):
+		assert_false((node as Control).has_theme_font_size_override("font_size"), str(node.name))
+
+
+func test_the_preview_and_drawbacks_fit_the_preview_panel() -> void:
+	_stock_everything()
+	_screen.open(_inventory, _loadout)
+	_screen.add_buff(_scroll("buff/additional_base"))
+	_screen.choose_base(_fire)
+	_screen.choose_base(_thunder)
+	_screen.choose_area(_wave)
+	for id in ["damage", "double_vulnerability", "duplicate_area", "ignore_resistance", "max_mana"]:
+		_screen.add_buff(_scroll("buff/%s" % id))
+	var size := _wrapped(_screen.preview_text(), CraftingScreen.PREVIEW_SIZE.x)
+	assert_lte(size.y, CraftingScreen.PREVIEW_SIZE.y, "the whole preview is inside its panel")
+	assert_lte(_screen.preview_height(), CraftingScreen.PREVIEW_SIZE.y, "and so is the label that really draws it")
+	assert_lte(_wrapped(_screen.message_text(), CraftingScreen.MESSAGE_SIZE.x).y, CraftingScreen.MESSAGE_SIZE.y)
+
+
+func test_every_scroll_and_slot_button_text_fits_its_button() -> void:
+	_stock_everything()
+	_screen.open(_inventory, _loadout)
+	for button in _screen.find_children("*", "Button", true, false):
+		var text := (button as Button).text
+		if text in ["Confirm", "Cancel", "-", "+"]:
+			continue
+		for line in text.split("\n"):
+			var width := UiFont.plain().get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, UiFont.SIZE).x
+			assert_lte(width, (button as Button).custom_minimum_size.x - 8.0, line)
+
+
+func test_a_buff_name_fits_beside_its_steppers() -> void:
+	_stock_everything()
+	_screen.open(_inventory, _loadout)
+	for scroll in _screen.session.owned_buffs():
+		var width := UiFont.plain().get_string_size(scroll.display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, UiFont.SIZE).x
+		assert_lte(width, CraftingScreen.BUFF_NAME_WIDTH, scroll.display_name)
+
+
+func _long_named_loadout() -> SpellLoadout:
+	var spells: Array[SpellData] = []
+	for i in 5:
+		var spell := (load("res://resources/spells/fire_missile.tres") as SpellData).duplicate() as SpellData
+		spell.display_name = "Fire+Thunder Missile (Very long)"
+		spells.append(spell)
+	var loadout := SpellLoadout.new()
+	loadout.starting_spells = spells
+	loadout.unlocked_slots = 5
+	loadout.projectile_root = _root
+	add_child_autofree(loadout)
+	return loadout
+
+
+func test_long_spell_names_never_push_the_slot_row_off_the_screen() -> void:
+	var loadout := _long_named_loadout()
+	_screen.open(_inventory, loadout)
+	for button in _screen.find_children("*", "Button", true, false):
+		if str((button as Button).get_meta(&"key", "")).begins_with("slot:"):
+			assert_lte((button as Button).get_combined_minimum_size().x, CraftingScreen.SLOT_SIZE.x, "a slot button keeps its width, the text is clipped")
+	var row_width := 0.0
+	for button in _screen.find_children("*", "Button", true, false):
+		if str((button as Button).get_meta(&"key", "")).begins_with("slot:"):
+			row_width += (button as Button).get_combined_minimum_size().x + 2.0
+	assert_lte(row_width + 8.0, 480.0, "five slots fit across the screen")
+
+
+func test_the_preview_of_a_long_named_replacement_at_very_long_range_fits_and_clears_the_message() -> void:
+	_stock_everything()
+	var loadout := _long_named_loadout()
+	_screen.open(_inventory, loadout)
+	_screen.add_buff(_scroll("buff/additional_base"))
+	_screen.choose_base(_fire)
+	_screen.choose_base(_thunder)
+	_screen.choose_area(_wave)
+	_screen.choose_range(3)
+	for id in ["damage", "double_vulnerability", "duplicate_area", "ignore_resistance", "max_mana"]:
+		_screen.add_buff(_scroll("buff/%s" % id))
+	assert_lte(_screen.preview_height(), CraftingScreen.PREVIEW_SIZE.y, "the real label fits its box")
+	assert_lte(CraftingScreen.PREVIEW_TOP + CraftingScreen.PREVIEW_SIZE.y, CraftingScreen.MESSAGE_TOP, "the message starts below the preview")
+
+
+func test_every_refusal_message_fits_the_message_box() -> void:
+	for reason in [CraftingSystem.REASON_NO_BASE, CraftingSystem.REASON_NO_AREA, CraftingSystem.REASON_WRONG_BASE, CraftingSystem.REASON_WRONG_AREA, CraftingSystem.REASON_BAD_RANGE, CraftingSystem.REASON_BAD_BUFF, CraftingSystem.REASON_STACK_CAP, CraftingSystem.REASON_TOO_MANY_BASES, CraftingSystem.REASON_DUPLICATE_ELEMENT, CraftingSystem.REASON_LOCKED_SLOT, CraftingSystem.REASON_MISSING, CraftingSystem.REASON_CANNOT_BUILD, CraftingSystem.REASON_TOO_COSTLY]:
+		assert_lte(_wrapped(reason, CraftingScreen.MESSAGE_SIZE.x).y, CraftingScreen.MESSAGE_SIZE.y, reason)
+	assert_lte(CraftingScreen.MESSAGE_TOP + CraftingScreen.MESSAGE_SIZE.y, CraftingScreen.BUTTONS_TOP, "the message ends above the buttons")
+
+
+func _node_visible(node_name: String) -> bool:
+	return (_screen.find_child(node_name, true, false) as Control).visible
+
+
+func test_two_tabs_show_the_spell_page_or_the_buff_page() -> void:
+	_stock_everything()
+	_screen.open(_inventory, _loadout)
+	assert_eq(_screen.tab(), 0)
+	assert_true(_node_visible("SpellPage"))
+	assert_false(_node_visible("BuffPage"))
+	_screen.show_tab(1)
+	assert_eq(_screen.tab(), 1)
+	assert_false(_node_visible("SpellPage"))
+	assert_true(_node_visible("BuffPage"))
+	_screen.show_tab(0)
+	assert_true(_node_visible("SpellPage"))
+
+
+func test_the_active_tab_is_yellow_and_the_other_is_cream() -> void:
+	_screen.open(_inventory, _loadout)
+	assert_eq(_button_with_text("Spell").theme_type_variation, &"ButtonYellow")
+	assert_eq(_button_with_text("Buffs").theme_type_variation, &"")
+	_screen.show_tab(1)
+	assert_eq(_button_with_text("Spell").theme_type_variation, &"")
+	assert_eq(_button_with_text("Buffs").theme_type_variation, &"ButtonYellow")
+
+
+func test_a_new_craft_session_starts_on_the_spell_tab() -> void:
+	_screen.open(_inventory, _loadout)
+	_screen.show_tab(1)
+	_screen.close()
+	_screen.open(_inventory, _loadout)
+	assert_eq(_screen.tab(), 0)
+
+
+func test_buffs_can_still_be_stepped_from_the_buff_tab_and_show_in_the_preview() -> void:
+	_stock_everything()
+	_screen.open(_inventory, _loadout)
+	_screen.show_tab(1)
+	var plus := _screen.find_children("*", "Button", true, false).filter(func(b): return str(b.get_meta(&"key", "")) == "buff+:%s" % _scroll("buff/damage").id)
+	assert_eq(plus.size(), 1)
+	(plus[0] as Button).pressed.emit()
+	assert_eq(_screen.session.buff_stacks(_scroll("buff/damage")), 1)
+
+
+func test_every_choice_stepper_and_slot_button_is_big_enough_to_press() -> void:
+	_stock_everything()
+	_screen.open(_inventory, _loadout)
+	for button in _screen.find_children("*", "Button", true, false):
+		var key := str((button as Button).get_meta(&"key", ""))
+		if key.begins_with("slot:"):
+			assert_gte((button as Button).custom_minimum_size.y, 28.0, key)
+		elif key.begins_with("scroll:") or key.begins_with("range:"):
+			assert_gte((button as Button).custom_minimum_size.y, 24.0, key)
+		elif key.begins_with("buff"):
+			assert_gte((button as Button).custom_minimum_size.x, 24.0, key)
+			assert_gte((button as Button).custom_minimum_size.y, 24.0, key)
+	for text in ["Spell", "Buffs"]:
+		assert_gte(_button_with_text(text).custom_minimum_size.y, 26.0, text)
+
+
+func test_the_pages_fit_above_the_bottom_of_the_screen() -> void:
+	var rows := 6.0
+	assert_lte(CraftingScreen.PAGE_TOP + 24.0 + rows * (CraftingScreen.ROW_HEIGHT + 1.0), 264.0, "six rows of buffs or scrolls fit")

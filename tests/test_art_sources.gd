@@ -152,8 +152,28 @@ func test_a_slice_line_reads_four_margins_and_rejects_bad_ones() -> void:
 	for bad in ["slice 2 1 2 1", "slice 1 2 1 2", "slice -1 1 1 1", "slice 1 1 1", "slice a b c d"]:
 		var source := SpriteSource.parse("tile\n%s\nsize 4 4\nanim a 0 0 1 loop\n%s" % [bad, rows], palette)
 		assert_gt(source.errors.size(), 0, bad)
-	var untiled := SpriteSource.parse("slice 1 1 1 1\nsize 4 4\nanim a 0 0 1 loop\n" + rows, palette)
-	assert_gt(untiled.errors.size(), 0, "slice needs tile")
+
+
+func test_slice_is_valid_without_a_tile_line() -> void:
+	var rows := "frame\n.KK.\nKWWK\nKWWK\n.KK."
+	var source := SpriteSource.parse("slice 1 1 1 1\nsize 4 4\nanim a 0 0 1 loop\n" + rows, _palette())
+	assert_eq(source.errors.size(), 0, str(source.errors))
+	assert_eq(source.slice, Vector4i(1, 1, 1, 1))
+	assert_false(source.tile)
+
+
+func test_is_surface_is_true_for_a_tile_and_for_a_sliced_sprite_only() -> void:
+	var palette := _palette()
+	var rows := "frame\nKKKK\nKWWK\nKWWK\nKKKK"
+	assert_true(SpriteSource.parse("tile\nsize 4 4\nanim a 0 0 1 loop\n" + rows, palette).is_surface())
+	assert_true(SpriteSource.parse("slice 1 1 1 1\nsize 4 4\nanim a 0 0 1 loop\n" + rows, palette).is_surface())
+	assert_false(SpriteSource.parse("size 4 4\nanim a 0 0 1 loop\n" + rows, palette).is_surface())
+
+
+func test_a_slice_that_leaves_no_middle_is_still_an_error() -> void:
+	var rows := "frame\nKKKK\nKWWK\nKWWK\nKKKK"
+	var source := SpriteSource.parse("slice 2 1 2 1\nsize 4 4\nanim a 0 0 1 loop\n" + rows, _palette())
+	assert_gt(source.errors.size(), 0)
 
 
 const ITEM_PALETTE := """

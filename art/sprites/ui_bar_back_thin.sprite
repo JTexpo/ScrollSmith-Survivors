@@ -1,0 +1,9 @@
+# The 4 px trough of the XP bar along the top of the screen.
+slice 2 0 2 0
+size 6 4
+anim idle 0 0 1 loop
+frame
+.JJJJ.
+JIIIIJ
+JIIIIJ
+.JJJJ.

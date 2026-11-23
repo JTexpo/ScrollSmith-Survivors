@@ -1,15 +1,13 @@
 class_name GoldCounter
 extends Label
-## TEMPORARY (Sprint 9): "Gold 120" under the level text. It only shows what a RunProgress reports
-## and holds no rules.
+## "Gold 120" under the level text, in the outlined gold HUD label. It only shows what a RunProgress reports and
+## holds no rules.
 
 var _gold: int = 0
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_theme_font_size_override("font_size", 8)
-	add_theme_color_override("font_color", Color(1.0, 0.72, 0.1))
 	text = gold_text()
 
 

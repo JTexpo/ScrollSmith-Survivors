@@ -17,3 +17,7 @@ extends Resource
 @export var extra_bases: int = 0
 ## 0 means no limit.
 @export var max_stacks: int = 0
+## The colour of this buff's option on the starting-buff screen, and the icon (a sprite name) drawn on it. Data, so a new buff
+## brings its own look.
+@export var color: Color = Color.WHITE
+@export var icon: StringName = &""
