@@ -12,10 +12,13 @@ extends Node
 const REBUILD_INTERVAL := 0.2
 ## The most grid cells a segment's box may cover for the quick all-free check in `blocks_segment`.
 const MAX_QUICK_CELLS := 9
-## An enemy this close to the player, and this many cells from the field's goal cell, may step into a blocked cell
-## (see `resolve_move`). The grid keeps bodies 8 to 24 px off walls, but the player can stand 6 px from them.
-const FINAL_APPROACH_RANGE := 48.0
-const FINAL_APPROACH_CELLS := 3
+## Within this distance of the player a body steers by the exact straight line (`line_clear`) and may step into a
+## blocked cell if it does not overlap an exact wall (see `resolve_move`): the grid keeps bodies 8 to 24 px off walls,
+## but the player can stand 6 px from them, and the field is built from where the player was a moment ago. Beyond it
+## bodies follow the field through free cells.
+const NEAR_RANGE := 160.0
+## `line_clear` looks at the grid every this many pixels along the line before it falls back to the exact tests.
+const LINE_SAMPLE_STEP := 8.0
 
 ## How many cells of the sweep are done per physics frame.
 @export var cells_per_frame: int = 400
@@ -68,14 +71,48 @@ func _physics_process(delta: float) -> void:
 		_advance()
 
 
-## The way toward the player along the field, or ZERO when there is none for this point.
+## The way toward the player along the field, or ZERO when there is none for this point. A point inside a blocked
+## cell (a body on its final approach) uses the direction of the nearest free cell, so it never pushes at a wall.
 func direction_from(point: Vector2) -> Vector2:
+	if grid != null and grid.is_blocked(point):
+		return field.direction_at(grid.nearest_free(point))
 	return field.direction_at(point)
+
+
+## True when a body (half-width `MapData.body_radius`) can walk the straight line from `from` to `to` without
+## touching a wall. The grid answers most lines (every sampled cell free); a line through a blocked cell is
+## checked against the exact shapes, so a body hugging a wall still has a clear line along it.
+func line_clear(from: Vector2, to: Vector2) -> bool:
+	if grid == null or data == null:
+		return true
+	var steps := maxi(ceili(from.distance_to(to) / LINE_SAMPLE_STEP), 1)
+	var all_free := true
+	for i in steps + 1:
+		if grid.is_blocked(from.lerp(to, float(i) / steps)):
+			all_free = false
+			break
+	if all_free:
+		return true
+	for shape in shapes:
+		if shape.blocks_segment(from, to, data.body_radius):
+			return false
+	return true
 
 
 ## True when `point` is in a blocked cell (the grid is grown by the body clearance).
 func is_blocked(point: Vector2) -> bool:
 	return grid != null and grid.is_blocked(point)
+
+
+## True when a body at `point` would overlap an exact wall (any shape grown by the body radius). The grid only answers
+## "maybe" (its cells are bigger than the walls), so most points are rejected by it without testing a shape.
+func overlaps_wall(point: Vector2) -> bool:
+	if grid == null or data == null or not grid.is_blocked(point):
+		return false
+	for shape in shapes:
+		if shape.contains(point, data.body_radius):
+			return true
+	return false
 
 
 ## Exact: true when the segment touches any obstacle. Used for projectiles.
@@ -127,22 +164,16 @@ func _cells_under_are_free(from: Vector2, to: Vector2) -> bool:
 
 
 ## A free cell, or a blocked one a body may step into on its final approach to the player: it is within
-## FINAL_APPROACH_RANGE of the player, within FINAL_APPROACH_CELLS of the field's goal cell (so it got there by the
-## route, not across a wall) and does not overlap any exact shape grown by the body radius.
+## NEAR_RANGE of the player (where the player really is, not where the field was built) and does not
+## overlap any exact shape grown by the body radius. A body across a thin wall cannot cheat: the exact test keeps
+## it out of the wall, and with no clear line to the player it follows the field around instead of pushing at it.
 func _free_for_a_body(point: Vector2) -> bool:
 	if not grid.is_blocked(point):
 		return true
 	var player := _player()
-	var goal := field.goal_cell()
-	if player == null or goal.x < 0 or point.distance_to(player.global_position) > FINAL_APPROACH_RANGE:
+	if player == null or point.distance_to(player.global_position) > NEAR_RANGE:
 		return false
-	var cell := grid.cell_of(point)
-	if maxi(absi(cell.x - goal.x), absi(cell.y - goal.y)) > FINAL_APPROACH_CELLS:
-		return false
-	for shape in shapes:
-		if shape.contains(point, data.body_radius):
-			return false
-	return true
+	return not overlaps_wall(point)
 
 
 func _advance() -> void:

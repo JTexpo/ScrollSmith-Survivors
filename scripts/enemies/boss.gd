@@ -140,7 +140,8 @@ func _chase(player: Node2D, delta: float) -> void:
 	var to_player := player.global_position - global_position
 	if to_player.length() > 1.0:
 		var direction := to_player.normalized()
-		if _obstacle_map != null:
+		# Close in with a clear line it steers at the player, otherwise it follows the field (see Enemy.direction_to_target).
+		if _obstacle_map != null and not (to_player.length() <= ObstacleMap.NEAR_RANGE and _obstacle_map.line_clear(position, player.global_position)):
 			var routed := _obstacle_map.direction_from(position)
 			if routed != Vector2.ZERO:
 				direction = routed

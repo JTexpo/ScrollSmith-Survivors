@@ -66,7 +66,7 @@ func test_resolve_move_allows_free_moves_slides_along_a_wall_and_never_enters_a_
 	var at := Vector2(140, 40)
 	for step in 100:
 		at = node.resolve_move(at, at + Vector2(4, 3))
-		assert_false(node.is_blocked(at), "step %d at %s" % [step, at])
+		assert_false(node.overlaps_wall(at), "step %d at %s" % [step, at])
 	assert_false(node.is_blocked(node.resolve_move(Vector2(156, 40), Vector2(158, 40))))
 
 
@@ -181,3 +181,32 @@ func test_the_flow_field_leads_through_a_maze() -> void:
 			break
 		at += direction * 4.0
 	assert_true(reached, "stopped at %s" % at)
+
+
+func test_line_clear_is_exact_for_a_body_near_a_wall() -> void:
+	var node := _obstacle_map(_wall_map(8.0))
+	assert_true(node.line_clear(Vector2(100, 130), Vector2(220, 130)), "open ground")
+	assert_false(node.line_clear(Vector2(100, 40), Vector2(220, 40)), "through the wall")
+	# The wall's west face is at x = 152. The grid is blocked from x = 144, but a 6 px body fits at x = 140.
+	assert_true(node.line_clear(Vector2(140, 20), Vector2(140, 100)), "12 px off the face is clear for a 6 px body")
+	assert_false(node.line_clear(Vector2(148, 20), Vector2(148, 100)), "4 px off the face is not")
+
+
+func test_direction_from_a_blocked_cell_follows_the_nearest_free_cell() -> void:
+	_player.global_position = Vector2(280, 40)
+	var node := _obstacle_map(_wall_map(8.0))
+	var inside_the_band := Vector2(146, 40)
+	assert_true(node.is_blocked(inside_the_band))
+	var expected := node.field.direction_at(node.push_out(inside_the_band))
+	assert_ne(expected, Vector2.ZERO)
+	assert_eq(node.direction_from(inside_the_band), expected)
+
+
+func test_overlaps_wall_is_exact_while_the_grid_band_is_not() -> void:
+	var node := _obstacle_map(_wall_map(8.0))
+	# The wall's west face is x = 152. The grid is blocked from x = 144, but a body is only touching from x = 147.
+	assert_true(node.is_blocked(Vector2(146, 40)))
+	assert_false(node.overlaps_wall(Vector2(146, 40)), "inside the grid band but clear of the wall")
+	assert_true(node.overlaps_wall(Vector2(148, 40)))
+	assert_true(node.overlaps_wall(Vector2(160, 40)), "inside the wall")
+	assert_false(node.overlaps_wall(Vector2(40, 40)), "open ground")

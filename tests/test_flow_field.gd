@@ -162,15 +162,3 @@ func test_cached_directions_are_dropped_when_a_new_field_is_swapped_in() -> void
 	field.begin_rebuild(grid, Vector2(24, 88))
 	assert_gt(field.direction_at(Vector2(136, 88)).y, 0.9, "the old field stays readable while a new one builds")
 
-
-func test_goal_cell_is_the_targets_cell_or_the_nearest_free_one() -> void:
-	var map := _map(Vector2(160, 160))
-	map.obstacles = [_rect(Vector2(80, 80), Vector2(40, 40))] as Array[MapObstacle]
-	var grid := ObstacleGrid.build(map)
-	var field := FlowField.new()
-	assert_eq(field.goal_cell(), Vector2i(-1, -1), "none before the first field")
-	field.rebuild(grid, Vector2(20, 20))
-	assert_eq(field.goal_cell(), grid.cell_of(Vector2(20, 20)))
-	field.rebuild(grid, Vector2(80, 80))
-	assert_false(grid.is_blocked_cell(field.goal_cell()), "a blocked target uses the nearest free cell")
-	assert_eq(field.goal_cell(), grid.cell_of(grid.nearest_free(Vector2(80, 80))))

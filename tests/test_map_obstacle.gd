@@ -76,3 +76,13 @@ func test_is_valid_rejects_zero_sizes() -> void:
 	var empty := _circle()
 	empty.radius = 0.0
 	assert_false(empty.is_valid())
+
+
+func test_a_grown_segment_test_catches_a_near_miss() -> void:
+	# The rect spans x 80 to 120, y 90 to 110. A segment 4 px above it misses it exactly but not when grown by 6.
+	assert_false(_rect().blocks_segment(Vector2(60, 86), Vector2(140, 86)))
+	assert_true(_rect().blocks_segment(Vector2(60, 86), Vector2(140, 86), 6.0))
+	assert_false(_rect().blocks_segment(Vector2(60, 80), Vector2(140, 80), 6.0), "10 px away is still clear")
+	# The circle (centre (200, 100), radius 10): a segment 14 px above the centre.
+	assert_false(_circle().blocks_segment(Vector2(160, 86), Vector2(240, 86)))
+	assert_true(_circle().blocks_segment(Vector2(160, 86), Vector2(240, 86), 6.0))

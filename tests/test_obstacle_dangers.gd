@@ -118,7 +118,7 @@ func test_the_boss_walks_around_a_wall_to_the_player() -> void:
 	var arrived := false
 	for step in 1500:
 		boss._physics_process(DELTA)
-		assert_false(map.is_blocked(boss.position), "step %d at %s" % [step, boss.position])
+		assert_false(map.overlaps_wall(boss.position), "step %d at %s" % [step, boss.position])
 		if boss.position.distance_to(_player.position) <= 20.0:
 			arrived = true
 			break
@@ -141,7 +141,7 @@ func test_a_boss_charge_stops_at_an_obstacle_and_the_vulnerability_window_opens(
 	var acting_steps := 0
 	for step in 200:
 		boss._physics_process(DELTA)
-		assert_false(map.is_blocked(boss.position), "step %d at %s" % [step, boss.position])
+		assert_false(map.overlaps_wall(boss.position), "step %d at %s" % [step, boss.position])
 		if boss.state == Boss.State.ACT:
 			acting_steps += 1
 		if boss.state == Boss.State.RECOVER:

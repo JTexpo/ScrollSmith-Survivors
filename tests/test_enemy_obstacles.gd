@@ -59,7 +59,7 @@ func _enemy(archetype: StringName, at: Vector2) -> Enemy:
 func _chases(enemy: Enemy, map: ObstacleMap, steps: int) -> bool:
 	for step in steps:
 		enemy._physics_process(DELTA)
-		if map.is_blocked(enemy.position):
+		if map.overlaps_wall(enemy.position):
 			return false
 		if enemy.position.distance_to(_player.position) <= 20.0:
 			return true
@@ -108,7 +108,7 @@ func test_knockback_into_a_wall_never_ends_inside_an_obstacle() -> void:
 	(enemy.get_node("KnockbackComponent") as KnockbackComponent).apply_impulse(Vector2.RIGHT, 400.0)
 	for step in 90:
 		enemy._physics_process(DELTA)
-		assert_false(map.is_blocked(enemy.position), "step %d at %s" % [step, enemy.position])
+		assert_false(map.overlaps_wall(enemy.position), "step %d at %s" % [step, enemy.position])
 
 
 func test_a_retreating_ranged_enemy_stops_at_a_wall() -> void:
@@ -118,7 +118,7 @@ func test_a_retreating_ranged_enemy_stops_at_a_wall() -> void:
 	var enemy := _enemy(&"ranged", Vector2(270, 100))
 	for step in 180:
 		enemy._physics_process(DELTA)
-		assert_false(map.is_blocked(enemy.position), "step %d at %s" % [step, enemy.position])
+		assert_false(map.overlaps_wall(enemy.position), "step %d at %s" % [step, enemy.position])
 	assert_lt(enemy.position.x, 312.0, "it stopped short of the wall's face")
 
 
@@ -127,9 +127,9 @@ func test_an_enemy_standing_in_an_obstacle_is_moved_out_on_its_first_step() -> v
 	_player.position = Vector2(560, 60)
 	map._physics_process(0.5)
 	var enemy := _enemy(&"standard", Vector2(320, 100))
-	assert_true(map.is_blocked(enemy.position))
+	assert_true(map.overlaps_wall(enemy.position))
 	enemy._physics_process(DELTA)
-	assert_false(map.is_blocked(enemy.position))
+	assert_false(map.overlaps_wall(enemy.position))
 
 
 func test_a_ranged_enemy_does_not_hold_or_fire_behind_a_wall() -> void:
@@ -189,3 +189,36 @@ func test_an_enemy_reaches_a_player_pressed_against_the_far_side_of_a_thin_wall(
 			touched = true
 			break
 	assert_true(touched, "the enemy stopped %s from the player behind the wall" % snappedf(enemy.position.distance_to(behind), 0.1))
+
+
+func test_an_enemy_close_to_the_player_steers_at_where_the_player_is_now() -> void:
+	var map := _map(Vector2(640, 480), [_rect(Vector2(600, 440), Vector2(20, 20))] as Array[MapObstacle])
+	_player.position = Vector2(100, 100)
+	map._physics_process(0.5)
+	# The player moves and the field has not caught up yet (it rebuilds over many frames).
+	_player.position = Vector2(300, 100)
+	var enemy := _enemy(&"standard", Vector2(220, 160))
+	var straight := (_player.position - enemy.position).normalized()
+	assert_lt(absf(rad_to_deg(enemy.direction_to_target().angle_to(straight))), 5.0, "it chases the ghost where the player was")
+
+
+func test_a_player_hugging_a_corridor_wall_is_caught_while_running_back_and_forth() -> void:
+	# A 64 px wide corridor: walls at y 100 and y 180 (16 px thick), x 100 to 500.
+	var map := _map(Vector2(640, 320), [_rect(Vector2(300, 100), Vector2(400, 16)), _rect(Vector2(300, 180), Vector2(400, 16))] as Array[MapObstacle])
+	var hug_y := 108.0 + 6.0
+	_player.position = Vector2(160, hug_y)
+	map._physics_process(0.5)
+	var enemy := _enemy(&"standard", Vector2(300, 140))
+	enemy.speed = 90.0
+	var touching := 0
+	var direction := 1.0
+	for step in 1200:
+		# The player runs the corridor at 120 px/s, hugging the north wall, and turns round at the ends.
+		_player.position.x += direction * 120.0 * DELTA
+		if _player.position.x > 440.0 or _player.position.x < 160.0:
+			direction = -direction
+		map._physics_process(DELTA)
+		enemy._physics_process(DELTA)
+		if _touching(enemy, _player.position):
+			touching += 1
+	assert_gt(touching, 150, "the enemy was in contact with the runner on only %d of 1200 frames" % touching)
