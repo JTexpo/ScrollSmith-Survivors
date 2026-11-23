@@ -1,0 +1,36 @@
+# A green XP gem.
+size 10 10
+anim sparkle 0 2 6 loop
+frame
+..........
+...KKKK...
+..KbWbaK..
+.KbbWaaaK.
+.KbaaaaaK.
+.KaaaaacK.
+..KaaaccK.
+...KcccK..
+....KKK...
+..........
+frame
+..........
+...KKKK.W.
+..KbWbaK..
+.KbbWaaaK.
+.KbaaaaaK.
+.KaaaaacK.
+..KaaaccK.
+...KcccK..
+....KKK...
+..........
+frame
+..........
+...KKKK...
+.WKbWbaK..
+.KbbWaaaK.
+.KbaaaaaK.
+.KaaaaacK.
+..KaaaccK.
+...KcccKW.
+....KKK...
+..........

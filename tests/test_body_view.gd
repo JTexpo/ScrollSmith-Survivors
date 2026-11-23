@@ -142,3 +142,11 @@ func test_it_ignores_the_mouse() -> void:
 	for child in _body.get_children():
 		if child is Control:
 			assert_eq((child as Control).mouse_filter, Control.MOUSE_FILTER_IGNORE, child.name)
+
+
+func test_set_sprite_material_applies_to_the_sprite_and_its_outline() -> void:
+	var material := ShaderMaterial.new()
+	_body.set_sprite_material(material)
+	assert_eq(_sprite().material, material)
+	assert_eq((_body.get_node("Outline") as AnimatedSprite2D).material, material)
+

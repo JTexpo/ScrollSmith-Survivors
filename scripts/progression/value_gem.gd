@@ -19,12 +19,20 @@ var value: int = 0
 var _collected: bool = false
 
 @onready var _shape: Polygon2D = $Shape
+@onready var _body: BodyView = $Body
 
 
 func _ready() -> void:
 	add_to_group(&"xp_gems" if kind == Kind.XP else &"gold_coins")
 	_shape.polygon = PackedVector2Array(XP_POINTS if kind == Kind.XP else GOLD_POINTS)
 	_shape.color = XP_COLOR if kind == Kind.XP else GOLD_COLOR
+	# The sprite sparkles and bobs; with no art the flat polygon stays.
+	var has_art := _body.set_look(&"pickup_xp" if kind == Kind.XP else &"pickup_gold")
+	_body.visible = has_art
+	_shape.visible = not has_art
+	if has_art:
+		_body.set_sprite_material(_shape.material)
+		_body.play(&"sparkle")
 
 
 func setup(amount: int) -> void:

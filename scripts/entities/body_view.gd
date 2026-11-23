@@ -119,6 +119,13 @@ func set_tint(color: Color) -> void:
 	_sprite.self_modulate = color
 
 
+## A material for the sprite and its outline (a shader that bobs a pickup, say). Null removes it.
+func set_sprite_material(sprite_material: Material) -> void:
+	_ensure_children()
+	_sprite.material = sprite_material
+	_outline.material = sprite_material
+
+
 ## Shows or hides the silhouette outline behind the sprite, in a colour. Nothing is shown when there is no sprite or
 ## no silhouette.
 func set_outline(color: Color, enabled: bool) -> void:

@@ -1,0 +1,56 @@
+# A square scroll: folded parchment with writing.
+size 12 12
+anim idle 0 1 3 loop
+anim sparkle 2 3 6 loop
+frame
+............
+..KKKKKKKK..
+..KWWWWWWK..
+..KWWWWWWK..
+..KWGGGGWK..
+..KWWWWWWK..
+..KWGGGGWK..
+..KWWWWWWK..
+..KWWWWWGK..
+..KGGGGGGK..
+..KKKKKKKK..
+............
+frame
+............
+..KKKKKKKK..
+..KWWWWWWK..
+..KWWWWWWK..
+..KWGGGGWK..
+..KWWWWWWK..
+..KWGGGGWK..
+..KWWWWWWK..
+..KWWWWWGK..
+..KGGGGGGK..
+..KKKKKKKK..
+............
+frame
+............
+..KKKKKKKK..
+..KWWWWWWK..
+..KWWWWWWK..
+..KWGGGGWK..
+..KWWWWWWK..
+..KWGGGGWK..
+..KWWWWWWK..
+..KWWWWWGK..
+..KGGGGGGK..
+..KKKKKKKK..
+............
+frame
+............
+..KKKKKKKK..
+..KWWWWWWK..
+..KWWWWWWK..
+..KWGGGGWK..
+..KWWWWWWK..
+..KWGGGGWK..
+..KWWWWWWK..
+..KWWWWWGK..
+..KGGGGGGK..
+..KKKKKKKK..
+............
