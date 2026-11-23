@@ -1,4 +1,4 @@
-# A brick wall: a light top course, red bricks and dark mortar.
+# A brick wall: a light top course, warm red bricks and dark brown mortar.
 tile
 slice 4 4 4 4
 size 16 16
@@ -7,16 +7,16 @@ frame
 KKKKKKKKKKKKKKKK
 KzzzzzzzzzzzzzzK
 KzxxxxxxxxxxxxzK
-KzxrrrrrrrrrrxzK
-KzxrrzzzxxxxrxzK
-KzxrrxxxxxxxrxzK
-KzxrrxxxxxxxrxzK
-KzxrrrrrrrrrrxzK
-KzxrxxxxrzzzrxzK
-KzxrxxxxrxxxrxzK
-KzxrxxxxrxxxrxzK
-KzxrrrrrrrrrrxzK
-KzxrrrrrrrrrrxzK
+KzxFFFFFFFFFFxzK
+KzxFFzzzxxxxFxzK
+KzxFFxxxxxxxFxzK
+KzxFFxxxxxxxFxzK
+KzxFFFFFFFFFFxzK
+KzxFxxxxFzzzFxzK
+KzxFxxxxFxxxFxzK
+KzxFxxxxFxxxFxzK
+KzxFFFFFFFFFFxzK
+KzxFFFFFFFFFFxzK
 KzxxxxxxxxxxxxzK
 KzzzzzzzzzzzzzzK
 KKKKKKKKKKKKKKKK

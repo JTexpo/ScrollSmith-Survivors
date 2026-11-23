@@ -46,6 +46,8 @@ The characters now look like a cartoon fantasy game, but everything they stand i
 
 The first floors and decorations were low-contrast and detailed. The user asked for a **simpler, brighter, more cartoon** look and for **natural transitions** between regions instead of hard rectangle edges. So: floor tiles use few big shapes and bright, saturated colours (the "low-contrast mid-tone" rule is dropped for floors, and readability is now kept by the tiles being flat and simple instead); decorations are fewer, bigger-shaped and bolder; and a zone's floor draws with a **ragged, organic edge** (the outer 16 px is drawn cell by cell with some cells left out, so the floor below shows through), with the flat tint under a zone hidden whenever the zone has art. The map-level floor and border stay hard-edged.
 
+A second round of feedback (the first soft edge still read as one long straight line along the left maze, and the hedges looked like emeralds) changed three things: the soft edge is now **32 px deep and wavy** (how far the gap reaches in follows smooth noise along the edge, with jitter, so there are bays and points and no straight stretch); the hedge is a **leafy bush with no bevel** (and darker, less saturated greens); and the two **mazes are now brick** (more familiar to players), with the plaza's small walls still hedge, the island brick and the corridor stone. The brick uses a dark brown mortar.
+
 ## 3. Approaches considered
 
 1. **A tilemap (`TileMapLayer`) with auto-tiling.** The engine's standard way, but this map is data made of arbitrary rectangles and circles, so every shape would need converting to grid tiles and keeping in sync, and circles would look blocky.

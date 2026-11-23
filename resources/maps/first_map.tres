@@ -76,7 +76,7 @@ side = 2
 
 [sub_resource type="Resource" id="maze_nw"]
 script = ExtResource("6")
-material = &"hedge"
+material = &"brick"
 area = Rect2(60, 60, 720, 480)
 cell_size = 80.0
 wall_thickness = 16.0
@@ -88,7 +88,7 @@ rotated = false
 
 [sub_resource type="Resource" id="maze_se"]
 script = ExtResource("6")
-material = &"hedge"
+material = &"brick"
 area = Rect2(1140, 540, 720, 480)
 cell_size = 80.0
 wall_thickness = 16.0
