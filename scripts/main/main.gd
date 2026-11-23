@@ -28,6 +28,7 @@ extends Node2D
 @onready var _level_toast: LevelToast = $Hud/LevelToast
 @onready var _gold_counter: GoldCounter = $Hud/GoldCounter
 @onready var _shop_screen: ShopScreen = $ShopScreen
+@onready var _merchant_screen: MerchantScreen = $MerchantScreen
 @onready var _potion_bar: PotionBar = $Hud/PotionBar
 @onready var _director: RunDirector = $RunDirector
 @onready var _boss_bar: BossBar = $Hud/BossBar
@@ -73,6 +74,11 @@ func _ready() -> void:
 			lectern.interacted.connect(_open_crafting)
 	# The click that confirmed a craft is probably still held when the world resumes.
 	_crafting_screen.closed.connect(_player.require_cast_release)
+	for point in get_tree().get_nodes_in_group(&"points_of_interest"):
+		if is_ancestor_of(point):
+			connect_point_of_interest(point)
+	_merchant_screen.changed.connect(_on_merchant_purchase)
+	_merchant_screen.closed.connect(_player.require_cast_release)
 	_director.xp_dropper = _xp_dropper
 	_director.gold_dropper = _gold_dropper
 	_director.scroll_dropper = _dropper
@@ -183,6 +189,43 @@ func _on_bonuses_changed(total: StatBonuses) -> void:
 func _on_potion_slot_pressed(index: int) -> void:
 	_player.belt.use_slot(index)
 	_player.require_cast_release()
+
+
+## Listens for a point of interest being used. Called for every point under Main when it starts, and by anything
+## that adds one later.
+func connect_point_of_interest(point: PointOfInterest) -> void:
+	if not point.used.is_connected(_on_point_used):
+		point.used.connect(_on_point_used)
+
+
+## Routes the use of a point of interest. A refusal only shows its reason (nothing is consumed and no timer
+## starts). A merchant opens its screen. Anything else is applied by the rules, its Gold is added, its scrolls are
+## dropped beside it and its timer starts.
+func _on_point_used(point: PointOfInterest, _actor: Node) -> void:
+	if _player.health.is_dead():
+		return
+	if point.data.kind == PointOfInterestData.Kind.MERCHANT:
+		if not _merchant_screen.is_open():
+			_merchant_screen.open(profile, potion_catalog, point)
+		return
+	var reason := PointOfInterestSystem.refusal(point.data, _player, point.cooldown_left)
+	if not reason.is_empty():
+		_level_toast.show_message(reason)
+		return
+	var result := PointOfInterestSystem.apply(point.data, _player, _rng, _dropper.luck)
+	if result.gold > 0:
+		_player.progress.add_gold(result.gold)
+	for i in result.scrolls.size():
+		_dropper.place(result.scrolls[i], point.loot_spot(i, result.scrolls.size()))
+	if not result.message.is_empty():
+		_level_toast.show_message(result.message)
+	point.start_cooldown()
+
+
+## A potion bought from a merchant is saved at once, so quitting cannot undo the sale.
+func _on_merchant_purchase() -> void:
+	_player.belt.refresh()
+	_saver.save_now()
 
 
 ## A drunk potion is saved at once, so quitting cannot refund it.

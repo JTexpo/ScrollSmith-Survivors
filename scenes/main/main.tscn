@@ -29,6 +29,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/level_toast.tscn" id="55"]
 [ext_resource type="PackedScene" path="res://scenes/ui/gold_counter.tscn" id="57"]
 [ext_resource type="PackedScene" path="res://scenes/ui/shop_screen.tscn" id="58"]
+[ext_resource type="PackedScene" path="res://scenes/ui/merchant_screen.tscn" id="63"]
 [ext_resource type="PackedScene" path="res://scenes/ui/potion_bar.tscn" id="59"]
 [ext_resource type="PackedScene" path="res://scenes/ui/boss_bar.tscn" id="61"]
 [ext_resource type="PackedScene" path="res://scenes/ui/run_clock_label.tscn" id="62"]
@@ -85,6 +86,8 @@ script = ExtResource("52")
 [node name="BuffPickScreen" parent="." instance=ExtResource("53")]
 
 [node name="ShopScreen" parent="." instance=ExtResource("58")]
+
+[node name="MerchantScreen" parent="." instance=ExtResource("63")]
 
 [node name="DamageNumbers" type="Node2D" parent="."]
 script = ExtResource("10")
