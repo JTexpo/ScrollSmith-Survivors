@@ -1,6 +1,6 @@
 # Sprint 13c Design: Spells and Equipment
 
-**Status:** Proposed.
+**Status:** Built.
 
 Sprint 13 is split into six sprints, each leaving a playable build (user decision): 13a the art foundation (built), 13b the world's art (built), **13c spells and equipment (this doc)**, 13d the interface (a font and one look for every HUD piece and screen), 13e audio, 13f polish (screen shake, particles, damage indicators, low-mana and level-up feedback). Scope comes from the conversation, `sprint-development.md` (Sprint 13), the README (section 10) and the code as of Sprint 13b. Decisions below were agreed with the user in conversation, except where marked "my call". The art rules from earlier sprints apply: bright, simple, cartoon, few colours per object, **one pixel size everywhere (nothing is ever scaled)**, a missing sprite falls back to today's look, and every sprite is replaceable by overwriting a PNG.
 

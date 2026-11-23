@@ -103,6 +103,9 @@ wizard-survivor/
 │
 ├── tools/
 │   └── art/art_builder.gd    # builds assets/sprites from art/
+# Sprint 13c added scripts/spells/{element_looks,effect_plan,effect_sprite,spell_skin}.gd (an element's look, where and when effect
+# sprites play, the capped one-shot sprite, and the skin that dresses an area), scripts/enemies/warning_mark.gd and
+# scripts/entities/player_look.gd (the wizard's layers), with resources/spells/element_looks/.
 # Sprint 13b added scripts/world/{world_art,floor_patch,nine_slice}.gd: WorldArt looks art up by name, FloorPatch tiles a floor
 # (with a wavy edge for zones), NineSlice draws walls of any size from one tile. Map data names its art.
 │
