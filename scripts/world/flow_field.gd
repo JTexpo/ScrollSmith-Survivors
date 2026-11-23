@@ -46,6 +46,9 @@ var _cursor: int = 0
 var _level: int = 0
 var _pending: int = 0
 var _active: bool = false
+## The cell the finished field sweeps from (the target's, or the nearest free one), or (-1, -1) before the first.
+var _goal := Vector2i(-1, -1)
+var _building_goal := Vector2i(-1, -1)
 ## Directions already worked out for the finished field, per cell (padded layout). Enemies share cells, so
 ## most reads are one lookup. Cleared whenever a new field is swapped in.
 var _direction_cache := PackedVector2Array()
@@ -70,13 +73,16 @@ func begin_rebuild(grid: ObstacleGrid, target: Vector2) -> void:
 	var goal := grid.cell_of(target)
 	if grid.is_blocked_cell(goal):
 		goal = grid.cell_of(grid.nearest_free(target))
+	_building_goal = Vector2i(-1, -1)
 	if grid.is_blocked_cell(goal):
 		_distance = _building
+		_goal = _building_goal
 		_clear_direction_cache()
 		return
 	_buckets.clear()
 	for i in BUCKETS:
 		_buckets.append(PackedInt32Array())
+	_building_goal = goal
 	var start := (goal.y + PAD) * _stride + goal.x + PAD
 	_building[start] = 0
 	_buckets[0].append(start)
@@ -84,6 +90,11 @@ func begin_rebuild(grid: ObstacleGrid, target: Vector2) -> void:
 	_level = 0
 	_cursor = 0
 	_active = true
+
+
+## The goal cell of the finished field (see `_goal`).
+func goal_cell() -> Vector2i:
+	return _goal
 
 
 func is_rebuilding() -> bool:
@@ -130,6 +141,7 @@ func advance(cell_budget: int) -> bool:
 		return false
 	_building = distance
 	_distance = distance
+	_goal = _building_goal
 	_active = false
 	_clear_direction_cache()
 	return true

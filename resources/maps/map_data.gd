@@ -24,6 +24,8 @@ const OBSTACLE_CLEARANCE := 24.0
 @export var nav_cell_size: float = 16.0
 ## How far an obstacle is grown for the grid, so an enemy's body never touches it.
 @export var body_clearance: float = 8.0
+## Half the width of a body (the player and a plain enemy are 12 px wide). Enemies may not overlap a wall by more than this.
+@export var body_radius: float = 6.0
 ## Mazes generated from data. Their walls count as obstacles through `solid_shapes()`.
 @export var mazes: Array[MapMaze] = []
 ## Regions with their own floor tint and decorations.

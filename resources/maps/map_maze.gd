@@ -16,6 +16,9 @@ extends Resource
 @export var extra_openings: int = 0
 ## Opens the middle 2 by 2 cells into one room.
 @export var clear_center: bool = false
+## Turns the whole generated maze half a turn (entrances included). A second maze with the same data and this set is
+## an exact mirror image of the first, for the opposite corner of the map.
+@export var rotated: bool = false
 
 const MIN_CELLS := 3
 ## North, east, south, west.
@@ -52,6 +55,17 @@ class Layout:
 			horizontal[cell.y * columns + cell.x] = 0
 
 
+## The world position of the middle of the cleared room (where the room's centre is, after any half turn). It is
+## the point where the four middle cells meet. Meaningful when `clear_center` is on.
+func center_room_center() -> Vector2:
+	var column := floori(columns() / 2.0)
+	var row := floori(rows() / 2.0)
+	if rotated:
+		column = columns() - column
+		row = rows() - row
+	return area.position + Vector2(column, row) * cell_size
+
+
 func columns() -> int:
 	return floori(area.size.x / cell_size) if cell_size > 0.0 else 0
 
@@ -78,20 +92,33 @@ func problems(bounds: Rect2) -> PackedStringArray:
 	return found
 
 
-## The maze's walls as RECT obstacles, vertical lines first, then horizontal ones, each in a fixed order.
+## The maze's walls as RECT obstacles, vertical lines first, then horizontal ones, each in a fixed order. Walls that continue along one line are merged into one rectangle.
 func shapes() -> Array[MapObstacle]:
 	var result: Array[MapObstacle] = []
 	if columns() < MIN_CELLS or rows() < MIN_CELLS:
 		return result
 	var layout := _generate()
+	# Walls that continue along one line are one long rectangle (the same area, far fewer shapes).
 	for x in layout.columns + 1:
-		for y in layout.rows:
-			if layout.vertical[x * layout.rows + y] == 1:
-				result.append(_wall(area.position + Vector2(x, y + 0.5) * cell_size, Vector2(wall_thickness, cell_size + wall_thickness)))
+		var y := 0
+		while y < layout.rows:
+			if layout.vertical[x * layout.rows + y] == 0:
+				y += 1
+				continue
+			var start := y
+			while y < layout.rows and layout.vertical[x * layout.rows + y] == 1:
+				y += 1
+			result.append(_wall(area.position + Vector2(x, (start + y) / 2.0) * cell_size, Vector2(wall_thickness, (y - start) * cell_size + wall_thickness)))
 	for y in layout.rows + 1:
-		for x in layout.columns:
-			if layout.horizontal[y * layout.columns + x] == 1:
-				result.append(_wall(area.position + Vector2(x + 0.5, y) * cell_size, Vector2(cell_size + wall_thickness, wall_thickness)))
+		var x := 0
+		while x < layout.columns:
+			if layout.horizontal[y * layout.columns + x] == 0:
+				x += 1
+				continue
+			var start := x
+			while x < layout.columns and layout.horizontal[y * layout.columns + x] == 1:
+				x += 1
+			result.append(_wall(area.position + Vector2((start + x) / 2.0, y) * cell_size, Vector2((x - start) * cell_size + wall_thickness, wall_thickness)))
 	return result
 
 
@@ -147,7 +174,19 @@ func _generate() -> Layout:
 	for entrance in entrances:
 		if entrance != null and _faces_out(entrance):
 			layout.carve(entrance.cell, STEPS[entrance.side])
-	return layout
+	return _half_turn(layout) if rotated else layout
+
+
+## The same walls turned half a turn about the maze's middle.
+func _half_turn(layout: Layout) -> Layout:
+	var turned := Layout.new(layout.columns, layout.rows)
+	for x in layout.columns + 1:
+		for y in layout.rows:
+			turned.vertical[(layout.columns - x) * layout.rows + (layout.rows - 1 - y)] = layout.vertical[x * layout.rows + y]
+	for y in layout.rows + 1:
+		for x in layout.columns:
+			turned.horizontal[(layout.rows - y) * layout.columns + (layout.columns - 1 - x)] = layout.horizontal[y * layout.columns + x]
+	return turned
 
 
 ## Removes `extra_openings` of the walls still standing between two cells, picked at random.

@@ -149,6 +149,7 @@ wizard-survivor/
 │   ├── world/
 │   │   ├── game_map.gd
 │   │   ├── map_decor.gd
+│   │   ├── draw_chunk.gd
 │   │   ├── obstacle_grid.gd
 │   │   ├── flow_field.gd
 │   │   ├── obstacle_map.gd

@@ -34,8 +34,8 @@ func _blocked_at(line: int, i: int, along_rows: bool) -> bool:
 	return _grid.is_blocked_cell(Vector2i(i, line) if along_rows else Vector2i(line, i))
 
 
-func test_the_first_map_has_between_50_and_160_solid_shapes() -> void:
-	assert_between(_map.solid_shapes().size(), 50, 160)
+func test_the_first_map_has_between_50_and_220_solid_shapes() -> void:
+	assert_between(_map.solid_shapes().size(), 50, 220)
 
 
 func test_the_first_map_has_no_problems_and_every_placement_is_reachable() -> void:
@@ -59,7 +59,7 @@ func test_most_of_the_map_is_still_walkable() -> void:
 	for value in _grid.blocked:
 		blocked += value
 	var share := float(blocked) / float(_grid.columns * _grid.rows)
-	assert_between(share, 0.03, 0.30)
+	assert_between(share, 0.03, 0.40)
 
 
 func test_no_gap_is_narrower_than_two_cells() -> void:

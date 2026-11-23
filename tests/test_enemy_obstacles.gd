@@ -151,3 +151,41 @@ func test_a_ranged_enemy_with_a_clear_line_still_holds_at_its_distance() -> void
 	for step in 30:
 		enemy._physics_process(DELTA)
 	assert_lt(enemy.position.distance_to(Vector2(275, 100)), 3.0)
+
+
+## True when the enemy's body (12 px) and a player standing at `at` overlap.
+func _touching(enemy: Enemy, at: Vector2) -> bool:
+	return absf(enemy.position.x - at.x) < 12.0 and absf(enemy.position.y - at.y) < 12.0
+
+
+func test_an_enemy_reaches_a_player_hiding_in_the_corner_of_two_walls() -> void:
+	# A vertical wall (x 292 to 308, y 0 to 300) meets a horizontal one (x 0 to 300, y 292 to 308) at an inside corner.
+	var map := _map(Vector2(640, 480), [_rect(Vector2(300, 150), Vector2(16, 300)), _rect(Vector2(150, 300), Vector2(300, 16))] as Array[MapObstacle])
+	# The player stands as close to both walls as its 12 px body allows: 6 px from each face.
+	var corner := Vector2(292.0 - 6.0, 292.0 - 6.0)
+	_player.position = corner
+	map._physics_process(0.5)
+	var enemy := _enemy(&"standard", Vector2(100, 100))
+	var touched := false
+	for step in 900:
+		enemy._physics_process(DELTA)
+		if _touching(enemy, corner):
+			touched = true
+			break
+	assert_true(touched, "the enemy stopped %s from the player in the corner" % snappedf(enemy.position.distance_to(corner), 0.1))
+
+
+func test_an_enemy_reaches_a_player_pressed_against_the_far_side_of_a_thin_wall() -> void:
+	var map := _map(Vector2(640, 320), [_rect(Vector2(320, 112), Vector2(16, 224))] as Array[MapObstacle])
+	# The wall's east face is at x = 328. The player stands 6 px from it, and the enemy starts straight across the wall.
+	var behind := Vector2(334.0, 100.0)
+	_player.position = behind
+	map._physics_process(0.5)
+	var enemy := _enemy(&"standard", Vector2(260, 100))
+	var touched := false
+	for step in 1200:
+		enemy._physics_process(DELTA)
+		if _touching(enemy, behind):
+			touched = true
+			break
+	assert_true(touched, "the enemy stopped %s from the player behind the wall" % snappedf(enemy.position.distance_to(behind), 0.1))

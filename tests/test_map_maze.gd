@@ -157,3 +157,66 @@ func test_problems_name_a_bad_maze() -> void:
 	assert_eq(interior.problems(BOUNDS).size(), 1)
 	var inward := _maze(1, 0, false, [_entrance(Vector2i(0, 1), MazeEntrance.Edge.EAST)] as Array[MazeEntrance])
 	assert_eq(inward.problems(BOUNDS).size(), 1)
+
+
+func _wide_maze(rotated: bool, center: bool = true) -> MapMaze:
+	var maze := _maze(3, 2, center, [_entrance(Vector2i(0, 1), MazeEntrance.Edge.WEST), _entrance(Vector2i(2, 4), MazeEntrance.Edge.SOUTH)] as Array[MazeEntrance])
+	maze.area = Rect2(100, 52, 560, 400)
+	maze.rotated = rotated
+	return maze
+
+
+func test_a_rotated_maze_is_the_half_turn_image_of_the_same_maze() -> void:
+	var plain := _wide_maze(false)
+	var turned := _wide_maze(true)
+	var middle := plain.area.get_center()
+	var plain_shapes := plain.shapes()
+	var turned_shapes := turned.shapes()
+	assert_eq(plain_shapes.size(), turned_shapes.size())
+	for shape in plain_shapes:
+		var image := middle * 2.0 - shape.position
+		var found := false
+		for other in turned_shapes:
+			if other.position.distance_to(image) < 0.01 and other.size == shape.size:
+				found = true
+				break
+		assert_true(found, "no mirrored wall for %s" % shape.position)
+
+
+func test_a_rotated_maze_is_still_connected_and_its_entrances_turn_with_it() -> void:
+	var turned := _wide_maze(true)
+	assert_eq(_reached(turned), turned.columns() * turned.rows())
+	# The west entrance of row 1 becomes an east entrance of row rows-2, and the south one of column 2 a north one of column cols-3.
+	var east_row := turned.area.position.y + (turned.rows() - 2 + 0.5) * 80.0
+	assert_false(_blocked_at(turned, Vector2(turned.area.end.x, east_row)))
+	assert_true(_blocked_at(turned, Vector2(turned.area.position.x, turned.area.position.y + 1.5 * 80.0)), "the old west gap is closed")
+	var north_x := turned.area.position.x + (turned.columns() - 3 + 0.5) * 80.0
+	assert_false(_blocked_at(turned, Vector2(north_x, turned.area.position.y)))
+
+
+func test_the_centre_room_centre_follows_the_rotation_and_is_free() -> void:
+	var plain := _wide_maze(false)
+	var turned := _wide_maze(true)
+	assert_eq(plain.center_room_center(), plain.area.position + Vector2(3, 2) * 80.0)
+	assert_eq(turned.center_room_center(), turned.area.position + Vector2(4, 3) * 80.0)
+	for maze in [plain, turned]:
+		for offset in [Vector2.ZERO, Vector2(-40, 0), Vector2(40, 0), Vector2(0, -40), Vector2(0, 40)]:
+			assert_false(_blocked_at(maze, maze.center_room_center() + offset), "centre room wall at %s" % offset)
+
+
+func test_straight_runs_of_wall_are_one_long_shape() -> void:
+	var maze := _maze(3)
+	var longest_wide := 0.0
+	var longest_tall := 0.0
+	for shape in maze.shapes():
+		longest_wide = maxf(longest_wide, shape.size.x)
+		longest_tall = maxf(longest_tall, shape.size.y)
+	# With no entrances the four outer sides are each a single run: 6 cells wide and 4 cells tall, plus a wall.
+	assert_almost_eq(longest_wide, 6 * 80.0 + 16.0, 0.01)
+	assert_almost_eq(longest_tall, 4 * 80.0 + 16.0, 0.01)
+
+
+func test_merging_walls_does_not_change_what_is_solid() -> void:
+	var maze := _maze(9, 2, true, [_entrance(Vector2i(0, 1), MazeEntrance.Edge.WEST)] as Array[MazeEntrance])
+	assert_eq(_reached(maze), 24)
+	assert_gte(_passages(maze), 23 + 2, "at least the spanning tree plus the extra openings")

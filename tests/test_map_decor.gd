@@ -138,3 +138,22 @@ func test_a_zone_with_no_colors_or_count_gives_nothing() -> void:
 	assert_eq(MapDecor.scatter_zone(map, 0).size(), 0)
 	assert_eq(MapDecor.scatter_zone(map, 1).size(), 0)
 	assert_eq(MapDecor.scatter_zone(map, 5).size(), 0, "an index out of range gives nothing")
+
+
+func test_the_layer_splits_its_drawing_into_chunks_and_keeps_the_count() -> void:
+	var layer := MapDecorLayer.new()
+	add_child_autofree(layer)
+	var items: Array[Dictionary] = []
+	var keys := {}
+	for i in 40:
+		var at := Vector2((i * 97) % 1500, (i * 61) % 900)
+		items.append({"rect": Rect2(at, Vector2(3, 3)), "color": Color.RED})
+		keys[Vector2i((at + Vector2(1.5, 1.5)) / MapDecorLayer.CHUNK_SIZE)] = true
+	layer.set_decor(items)
+	assert_eq(layer.item_count(), 40)
+	assert_eq(layer.chunk_count(), keys.size())
+	assert_gt(layer.chunk_count(), 1)
+	layer.set_decor([] as Array[Dictionary])
+	assert_eq(layer.item_count(), 0)
+	await wait_frames(1)
+	assert_eq(layer.chunk_count(), 0, "old chunks are gone")

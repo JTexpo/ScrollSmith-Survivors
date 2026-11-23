@@ -244,3 +244,21 @@ func test_the_decor_layer_holds_global_and_zone_items() -> void:
 	var node := _map_node(data)
 	var expected := MapDecor.scatter(data).size() + MapDecor.scatter_zone(data, 0).size() + MapDecor.scatter_zone(data, 1).size()
 	assert_eq((node.get_node("Decor") as MapDecorLayer).item_count(), expected)
+
+
+func test_the_obstacle_layer_is_split_into_chunks_and_keeps_the_count() -> void:
+	var layer := ObstacleLayer.new()
+	add_child_autofree(layer)
+	var shapes: Array[MapObstacle] = []
+	var keys := {}
+	for i in 12:
+		var shape := MapObstacle.new()
+		shape.kind = MapObstacle.Kind.RECT
+		shape.position = Vector2(100 + i * 150, 80 + (i % 3) * 300)
+		shape.size = Vector2(20, 20)
+		shapes.append(shape)
+		keys[Vector2i(shape.position / ObstacleLayer.CHUNK_SIZE)] = true
+	layer.set_obstacles(shapes)
+	assert_eq(layer.item_count(), 12)
+	assert_eq(layer.chunk_count(), keys.size())
+	assert_gt(layer.chunk_count(), 1)
