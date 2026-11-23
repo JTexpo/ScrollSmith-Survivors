@@ -155,3 +155,44 @@ func test_a_slice_line_reads_four_margins_and_rejects_bad_ones() -> void:
 	var untiled := SpriteSource.parse("slice 1 1 1 1\nsize 4 4\nanim a 0 0 1 loop\n" + rows, palette)
 	assert_gt(untiled.errors.size(), 0, "slice needs tile")
 
+
+const ITEM_PALETTE := """
+color K #1b1226
+variant none #111111 #222222 #333333 #444444 #555555
+variant fire #aa1100 #cc3300 #ee5500 #881100 #ffcc00
+variant sea #0011aa #0033cc #0055ee #001188 #00ccff
+variant hardy #553311 #774422 #aa6633 #331100 #cc9966
+"""
+
+
+func test_a_variants_line_limits_a_ramp_sprite_to_those_variants() -> void:
+	var palette := ArtPalette.parse(ITEM_PALETTE)
+	var source := SpriteSource.parse("variants hardy fire\nsize 2 1\nanim a 0 0 1 loop\nframe\nK1", palette)
+	assert_eq(source.errors.size(), 0, str(source.errors))
+	assert_eq(source.variants, [&"hardy", &"fire"] as Array[StringName])
+	assert_eq(source.variants_needed(palette), [&"hardy", &"fire"] as Array[StringName])
+
+
+func test_without_a_variants_line_only_the_element_variants_are_built() -> void:
+	var palette := ArtPalette.parse(ITEM_PALETTE)
+	var source := SpriteSource.parse("size 2 1\nanim a 0 0 1 loop\nframe\nK1", palette)
+	assert_eq(source.errors.size(), 0, str(source.errors))
+	var needed := source.variants_needed(palette)
+	assert_true(needed.has(&"none") and needed.has(&"fire") and needed.has(&"sea"))
+	assert_false(needed.has(&"hardy"), "an item variant is built only when a sprite asks for it")
+	assert_eq(ArtPalette.ELEMENT_VARIANTS, [&"none", &"fire", &"thunder", &"land", &"sea"] as Array[StringName])
+
+
+func test_a_variants_line_naming_an_unknown_variant_is_an_error() -> void:
+	var palette := ArtPalette.parse(ITEM_PALETTE)
+	var source := SpriteSource.parse("variants hardy nonsense\nsize 2 1\nanim a 0 0 1 loop\nframe\nK1", palette)
+	assert_eq(source.errors.size(), 1, str(source.errors))
+	assert_string_contains(source.errors[0], "nonsense")
+
+
+func test_a_sprite_without_ramp_slots_is_still_built_once_as_base() -> void:
+	var palette := ArtPalette.parse(ITEM_PALETTE)
+	var source := SpriteSource.parse("variants hardy\nsize 2 1\nanim a 0 0 1 loop\nframe\nKK", palette)
+	assert_eq(source.errors.size(), 0, str(source.errors))
+	assert_eq(source.variants_needed(palette), [&"base"] as Array[StringName])
+

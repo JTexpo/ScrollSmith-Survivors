@@ -40,19 +40,30 @@ var _outline: AnimatedSprite2D
 var _sprite: AnimatedSprite2D
 var _fallback: ColorRect
 var _facing: float = 1.0
+## Layers drawn over the body sprite (a worn robe, headwear, a weapon), by name, in the order they were added. Each copies the
+## body's animation, frame and flip every frame, and runs nothing while it is hidden.
+var _layers: Dictionary = {}
 
 
 func _ready() -> void:
 	_ensure_children()
-	# Only a shown outline needs to follow the sprite's frame, so 300 plain enemies run no script each frame.
-	set_process(_outline.visible)
+	# Only a shown outline or layer needs to follow the sprite's frame, so 300 plain enemies run no script each frame.
+	_refresh_processing()
 
 
 func _process(_delta: float) -> void:
+	_sync_followers()
+
+
+## The outline and every layer copy the sprite's animation and frame. This runs the moment the sprite's frame or animation changes
+## (its signals), because the sprite advances after this node's own `_process`, so syncing only there lagged a frame behind and a
+## worn hat jumped off the head for a moment on every step. `_process` stays for the flip and for anything that changed no frame.
+func _sync_followers() -> void:
 	# The outline copies the sprite's frame, so it is always the same pose, a pixel bigger.
 	if _outline.visible and _sprite.animation != &"" and _outline.sprite_frames != null and _outline.sprite_frames.has_animation(_sprite.animation):
 		_outline.animation = _sprite.animation
 		_outline.frame = _sprite.frame
+	_sync_layers()
 
 
 ## Shows the sprite `<name>` in a variant (an element id), falling back to its base. False when there is no art, in
@@ -65,9 +76,9 @@ func set_look(sprite_name: StringName, variant: StringName = &"base") -> bool:
 		_outline_set = null
 		_sprite.visible = false
 		_outline.visible = false
-		set_process(false)
 		_fallback.visible = true
 		_refresh_shadow()
+		_refresh_processing()
 		return false
 	set_set(found)
 	set_outline_set(SpriteLibrary.find_silhouette(sprite_name))
@@ -131,6 +142,8 @@ func set_facing(direction_x: float) -> void:
 	_facing = facing
 	_sprite.flip_h = _facing < 0.0
 	_outline.flip_h = _facing < 0.0
+	for layer in _layers.values():
+		layer.flip_h = _facing < 0.0
 
 
 ## A state tint on the sprite (white is none). Separate from the hit flash.
@@ -152,7 +165,7 @@ func set_outline(color: Color, enabled: bool) -> void:
 	_ensure_children()
 	_outline.self_modulate = color
 	_outline.visible = enabled and _outline_set != null and _set_data != null
-	set_process(_outline.visible)
+	_refresh_processing()
 
 
 ## Keeps the sprite's pixels 1:1 whatever the owner's scale (the owner's scale sizes its hit shapes). The fallback
@@ -164,8 +177,74 @@ func counter_scale(parent_scale: Vector2) -> void:
 		inverse = Vector2.ONE / parent_scale
 	_sprite.scale = inverse
 	_outline.scale = inverse
+	for layer in _layers.values():
+		layer.scale = inverse
 	_shadow.scale = inverse
 	_shadow.position = Vector2(0.0, _shadow_y) * inverse
+
+
+## Adds an empty layer drawn above the body and above the layers added before it. Adding one twice changes nothing.
+func add_layer(layer_name: StringName) -> void:
+	_ensure_children()
+	if _layers.has(layer_name):
+		return
+	var layer := AnimatedSprite2D.new()
+	layer.name = "Layer_%s" % layer_name
+	layer.visible = false
+	add_child(layer)
+	_layers[layer_name] = layer
+
+
+## Shows `sprite_name` in a variant on a layer (added if it was never added). False and the layer hidden when there is no art.
+func set_layer(layer_name: StringName, sprite_name: StringName, variant: StringName = &"base") -> bool:
+	add_layer(layer_name)
+	var layer := _layers[layer_name] as AnimatedSprite2D
+	var found := SpriteLibrary.find(sprite_name, variant)
+	if found == null:
+		layer.visible = false
+		_refresh_processing()
+		return false
+	layer.sprite_frames = found.frames()
+	layer.visible = true
+	layer.flip_h = _facing < 0.0
+	_sync_layers()
+	_refresh_processing()
+	return true
+
+
+func clear_layer(layer_name: StringName) -> void:
+	if _layers.has(layer_name):
+		(_layers[layer_name] as AnimatedSprite2D).visible = false
+		_refresh_processing()
+
+
+## The layers' names, in the order they were added (the order they are drawn).
+func layer_names() -> Array[StringName]:
+	var names: Array[StringName] = []
+	for layer_name in _layers:
+		names.append(layer_name)
+	return names
+
+
+## Processing is only on while an outline or a layer is shown.
+func _refresh_processing() -> void:
+	var needed := _outline != null and _outline.visible
+	for layer in _layers.values():
+		if layer.visible:
+			needed = true
+	set_process(needed)
+
+
+## Every shown layer takes the body's animation, frame and flip.
+func _sync_layers() -> void:
+	for layer in _layers.values():
+		if not layer.visible or layer.sprite_frames == null:
+			continue
+		if _sprite.animation != &"" and layer.sprite_frames.has_animation(_sprite.animation):
+			if layer.animation != _sprite.animation:
+				layer.animation = _sprite.animation
+			layer.frame = _sprite.frame
+		layer.flip_h = _sprite.flip_h
 
 
 ## The content width of the shadow in use (0 when there is none).
@@ -213,6 +292,8 @@ func _ensure_children() -> void:
 	_sprite.name = "Sprite"
 	_sprite.visible = false
 	_sprite.animation_finished.connect(func() -> void: animation_done.emit(_sprite.animation))
+	_sprite.frame_changed.connect(_sync_followers)
+	_sprite.animation_changed.connect(_sync_followers)
 	add_child(_sprite)
 	_fallback = ColorRect.new()
 	_fallback.name = "Fallback"

@@ -216,3 +216,124 @@ func test_every_shadow_is_drawn_at_one_depth_just_under_the_world() -> void:
 	assert_false(shadow.z_as_relative, "the same depth whatever its owner's depth")
 	assert_lt(BodyView.SHADOW_Z, 0, "under the sprites, which are at depth 0")
 
+
+func _two_frame_set(first: Color) -> SpriteSetData:
+	var set_data := SpriteSetData.new()
+	var image := Image.create(8, 4, false, Image.FORMAT_RGBA8)
+	image.fill_rect(Rect2i(0, 0, 4, 4), first)
+	image.fill_rect(Rect2i(4, 0, 4, 4), Color.WHITE)
+	set_data.sheet = ImageTexture.create_from_image(image)
+	set_data.frame_size = Vector2i(4, 4)
+	var idle := SpriteAnimationData.new()
+	idle.name = &"idle"
+	idle.first_frame = 0
+	idle.last_frame = 1
+	idle.fps = 5.0
+	idle.loop = true
+	set_data.animations = [idle] as Array[SpriteAnimationData]
+	return set_data
+
+
+func _layer_sprite(layer_name: StringName) -> AnimatedSprite2D:
+	return _body.get_node("Layer_%s" % layer_name) as AnimatedSprite2D
+
+
+func _save_layer_art(file: String, root: String) -> void:
+	assert_eq(ResourceSaver.save(_two_frame_set(Color.RED), "%s/%s" % [root, file]), OK)
+
+
+func test_a_layer_follows_the_bodys_animation_frame_and_flip() -> void:
+	var root := "res://.godot/art_tests/layers_%s" % str(randi())
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(root))
+	_save_layer_art("hat_base.tres", root)
+	SpriteLibrary.root = root
+	_body.set_set(_two_frame_set(Color.BLUE))
+	_body.add_layer(&"headwear")
+	assert_true(_body.set_layer(&"headwear", &"hat"))
+	_body.play(&"idle")
+	_sprite().frame = 1
+	_body.set_facing(-1.0)
+	_body._process(0.0)
+	var layer := _layer_sprite(&"headwear")
+	assert_true(layer.visible)
+	assert_eq(layer.animation, &"idle")
+	assert_eq(layer.frame, 1, "it shows the body's frame")
+	assert_true(layer.flip_h, "and flips with it")
+	SpriteLibrary.root = "res://assets/sprites"
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("%s/hat_base.tres" % root))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(root))
+
+
+func test_layers_draw_above_the_body_in_the_order_added() -> void:
+	_body.set_set(_make_set())
+	for layer_name in [&"robe", &"headwear", &"weapon"]:
+		_body.add_layer(layer_name)
+	assert_eq(_body.layer_names(), [&"robe", &"headwear", &"weapon"] as Array[StringName])
+	assert_gt(_layer_sprite(&"robe").get_index(), _sprite().get_index())
+	assert_gt(_layer_sprite(&"headwear").get_index(), _layer_sprite(&"robe").get_index())
+	assert_gt(_layer_sprite(&"weapon").get_index(), _layer_sprite(&"headwear").get_index())
+	_body.add_layer(&"robe")
+	assert_eq(_body.layer_names().size(), 3, "adding a layer twice changes nothing")
+
+
+func test_a_layer_is_never_scaled_under_a_scaled_owner() -> void:
+	var owner_node := Node2D.new()
+	add_child_autofree(owner_node)
+	var body := BodyView.new()
+	owner_node.add_child(body)
+	body.set_set(_make_set())
+	body.add_layer(&"robe")
+	owner_node.scale = Vector2(2, 2)
+	body.counter_scale(owner_node.scale)
+	assert_almost_eq((body.get_node("Layer_robe") as Node2D).global_transform.get_scale().x, 1.0, 0.001)
+
+
+func test_a_layer_with_no_art_is_hidden_and_never_fails() -> void:
+	_body.set_set(_make_set())
+	_body.add_layer(&"robe")
+	assert_false(_body.set_layer(&"robe", &"no_such_sprite"))
+	assert_false(_layer_sprite(&"robe").visible)
+	assert_false(_body.set_layer(&"never_added", &"no_such_sprite"), "a layer that was never added is added, and still hidden")
+	assert_false(_layer_sprite(&"never_added").visible)
+
+
+func test_clear_layer_hides_it() -> void:
+	var root := "res://.godot/art_tests/layers_%s" % str(randi())
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(root))
+	_save_layer_art("hat_base.tres", root)
+	SpriteLibrary.root = root
+	_body.set_set(_two_frame_set(Color.BLUE))
+	_body.add_layer(&"headwear")
+	_body.set_layer(&"headwear", &"hat")
+	assert_true(_layer_sprite(&"headwear").visible)
+	_body.clear_layer(&"headwear")
+	assert_false(_layer_sprite(&"headwear").visible)
+	SpriteLibrary.root = "res://assets/sprites"
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("%s/hat_base.tres" % root))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(root))
+
+
+func test_only_a_shown_layer_turns_processing_on() -> void:
+	_body.set_set(_make_set())
+	assert_false(_body.is_processing(), "a plain body runs nothing each frame")
+	_body.add_layer(&"robe")
+	assert_false(_body.is_processing(), "an empty layer does not either")
+
+
+func test_a_layer_changes_frame_in_the_same_moment_as_the_body_not_a_frame_later() -> void:
+	var root := "res://.godot/art_tests/layers_%s" % str(randi())
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(root))
+	_save_layer_art("hat_base.tres", root)
+	SpriteLibrary.root = root
+	_body.set_set(_two_frame_set(Color.BLUE))
+	_body.add_layer(&"headwear")
+	_body.set_layer(&"headwear", &"hat")
+	_body.play(&"idle")
+	_sprite().frame = 1
+	assert_eq(_layer_sprite(&"headwear").frame, 1, "no wait for the next _process: a hat that lags the head by a frame jumps off it")
+	_sprite().frame = 0
+	assert_eq(_layer_sprite(&"headwear").frame, 0)
+	SpriteLibrary.root = "res://assets/sprites"
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("%s/hat_base.tres" % root))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(root))
+

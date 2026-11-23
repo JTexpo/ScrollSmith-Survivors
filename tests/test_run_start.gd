@@ -182,3 +182,29 @@ func test_run_start_sets_the_level_and_equipment_layers_and_leaves_the_temporary
 	assert_almost_eq(_player.equipment_bonuses.fraction(StatBonuses.Stat.SPEED), 0.10, 0.0001)
 	assert_almost_eq(_player.temporary_bonuses.fraction(StatBonuses.Stat.CAST_SPEED), 0.25, 0.0001)
 	assert_almost_eq(_player.loadout.bonuses.fraction(StatBonuses.Stat.CAST_SPEED), 0.25, 0.0001)
+
+
+func test_run_start_puts_the_equipped_items_on_the_wizard_and_twice_is_the_same() -> void:
+	_profile.grant(&"robe_tide")
+	_profile.equip(int(EquipmentData.Slot.ROBE), &"robe_tide")
+	RunStart.prepare(_player, _profile, _track, _buffs, _catalog)
+	var body := _player.get_node("Body") as BodyView
+	var sheet := ((((body.get_node("Layer_robe") as AnimatedSprite2D).sprite_frames.get_frame_texture(&"idle", 0)) as AtlasTexture).atlas).resource_path
+	assert_string_contains(sheet, "robe_wizard_sea")
+	RunStart.prepare(_player, _profile, _track, _buffs, _catalog)
+	assert_eq(body.layer_names().size(), 4)
+
+
+func after_each() -> void:
+	SpriteLibrary.root = "res://assets/sprites"
+
+
+func test_run_start_adds_no_layers_to_a_wizard_that_is_not_layered() -> void:
+	SpriteLibrary.root = "res://.godot/art_tests/no_such_folder"
+	var plain := load("res://scenes/player/player.tscn").instantiate() as Player
+	_root.add_child(plain)
+	_profile.grant(&"hood_mana")
+	_profile.equip(int(EquipmentData.Slot.HEADWEAR), &"hood_mana")
+	RunStart.prepare(plain, _profile, _track, _buffs, _catalog)
+	assert_eq((plain.get_node("Body") as BodyView).layer_names().size(), 0, "no body art means no robe, beard or hood floating on the fallback")
+

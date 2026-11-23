@@ -17,3 +17,5 @@ category = 4
 price = 80
 modifiers = Array[ExtResource("1")]([SubResource("m0")])
 color = Color(0.5, 0.5, 0.6, 1)
+sprite_name = &"hood_soft"
+sprite_variant = &"mana"

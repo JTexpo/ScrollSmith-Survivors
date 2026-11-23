@@ -17,3 +17,5 @@ category = 0
 price = 100
 modifiers = Array[ExtResource("1")]([SubResource("m0")])
 color = Color(1, 0.9, 0.2, 1)
+sprite_name = &"robe_wizard"
+sprite_variant = &"thunder"

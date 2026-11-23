@@ -604,6 +604,10 @@ Sprites are 16 by 16 (the player), 10 to 24 (enemies by kind) and 32 by 32 (the 
 
 The first map is a bright cartoon world: a grass plaza with flowers and mushrooms, brick-and-stone mazes and a walled stronghold and tunnel on one lavender stone floor, and trees for the pillar groves. Floors are 16 by 16 tiles, walls a 9-slice of a 16 by 16 tile, posts and decorations ordinary sprites, all in the one palette. A zone's floor has a wavy edge so regions blend into each other. A map names its art (a floor style per zone, a material per wall or post, a list of decoration styles) and a missing name keeps the flat colour. To change one, overwrite its PNG in `assets/sprites/` (`tile_<style>`, `wall_<material>`, `post_<material>`, `decor_<style>`) and add the line `hand_drawn` to its `.sprite`, or edit its grid and run the art tool.
 
+### Spells, enemy attacks and the wizard (Sprint 13c)
+
+Area spells keep their exact hit area as a faint tint with a bright edge, and play effect sprites over it: Fire and Land rise from the ground, Thunder and Sea fall from the sky. Missiles and Waves are one flying object per element. Enemy shots are small dark-outlined orbs in their shooter's element colours, so they stand out from the player's bright spells. The wizard is a hooded, bearded figure with no skin showing, drawn in layers (body, robe, beard, headwear, weapon) so each equipped robe, hat or hood, wand or staff shows. To change a look, overwrite its PNG in `assets/sprites/` (`fx_<element>_<kind>`, `robe_wizard`, `hat_pointed`, `hood_soft`, `wand_short`, `staff_tall`, each with its colourway in the file name) and add `hand_drawn` to its `.sprite`, or edit its grid and run the art tool.
+
 ### User Interface
 
 The interface should prioritize readability during combat.

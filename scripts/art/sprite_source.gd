@@ -11,6 +11,8 @@ extends RefCounted
 var errors := PackedStringArray()
 ## True when the sheets were replaced by hand and the tool must not rebuild them.
 var hand_drawn := false
+## The variants this sprite is built in (a `variants <id> <id> ..` line). Empty means the five element variants.
+var variants: Array[StringName] = []
 ## True for a full-bleed repeating tile (a floor or a wall).
 var tile := false
 ## The 9-slice margins (left, top, right, bottom) of a tile, zero when it has none.
@@ -32,6 +34,9 @@ static func parse(text: String, palette: ArtPalette) -> SpriteSource:
 			continue
 		if line == "hand_drawn":
 			source.hand_drawn = true
+		elif line.begins_with("variants "):
+			for id in line.replace("\t", " ").split(" ", false).slice(1):
+				source.variants.append(StringName(id))
 		elif line == "tile":
 			source.tile = true
 		elif line.begins_with("slice "):
@@ -62,12 +67,17 @@ func uses_ramp() -> bool:
 	return false
 
 
-## The variants to build: every palette variant for a ramp sprite, otherwise just `base`.
+## The variants to build: for a ramp sprite the ones its `variants` line names, otherwise the element variants the
+## palette has, and just `base` for a sprite with no ramp slot.
 func variants_needed(palette: ArtPalette) -> Array[StringName]:
 	var needed: Array[StringName] = []
 	if uses_ramp():
-		for id in palette.variants:
-			needed.append(StringName(id))
+		if not variants.is_empty():
+			needed.append_array(variants)
+		else:
+			for id in ArtPalette.ELEMENT_VARIANTS:
+				if palette.variants.has(id):
+					needed.append(id)
 	else:
 		needed.append(&"base")
 	return needed
@@ -107,6 +117,9 @@ func _read_animation(number: int, line: String) -> void:
 func _validate(palette: ArtPalette) -> void:
 	if frame_size == Vector2i.ZERO:
 		errors.append("missing a valid 'size' line")
+	for id in variants:
+		if not palette.variants.has(id):
+			errors.append("'variants' names '%s', which the palette does not have" % id)
 	if slice != Vector4i.ZERO:
 		if not tile:
 			errors.append("'slice' needs a 'tile' line")

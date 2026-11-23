@@ -283,3 +283,14 @@ func test_a_plain_set_text_has_no_tile_line() -> void:
 	assert_false(text.contains("tile ="))
 	assert_false(text.contains("slice ="))
 
+
+func test_build_all_builds_only_the_named_variants() -> void:
+	_write("palette.txt", PALETTE_TEXT + "variant hardy #553311 #774422 #aa6633 #331100 #cc9966\n")
+	_write("sources/hat.sprite", "variants hardy\nsize 2 2\nanim a 0 0 1 loop\nframe\nK1\n1K")
+	var problems := ArtBuilder.build_all(_dir + "/sources", _dir + "/palette.txt", _dir + "/out")
+	assert_eq(problems.size(), 0, str(problems))
+	var files := Array(DirAccess.get_files_at(ProjectSettings.globalize_path(_dir + "/out")))
+	assert_true(files.has("hat_hardy.png"))
+	assert_false(files.has("hat_fire.png"), "an element variant is not built when the sprite names its own")
+	assert_false(files.has("hat_sea.png"))
+

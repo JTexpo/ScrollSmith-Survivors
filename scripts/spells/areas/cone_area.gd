@@ -32,6 +32,9 @@ func launch(spell: SpellData, origin: Vector2, direction: Vector2, _target: Vect
 	_life_left = _duration
 	# One hit per enemy per cast: the cooldown outlasts the cone.
 	_configure_hitbox(_hitbox, spell, _duration + 1.0)
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	SpellSkin.dress(self, _visual, points, spell, Vector2.ZERO, SpellSkin.INSTANT_LIFE, rng)
 
 
 ## A fan from the origin, centred on +x.

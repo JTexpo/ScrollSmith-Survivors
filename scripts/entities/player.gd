@@ -69,7 +69,12 @@ func _ready() -> void:
 	_hurtbox.hit_received.connect(_on_hit_received)
 	health.died.connect(_on_died)
 	effects.bind(self)
-	_body.set_look(&"player")
+	# The bare wizard with a starter robe and hat as layers; RunStart puts the equipped items on them. With no layer art the
+	# original single sprite is shown.
+	if _body.set_look(&"player_body"):
+		PlayerLook.apply(_body)
+	else:
+		_body.set_look(&"player")
 	loadout.cast_fired.connect(_on_cast_fired)
 
 

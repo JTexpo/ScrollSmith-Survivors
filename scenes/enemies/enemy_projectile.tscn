@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/enemies/enemy_projectile.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/components/hitbox_component.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/entities/body_view.gd" id="3"]
 
 [sub_resource type="CircleShape2D" id="shape"]
 radius = 3.0
@@ -16,6 +17,9 @@ offset_top = -3.0
 offset_right = 3.0
 offset_bottom = 3.0
 color = Color(1, 0.35, 0.2, 1)
+
+[node name="Orb" type="Node2D" parent="."]
+script = ExtResource("3")
 
 [node name="Hitbox" type="Area2D" parent="."]
 collision_layer = 8

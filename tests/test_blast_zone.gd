@@ -186,3 +186,69 @@ func test_the_cap_evicts_a_detonated_zone_before_a_live_one() -> void:
 	assert_true(spent.is_queued_for_deletion(), "the zone that already blasted goes first")
 	assert_false(live_first.is_queued_for_deletion(), "a zone still warning is kept")
 	assert_eq(_live().size(), BlastZone.MAX_ALIVE)
+
+
+func after_each() -> void:
+	SpriteLibrary.root = "res://assets/sprites"
+
+
+func _effects() -> Array:
+	return get_tree().get_nodes_in_group(&"effect_sprites").filter(func(node: Node) -> bool: return not node.is_queued_for_deletion())
+
+
+func test_the_warning_has_two_rings_of_marks_that_scale_with_the_radius() -> void:
+	var small := _zone(Vector2(100, 100), 12.0)
+	var big := _zone(Vector2(500, 100), 48.0)
+	assert_eq(small.outer_marks().size(), 8, "at least eight marks")
+	assert_gt(big.outer_marks().size(), small.outer_marks().size(), "a bigger zone has more marks")
+	assert_eq(big.inner_marks().size(), big.outer_marks().size())
+	for mark in big.outer_marks():
+		assert_almost_eq(mark.global_position.distance_to(big.global_position), 48.0, 1.0, "on the circle")
+		assert_almost_eq(mark.global_transform.get_scale().x, 1.0, 0.001)
+
+
+func test_the_inner_ring_grows_with_the_fuse() -> void:
+	var zone := _zone(Vector2(100, 100), 40.0, 20.0, 1.0)
+	zone._process(0.5)
+	for mark in zone.inner_marks():
+		assert_almost_eq(mark.global_position.distance_to(zone.global_position), 20.0, 1.5, "half way through the fuse, half way out")
+	zone._process(0.4)
+	for mark in zone.inner_marks():
+		assert_almost_eq(mark.global_position.distance_to(zone.global_position), 36.0, 1.5)
+
+
+func test_detonation_shows_the_burst_and_the_zone_still_hits_once() -> void:
+	var zone := _zone(_player.global_position)
+	assert_eq(_effects().size(), 0)
+	zone._process(1.0)
+	assert_gt(_effects().size(), 0, "a burst sprite appears")
+	assert_eq(_player.health.current_health, 80.0, "and the hit is unchanged")
+	assert_eq(zone.outer_marks().filter(func(mark: Sprite2D) -> bool: return mark.visible).size(), 0, "the warning marks are gone")
+
+
+func test_a_cancelled_zone_shows_no_burst() -> void:
+	var zone := _zone(Vector2(100, 100))
+	zone._process(0.5)
+	zone.cancel()
+	assert_eq(_effects().size(), 0)
+
+
+func test_a_zone_without_art_still_draws_its_circles() -> void:
+	SpriteLibrary.root = "res://.godot/art_tests/no_such_folder"
+	var zone := _zone(Vector2(100, 100), 40.0)
+	assert_eq(zone.outer_marks().size(), 0)
+	assert_true(zone.draws_circles(), "the old drawn warning stands in")
+	zone._process(1.0)
+	assert_eq(_effects().size(), 0)
+
+
+func test_the_warning_and_the_burst_draw_above_the_players_effect_sprites() -> void:
+	var zone := _zone(_player.global_position, 30.0)
+	assert_eq(zone.z_index, WarningMark.ATTACK_Z)
+	for mark in zone.outer_marks() + zone.inner_marks():
+		assert_eq(mark.z_index, WarningMark.ATTACK_Z)
+		assert_false(mark.z_as_relative, "the same depth whatever its parent's")
+	zone._process(1.0)
+	for effect in _effects():
+		assert_eq(effect.z_index, WarningMark.ATTACK_Z, "the blast's burst is an enemy attack too")
+

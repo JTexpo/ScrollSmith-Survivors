@@ -67,3 +67,14 @@ variant fire    #b3261e #f0561d #ffb02e #7a1d12 #ffe36a
 variant thunder #d9a400 #ffe135 #fff7a8 #2a6bff #8fe3ff
 variant land    #5b3b1e #8a5a2b #b98a4e #2f7a2f #7bd35a
 variant sea     #1b4fa8 #2f86e8 #7fd0ff #0f8a8a #6ff0d8
+
+# Item colourways (Sprint 13c), built only for the sprites that name them with a `variants` line. They use only colours the
+# palette already has. Hat and hood trims: hardy brown, mana blue, swift green. Wands: flicker orange, quick cyan. Staffs:
+# oak brown, elder red-brown.
+variant hardy   #53331a #7a4e2a #b98a4e #5b3b1e #c9a06a
+variant mana    #1b4fa8 #3aa0ff #a8dcff #2a6bff #7fd0ff
+variant swift   #2c5e2e #3d7d3a #5fa050 #2f7a2f #7bd35a
+variant flicker #b3261e #f0561d #ffb02e #7a1d12 #ffe36a
+variant quick   #0f8a8a #2f86e8 #7fd0ff #1b4fa8 #6ff0d8
+variant oak     #5b3b1e #8a5a2b #b98a4e #53331a #c9a06a
+variant elder   #7a1d12 #a82626 #e8483f #53331a #ffb02e

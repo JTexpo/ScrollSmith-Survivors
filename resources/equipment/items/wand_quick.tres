@@ -27,3 +27,5 @@ category = 1
 price = 200
 modifiers = Array[ExtResource("1")]([SubResource("m0"), SubResource("m1"), SubResource("m2")])
 color = Color(0.6, 0.8, 1, 1)
+sprite_name = &"wand_short"
+sprite_variant = &"quick"
