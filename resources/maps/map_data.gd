@@ -2,6 +2,8 @@ class_name MapData
 extends Resource
 ## Everything that makes one map different from another. `GameMap` builds the world from it.
 
+const OBSTACLE_CLEARANCE := 24.0
+
 @export var id: StringName
 @export var display_name: String = ""
 @export var size: Vector2 = Vector2(1920, 1080)
@@ -16,6 +18,12 @@ extends Resource
 @export var decoration_colors: PackedColorArray = PackedColorArray()
 ## Smallest and largest side of a decoration, in pixels.
 @export var decoration_size: Vector2 = Vector2(2, 5)
+## Solid shapes that block movement and enemy projectiles.
+@export var obstacles: Array[MapObstacle] = []
+## Side of one navigation grid cell, in pixels.
+@export var nav_cell_size: float = 16.0
+## How far an obstacle is grown for the grid, so an enemy's body never touches it.
+@export var body_clearance: float = 8.0
 
 
 func bounds() -> Rect2:
@@ -39,4 +47,16 @@ func problems() -> PackedStringArray:
 			found.append("placement %d has no scene" % i)
 		elif not area.has_point(placement.position):
 			found.append("placement %d at %s is outside the map" % [i, placement.position])
+	for i in obstacles.size():
+		var obstacle := obstacles[i]
+		if obstacle == null or not obstacle.is_valid():
+			found.append("obstacle %d has no usable size" % i)
+			continue
+		if not area.encloses(obstacle.bounds()):
+			found.append("obstacle %d at %s is not fully inside the map" % [i, obstacle.position])
+		if obstacle.contains(player_start, OBSTACLE_CLEARANCE):
+			found.append("obstacle %d is on or too close to the player start" % i)
+		for j in placements.size():
+			if placements[j] != null and obstacle.contains(placements[j].position, OBSTACLE_CLEARANCE):
+				found.append("obstacle %d is on or too close to placement %d" % [i, j])
 	return found
