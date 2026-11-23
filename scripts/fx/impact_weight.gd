@@ -9,7 +9,11 @@ static func of(spell: SpellData, config: ImpactConfig = null, damage_scale: floa
 	if spell == null:
 		return 0.0
 	var numbers := config if config != null else ImpactConfig.default_config()
-	var wait := _norm(spell.cast_interval, numbers.wait_min, numbers.wait_max)
+	# A ticking area (a Zone) hits at its tick rhythm, so its hits are quick ones however long it waits to be cast again.
+	var rhythm := spell.cast_interval
+	if spell.area_data != null and spell.area_data.tick_interval > 0.0:
+		rhythm = minf(rhythm, spell.area_data.tick_interval)
+	var wait := _norm(rhythm, numbers.wait_min, numbers.wait_max)
 	var damage := _norm(spell.damage * damage_scale, numbers.damage_min, numbers.damage_max)
 	return clampf(numbers.wait_share * wait + (1.0 - numbers.wait_share) * damage, 0.0, 1.0)
 

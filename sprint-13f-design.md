@@ -84,3 +84,4 @@ Two things feel flat in play (the user's words): **how much health is left** ("s
 - Two new sounds, not one: `heartbeat` and `mana_low`.
 - Every effect has a switch (`FxSettings`: `particles`, `low_health_frame`, `heart_beat`, `hurt_feedback`, `hit_indicators`, `low_mana_pulse`, with the two scales), a user request during the build.
 - The effects-test scene puts impacts and the wizard at the lower left, clear of the buttons; `FxSettings` gained `get_switch` and `set_switch` (Object `get` and `set` cannot reach static variables).
+- Review fixes: a Zone weighs by its tick interval (it hit every 0.5 s and shook and flashed continuously); the red hurt tint reaches every worn layer (`BodyView.set_tint` tints the layers); the flash gap is 334 ms so no second holds four flashes.

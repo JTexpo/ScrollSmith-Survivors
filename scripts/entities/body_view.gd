@@ -41,6 +41,7 @@ var _sprite: AnimatedSprite2D
 var _fallback: ColorRect
 var _facing: float = 1.0
 var _jitter: Vector2 = Vector2.ZERO
+var _tint: Color = Color.WHITE
 var _jitter_base: Vector2 = Vector2.ZERO
 ## Layers drawn over the body sprite (a worn robe, headwear, a weapon), by name, in the order they were added. Each copies the
 ## body's animation, frame and flip every frame, and runs nothing while it is hidden.
@@ -159,7 +160,10 @@ func set_jitter(offset: Vector2) -> void:
 ## A state tint on the sprite (white is none). Separate from the hit flash.
 func set_tint(color: Color) -> void:
 	_ensure_children()
+	_tint = color
 	_sprite.self_modulate = color
+	for layer in _layers.values():
+		(layer as AnimatedSprite2D).self_modulate = color
 
 
 ## A material for the sprite and its outline (a shader that bobs a pickup, say). Null removes it.
@@ -215,6 +219,7 @@ func set_layer(layer_name: StringName, sprite_name: StringName, variant: StringN
 		_refresh_processing()
 		return false
 	layer.sprite_frames = found.frames()
+	layer.self_modulate = _tint
 	layer.visible = true
 	layer.flip_h = _facing < 0.0
 	_sync_layers()

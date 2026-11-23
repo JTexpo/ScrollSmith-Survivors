@@ -108,7 +108,7 @@ func test_the_comfort_limits_are_in_the_config() -> void:
 	var config := ImpactConfig.default_config()
 	assert_lte(config.shake_max_px, 4.0, "shake is at most 4 px")
 	assert_lte(config.flash_max_alpha, 0.12, "a flash is at most 12% opaque")
-	assert_gte(config.flash_gap_msec, 330, "at most about three flashes a second")
+	assert_gte(config.flash_gap_msec, 334, "no more than three flashes in any second")
 	assert_lte(config.warn_max_alpha, 0.4, "the frame is at most 40% opaque")
 	assert_lte(config.warn_rate_high, 2.0, "nothing pulses faster than 2 Hz")
 	assert_gte(config.shake_gap_msec, 80)
@@ -146,4 +146,4 @@ func test_the_stress_rate_of_hits_keeps_the_pool_flat() -> void:
 	var duration_msec := seconds * 60 * 16
 	assert_lte(most, BurstLayer.CAPACITY, "the pool never passes its cap")
 	assert_lte(shake.shakes_made(), duration_msec / 80 + 1, "at most one shake per 80 ms")
-	assert_lte(flash.flashes_made(), duration_msec / 330 + 1, "at most one flash per 330 ms")
+	assert_lte(flash.flashes_made(), duration_msec / 334 + 1, "at most one flash per 334 ms")

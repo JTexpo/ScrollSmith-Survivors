@@ -15,7 +15,7 @@ func test_the_default_config_loads_with_the_pinned_numbers() -> void:
 	assert_eq(config.flash_max_alpha, 0.12)
 	assert_eq(config.flash_seconds, 0.08)
 	assert_eq(config.shake_gap_msec, 80)
-	assert_eq(config.flash_gap_msec, 330)
+	assert_eq(config.flash_gap_msec, 334)
 	assert_eq(config.particles_light, 3)
 	assert_eq(config.particles_heavy, 24)
 	assert_eq(config.sound_pitch_drop, 0.25)
@@ -34,7 +34,7 @@ func test_the_comfort_limits_hold() -> void:
 	assert_lte(config.flash_max_alpha, 0.12)
 	assert_lte(config.warn_max_alpha, 0.4)
 	assert_lte(config.warn_rate_high, 2.0)
-	assert_gte(config.flash_gap_msec, 330, "no more than about three flashes a second")
+	assert_gte(config.flash_gap_msec, 334, "no more than three flashes in any second")
 	assert_lt(config.health_warn_from, config.health_beat_from)
 
 

@@ -359,3 +359,18 @@ func test_the_jitter_is_whole_pixels_and_never_scales_the_body() -> void:
 	assert_eq(body.scale, Vector2.ONE)
 	body.set_jitter(Vector2.ZERO)
 	assert_eq(body.position, Vector2.ZERO)
+
+
+func test_a_tint_reaches_every_worn_layer() -> void:
+	var root := "res://.godot/art_tests/layers_%s" % str(randi())
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(root))
+	_save_layer_art("hat_base.tres", root)
+	SpriteLibrary.root = root
+	_body.set_set(_two_frame_set(Color.BLUE))
+	_body.add_layer(&"headwear")
+	assert_true(_body.set_layer(&"headwear", &"hat"))
+	_body.set_tint(Color(1.0, 0.5, 0.5))
+	assert_eq(_layer_sprite(&"headwear").self_modulate, Color(1.0, 0.5, 0.5), "the hat turns red with the body")
+	_body.set_tint(Color.WHITE)
+	assert_eq(_layer_sprite(&"headwear").self_modulate, Color.WHITE, "and clears with it")
+	SpriteLibrary.root = "res://assets/sprites"

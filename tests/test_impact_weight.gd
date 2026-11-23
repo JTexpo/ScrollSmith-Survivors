@@ -35,9 +35,7 @@ func test_a_slow_big_hit_is_heavier_than_a_fast_small_one() -> void:
 func test_the_starting_spells_spread_out() -> void:
 	var fire := ImpactWeight.of(load("res://resources/spells/fire_missile.tres") as SpellData)
 	var wave := ImpactWeight.of(load("res://resources/spells/sea_wave.tres") as SpellData)
-	var land := ImpactWeight.of(load("res://resources/spells/land_area.tres") as SpellData)
 	assert_lt(fire, wave)
-	assert_lt(wave, land)
 
 
 func test_a_custom_config_changes_the_weight() -> void:
@@ -71,3 +69,9 @@ func test_a_damage_multiplier_makes_a_hit_heavier() -> void:
 	var spell := _spell(0.5, 10.0)
 	assert_gt(ImpactWeight.of(spell, null, 3.0), ImpactWeight.of(spell, null, 1.0), "a double-damage roll or a robe's bonus is a harder hit")
 	assert_eq(ImpactWeight.of(spell, null, 1.0), ImpactWeight.of(spell))
+
+
+func test_a_ticking_zone_is_light_because_it_hits_every_tick() -> void:
+	var zone := load("res://resources/spells/land_area.tres") as SpellData
+	assert_eq(zone.area_data.tick_interval, 0.5, "the Land spell is a Zone that ticks twice a second")
+	assert_lt(ImpactWeight.of(zone), ImpactConfig.default_config().shake_from, "a Zone tick must not shake the screen")

@@ -23,7 +23,7 @@ const DEFAULT_PATH := "res://resources/fx/impact_config.tres"
 @export var flash_max_alpha: float = 0.12
 @export var flash_seconds: float = 0.08
 @export var shake_gap_msec: int = 80
-@export var flash_gap_msec: int = 330
+@export var flash_gap_msec: int = 334
 @export var particles_light: int = 3
 @export var particles_heavy: int = 24
 ## At weight 1 the hit sound's pitch is multiplied by (1 - this) and it is this many dB louder.
