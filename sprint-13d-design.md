@@ -1,6 +1,6 @@
 # Sprint 13d Design: The Interface
 
-**Status:** Proposed, awaiting approval.
+**Status:** Built (Sprint 13d).
 
 Sprint 13 is six parts: **13a** art foundation, **13b** the world, **13c** spells and equipment (all done), **13d** the interface (this doc), **13e** audio, **13f** polish. Scope comes from the conversation, `sprint-development.md`, `CLAUDE.md` and the art pipeline of 13a to 13c. Decisions below were agreed with the user in conversation, except where marked "my call".
 
@@ -59,3 +59,11 @@ The world now has the cartoon look, and the interface still looks like a prototy
 - Existing UI tests keep passing unchanged (behaviour did not change), plus text-fits tests for the longest strings.
 - A real window check at 3x for every HUD piece and screen over grass, stone, a maze and the boss, with mouse and with touch, as in earlier sprints, and the stress scene to confirm the frame rate has not dropped (damage numbers and bars draw every frame).
 - `godot --headless --import` after adding a `class_name`, then the full suite.
+
+## 6. Revisions during the build
+
+- The font source is `.pixelfont`, not `.font`: Godot imports every `.font` file as a BMFont.
+- The theme tool reads frame sizes and slices from the `.sprite` sources, so the theme can be built before the sheets are imported (run `godot --headless --import` before and after the tool).
+- The death screen has no "Try again" button (restart is the R key, a controller button or a tap anywhere else), so the Shop button is the green one.
+- Extra sprites and variations: `ui_focus` (the focus ring), `ui_bar_back_thin` and a 2 px XP fill, `PanelSlot`, `PanelSlotSelected`, `HudToast` and a `Label` line spacing of 0.
+- Layout nudges to fit the new font: the inventory panel is 260 by 214, merchant buttons are two lines, the crafting buff list is one column and its range column is 112 px wide.

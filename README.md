@@ -598,7 +598,7 @@ Each element should have a recognizable visual identity:
 
 ### Art pipeline (Sprint 13a)
 
-Sprites are 16 by 16 (the player), 10 to 24 (enemies by kind) and 32 by 32 (the Ember Titan), drawn at 1:1 on the 480 by 270 screen in one shared palette (`art/palette.txt`, at most 40 colours). An enemy's element changes its colours, never its drawing. To change a sprite either edit its grid (`art/sprites/<name>.sprite`) and run `godot --headless -s tools/art/art_builder.gd` then `godot --headless --import`, or draw the sheet yourself: overwrite its PNGs in `assets/sprites/` (frames side by side, same frame size) and add the line `hand_drawn` to its `.sprite` file. The tool then keeps your sheets and only rewrites the animation data and the elite outline, and the tests stop checking its pixels against the grid. The game shows the new art with no code change.
+Sprites are 16 by 16 (the player), 10 to 24 (enemies by kind) and 32 by 32 (the Ember Titan), drawn at 1:1 on the 480 by 270 screen in one shared palette (`art/palette.txt`, at most 96 colours). An enemy's element changes its colours, never its drawing. To change a sprite either edit its grid (`art/sprites/<name>.sprite`) and run `godot --headless -s tools/art/art_builder.gd` then `godot --headless --import`, or draw the sheet yourself: overwrite its PNGs in `assets/sprites/` (frames side by side, same frame size) and add the line `hand_drawn` to its `.sprite` file. The tool then keeps your sheets and only rewrites the animation data and the elite outline, and the tests stop checking its pixels against the grid. The game shows the new art with no code change.
 
 ### The world (Sprint 13b)
 
@@ -607,6 +607,10 @@ The first map is a bright cartoon world: a grass plaza with flowers and mushroom
 ### Spells, enemy attacks and the wizard (Sprint 13c)
 
 Area spells keep their exact hit area as a faint tint with a bright edge, and play effect sprites over it: Fire and Land rise from the ground, Thunder and Sea fall from the sky. Missiles and Waves are one flying object per element. Enemy shots are small dark-outlined orbs in their shooter's element colours, so they stand out from the player's bright spells. The wizard is a hooded, bearded figure with no skin showing, drawn in layers (body, robe, beard, headwear, weapon) so each equipped robe, hat or hood, wand or staff shows. To change a look, overwrite its PNG in `assets/sprites/` (`fx_<element>_<kind>`, `robe_wizard`, `hat_pointed`, `hood_soft`, `wand_short`, `staff_tall`, each with its colourway in the file name) and add `hand_drawn` to its `.sprite`, or edit its grid and run the art tool.
+
+### The interface (Sprint 13d)
+
+The HUD and every screen share one light, cartoony look: cream panels with a thick plum outline and stepped corners, pink health and sky-blue XP bars, red buttons for the main action and green for the second, and yellow for Gold, highlights and the selected choice. Text uses a slim pixel font (5 px letters); text over the world has a dark outline baked into the letters so it reads on grass, stone and bosses. The font, panels, buttons and bars are drawn in the same pipeline as the sprites (`art/fonts/`, `art/sprites/ui_*.sprite`), so replacing one is editing a grid and re-running the art tool. Everything is drawn at the game's one pixel size and never scaled.
 
 ### User Interface
 

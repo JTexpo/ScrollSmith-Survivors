@@ -69,7 +69,7 @@ func _draw() -> void:
 func _draw_marker(at: Vector2, label: String) -> void:
 	draw_line(at - Vector2(MARKER_RADIUS, 0), at + Vector2(MARKER_RADIUS, 0), LINE_COLOR, 1.0)
 	draw_line(at - Vector2(0, MARKER_RADIUS), at + Vector2(0, MARKER_RADIUS), LINE_COLOR, 1.0)
-	draw_string(ThemeDB.fallback_font, at + Vector2(MARKER_RADIUS + 2.0, -MARKER_RADIUS), label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 10, LINE_COLOR)
+	draw_string(UiFont.outlined(), at + Vector2(MARKER_RADIUS + 2.0, -MARKER_RADIUS), label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, UiFont.SIZE, LINE_COLOR)
 
 
 func _draw_grid(grid: ObstacleGrid) -> void:

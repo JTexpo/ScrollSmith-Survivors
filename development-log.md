@@ -573,3 +573,13 @@ Measured (the same session, three runs each): Duplicate Area cone (`--area=cone 
 Checks: smoke and MCP runs clean; real-window shots of every element's effects, missiles in three sizes, waves, enemy shots next to the player's spells, a blast zone through its fuse, the boss warnings, the reticle and the wizard in many equipment combinations; recolouring one effect PNG in a throwaway copy of the project showed in the game with no code change.
 
 Left open: the effect and equipment art was drawn once and will want tuning by eye; a held weapon is a small drawing (the wizard has no arms at this size); the robe shows mostly at the sides and hem now the beard covers its middle; the orbs have no motion trail because sprites are never rotated.
+
+## 2026-11-23: Sprint 13d (the interface)
+
+Decisions (user): light, cartoony and whimsical; the look from three mockups was Candy's cream panels, plum outline and pink and sky bars with Parchment's red and green buttons and Candy's yellow for Gold and highlights; a slim font (the game has a lot to read); one theme with sprite panels and an own pixel font (approach A). My calls: the palette limit rose from 64 to 96, the font is 5 px wide with an outline that sits in the letter gap so both builds measure alike, long text wraps or the screen is re-laid out, and the touch joystick keeps its translucent rings.
+
+What was built: the UI palette, `FontSource` and `FontBuilder` (a `.pixelfont` grid built into a plain and an outlined BMFont), sliced UI sprites (`slice` without `tile`, `SpriteSource.is_surface`), `ThemeBuilder` (a deterministic theme text, the project theme), `UiFont` and `UiKit`, and every HUD piece and screen restyled (health, XP, Gold, clock, damage numbers, toasts, prompts, boss bar, slots, touch buttons, death, buff pick, inventory, merchant, shop, crafting). Guard tests fail on a hand-set font size or style, a fallback font, a non-ASCII text, the word TEMP or a leftover TEMPORARY marker.
+
+Measured: stress (`--enemies=300 --seconds=8 --drops --obstacles`, three runs) 110, 104 and 89 fps (median 104) against about 115 before the sprint, and 102 with `--boss`: inside the noise seen in 13c, and the stress scene draws no HUD. Real-window checks of every screen at 3x; touch, mouse, focus and accept on the shop and the death screen's Shop tap behave exactly as before.
+
+Left open: the new look will want tuning by eye (the font's letter shapes, the sky backdrop, the red buy buttons); the buff summary line in the crafting screen is clipped when very long; a held shop confirm dialog is still a later polish.
