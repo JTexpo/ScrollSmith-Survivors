@@ -105,3 +105,13 @@ func test_the_bob_shader_is_on_the_sprite_when_there_is_art() -> void:
 	assert_true(_sprite_of(pickup).material is ShaderMaterial, "the sprite bobs")
 	assert_same(_sprite_of(pickup).material, (pickup.get_node("Shape") as Polygon2D).material)
 
+
+func test_pickups_are_drawn_by_value_a_scroll_over_a_gem_over_a_coin() -> void:
+	var scroll := (load(SCENE) as PackedScene).instantiate() as CanvasItem
+	var gem := (load("res://scenes/progression/xp_gem.tscn") as PackedScene).instantiate() as CanvasItem
+	var coin := (load("res://scenes/progression/gold_coin.tscn") as PackedScene).instantiate() as CanvasItem
+	assert_gt(scroll.z_index, gem.z_index, "a scroll is never hidden by an XP gem")
+	assert_gt(gem.z_index, coin.z_index, "an XP gem is never hidden by a coin")
+	for node in [scroll, gem, coin]:
+		node.free()
+

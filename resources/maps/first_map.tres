@@ -101,38 +101,42 @@ rotated = true
 [sub_resource type="Resource" id="zone_maze"]
 script = ExtResource("8")
 floor_style = &"ruin"
+decoration_styles = PackedStringArray("pebbles", "cracks")
 area = Rect2(4, 4, 832, 592)
 display_name = "Maze"
 floor_color = Color(0.12, 0.17, 0.2, 1)
 decoration_colors = PackedColorArray(0.1, 0.14, 0.18, 1, 0.14, 0.2, 0.22, 1)
-decoration_count = 0
+decoration_count = 70
 
 [sub_resource type="Resource" id="zone_labyrinth"]
 script = ExtResource("8")
 floor_style = &"ruin"
+decoration_styles = PackedStringArray("pebbles", "cracks")
 area = Rect2(1084, 484, 832, 592)
 display_name = "Labyrinth"
 floor_color = Color(0.17, 0.12, 0.2, 1)
 decoration_colors = PackedColorArray(0.14, 0.1, 0.18, 1, 0.2, 0.14, 0.22, 1)
-decoration_count = 0
+decoration_count = 70
 
 [sub_resource type="Resource" id="zone_island"]
 script = ExtResource("8")
 floor_style = &"ruin"
+decoration_styles = PackedStringArray("pebbles", "cracks")
 area = Rect2(1316, 8, 520, 384)
 display_name = "Island"
 floor_color = Color(0.2, 0.2, 0.22, 1)
 decoration_colors = PackedColorArray(0.26, 0.26, 0.28, 1, 0.16, 0.16, 0.18, 1)
-decoration_count = 0
+decoration_count = 36
 
 [sub_resource type="Resource" id="zone_corridor"]
 script = ExtResource("8")
 floor_style = &"ruin"
+decoration_styles = PackedStringArray("pebbles", "cracks")
 area = Rect2(420, 880, 680, 200)
 display_name = "Corridor"
 floor_color = Color(0.22, 0.19, 0.14, 1)
 decoration_colors = PackedColorArray(0.28, 0.24, 0.17, 1, 0.18, 0.15, 0.1, 1)
-decoration_count = 0
+decoration_count = 26
 
 [sub_resource type="Resource" id="zone_plaza"]
 script = ExtResource("8")
@@ -142,7 +146,7 @@ area = Rect2(830, 380, 260, 320)
 display_name = "Plaza"
 floor_color = Color(0.19, 0.24, 0.19, 1)
 decoration_colors = PackedColorArray(0.3, 0.36, 0.25, 1, 0.36, 0.3, 0.22, 1)
-decoration_count = 14
+decoration_count = 12
 
 [sub_resource type="Resource" id="o01"]
 script = ExtResource("5")
@@ -348,7 +352,7 @@ placements = Array[ExtResource("2")]([SubResource("west"), SubResource("east"), 
 obstacles = Array[ExtResource("5")]([SubResource("o01"), SubResource("o02"), SubResource("o03"), SubResource("o07"), SubResource("o08"), SubResource("o09"), SubResource("o10"), SubResource("o11"), SubResource("o12"), SubResource("o13"), SubResource("o14"), SubResource("o15"), SubResource("o16"), SubResource("o17"), SubResource("o18"), SubResource("o19"), SubResource("o20"), SubResource("o21"), SubResource("o22"), SubResource("o23"), SubResource("o24"), SubResource("o25"), SubResource("o26"), SubResource("o27"), SubResource("o28"), SubResource("o29"), SubResource("o30")])
 mazes = Array[ExtResource("6")]([SubResource("maze_nw"), SubResource("maze_se")])
 zones = Array[ExtResource("8")]([SubResource("zone_maze"), SubResource("zone_labyrinth"), SubResource("zone_island"), SubResource("zone_corridor"), SubResource("zone_plaza")])
-decoration_count = 50
+decoration_count = 70
 decoration_seed = 12
 decoration_colors = PackedColorArray(0.2, 0.26, 0.2, 1, 0.14, 0.18, 0.15, 1, 0.24, 0.3, 0.22, 1)
 decoration_size = Vector2(2, 5)

@@ -171,3 +171,13 @@ func test_the_dropper_reads_the_enemys_own_reward_not_the_datas() -> void:
 	enemy.make_elite(scaled)
 	assert_eq(enemy.data.xp_reward, 4)
 	assert_eq(_dropper.on_enemy_died(enemy).value, 8)
+
+
+func test_a_drop_offset_puts_the_pickup_beside_the_death_spot() -> void:
+	_dropper.drop_offset = Vector2(7, 3)
+	var gem := _dropper.on_enemy_died(_enemy(4, Vector2(60, 70)))
+	assert_eq(gem.global_position, Vector2(67, 73))
+	_dropper.drop_offset = Vector2.ZERO
+	assert_eq(_dropper.on_enemy_died(_enemy(4, Vector2(10, 10))).global_position, Vector2(10, 10), "no offset keeps the old place")
+	assert_eq(_dropper.place(3, Vector2(5, 5)).global_position, Vector2(5, 5), "place() is exact and never offset")
+

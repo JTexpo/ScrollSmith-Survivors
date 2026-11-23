@@ -80,3 +80,17 @@ func test_the_camera_starts_on_the_player_with_no_glide() -> void:
 	await wait_frames(1)
 	var camera := main.get_node("Player/Camera2D") as Camera2D
 	assert_almost_eq(camera.get_screen_center_position(), Vector2(960, 540), Vector2(1, 1))
+
+
+func test_a_deaths_drops_fan_out_xp_to_the_left_and_gold_to_the_right() -> void:
+	var main := (load("res://scenes/main/main.tscn") as PackedScene).instantiate()
+	main.save_path = ""
+	main.get_node("BuffPickScreen").pause_tree = false
+	add_child_autofree(main)
+	var xp := main.get_node("XpDropper") as ValueDropper
+	var gold := main.get_node("GoldDropper") as ValueDropper
+	assert_lt(xp.drop_offset.x, 0.0, "XP lands to the left of the scroll")
+	assert_gt(gold.drop_offset.x, 0.0, "Gold lands to the right of the scroll")
+	assert_eq(absf(xp.drop_offset.x), absf(gold.drop_offset.x))
+	assert_gte(absf(xp.drop_offset.x), 6.0, "far enough apart that a 12 px scroll does not cover them")
+

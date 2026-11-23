@@ -223,3 +223,65 @@ func test_a_zone_with_only_styles_still_scatters() -> void:
 		assert_eq(item["style"], &"cracks")
 		assert_true(zone.area.encloses(item["rect"]))
 
+
+## How many cells of a grid laid over the map hold no decoration.
+func _empty_cells(map: MapData, items: Array[Dictionary], columns: int, rows: int) -> int:
+	var cell := Vector2(map.size.x / columns, map.size.y / rows)
+	var filled := {}
+	for item in items:
+		var centre := (item["rect"] as Rect2).get_center()
+		filled[Vector2i(int(centre.x / cell.x), int(centre.y / cell.y))] = true
+	return columns * rows - filled.size()
+
+
+func test_styled_decorations_are_spread_evenly_not_in_clumps() -> void:
+	var map := _styled_map(3)
+	map.decoration_count = 60
+	var items := MapDecor.scatter(map)
+	assert_gte(items.size(), 55)
+	# 48 cells, and the player start and the lectern keep about three of them clear on purpose. Random scatter of 60 items
+	# leaves about 16 empty; an even spread leaves close to those three.
+	assert_lte(_empty_cells(map, items, 8, 6), 8, "no big pockets of bare floor")
+
+
+func test_even_spread_keeps_every_decoration_apart() -> void:
+	var map := _styled_map(7)
+	map.decoration_count = 60
+	var items := MapDecor.scatter(map)
+	var closest := INF
+	for i in items.size():
+		for j in range(i + 1, items.size()):
+			closest = minf(closest, ((items[i]["rect"] as Rect2).get_center()).distance_to((items[j]["rect"] as Rect2).get_center()))
+	assert_gt(closest, 10.0, "no two decorations sit almost on top of each other")
+
+
+func test_the_maps_own_decorations_stay_off_zones_that_scatter_their_own() -> void:
+	var map := _styled_map(3)
+	map.decoration_count = 80
+	var zone := MapZone.new()
+	zone.area = Rect2(200, 100, 160, 140)
+	zone.floor_style = &"ruin"
+	zone.decoration_count = 15
+	zone.decoration_styles = PackedStringArray(["pebbles"])
+	map.zones = [zone] as Array[MapZone]
+	var own := MapDecor.scatter(map)
+	assert_gt(own.size(), 0)
+	for item in own:
+		assert_false(zone.area.has_point((item["rect"] as Rect2).get_center()), "the map's items leave the zone's area to the zone")
+	var theirs := MapDecor.scatter_zone(map, 0)
+	assert_gt(theirs.size(), 0)
+	for item in theirs:
+		assert_true(zone.area.encloses(item["rect"]))
+
+
+func test_a_zone_without_a_floor_style_does_not_claim_its_area() -> void:
+	var map := _styled_map(3)
+	map.decoration_count = 80
+	var zone := MapZone.new()
+	zone.area = Rect2(200, 100, 160, 140)
+	map.zones = [zone] as Array[MapZone]
+	var inside := 0
+	for item in MapDecor.scatter(map):
+		if zone.area.has_point((item["rect"] as Rect2).get_center()):
+			inside += 1
+	assert_gt(inside, 0, "a zone with no floor art leaves its area to the map's own scatter")
