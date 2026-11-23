@@ -4,7 +4,7 @@ const E := SpellData.Element
 const T := AreaData.AreaType
 # path, element, area type, damage, interval, cost, max mana, knockback
 const SPELLS := [
-	["res://resources/spells/fire_missile.tres", E.FIRE, T.MISSILE, 10.0, 0.35, 1.0, 1000.0, 120.0],
+	["res://resources/spells/fire_missile.tres", E.FIRE, T.MISSILE, 10.0, 0.6, 1.0, 1000.0, 120.0],
 	["res://resources/spells/thunder_cone.tres", E.THUNDER, T.CONE, 8.0, 0.4, 2.0, 60.0, 80.0],
 	["res://resources/spells/land_area.tres", E.LAND, T.AREA, 12.0, 1.0, 4.0, 60.0, 40.0],
 	["res://resources/spells/sea_line.tres", E.SEA, T.LINE, 14.0, 0.6, 2.0, 50.0, 60.0],
