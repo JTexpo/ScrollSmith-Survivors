@@ -48,6 +48,7 @@
 [ext_resource type="Resource" path="res://resources/scrolls/buff/ignore_resistance.tres" id="32"]
 [ext_resource type="Resource" path="res://resources/scrolls/buff/duplicate_area.tres" id="33"]
 [ext_resource type="Resource" path="res://resources/scrolls/buff/additional_base.tres" id="34"]
+[ext_resource type="PackedScene" path="res://scenes/audio/sound_board.tscn" id="sound_board"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("0")
@@ -183,3 +184,5 @@ grow_vertical = 2
 [node name="DeathScreen" parent="." instance=ExtResource("7")]
 
 [node name="CraftingScreen" parent="." instance=ExtResource("42")]
+
+[node name="SoundBoard" parent="." instance=ExtResource("sound_board")]
