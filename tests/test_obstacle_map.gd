@@ -66,7 +66,7 @@ func test_resolve_move_allows_free_moves_slides_along_a_wall_and_never_enters_a_
 	var at := Vector2(140, 40)
 	for step in 100:
 		at = node.resolve_move(at, at + Vector2(4, 3))
-		assert_false(node.is_blocked(at), "step %d at %s" % [step, at])
+		assert_false(node.overlaps_wall(at), "step %d at %s" % [step, at])
 	assert_false(node.is_blocked(node.resolve_move(Vector2(156, 40), Vector2(158, 40))))
 
 
@@ -140,3 +140,89 @@ func test_blocks_segment_agrees_with_testing_every_shape() -> void:
 		assert_eq(node.blocks_segment(from, to), expected, "%s to %s" % [from, to])
 		blocked += int(expected)
 	assert_gt(blocked, 10, "the sample must include real hits")
+
+
+func _maze_map(entrances: Array[MazeEntrance], extras: int = 0) -> MapData:
+	var map := MapData.new()
+	map.id = &"test"
+	map.size = Vector2(700, 420)
+	map.player_start = Vector2(8, 8)
+	map.nav_cell_size = 16.0
+	var maze := MapMaze.new()
+	maze.area = Rect2(100, 52, 480, 320)
+	maze.maze_seed = 3
+	maze.extra_openings = extras
+	maze.entrances = entrances
+	map.mazes = [maze] as Array[MapMaze]
+	return map
+
+
+func test_a_maze_wall_blocks_points_and_segments() -> void:
+	var node := _obstacle_map(_maze_map([] as Array[MazeEntrance], 1000))
+	assert_true(node.is_blocked(Vector2(100, 172)))
+	assert_true(node.blocks_segment(Vector2(60, 172), Vector2(140, 172)), "across the outer wall")
+	assert_false(node.blocks_segment(Vector2(140, 172), Vector2(220, 172)), "along an open corridor")
+
+
+func test_the_flow_field_leads_through_a_maze() -> void:
+	var entrance := MazeEntrance.new()
+	entrance.cell = Vector2i(0, 1)
+	entrance.side = MazeEntrance.Edge.WEST
+	_player.global_position = Vector2(380, 252)
+	var node := _obstacle_map(_maze_map([entrance] as Array[MazeEntrance]))
+	var at := Vector2(60, 172)
+	var reached := false
+	for step in 900:
+		if node.field.distance_at(at) == 0:
+			reached = true
+			break
+		var direction := node.direction_from(at)
+		if direction == Vector2.ZERO:
+			break
+		at += direction * 4.0
+	assert_true(reached, "stopped at %s" % at)
+
+
+func test_line_clear_is_exact_for_a_body_near_a_wall() -> void:
+	var node := _obstacle_map(_wall_map(8.0))
+	assert_true(node.line_clear(Vector2(100, 130), Vector2(220, 130)), "open ground")
+	assert_false(node.line_clear(Vector2(100, 40), Vector2(220, 40)), "through the wall")
+	# The wall's west face is at x = 152. The grid is blocked from x = 144, but a 6 px body fits at x = 140.
+	assert_true(node.line_clear(Vector2(140, 20), Vector2(140, 100)), "12 px off the face is clear for a 6 px body")
+	assert_false(node.line_clear(Vector2(148, 20), Vector2(148, 100)), "4 px off the face is not")
+
+
+func test_direction_from_a_blocked_cell_follows_the_nearest_free_cell() -> void:
+	_player.global_position = Vector2(280, 40)
+	var node := _obstacle_map(_wall_map(8.0))
+	var inside_the_band := Vector2(146, 40)
+	assert_true(node.is_blocked(inside_the_band))
+	var expected := node.field.direction_at(node.push_out(inside_the_band))
+	assert_ne(expected, Vector2.ZERO)
+	assert_eq(node.direction_from(inside_the_band), expected)
+
+
+func test_overlaps_wall_is_exact_while_the_grid_band_is_not() -> void:
+	var node := _obstacle_map(_wall_map(8.0))
+	# The wall's west face is x = 152. The grid is blocked from x = 144, but a body is only touching from x = 147.
+	assert_true(node.is_blocked(Vector2(146, 40)))
+	assert_false(node.overlaps_wall(Vector2(146, 40)), "inside the grid band but clear of the wall")
+	assert_true(node.overlaps_wall(Vector2(148, 40)))
+	assert_true(node.overlaps_wall(Vector2(160, 40)), "inside the wall")
+	assert_false(node.overlaps_wall(Vector2(40, 40)), "open ground")
+
+
+func test_a_body_in_the_grid_band_out_of_range_drifts_out_instead_of_jumping() -> void:
+	_player.global_position = Vector2(600, 40)
+	var node := _obstacle_map(_wall_map(8.0))
+	# In the grid's band (a blocked cell) but clear of the wall (its face is x = 152), and far from the player.
+	var from := Vector2(146, 40)
+	assert_true(node.is_blocked(from))
+	assert_false(node.overlaps_wall(from))
+	var result := node.resolve_move(from, from + Vector2(2, 0))
+	assert_lte(from.distance_to(result), 2.01, "it moved %s in one step" % snappedf(from.distance_to(result), 0.1))
+	var free_spot := node.push_out(from)
+	assert_lte(result.distance_to(free_spot), from.distance_to(free_spot), "it drifts toward the free cell")
+	# A body that really is inside a wall is still pushed out at once.
+	var inside := node.resolve_move(Vector2(160, 40), Vector2(161, 40))
+	assert_false(node.overlaps_wall(inside))

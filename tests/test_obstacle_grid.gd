@@ -135,3 +135,16 @@ func test_reachability_flags_a_blocked_start() -> void:
 	var map := _map()
 	map.obstacles = [_rect(Vector2(20, 20), Vector2(10, 10))] as Array[MapObstacle]
 	assert_eq(ObstacleGrid.reachability_problems(map).size(), 1)
+
+
+func test_a_maze_blocks_cells() -> void:
+	var map := _map()
+	map.size = Vector2(700, 420)
+	var maze := MapMaze.new()
+	maze.area = Rect2(100, 52, 480, 320)
+	maze.maze_seed = 3
+	maze.extra_openings = 1000
+	map.mazes = [maze] as Array[MapMaze]
+	var grid := ObstacleGrid.build(map)
+	assert_true(grid.is_blocked(Vector2(100, 52 + 120)), "the outer wall blocks")
+	assert_false(grid.is_blocked(Vector2(100 + 120, 52 + 120)), "a corridor with every inner wall removed is open")

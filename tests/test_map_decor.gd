@@ -80,3 +80,80 @@ func test_layer_holds_the_items_it_is_given() -> void:
 	]
 	layer.set_decor(items)
 	assert_eq(layer.item_count(), 3)
+
+
+func _zone(area: Rect2, count: int = 30, colors: PackedColorArray = PackedColorArray([Color(0.5, 0.2, 0.2), Color(0.4, 0.1, 0.1)])) -> MapZone:
+	var zone := MapZone.new()
+	zone.area = area
+	zone.display_name = "Test"
+	zone.decoration_count = count
+	zone.decoration_colors = colors
+	return zone
+
+
+func test_scatter_never_puts_a_decoration_on_a_solid_shape() -> void:
+	var map := _map()
+	map.decoration_count = 300
+	var wall := MapObstacle.new()
+	wall.kind = MapObstacle.Kind.RECT
+	wall.position = Vector2(300, 220)
+	wall.size = Vector2(120, 60)
+	map.obstacles = [wall] as Array[MapObstacle]
+	var maze := MapMaze.new()
+	maze.area = Rect2(40, 30, 160, 80)
+	maze.maze_seed = 2
+	map.mazes = [maze] as Array[MapMaze]
+	var shapes := map.solid_shapes()
+	var items := MapDecor.scatter(map)
+	assert_gt(items.size(), 20)
+	for item in items:
+		for shape in shapes:
+			assert_false(shape.contains((item["rect"] as Rect2).get_center(), 2.0), "decoration on a shape at %s" % item["rect"])
+
+
+func test_zone_decorations_stay_inside_their_zone_and_are_deterministic() -> void:
+	var map := _map()
+	var area := Rect2(220, 20, 160, 120)
+	map.zones = [_zone(area)] as Array[MapZone]
+	var first := MapDecor.scatter_zone(map, 0)
+	assert_gt(first.size(), 5)
+	for item in first:
+		assert_true(area.encloses(item["rect"]), str(item["rect"]))
+	assert_eq(first, MapDecor.scatter_zone(map, 0))
+
+
+func test_zone_decorations_use_the_zone_colors_and_count() -> void:
+	var map := _map()
+	var colors := PackedColorArray([Color(0.5, 0.2, 0.2), Color(0.4, 0.1, 0.1)])
+	map.zones = [_zone(Rect2(220, 20, 160, 120), 12, colors)] as Array[MapZone]
+	var items := MapDecor.scatter_zone(map, 0)
+	assert_lte(items.size(), 12)
+	for item in items:
+		assert_true(colors.has(item["color"]))
+
+
+func test_a_zone_with_no_colors_or_count_gives_nothing() -> void:
+	var map := _map()
+	map.zones = [_zone(Rect2(220, 20, 160, 120), 0), _zone(Rect2(220, 20, 160, 120), 30, PackedColorArray())] as Array[MapZone]
+	assert_eq(MapDecor.scatter_zone(map, 0).size(), 0)
+	assert_eq(MapDecor.scatter_zone(map, 1).size(), 0)
+	assert_eq(MapDecor.scatter_zone(map, 5).size(), 0, "an index out of range gives nothing")
+
+
+func test_the_layer_splits_its_drawing_into_chunks_and_keeps_the_count() -> void:
+	var layer := MapDecorLayer.new()
+	add_child_autofree(layer)
+	var items: Array[Dictionary] = []
+	var keys := {}
+	for i in 40:
+		var at := Vector2((i * 97) % 1500, (i * 61) % 900)
+		items.append({"rect": Rect2(at, Vector2(3, 3)), "color": Color.RED})
+		keys[Vector2i((at + Vector2(1.5, 1.5)) / MapDecorLayer.CHUNK_SIZE)] = true
+	layer.set_decor(items)
+	assert_eq(layer.item_count(), 40)
+	assert_eq(layer.chunk_count(), keys.size())
+	assert_gt(layer.chunk_count(), 1)
+	layer.set_decor([] as Array[Dictionary])
+	assert_eq(layer.item_count(), 0)
+	await wait_frames(1)
+	assert_eq(layer.chunk_count(), 0, "old chunks are gone")

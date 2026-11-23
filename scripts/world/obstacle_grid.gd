@@ -16,7 +16,7 @@ static func build(map: MapData) -> ObstacleGrid:
 	grid.columns = maxi(ceili(map.size.x / grid.cell_size), 1)
 	grid.rows = maxi(ceili(map.size.y / grid.cell_size), 1)
 	grid.blocked.resize(grid.columns * grid.rows)
-	for obstacle in map.obstacles:
+	for obstacle in map.solid_shapes():
 		if obstacle == null or not obstacle.is_valid():
 			continue
 		var area := obstacle.bounds().grow(map.body_clearance)

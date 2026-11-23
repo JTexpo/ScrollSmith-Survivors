@@ -20,14 +20,25 @@ func _ready() -> void:
 		push_error("Map '%s': %s" % [map_data.id, problem])
 	_add_rect(&"Border", Rect2(-Vector2(BORDER_MARGIN, BORDER_MARGIN), map_data.size + Vector2(BORDER_MARGIN, BORDER_MARGIN) * 2.0), map_data.border_color)
 	_add_rect(&"Floor", map_data.bounds(), map_data.floor_color)
+	var zones := Node2D.new()
+	zones.name = &"Zones"
+	add_child(zones)
+	for zone in map_data.zones:
+		if zone != null:
+			var floor_rect := _make_rect(zone.area, zone.floor_color)
+			floor_rect.name = StringName("Zone_%s" % zone.display_name)
+			zones.add_child(floor_rect)
 	var decor := MapDecorLayer.new()
 	decor.name = &"Decor"
 	add_child(decor)
-	decor.set_decor(MapDecor.scatter(map_data))
+	var items := MapDecor.scatter(map_data)
+	for i in map_data.zones.size():
+		items.append_array(MapDecor.scatter_zone(map_data, i))
+	decor.set_decor(items)
 	var obstacles := ObstacleLayer.new()
 	obstacles.name = &"Obstacles"
 	add_child(obstacles)
-	obstacles.set_obstacles(map_data.obstacles)
+	obstacles.set_obstacles(map_data.solid_shapes())
 	_build_walls()
 	_build_obstacle_bodies()
 	var placements := Node2D.new()
@@ -68,13 +79,19 @@ func player_start() -> Vector2:
 
 
 func _add_rect(node_name: StringName, rect: Rect2, color: Color) -> void:
-	var node := ColorRect.new()
+	var node := _make_rect(rect, color)
 	node.name = node_name
+	add_child(node)
+
+
+## A floor-coloured rectangle that never catches a touch.
+func _make_rect(rect: Rect2, color: Color) -> ColorRect:
+	var node := ColorRect.new()
 	node.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	node.position = rect.position
 	node.size = rect.size
 	node.color = color
-	add_child(node)
+	return node
 
 
 ## Four walls just outside the edges. The top and bottom ones run past both sides, so the corners are closed.
@@ -111,7 +128,7 @@ func _build_obstacle_bodies() -> void:
 	var bodies := Node2D.new()
 	bodies.name = &"ObstacleBodies"
 	add_child(bodies)
-	for obstacle in map_data.obstacles:
+	for obstacle in map_data.solid_shapes():
 		if obstacle == null or not obstacle.is_valid():
 			continue
 		var body := StaticBody2D.new()

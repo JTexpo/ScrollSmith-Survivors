@@ -164,6 +164,10 @@ func direction_to_target() -> Vector2:
 	var straight := to_target.normalized()
 	if _obstacle_map == null:
 		return straight
+	# Close to the player with a clear line, steer at where the player is now. The field is only for routing, and it
+	# is built from where the player was a moment ago, so following it close in lets a runner shake off the horde.
+	if to_target.length() <= ObstacleMap.NEAR_RANGE and _obstacle_map.line_clear(position, target.global_position):
+		return straight
 	var field := _obstacle_map.direction_from(position)
 	if field == Vector2.ZERO:
 		return straight

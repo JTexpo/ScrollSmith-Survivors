@@ -161,3 +161,4 @@ func test_cached_directions_are_dropped_when_a_new_field_is_swapped_in() -> void
 	assert_gt(field.direction_at(Vector2(136, 88)).y, 0.9, "toward the second target (south), not the cached one")
 	field.begin_rebuild(grid, Vector2(24, 88))
 	assert_gt(field.direction_at(Vector2(136, 88)).y, 0.9, "the old field stays readable while a new one builds")
+

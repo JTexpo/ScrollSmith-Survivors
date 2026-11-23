@@ -44,11 +44,12 @@ func overlaps_rect(rect: Rect2, grow: float = 0.0) -> bool:
 	return bounds().grow(grow).intersects(rect, true)
 
 
-## Exact: true when the segment touches the shape, including one that starts or ends inside it.
-func blocks_segment(from: Vector2, to: Vector2) -> bool:
+## Exact: true when the segment touches the shape grown by `grow` pixels, including one that starts or ends inside
+## it. A body of half-width `grow` can walk a segment only if this is false.
+func blocks_segment(from: Vector2, to: Vector2, grow: float = 0.0) -> bool:
 	if kind == Kind.CIRCLE:
-		return Geometry2D.get_closest_point_to_segment(position, from, to).distance_to(position) <= radius
-	var area := bounds()
+		return Geometry2D.get_closest_point_to_segment(position, from, to).distance_to(position) <= radius + grow
+	var area := bounds().grow(grow)
 	if area.has_point(from) or area.has_point(to):
 		return true
 	# Slab clipping of the segment against the rectangle.

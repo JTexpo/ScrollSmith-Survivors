@@ -1,29 +1,35 @@
 class_name ObstacleLayer
 extends Node2D
-## Draws every obstacle in one `_draw`. TEMPORARY look.
+## Draws every obstacle, in chunks so the ones off screen cost nothing. TEMPORARY look.
 
-const FILL := Color(0.36, 0.36, 0.4, 1)
-const OUTLINE := Color(0.2, 0.2, 0.25, 1)
+## Side of one chunk, in pixels (a little more than a screen).
+const CHUNK_SIZE := 512.0
 
-var _obstacles: Array[MapObstacle] = []
+var _count: int = 0
 
 
 func set_obstacles(obstacles: Array[MapObstacle]) -> void:
-	_obstacles = obstacles
-	queue_redraw()
+	for child in get_children():
+		remove_child(child)
+		child.queue_free()
+	_count = obstacles.size()
+	var buckets := {}
+	for obstacle in obstacles:
+		if obstacle == null:
+			continue
+		var key := Vector2i(obstacle.position / CHUNK_SIZE)
+		if not buckets.has(key):
+			buckets[key] = [] as Array[MapObstacle]
+		(buckets[key] as Array[MapObstacle]).append(obstacle)
+	for key in buckets:
+		var chunk := DrawChunk.new()
+		add_child(chunk)
+		chunk.set_items([] as Array[Dictionary], buckets[key])
 
 
 func item_count() -> int:
-	return _obstacles.size()
+	return _count
 
 
-func _draw() -> void:
-	for obstacle in _obstacles:
-		if obstacle == null or not obstacle.is_valid():
-			continue
-		if obstacle.kind == MapObstacle.Kind.CIRCLE:
-			draw_circle(obstacle.position, obstacle.radius, FILL)
-			draw_arc(obstacle.position, obstacle.radius, 0.0, TAU, 24, OUTLINE, 1.0)
-		else:
-			draw_rect(obstacle.bounds(), FILL)
-			draw_rect(obstacle.bounds(), OUTLINE, false, 1.0)
+func chunk_count() -> int:
+	return get_child_count()

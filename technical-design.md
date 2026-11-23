@@ -149,6 +149,7 @@ wizard-survivor/
 │   ├── world/
 │   │   ├── game_map.gd
 │   │   ├── map_decor.gd
+│   │   ├── draw_chunk.gd
 │   │   ├── obstacle_grid.gd
 │   │   ├── flow_field.gd
 │   │   ├── obstacle_map.gd
@@ -164,6 +165,12 @@ wizard-survivor/
 │   ├── maps/
 │   │   ├── map_data.gd
 │   │   ├── map_placement.gd
+│   │   ├── map_maze.gd
+│   │   ├── maze_entrance.gd
+│   │   ├── map_zone.gd
+│   ├── map_maze.gd
+│   ├── maze_entrance.gd
+│   ├── map_zone.gd
 │   │   ├── map_obstacle.gd
 │   │   └── first_map.tres
 │   ├── equipment/

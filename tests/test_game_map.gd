@@ -188,3 +188,77 @@ func test_an_unreachable_placement_is_reported_when_it_loads() -> void:
 	data.obstacles = walls
 	_map_node(data)
 	assert_push_error("not reachable")
+
+
+func _maze_only_data() -> MapData:
+	var data := _data()
+	data.size = Vector2(700, 420)
+	data.player_start = Vector2(8, 8)
+	data.placements = [] as Array[MapPlacement]
+	var maze := MapMaze.new()
+	maze.area = Rect2(100, 52, 480, 320)
+	maze.maze_seed = 3
+	data.mazes = [maze] as Array[MapMaze]
+	return data
+
+
+func test_a_maze_is_drawn_and_has_wall_bodies() -> void:
+	var data := _maze_only_data()
+	var node := _map_node(data)
+	var walls := data.mazes[0].shapes().size()
+	assert_gt(walls, 10)
+	assert_eq((node.get_node("Obstacles") as ObstacleLayer).item_count(), walls)
+	assert_eq(node.get_node("ObstacleBodies").get_child_count(), walls)
+
+
+func _zoned_data() -> MapData:
+	var data := _data()
+	var first := MapZone.new()
+	first.area = Rect2(0, 0, 200, 150)
+	first.floor_color = Color(0.5, 0.2, 0.2)
+	first.decoration_count = 15
+	first.decoration_colors = PackedColorArray([Color(0.6, 0.3, 0.3)])
+	var second := MapZone.new()
+	second.area = Rect2(200, 150, 200, 150)
+	second.floor_color = Color(0.2, 0.2, 0.5)
+	data.zones = [first, second] as Array[MapZone]
+	return data
+
+
+func test_each_zone_has_a_floor_under_the_decorations() -> void:
+	var data := _zoned_data()
+	var node := _map_node(data)
+	var zones := node.get_node("Zones")
+	assert_eq(zones.get_child_count(), 2)
+	for i in 2:
+		var floor_rect := zones.get_child(i) as ColorRect
+		assert_eq(Rect2(floor_rect.position, floor_rect.size), data.zones[i].area)
+		assert_eq(floor_rect.color, data.zones[i].floor_color)
+		assert_eq(floor_rect.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+	assert_lt(node.get_node("Floor").get_index(), zones.get_index())
+	assert_lt(zones.get_index(), node.get_node("Decor").get_index())
+
+
+func test_the_decor_layer_holds_global_and_zone_items() -> void:
+	var data := _zoned_data()
+	var node := _map_node(data)
+	var expected := MapDecor.scatter(data).size() + MapDecor.scatter_zone(data, 0).size() + MapDecor.scatter_zone(data, 1).size()
+	assert_eq((node.get_node("Decor") as MapDecorLayer).item_count(), expected)
+
+
+func test_the_obstacle_layer_is_split_into_chunks_and_keeps_the_count() -> void:
+	var layer := ObstacleLayer.new()
+	add_child_autofree(layer)
+	var shapes: Array[MapObstacle] = []
+	var keys := {}
+	for i in 12:
+		var shape := MapObstacle.new()
+		shape.kind = MapObstacle.Kind.RECT
+		shape.position = Vector2(100 + i * 150, 80 + (i % 3) * 300)
+		shape.size = Vector2(20, 20)
+		shapes.append(shape)
+		keys[Vector2i(shape.position / ObstacleLayer.CHUNK_SIZE)] = true
+	layer.set_obstacles(shapes)
+	assert_eq(layer.item_count(), 12)
+	assert_eq(layer.chunk_count(), keys.size())
+	assert_gt(layer.chunk_count(), 1)
