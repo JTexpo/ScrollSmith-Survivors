@@ -9,9 +9,16 @@ signal bonuses_changed(total: StatBonuses)
 const SLOT_ACTIONS: Array[StringName] = [
 	&"spell_slot_1", &"spell_slot_2", &"spell_slot_3", &"spell_slot_4", &"spell_slot_5",
 ]
+## How long the cast animation shows after a cast, in seconds.
+const CAST_ANIMATION_TIME := 0.25
+## Below this speed (px/s) the wizard stands still.
+const MOVE_ANIMATION_SPEED := 5.0
+
 const POTION_ACTIONS: Array[StringName] = [
 	&"potion_1", &"potion_2", &"potion_3", &"potion_4", &"potion_5", &"potion_6",
 ]
+
+var _cast_left: float = 0.0
 
 @onready var health: HealthComponent = $HealthComponent
 @onready var _move: MoveComponent = $MoveComponent
@@ -26,6 +33,7 @@ const POTION_ACTIONS: Array[StringName] = [
 @onready var progress: RunProgress = $RunProgress
 @onready var effects: ActiveEffects = $ActiveEffects
 @onready var belt: PotionBelt = $PotionBelt
+@onready var _body: BodyView = $Body
 
 
 ## The values the scene starts with. Bonuses are always worked out from these, so applying the same
@@ -61,6 +69,27 @@ func _ready() -> void:
 	_hurtbox.hit_received.connect(_on_hit_received)
 	health.died.connect(_on_died)
 	effects.bind(self)
+	_body.set_look(&"player")
+	loadout.cast_fired.connect(_on_cast_fired)
+
+
+## Picks the wizard's animation and facing: casting shows the cast animation for a moment and faces the aim, otherwise
+## it moves or stands, facing the way it walks.
+func _update_body(delta: float) -> void:
+	_cast_left = maxf(_cast_left - delta, 0.0)
+	var casting := _cast_left > 0.0
+	_body.set_facing(aim.aim_direction.x if casting or aim.is_firing else velocity.x)
+	if casting:
+		_body.play(&"cast")
+	elif velocity.length() > MOVE_ANIMATION_SPEED:
+		_body.play(&"move")
+	else:
+		_body.play(&"idle")
+
+
+func _on_cast_fired(_index: int) -> void:
+	_cast_left = CAST_ANIMATION_TIME
+	_body.play(&"cast")
 
 
 ## Adds the level, equipment and temporary layers and pushes the total, so a bonus can neither be
@@ -90,6 +119,7 @@ func _physics_process(delta: float) -> void:
 		return
 	var direction := Input.get_vector(&"move_left", &"move_right", &"move_up", &"move_down")
 	_move.apply(self, direction, _knockback.update(delta))
+	_update_body(delta)
 	if _cast_blocked:
 		# The click that closed a menu is probably still held. Wait for it to be released. This
 		# reads the real input, because aim.is_firing is updated after this node runs and is stale

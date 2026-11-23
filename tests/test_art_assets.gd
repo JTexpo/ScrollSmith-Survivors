@@ -1,0 +1,130 @@
+extends GutTest
+## Guards the whole art pipeline: every sprite source parses, every committed sheet is exactly what the tool builds from
+## its source (so no art is stale), every pixel is a palette colour, and every set loads. It loops over every source, so
+## it covers each sprite added later.
+
+const SOURCE_DIR := "res://art/sprites"
+const PALETTE_PATH := "res://art/palette.txt"
+const OUT_DIR := "res://assets/sprites"
+const MAX_COLORS := 40
+
+
+func _palette() -> ArtPalette:
+	return ArtPalette.parse(FileAccess.get_file_as_string(PALETTE_PATH))
+
+
+func _names() -> Array[String]:
+	var names: Array[String] = []
+	for file in DirAccess.get_files_at(SOURCE_DIR):
+		if String(file).ends_with(".sprite"):
+			names.append(String(file).get_basename())
+	names.sort()
+	return names
+
+
+func _source(sprite_name: String) -> SpriteSource:
+	return SpriteSource.parse(FileAccess.get_file_as_string("%s/%s.sprite" % [SOURCE_DIR, sprite_name]), _palette())
+
+
+func _allowed_colors() -> Dictionary:
+	var allowed := {}
+	var palette := _palette()
+	for letter in palette.colors:
+		allowed[(palette.colors[letter] as Color).to_html(true)] = true
+	for id in palette.variants:
+		for color in palette.variants[id]:
+			allowed[(color as Color).to_html(true)] = true
+	return allowed
+
+
+func _load_png(png_path: String) -> Image:
+	var image := Image.load_from_file(ProjectSettings.globalize_path(png_path))
+	image.convert(Image.FORMAT_RGBA8)
+	return image
+
+
+func test_the_palette_is_valid_small_and_has_an_outline_color() -> void:
+	var palette := _palette()
+	assert_eq(palette.errors.size(), 0, str(palette.errors))
+	assert_lte(palette.distinct_color_count(), MAX_COLORS)
+	assert_true(palette.colors.has("K"), "K is the dark outline")
+	for id in [&"none", &"fire", &"thunder", &"land", &"sea"]:
+		assert_true(palette.variants.has(id), "variant %s" % id)
+
+
+func test_there_are_sprite_sources() -> void:
+	assert_gt(_names().size(), 0)
+
+
+func test_every_source_parses_with_no_errors() -> void:
+	for sprite_name in _names():
+		assert_eq(_source(sprite_name).errors.size(), 0, "%s: %s" % [sprite_name, str(_source(sprite_name).errors)])
+
+
+func test_every_source_keeps_a_one_pixel_margin() -> void:
+	for sprite_name in _names():
+		var source := _source(sprite_name)
+		for f in source.frames.size():
+			var rows := source.frames[f]
+			var last := source.frame_size.x - 1
+			assert_eq(rows[0].replace(".", ""), "", "%s frame %d: the top row must be empty" % [sprite_name, f])
+			assert_eq(rows[rows.size() - 1].replace(".", ""), "", "%s frame %d: the bottom row must be empty" % [sprite_name, f])
+			for row in rows:
+				assert_true(row[0] == "." and row[last] == ".", "%s frame %d: the side columns must be empty" % [sprite_name, f])
+
+
+func test_the_committed_sheets_exist_for_every_variant_and_the_silhouette() -> void:
+	var palette := _palette()
+	for sprite_name in _names():
+		var source := _source(sprite_name)
+		var wanted: Array[String] = ["silhouette"]
+		for variant in source.variants_needed(palette):
+			wanted.append(String(variant))
+		for variant in wanted:
+			for extension in ["png", "tres"]:
+				var file_path := "%s/%s_%s.%s" % [OUT_DIR, sprite_name, variant, extension]
+				assert_true(FileAccess.file_exists(file_path), "missing %s" % file_path)
+
+
+func test_each_committed_png_equals_what_the_tool_builds() -> void:
+	var palette := _palette()
+	for sprite_name in _names():
+		var source := _source(sprite_name)
+		for variant in source.variants_needed(palette):
+			var png_path := "%s/%s_%s.png" % [OUT_DIR, sprite_name, variant]
+			var built := ArtBuilder.build_sheet(source, palette, variant)
+			var committed := _load_png(png_path)
+			assert_eq(committed.get_size(), built.get_size(), "%s size" % png_path)
+			assert_true(committed.get_data() == built.get_data(), "%s is stale: run the art tool" % png_path)
+		var silhouette_path := "%s/%s_silhouette.png" % [OUT_DIR, sprite_name]
+		assert_true(_load_png(silhouette_path).get_data() == ArtBuilder.build_silhouette(source).get_data(), "%s is stale" % silhouette_path)
+
+
+func test_every_pixel_is_a_palette_color_or_transparent() -> void:
+	var allowed := _allowed_colors()
+	for sprite_name in _names():
+		var palette := _palette()
+		for variant in _source(sprite_name).variants_needed(palette):
+			var image := _load_png("%s/%s_%s.png" % [OUT_DIR, sprite_name, variant])
+			for y in image.get_height():
+				for x in image.get_width():
+					var pixel := image.get_pixel(x, y)
+					assert_true(pixel.a == 0.0 or allowed.has(pixel.to_html(true)), "%s_%s has an off-palette pixel %s at %d, %d" % [sprite_name, variant, pixel.to_html(true), x, y])
+
+
+func test_each_set_loads_with_the_right_sheet_width_and_animation_ranges() -> void:
+	var palette := _palette()
+	for sprite_name in _names():
+		var source := _source(sprite_name)
+		var wanted: Array[String] = ["silhouette"]
+		for variant in source.variants_needed(palette):
+			wanted.append(String(variant))
+		for variant in wanted:
+			var set_data := load("%s/%s_%s.tres" % [OUT_DIR, sprite_name, variant]) as SpriteSetData
+			assert_not_null(set_data, "%s_%s loads" % [sprite_name, variant])
+			assert_eq(set_data.frame_size, source.frame_size)
+			assert_eq(set_data.frame_count(), source.frames.size(), "%s_%s sheet width" % [sprite_name, variant])
+			assert_eq(set_data.animations.size(), source.animations.size())
+			for animation in set_data.animations:
+				assert_between(animation.first_frame, 0, set_data.frame_count() - 1)
+				assert_between(animation.last_frame, animation.first_frame, set_data.frame_count() - 1)
