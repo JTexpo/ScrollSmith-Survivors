@@ -345,3 +345,12 @@ func test_the_hit_event_names_the_element_of_the_hit_sound() -> void:
 	_tick()
 	ImpactEvents.bus.hit.emit(Vector2.ZERO, 0.5, &"none")
 	assert_true(heard.has(&"hit_fire"), "an unknown element falls back to the fire hit")
+
+
+func test_a_level_two_beat_plays_the_heartbeat_and_level_one_does_not() -> void:
+	var heard: Array[StringName] = []
+	_board.requested.connect(func(id: StringName) -> void: heard.append(id))
+	_board.on_health_beat(1)
+	assert_false(heard.has(&"heartbeat"), "the slow heart beat is silent")
+	_board.on_health_beat(2)
+	assert_true(heard.has(&"heartbeat"))

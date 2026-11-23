@@ -327,6 +327,7 @@ func bind(main: Node) -> void:
 	var spawner := main.get_node("EnemySpawner") as EnemySpawner
 	spawner.enemy_damaged.connect(_on_enemy_damaged)
 	bind_impacts()
+	(main.get_node("LowHealthWarning") as LowHealthWarning).beat.connect(on_health_beat)
 	spawner.enemy_died.connect(_on_enemy_died)
 	var director := main.get_node("RunDirector") as RunDirector
 	director.boss_spawned.connect(_on_boss_spawned)
@@ -349,6 +350,12 @@ func bind(main: Node) -> void:
 	for button in main.find_children("*", "Button", true, false):
 		_wire_button(button as Button)
 	get_tree().node_added.connect(_on_node_added)
+
+
+## The warning beat: only the strongest level makes a sound (the slow heart beat above the threshold is silent).
+func on_health_beat(level: int) -> void:
+	if level >= 2:
+		play(SoundId.HEARTBEAT)
 
 
 func _on_cast(index: int, loadout: SpellLoadout) -> void:

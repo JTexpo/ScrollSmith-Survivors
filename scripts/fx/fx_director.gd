@@ -87,7 +87,7 @@ func _on_boss_spawned(boss: Boss, _number: int) -> void:
 func _on_hit(position: Vector2, weight: float, element_id: StringName) -> void:
 	if _burst == null:
 		return
-	if _frame_bursts < MAX_BURSTS_PER_FRAME:
+	if FxSettings.particles and _frame_bursts < MAX_BURSTS_PER_FRAME:
 		_frame_bursts += 1
 		_bursts += 1
 		var numbers := _numbers()
@@ -102,7 +102,7 @@ func _on_hit(position: Vector2, weight: float, element_id: StringName) -> void:
 
 
 func _on_blast(position: Vector2) -> void:
-	if _burst != null and _frame_bursts < MAX_BURSTS_PER_FRAME:
+	if _burst != null and FxSettings.particles and _frame_bursts < MAX_BURSTS_PER_FRAME:
 		_frame_bursts += 1
 		_bursts += 1
 		_burst.burst(position, &"dust", [Color(0.95, 0.6, 0.25), Color(0.8, 0.35, 0.2)], 8)
