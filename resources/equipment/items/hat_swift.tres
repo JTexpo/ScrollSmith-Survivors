@@ -17,3 +17,5 @@ category = 3
 price = 80
 modifiers = Array[ExtResource("1")]([SubResource("m0")])
 color = Color(0.8, 0.65, 0.4, 1)
+sprite_name = &"hat_pointed"
+sprite_variant = &"swift"

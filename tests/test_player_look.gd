@@ -93,3 +93,138 @@ func test_the_player_wears_the_starters_when_the_scene_loads() -> void:
 	assert_true(body.has_art())
 	assert_eq(body.layer_names(), [&"robe", &"headwear", &"weapon"] as Array[StringName])
 	assert_true((body.get_node("Layer_robe") as AnimatedSprite2D).visible)
+
+
+func _profile_with(ids: Array) -> PlayerProfile:
+	var profile := PlayerProfile.new()
+	var catalog := EquipmentCatalog.default_catalog()
+	for id in ids:
+		profile.grant(id)
+		profile.equip(int(catalog.find(id).slot()), id)
+	return profile
+
+
+func _frames_of(body: BodyView, layer_name: String) -> SpriteFrames:
+	return (body.get_node("Layer_%s" % layer_name) as AnimatedSprite2D).sprite_frames
+
+
+func _sheet_of(body: BodyView, layer_name: String) -> String:
+	return ((_frames_of(body, layer_name).get_frame_texture(&"idle", 0) as AtlasTexture).atlas).resource_path
+
+
+func test_each_equipped_robe_headwear_and_weapon_replaces_its_slot_only() -> void:
+	var catalog := EquipmentCatalog.default_catalog()
+	var body := _body_view()
+	PlayerLook.apply(body, _profile_with([&"robe_ember"]), catalog)
+	assert_string_contains(_sheet_of(body, "robe"), "robe_wizard_fire")
+	assert_string_contains(_sheet_of(body, "headwear"), "hat_starter", "the headwear stays the starter")
+	assert_false((body.get_node("Layer_weapon") as AnimatedSprite2D).visible)
+	PlayerLook.apply(body, _profile_with([&"robe_ember", &"hood_mana", &"staff_oak"]), catalog)
+	assert_string_contains(_sheet_of(body, "robe"), "robe_wizard_fire")
+	assert_string_contains(_sheet_of(body, "headwear"), "hood_soft_mana")
+	assert_string_contains(_sheet_of(body, "weapon"), "staff_tall_oak")
+	assert_true((body.get_node("Layer_weapon") as AnimatedSprite2D).visible)
+	PlayerLook.apply(body, _profile_with([&"hat_swift", &"wand_quick"]), catalog)
+	assert_string_contains(_sheet_of(body, "robe"), "robe_starter", "taking the robe off brings the starter back")
+	assert_string_contains(_sheet_of(body, "headwear"), "hat_pointed_swift")
+	assert_string_contains(_sheet_of(body, "weapon"), "wand_short_quick")
+
+
+func test_a_hood_replaces_the_starter_hat_so_no_hat_shows_through() -> void:
+	var body := _body_view()
+	PlayerLook.apply(body, _profile_with([&"hood_hardy"]), EquipmentCatalog.default_catalog())
+	assert_eq(body.layer_names().count(&"headwear"), 1, "one headwear layer, never a hat and a hood together")
+	assert_string_contains(_sheet_of(body, "headwear"), "hood_soft_hardy")
+
+
+func test_an_unowned_or_misplaced_item_is_ignored() -> void:
+	var catalog := EquipmentCatalog.default_catalog()
+	var body := _body_view()
+	var profile := PlayerProfile.new()
+	profile.equip(int(EquipmentData.Slot.ROBE), &"robe_ember")
+	PlayerLook.apply(body, profile, catalog)
+	assert_string_contains(_sheet_of(body, "robe"), "robe_starter", "an equipped but unowned robe is ignored")
+	profile.grant(&"hat_hardy")
+	profile.equip(int(EquipmentData.Slot.ROBE), &"hat_hardy")
+	PlayerLook.apply(body, profile, catalog)
+	assert_string_contains(_sheet_of(body, "robe"), "robe_starter", "a hat in the robe slot is ignored")
+	profile.equip(int(EquipmentData.Slot.WEAPON), &"no_such_item")
+	PlayerLook.apply(body, profile, catalog)
+	assert_false((body.get_node("Layer_weapon") as AnimatedSprite2D).visible)
+
+
+func test_every_equipment_layer_set_matches_the_players_animations_and_frames() -> void:
+	var reference := SpriteLibrary.find(&"player")
+	for item in EquipmentCatalog.default_catalog().items:
+		var set_data := SpriteLibrary.find(item.sprite_name, item.sprite_variant)
+		assert_eq(set_data.frame_count(), FRAMES, str(item.id))
+		assert_eq(set_data.frame_size, Vector2i(16, 16), str(item.id))
+		for i in reference.animations.size():
+			assert_eq(set_data.animations[i].name, reference.animations[i].name, str(item.id))
+			assert_eq(set_data.animations[i].first_frame, reference.animations[i].first_frame, str(item.id))
+			assert_eq(set_data.animations[i].last_frame, reference.animations[i].last_frame, str(item.id))
+			assert_eq(set_data.animations[i].fps, reference.animations[i].fps, str(item.id))
+
+
+## The band row of the hat in each frame of the bare wizard's source (the walk bounce moves it up one row).
+func _band_rows() -> Array[int]:
+	var rows: Array[int] = []
+	var source := SpriteSource.parse(FileAccess.get_file_as_string("res://art/sprites/player.sprite"), ArtPalette.parse(FileAccess.get_file_as_string("res://art/palette.txt")))
+	for frame in source.frames:
+		for y in frame.size():
+			if frame[y].contains("YYYRRYYY"):
+				rows.append(y)
+				break
+	return rows
+
+
+func test_layers_are_anchored_in_every_frame() -> void:
+	var bands := _band_rows()
+	assert_eq(bands.size(), FRAMES)
+	for item in EquipmentCatalog.default_catalog().items:
+		var sheet := Image.load_from_file(ProjectSettings.globalize_path("res://assets/sprites/%s_%s.png" % [item.sprite_name, item.sprite_variant]))
+		sheet.convert(Image.FORMAT_RGBA8)
+		for frame in FRAMES:
+			var low := Vector2i(99, 99)
+			var high := Vector2i(-1, -1)
+			for y in 16:
+				for x in 16:
+					if sheet.get_pixel(frame * 16 + x, y).a > 0.0:
+						low = Vector2i(mini(low.x, x), mini(low.y, y))
+						high = Vector2i(maxi(high.x, x), maxi(high.y, y))
+			var band := bands[frame]
+			assert_gt(high.x, -1, "%s frame %d draws something" % [item.id, frame])
+			assert_true(low.x >= 1 and low.y >= 1 and high.x <= 14 and high.y <= 14, "%s frame %d is inside the margin" % [item.id, frame])
+			match item.slot():
+				EquipmentData.Slot.HEADWEAR:
+					assert_lte(high.y, band + 5, "%s frame %d stays on the head" % [item.id, frame])
+					assert_lt(low.y, band, "%s frame %d reaches above the hat band" % [item.id, frame])
+				EquipmentData.Slot.ROBE:
+					assert_gte(low.y, band + 6, "%s frame %d stays below the collar line" % [item.id, frame])
+				EquipmentData.Slot.WEAPON:
+					assert_gte(low.x, 11, "%s frame %d is held at the right hand" % [item.id, frame])
+					assert_gte(high.y, band + 6, "%s frame %d reaches down to the hand" % [item.id, frame])
+
+
+func test_the_pointed_hat_has_exactly_the_starter_hats_shape_in_every_frame() -> void:
+	var starter := _sheet("hat_starter")
+	var pointed := Image.load_from_file(ProjectSettings.globalize_path("res://assets/sprites/hat_pointed_mana.png"))
+	pointed.convert(Image.FORMAT_RGBA8)
+	for y in starter.get_height():
+		for x in starter.get_width():
+			assert_eq(pointed.get_pixel(x, y).a > 0.0, starter.get_pixel(x, y).a > 0.0, "pixel %d, %d" % [x, y])
+
+
+func test_the_player_scene_applies_the_profile_through_run_start() -> void:
+	var player := (load("res://scenes/player/player.tscn") as PackedScene).instantiate() as Player
+	add_child_autofree(player)
+	var catalog := EquipmentCatalog.default_catalog()
+	var profile := _profile_with([&"robe_storm", &"hat_hardy", &"wand_flicker"])
+	RunStart.prepare(player, profile, LevelTrack.default_track(), RunBuffs.new(), catalog)
+	var body := player.get_node("Body") as BodyView
+	assert_string_contains(_sheet_of(body, "robe"), "robe_wizard_thunder")
+	assert_string_contains(_sheet_of(body, "headwear"), "hat_pointed_hardy")
+	assert_string_contains(_sheet_of(body, "weapon"), "wand_short_flicker")
+	RunStart.prepare(player, profile, LevelTrack.default_track(), RunBuffs.new(), catalog)
+	assert_eq(body.layer_names().size(), 3, "running it twice changes nothing")
+

@@ -108,3 +108,36 @@ func _sum(item: EquipmentData) -> Dictionary:
 	for modifier in item.modifiers:
 		totals[modifier.stat] = float(totals.get(modifier.stat, 0.0)) + modifier.amount
 	return totals
+
+
+func test_every_shipped_item_names_a_sprite_and_a_variant_that_exist() -> void:
+	var catalog := EquipmentCatalog.default_catalog()
+	assert_eq(catalog.items.size(), 15)
+	for item in catalog.items:
+		assert_ne(item.sprite_name, &"", "%s names a sprite" % item.id)
+		assert_ne(item.sprite_variant, &"", "%s names a colourway" % item.id)
+		var found := SpriteLibrary.find(item.sprite_name, item.sprite_variant)
+		assert_not_null(found, "%s has art" % item.id)
+		var base := SpriteLibrary.find(item.sprite_name, &"base")
+		assert_true(base == null or found.sheet != base.sheet, "%s uses its own colourway, not a fallback" % item.id)
+
+
+func test_each_family_shares_one_shape_with_its_own_colours() -> void:
+	var catalog := EquipmentCatalog.default_catalog()
+	var sprites := {}
+	for item in catalog.items:
+		if not sprites.has(item.sprite_name):
+			sprites[item.sprite_name] = []
+		sprites[item.sprite_name].append(item.sprite_variant)
+	assert_eq(sprites.size(), 5, "robe, hat, hood, wand, staff")
+	assert_eq(sprites[&"robe_wizard"].size(), 5)
+	assert_eq(sprites[&"hat_pointed"].size(), 3)
+	assert_eq(sprites[&"hood_soft"].size(), 3)
+	assert_eq(sprites[&"wand_short"].size(), 2)
+	assert_eq(sprites[&"staff_tall"].size(), 2)
+	for sprite_name in sprites:
+		var distinct := {}
+		for variant in sprites[sprite_name]:
+			distinct[variant] = true
+		assert_eq(distinct.size(), sprites[sprite_name].size(), "%s: every item has its own colours" % sprite_name)
+
