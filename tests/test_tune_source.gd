@@ -76,3 +76,17 @@ func test_a_cell_before_any_channel_is_an_error_and_a_tune_needs_a_channel() -> 
 func test_a_noise_channel_takes_x_and_rests_only() -> void:
 	assert_eq(TuneSource.parse("tempo 120\nchannel noise 0.3\nx - x -").errors.size(), 0)
 	assert_gt(TuneSource.parse("tempo 120\nchannel noise 0.3\nC4 - x -").errors.size(), 0)
+
+
+func test_a_sharp_note_is_not_a_comment() -> void:
+	var source := TuneSource.parse("tempo 120\nchannel pulse50 0.5\nG#4 A#3 C#5 -")
+	assert_eq(source.errors.size(), 0, str(source.errors))
+	assert_eq((source.channels[0]["cells"] as PackedStringArray)[0], "G#4")
+	assert_eq(source.step_count(), 4)
+
+
+func test_a_trailing_comment_after_a_space_and_a_whole_line_comment_are_ignored() -> void:
+	var source := TuneSource.parse("tempo 120 # fast\n#whole line\nchannel pulse50 0.5 # lead\nC4 D4 # two notes\n")
+	assert_eq(source.errors.size(), 0, str(source.errors))
+	assert_eq(source.step_count(), 2)
+

@@ -176,3 +176,32 @@ func test_every_sound_is_short() -> void:
 func test_the_busy_sounds_are_very_short() -> void:
 	for id in [&"hit_fire", &"hit_thunder", &"hit_land", &"hit_sea", &"hit_strong", &"hit_resisted", &"enemy_die", &"step", &"pickup_xp", &"ui_click", &"ui_hover"]:
 		assert_lt(_seconds(id), 0.35, str(id))
+
+
+func _tune(id: StringName) -> TuneSource:
+	return TuneSource.parse(FileAccess.get_file_as_string("%s/music/%s.tune" % [SOURCE_DIR, id]))
+
+
+func test_the_music_tunes_loop() -> void:
+	for id in [&"music_run", &"music_boss"]:
+		assert_true(_tune(id).loops, str(id))
+		var wav := FileAccess.get_file_as_bytes("%s/%s.wav" % [OUT_DIR, id])
+		assert_eq(wav.slice(44 + wav.decode_u32(40), 48 + wav.decode_u32(40)).get_string_from_ascii(), "smpl", "%s carries a loop chunk" % id)
+
+
+func test_the_run_loop_is_between_20_and_45_seconds() -> void:
+	assert_between(_tune(&"music_run").duration(), 20.0, 45.0)
+	assert_between(_tune(&"music_boss").duration(), 15.0, 45.0)
+
+
+func test_the_boss_loop_is_faster_than_the_run_loop() -> void:
+	assert_gt(_tune(&"music_boss").tempo, _tune(&"music_run").tempo + 15.0)
+
+
+func test_each_loop_has_at_least_four_voices_of_chiptune() -> void:
+	for id in [&"music_run", &"music_boss"]:
+		var waves := {}
+		for channel in _tune(id).channels:
+			waves[channel["wave"]] = true
+		assert_gte(_tune(id).channels.size(), 4, "%s has melody, arpeggio, bass and drums" % id)
+		assert_true(waves.has(&"triangle") and waves.has(&"noise"), "%s has a bass and drums" % id)

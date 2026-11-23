@@ -22,8 +22,9 @@ static func parse(text: String) -> TuneSource:
 	var number := 0
 	for raw in text.split("\n"):
 		number += 1
-		var line := raw.get_slice("#", 0).strip_edges()
-		if line.is_empty():
+		# A comment starts with a # at the start of a line or after a space; a # inside a note name (G#4) is a sharp.
+		var line := raw.get_slice(" #", 0).strip_edges()
+		if line.is_empty() or line.begins_with("#"):
 			continue
 		var parts := line.replace("\t", " ").split(" ", false)
 		match parts[0]:

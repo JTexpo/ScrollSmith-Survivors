@@ -72,7 +72,7 @@ func test_library_with_another_root_finds_nothing_there() -> void:
 	assert_null(SoundLibrary.find(SoundId.UI_CLICK))
 
 
-const DESIGN_IDS: Array[StringName] = [&"cast_fire", &"cast_thunder", &"cast_land", &"cast_sea", &"hit_fire", &"hit_thunder", &"hit_land", &"hit_sea", &"hit_strong", &"hit_resisted", &"enemy_shot", &"blast_warn", &"blast_boom", &"enemy_die", &"enemy_die_big", &"enemy_die_elite", &"boss_spawn", &"boss_slam", &"boss_charge", &"boss_burst", &"boss_die", &"player_hurt", &"player_die", &"level_up", &"step", &"pickup_scroll", &"pickup_xp", &"pickup_gold", &"potion_drink", &"potion_refused", &"ui_click", &"ui_back", &"ui_hover", &"lectern_open", &"craft_confirm", &"craft_fail", &"shop_buy", &"shop_fail", &"shop_equip", &"shrine_heal", &"shrine_mana", &"chest_open", &"merchant_open", &"music_run"]
+const DESIGN_IDS: Array[StringName] = [&"cast_fire", &"cast_thunder", &"cast_land", &"cast_sea", &"hit_fire", &"hit_thunder", &"hit_land", &"hit_sea", &"hit_strong", &"hit_resisted", &"enemy_shot", &"blast_warn", &"blast_boom", &"enemy_die", &"enemy_die_big", &"enemy_die_elite", &"boss_spawn", &"boss_slam", &"boss_charge", &"boss_burst", &"boss_die", &"player_hurt", &"player_die", &"level_up", &"step", &"pickup_scroll", &"pickup_xp", &"pickup_gold", &"potion_drink", &"potion_refused", &"ui_click", &"ui_back", &"ui_hover", &"lectern_open", &"craft_confirm", &"craft_fail", &"shop_buy", &"shop_fail", &"shop_equip", &"shrine_heal", &"shrine_mana", &"chest_open", &"merchant_open", &"music_run", &"music_boss"]
 
 
 func _data(id: StringName) -> SoundData:
@@ -116,3 +116,11 @@ func test_ui_sounds_do_not_stop_when_paused() -> void:
 		assert_false(_data(id).pausable, str(id))
 	for id in [&"cast_fire", &"hit_fire", &"enemy_die", &"step"]:
 		assert_true(_data(id).pausable, str(id))
+
+
+func test_the_music_is_much_quieter_than_a_loud_sound_effect() -> void:
+	for id in [&"music_run", &"music_boss"]:
+		var data := _data(id)
+		assert_true(data.music, str(id))
+		assert_false(data.pausable, "music keeps playing, lower, while paused")
+		assert_lte(data.volume_db, _data(&"cast_fire").volume_db - 6.0, str(id))

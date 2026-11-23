@@ -1,0 +1,12 @@
+# The boss music: a faster A minor chase (12 bars at 156 bpm, about 18 s), still playful. Driving octave-jumping triangle bass,
+# a syncopated pulse melody and a kick-and-snare noise pattern.
+tempo 156
+loop
+channel pulse25 0.4
+A4 . A4 . C5 . A4 . E5 . . . D5 . C5 . | A4 . A4 . C5 . A4 . G5 . . . E5 . D5 . | F4 . F4 . A4 . F4 . C5 . . . A4 . F4 . | E4 . G#4 . B4 . E5 . G#5 . . . - - - - | E5 . E5 . - - E5 . G5 . . . E5 . D5 . | C5 . C5 . - - C5 . E5 . . . C5 . B4 . | A4 . C5 . E5 . A5 . G5 . E5 . D5 . C5 . | B4 . . . D5 . . . E5 . . . - - - - | A4 . A4 . C5 . A4 . E5 . . . D5 . C5 . | A4 . A4 . C5 . A4 . G5 . . . E5 . D5 . | F4 . F4 . A4 . F4 . C5 . . . A4 . F4 . | E4 . G#4 . B4 . E5 . G#5 . . . - - - -
+channel pulse12 0.17
+A3 C4 E4 C4 A3 C4 E4 C4 A3 C4 E4 C4 A3 C4 E4 C4 | A3 C4 E4 C4 A3 C4 E4 C4 A3 C4 E4 C4 A3 C4 E4 C4 | F3 A3 C4 A3 F3 A3 C4 A3 F3 A3 C4 A3 F3 A3 C4 A3 | E3 G#3 B3 G#3 E3 G#3 B3 G#3 E3 G#3 B3 G#3 E3 G#3 B3 G#3 | A3 C4 E4 C4 A3 C4 E4 C4 A3 C4 E4 C4 A3 C4 E4 C4 | C4 E4 G4 E4 C4 E4 G4 E4 C4 E4 G4 E4 C4 E4 G4 E4 | F3 A3 C4 A3 F3 A3 C4 A3 F3 A3 C4 A3 F3 A3 C4 A3 | E3 G#3 B3 G#3 E3 G#3 B3 G#3 E3 G#3 B3 G#3 E3 G#3 B3 G#3 | A3 C4 E4 C4 A3 C4 E4 C4 A3 C4 E4 C4 A3 C4 E4 C4 | A3 C4 E4 C4 A3 C4 E4 C4 A3 C4 E4 C4 A3 C4 E4 C4 | F3 A3 C4 A3 F3 A3 C4 A3 F3 A3 C4 A3 F3 A3 C4 A3 | E3 G#3 B3 G#3 E3 G#3 B3 G#3 E3 G#3 B3 G#3 E3 G#3 B3 G#3
+channel triangle 0.5
+A2 . A3 . A2 . A3 . A2 . A3 . A2 . A3 . | A2 . A3 . A2 . A3 . A2 . A3 . A2 . A3 . | F2 . F3 . F2 . F3 . F2 . F3 . F2 . F3 . | E2 . E3 . E2 . E3 . E2 . E3 . E2 . E3 . | A2 . A3 . A2 . A3 . A2 . A3 . A2 . A3 . | C3 . C3 . C3 . C3 . C3 . C3 . C3 . C3 . | F2 . F3 . F2 . F3 . F2 . F3 . F2 . F3 . | E2 . E3 . E2 . E3 . E2 . E3 . E2 . E3 . | A2 . A3 . A2 . A3 . A2 . A3 . A2 . A3 . | A2 . A3 . A2 . A3 . A2 . A3 . A2 . A3 . | F2 . F3 . F2 . F3 . F2 . F3 . F2 . F3 . | E2 . E3 . E2 . E3 . E2 . E3 . E2 . E3 .
+channel noise 0.2
+x - - - x - x - x - - - x - x - | x - - - x - x - x - - - x - x - | x - - - x - x - x - - - x - x - | x - - - x - x - x - - - x - x - | x - - - x - x - x - - - x - x - | x - - - x - x - x - - - x - x - | x - - - x - x - x - - - x - x - | x - - - x - x - x - - - x - x - | x - - - x - x - x - - - x - x - | x - - - x - x - x - - - x - x - | x - - - x - x - x - - - x - x - | x - - - x - x - x - - - x - x -
