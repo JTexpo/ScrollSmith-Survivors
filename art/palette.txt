@@ -1,0 +1,30 @@
+# The game's one palette. At most 40 distinct colours (a test enforces it).
+# `color <letter> <hex>`: a fixed colour. `variant <id> <slot1> .. <slot5>`: the colours of ramp slots 1 to 5 for one
+# element, so a single sprite grid yields every element. Slots: 1 body dark, 2 body mid, 3 body light, 4 trim dark, 5 trim light.
+
+# Outline, whites and greys
+color K #1b1226
+color W #ffffff
+color G #c9c3d6
+color g #8a829c
+color d #4a4360
+
+# Skin
+color S #f3c9a0
+color s #d99f78
+
+# Purple (the wizard) and gold and red accents
+color p #3f2b96
+color P #6a4bd8
+color Q #9b82f0
+color Y #ffd23f
+color y #c98e1a
+color R #e8483f
+color r #a82626
+
+# Element variants (README: Fire orange, red, yellow; Thunder yellow, white, electric blue; Land brown, green; Sea blue, cyan, turquoise)
+variant none    #5a5470 #8a829c #c9c3d6 #7a5a3a #c9a06a
+variant fire    #b3261e #f0561d #ffb02e #7a1d12 #ffe36a
+variant thunder #d9a400 #ffe135 #fff7a8 #2a6bff #8fe3ff
+variant land    #5b3b1e #8a5a2b #b98a4e #2f7a2f #7bd35a
+variant sea     #1b4fa8 #2f86e8 #7fd0ff #0f8a8a #6ff0d8

@@ -48,13 +48,14 @@ var _dead: bool = false
 @onready var _hurtbox: HurtboxComponent = $HurtboxComponent
 @onready var _hitbox: HitboxComponent = $ContactHitbox
 @onready var _flash: HitFlashComponent = $HitFlashComponent
-@onready var _body: ColorRect = $Body
+@onready var _body: BodyView = $Body
 
 
 func _ready() -> void:
 	_obstacle_map = get_tree().get_first_node_in_group(&"obstacle_map") as ObstacleMap
 	_hurtbox.hit_received.connect(_on_hit_received)
 	_health.died.connect(_on_died)
+	_body.animation_done.connect(_on_body_animation_done)
 	if data != null:
 		_apply()
 
@@ -115,8 +116,11 @@ func _apply() -> void:
 	_hitbox.hit_cooldown = 1.0
 	_hitbox.knockback = 120.0
 	_hurtbox.element = data.element
-	_body.color = data.color
+	_body.fallback_color = data.color
 	scale = Vector2.ONE * data.body_scale
+	_body.set_look(StringName("boss_%s" % data.id))
+	_body.counter_scale(scale)
+	_show(&"idle")
 	phase = 0
 	_attack_index = 0
 	state = State.IDLE
@@ -176,7 +180,8 @@ func _begin_attack(player: Node2D) -> void:
 			var to_player := player.global_position - global_position
 			_dash_direction = to_player.normalized() if to_player.length() > 0.0 else Vector2.RIGHT
 		_:
-			_body.color = data.color.lightened(0.3)
+			_body.fallback_color = data.color.lightened(0.3)
+	_show(&"telegraph")
 	queue_redraw()
 	attack_started.emit(_attack)
 
@@ -187,8 +192,10 @@ func _start_action() -> void:
 			state = State.ACT
 			_act_left = _attack.dash_time
 			_hitbox.damage = _attack.damage * _damage_scale
+			_show(&"attack")
 			queue_redraw()
 		BossAttack.Kind.BURST:
+			_show(&"attack")
 			_fire_burst()
 			_finish_attack()
 		BossAttack.Kind.SUMMON:
@@ -228,7 +235,10 @@ func _finish_attack() -> void:
 	_recover_left = _attack.recover_time
 	_vulnerability_bonus = _attack.vulnerability_bonus
 	vulnerable = _vulnerability_bonus > 0.0
-	_body.color = data.color.lightened(0.5) if vulnerable else data.color
+	_body.fallback_color = data.color.lightened(0.5) if vulnerable else data.color
+	# A burst keeps its attack pose until that animation ends (see _on_body_animation_done).
+	if vulnerable or _attack.kind != BossAttack.Kind.BURST:
+		_show_rest()
 	queue_redraw()
 
 
@@ -236,9 +246,26 @@ func _end_recover() -> void:
 	state = State.IDLE
 	vulnerable = false
 	_vulnerability_bonus = 0.0
-	_body.color = data.color
+	_body.fallback_color = data.color
+	_show(&"idle")
 	_idle_left = _interval()
 	queue_redraw()
+
+
+func _show(animation: StringName) -> void:
+	if _body.has_animation(animation):
+		_body.play(animation)
+
+
+## The pose between actions: slumped while the damage window is open, otherwise standing.
+func _show_rest() -> void:
+	_show(&"vulnerable" if vulnerable else &"idle")
+
+
+## The one-shot attack ends. A charge holds its last frame while it runs, and everything else relaxes.
+func _on_body_animation_done(animation: StringName) -> void:
+	if animation == &"attack" and not _dead and state != State.ACT and state != State.TELEGRAPH:
+		_show_rest()
 
 
 ## The hurtbox has already applied the damage. While open after a charge a hit also deals its bonus, once,

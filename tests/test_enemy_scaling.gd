@@ -148,12 +148,20 @@ func test_body_scale_comes_from_the_archetype() -> void:
 	assert_eq(_enemy(&"standard").scale, Vector2.ONE)
 
 
-func test_an_elite_has_an_outline_and_a_plain_enemy_does_not() -> void:
+func test_an_elite_without_art_has_a_square_outline_and_a_plain_enemy_does_not() -> void:
 	var elite := _enemy()
+	elite.data = elite.data.duplicate()
+	elite.data.archetype_id = &"no_such_art"
 	elite.make_elite(EliteModifier.default_modifier())
 	assert_true(elite.has_node("EliteOutline"))
 	assert_false(_enemy().has_node("EliteOutline"))
 	assert_eq((elite.get_node("EliteOutline") as Control).mouse_filter, Control.MOUSE_FILTER_IGNORE)
+
+
+func test_an_elite_with_art_uses_the_silhouette_not_the_square() -> void:
+	var elite := _enemy()
+	elite.make_elite(EliteModifier.default_modifier())
+	assert_false(elite.has_node("EliteOutline"))
 
 
 func test_the_death_shrink_still_frees_a_scaled_enemy() -> void:

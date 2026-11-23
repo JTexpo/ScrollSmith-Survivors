@@ -702,16 +702,20 @@ The intended art direction is comedic, colorful, and cartoon-inspired pixel art.
 
 The world should feel like a playful fantasy adventure rather than a grim-dark survival experience.
 
+Sprint 13 is split into four: **13a** the art foundation (built), **13b** the world's art, **13c** audio, **13d** polish. 13b also takes equipment sprites that change what the wizard looks like (user request during 13a: the robe, hat or hood and weapon shown on the player).
+
+**Built note (13a):** a replaceable art pipeline. Sprites are text pixel grids (`art/sprites/*.sprite`) in one palette (`art/palette.txt`), built by `tools/art/art_builder.gd` into committed PNG sheets and `SpriteSetData` resources, and shown by `BodyView`, which falls back to the old coloured square when there is no art. The player (idle, move, cast), all seven enemy archetypes in the five element colourways (move, death, and the Ranged shot, Exploder fuse and Support pulse) and the Ember Titan (idle, telegraph, attack, vulnerable) have sprites; elites get a silhouette outline. Overwriting a sheet PNG replaces that art with no code change. Gameplay and hit shapes are unchanged. Stress is about 30% lower than before (about 139 against 199 fps at 300 enemies), still more than twice the 60 fps target. Not yet drawn: player damage and hurt poses, spell and projectile art, scrolls, equipment, Lecterns, tiles and UI (13b).
+
 ### Art Direction
 
-- [ ] Establish a consistent pixel-art resolution.
-- [ ] Establish a limited color palette.
-- [ ] Create the player character sprite.
-- [ ] Create player movement animations.
-- [ ] Create player casting animations.
-- [ ] Create enemy sprites.
-- [ ] Create enemy movement animations.
-- [ ] Create enemy attack animations.
+- [x] Establish a consistent pixel-art resolution.
+- [x] Establish a limited color palette.
+- [x] Create the player character sprite.
+- [x] Create player movement animations.
+- [x] Create player casting animations.
+- [x] Create enemy sprites.
+- [x] Create enemy movement animations.
+- [x] Create enemy attack animations.
 - [ ] Create elemental spell sprites.
 - [ ] Create scroll sprites.
 - [ ] Create equipment sprites.
@@ -721,13 +725,13 @@ The world should feel like a playful fantasy adventure rather than a grim-dark s
 
 ### Animation
 
-- [ ] Player idle animation.
-- [ ] Player movement animation.
-- [ ] Player casting animation.
+- [x] Player idle animation.
+- [x] Player movement animation.
+- [x] Player casting animation.
 - [ ] Player damage animation.
-- [ ] Enemy movement animations.
-- [ ] Enemy attack animations.
-- [ ] Enemy death animations.
+- [x] Enemy movement animations.
+- [x] Enemy attack animations.
+- [x] Enemy death animations.
 - [ ] Spell projectile animations.
 - [ ] Spell impact animations.
 - [ ] Item pickup animations.

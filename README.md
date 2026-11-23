@@ -596,6 +596,10 @@ Each element should have a recognizable visual identity:
 - Land: Brown, green, and earthy tones.
 - Sea: Blue, cyan, and turquoise.
 
+### Art pipeline (Sprint 13a)
+
+Sprites are 16 by 16 (the player), 10 to 24 (enemies by kind) and 32 by 32 (the Ember Titan), drawn at 1:1 on the 480 by 270 screen in one shared palette (`art/palette.txt`, at most 40 colours). An enemy's element changes its colours, never its drawing. To change a sprite either edit its grid (`art/sprites/<name>.sprite`) and run `godot --headless -s tools/art/art_builder.gd` then `godot --headless --import`, or draw the sheet yourself: overwrite its PNGs in `assets/sprites/` (frames side by side, same frame size) and add the line `hand_drawn` to its `.sprite` file. The tool then keeps your sheets and only rewrites the animation data and the elite outline, and the tests stop checking its pixels against the grid. The game shows the new art with no code change.
+
 ### User Interface
 
 The interface should prioritize readability during combat.
