@@ -543,3 +543,15 @@ Checks: a real-window run with every archetype, an elite, the boss, the Exploder
 Redraw (user request before merging 13a): the seven enemy archetypes now look like fantasy monsters: Standard a goblin, Swarmer a slime, Chaser a wolf, Tank animated armour (plume, glowing visor, pauldrons, sword), Ranged a kobold, Exploder an imp carrying a lit bomb, Support a hooded cultist. Sizes, frame order, animation names and every test are unchanged, so it was art only (the sources and sheets were regenerated). Drawn small (10 to 24 px), so the goblin, kobold and imp are the ones most worth tuning by eye in play.
 
 The Ember Titan was redrawn as a magma golem (user request): a basalt body with a molten core, lava cracks, boulder fists and shoulder spikes. Same 32 by 32 size and the same four animations, so no code or test changed. In the telegraph the cracks and core turn white-hot, in the attack the mouth opens, and when spent the lava goes dark red with steam.
+
+## 2026-11-23: Sprint 13b (the world's art)
+
+Decisions (user): Sprint 13 is now six sprints (13a foundation, 13b world, 13c spells and equipment, 13d interface, 13e audio, 13f polish); the world is a themed cartoon (a grass plaza, brick-and-stone mazes, a stronghold, a tunnel, tree groves) drawn by texture fills on the existing shapes (not a tilemap, not one big image); the map stays data. Feedback while building: simpler, brighter, more cartoon floors and decorations; natural transitions (the zone edges became wavy, 32 px deep, driven by smooth noise); hedge mazes looked like emeralds and became brick and then one stone look shared by the mazes, the stronghold and the tunnel; pillars became trees; fewer decorations.
+
+What was built: the `tile` and `slice` markers and a 64-colour palette, map data that names its art (`material`, `floor_style`, `decoration_styles`) with `WorldArt`, `FloorPatch`, `NineSlice`, wall, floor, post and decoration sprites, the Lectern, five points of interest (ready and used) and scroll, XP gem and Gold coin sprites. Collision, pathfinding and the layout tests did not change.
+
+Measured: stress (`--enemies=300 --seconds=8 --drops --obstacles`, four runs each, the same session): main about 135 fps median (109 to 141), this branch about 141 (130 to 147). The planned baking was not needed. A wall's 9-slice drawn corners-and-edges first and centres second leaves no line across junctions.
+
+Checks: smoke and MCP runs clean (the MCP run caught a `material` shadowing a `CanvasItem` property in new code); real-window runs of every region with enemies, points, pickups and trees; a recoloured grass PNG in a throwaway copy of the project showed in the game with no code change.
+
+Left open: the first map's balance and look are tuned by eye only (the user has driven four rounds of changes); the unused brick, hedge-maze, path, hall and marble art is kept.

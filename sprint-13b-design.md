@@ -1,6 +1,6 @@
 # Sprint 13b Design: The World's Art
 
-**Status:** Proposed.
+**Status:** Built.
 
 Sprint 13 is split into six sprints, each leaving a playable build (user decision): **13a** the art foundation (built), **13b** the world's art (this doc), **13c** spells and equipment (spell and projectile art for all five Areas in four elements, enemy projectiles and blast zones, the target reticle, and the wizard visibly wearing the equipped robe, headwear and weapon), **13d** the interface (a font and one look for every HUD piece and screen), **13e** audio, **13f** polish (screen shake, particles, damage indicators, low-mana and level-up feedback). Scope comes from the conversation, `sprint-development.md` (Sprint 13), the README (section 10) and the code as of Sprint 13a. Decisions below were agreed with the user in conversation, except where marked "my call".
 
