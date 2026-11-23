@@ -450,3 +450,8 @@ Left open on purpose:
 - The layout and the 0.3 s field lag have not been tested in play. Tuning the layout is the user's call.
 - Tanks, elites and the boss are bigger than the grid's 8 px clearance assumes, so they can overlap a wall slightly in a corridor (cosmetic).
 - Not checked on a phone or a controller, and the field's per-frame cost on the web build is unmeasured.
+
+Review fixes (Sprint 12b whole-branch review: 0 Critical, 1 Important fixed, 7 minors deferred):
+- A Ranged enemy decided to hold or back away by straight-line distance, so with a wall between it and the player it stood still while every shot hit the wall (the parking exploit, for one archetype). It now goes round the wall for a line of sight, and fires only when the line is clear (`Enemy.has_clear_line_to`).
+
+Deferred minors: the first field is built for the Player's scene position (the map's top-left) before `Main` moves the Player to the start, so the first half second of enemies walk toward the wrong spot, plus a 37 ms load sweep; the field is read with parent-local `position` while the grid and target use global positions (equal today, wrong if `GameMap` or the spawn root is ever offset); passing a different grid to `begin_rebuild` leaves the old field readable at the old size; a boss Charge that is blocked at once still opens its vulnerability window, so keeping a pillar between you and the boss gives free windows (follows the ruling, a play-test question); the field's cost on the web build is unmeasured; a Swarmer cluster pushed out of a wall stacks on one point; nothing tests "pickups never land unreachable" or "each Lectern has two routes".

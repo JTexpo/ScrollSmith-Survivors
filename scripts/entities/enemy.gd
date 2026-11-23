@@ -79,6 +79,11 @@ func target_player() -> Node2D:
 	return get_tree().get_first_node_in_group(&"player") as Node2D
 
 
+## True when nothing solid stands between this enemy and `target` (always true when the world has no obstacles).
+func has_clear_line_to(target: Node2D) -> bool:
+	return _obstacle_map == null or not _obstacle_map.blocks_segment(global_position, target.global_position)
+
+
 ## How much its difficulty scale and elite status multiply damage it deals other than by touching
 ## (projectiles, blasts).
 func damage_multiplier() -> float:

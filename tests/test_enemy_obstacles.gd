@@ -130,3 +130,24 @@ func test_an_enemy_standing_in_an_obstacle_is_moved_out_on_its_first_step() -> v
 	assert_true(map.is_blocked(enemy.position))
 	enemy._physics_process(DELTA)
 	assert_false(map.is_blocked(enemy.position))
+
+
+func test_a_ranged_enemy_does_not_hold_or_fire_behind_a_wall() -> void:
+	var map := _map(Vector2(640, 320), [_rect(Vector2(320, 112), Vector2(16, 224))] as Array[MapObstacle])
+	_player.position = Vector2(365, 100)
+	map._physics_process(0.5)
+	var enemy := _enemy(&"ranged", Vector2(275, 100))
+	for step in 50:
+		enemy._physics_process(DELTA)
+	assert_gt(enemy.position.distance_to(Vector2(275, 100)), 40.0, "it went to find a way round, not stood at its preferred distance")
+	assert_eq(get_tree().get_nodes_in_group(&"enemy_projectiles").size(), 0, "no shots fired into the wall")
+
+
+func test_a_ranged_enemy_with_a_clear_line_still_holds_at_its_distance() -> void:
+	var map := _map(Vector2(640, 320), [_rect(Vector2(600, 300), Vector2(16, 16))] as Array[MapObstacle])
+	_player.position = Vector2(365, 100)
+	map._physics_process(0.5)
+	var enemy := _enemy(&"ranged", Vector2(275, 100))
+	for step in 30:
+		enemy._physics_process(DELTA)
+	assert_lt(enemy.position.distance_to(Vector2(275, 100)), 3.0)
