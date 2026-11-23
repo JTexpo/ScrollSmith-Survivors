@@ -9,6 +9,7 @@ extends RefCounted
 const WINDOW_RECT := Rect2(2, 2, 476, 266)
 const CONTENT_TOP := 2.0
 const BACKDROP_COLOR := Color("6fd3ff")
+const SCREEN_WIDTH := 480.0
 
 ## A label that lets touches and clicks through. `variation` is a theme type variation such as `HudGold`.
 static func label(text: String, variation: StringName = &"") -> Label:
@@ -77,3 +78,8 @@ static func window(parent: Control) -> Control:
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(content)
 	return content
+
+
+## Puts a control back where its middle is `center_x` (after a label has resized to fit new text), kept on the screen.
+static func fit_centered(control: Control, center_x: float) -> void:
+	control.position.x = clampf(center_x - control.size.x * 0.5, 0.0, maxf(SCREEN_WIDTH - control.size.x, 0.0))

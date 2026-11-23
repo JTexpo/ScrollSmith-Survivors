@@ -461,3 +461,51 @@ func test_a_buff_name_fits_beside_its_steppers() -> void:
 	for scroll in _screen.session.owned_buffs():
 		var width := UiFont.plain().get_string_size(scroll.display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, UiFont.SIZE).x
 		assert_lte(width, CraftingScreen.BUFF_NAME_WIDTH, scroll.display_name)
+
+
+func _long_named_loadout() -> SpellLoadout:
+	var spells: Array[SpellData] = []
+	for i in 5:
+		var spell := (load("res://resources/spells/fire_missile.tres") as SpellData).duplicate() as SpellData
+		spell.display_name = "Fire+Thunder Missile (Very long)"
+		spells.append(spell)
+	var loadout := SpellLoadout.new()
+	loadout.starting_spells = spells
+	loadout.unlocked_slots = 5
+	loadout.projectile_root = _root
+	add_child_autofree(loadout)
+	return loadout
+
+
+func test_long_spell_names_never_push_the_slot_row_off_the_screen() -> void:
+	var loadout := _long_named_loadout()
+	_screen.open(_inventory, loadout)
+	for button in _screen.find_children("*", "Button", true, false):
+		if str((button as Button).get_meta(&"key", "")).begins_with("slot:"):
+			assert_lte((button as Button).get_combined_minimum_size().x, CraftingScreen.SLOT_SIZE.x, "a slot button keeps its width, the text is clipped")
+	var row_width := 0.0
+	for button in _screen.find_children("*", "Button", true, false):
+		if str((button as Button).get_meta(&"key", "")).begins_with("slot:"):
+			row_width += (button as Button).get_combined_minimum_size().x + 2.0
+	assert_lte(row_width + 8.0, 480.0, "five slots fit across the screen")
+
+
+func test_the_preview_of_a_long_named_replacement_at_very_long_range_fits_and_clears_the_message() -> void:
+	_stock_everything()
+	var loadout := _long_named_loadout()
+	_screen.open(_inventory, loadout)
+	_screen.add_buff(_scroll("buff/additional_base"))
+	_screen.choose_base(_fire)
+	_screen.choose_base(_thunder)
+	_screen.choose_area(_wave)
+	_screen.choose_range(3)
+	for id in ["damage", "double_vulnerability", "duplicate_area", "ignore_resistance", "max_mana"]:
+		_screen.add_buff(_scroll("buff/%s" % id))
+	assert_lte(_screen.preview_height(), CraftingScreen.PREVIEW_SIZE.y, "the real label fits its box")
+	assert_lte(CraftingScreen.PREVIEW_TOP + CraftingScreen.PREVIEW_SIZE.y, CraftingScreen.MESSAGE_TOP, "the message starts below the preview")
+
+
+func test_every_refusal_message_fits_the_message_box() -> void:
+	for reason in [CraftingSystem.REASON_NO_BASE, CraftingSystem.REASON_NO_AREA, CraftingSystem.REASON_WRONG_BASE, CraftingSystem.REASON_WRONG_AREA, CraftingSystem.REASON_BAD_RANGE, CraftingSystem.REASON_BAD_BUFF, CraftingSystem.REASON_STACK_CAP, CraftingSystem.REASON_TOO_MANY_BASES, CraftingSystem.REASON_DUPLICATE_ELEMENT, CraftingSystem.REASON_LOCKED_SLOT, CraftingSystem.REASON_MISSING, CraftingSystem.REASON_CANNOT_BUILD, CraftingSystem.REASON_TOO_COSTLY]:
+		assert_lte(_wrapped(reason, CraftingScreen.MESSAGE_SIZE.x).y, CraftingScreen.MESSAGE_SIZE.y, reason)
+	assert_lte(CraftingScreen.MESSAGE_TOP + CraftingScreen.MESSAGE_SIZE.y, CraftingScreen.BUTTONS_TOP, "the message ends above the buttons")

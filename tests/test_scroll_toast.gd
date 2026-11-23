@@ -52,3 +52,14 @@ func test_the_scroll_toast_is_a_dark_pill_and_keeps_the_scrolls_colour() -> void
 	_toast.show_scroll(_scroll("Fire", Color(1, 0.45, 0.1)))
 	assert_eq(_toast.theme_type_variation, &"HudToast")
 	assert_eq(_toast.get_theme_color("font_color"), Color(1, 0.45, 0.1))
+
+
+func test_the_scroll_toast_stays_centred_when_its_text_changes() -> void:
+	var toast := load("res://scenes/ui/scroll_toast.tscn").instantiate() as ScrollToast
+	toast.position = Vector2(180, 74)
+	toast.size = Vector2(120, 16)
+	add_child_autofree(toast)
+	toast.show_scroll(_scroll("Fire", Color.WHITE))
+	assert_almost_eq(toast.position.x + toast.size.x * 0.5, 240.0, 0.51)
+	toast.show_scroll(_scroll("Double Vulnerability Damage", Color.WHITE))
+	assert_almost_eq(toast.position.x + toast.size.x * 0.5, 240.0, 0.51)

@@ -10,9 +10,12 @@ const MAX_LINES := 4
 
 var _lines: Array[String] = []
 var _time_left: float = 0.0
+## Where the middle of the pill is in the scene; it stays there however wide the text makes it.
+var _center_x: float = 0.0
 
 
 func _ready() -> void:
+	_center_x = position.x + size.x * 0.5
 	visible = false
 	set_process(false)
 	horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -41,6 +44,7 @@ func _add_line(line: String) -> void:
 		_lines.pop_front()
 	text = "\n".join(_lines)
 	reset_size()
+	UiKit.fit_centered(self, _center_x)
 	modulate.a = 1.0
 	_time_left = DURATION
 	visible = true

@@ -61,3 +61,15 @@ func test_a_window_adds_a_backdrop_a_cream_panel_and_returns_the_content_area() 
 	assert_eq(content.mouse_filter, Control.MOUSE_FILTER_IGNORE)
 	assert_eq(parent.get_child(0).name, &"Backdrop", "the backdrop is behind the panel")
 	assert_eq(parent.get_child(1).name, &"Window")
+
+
+func test_fit_centered_keeps_a_label_centred_and_on_the_screen() -> void:
+	var label := Label.new()
+	autofree(label)
+	label.size = Vector2(72, 20)
+	UiKit.fit_centered(label, 240.0)
+	assert_almost_eq(label.position.x + label.size.x * 0.5, 240.0, 0.51)
+	label.size = Vector2(358, 20)
+	UiKit.fit_centered(label, 330.0)
+	assert_gte(label.position.x, 0.0)
+	assert_lte(label.position.x + label.size.x, UiKit.SCREEN_WIDTH)

@@ -17,8 +17,11 @@ const RANGE_WIDTH := 112.0
 const BUFF_COLUMNS := 1
 const BUFF_NAME_WIDTH := 138.0
 ## The preview on the right, and the message under it. The tests check the longest recipe against these.
-const PREVIEW_SIZE := Vector2(152, 146)
-const MESSAGE_SIZE := Vector2(152, 32)
+const PREVIEW_TOP := 46.0
+const PREVIEW_SIZE := Vector2(152, 160)
+const MESSAGE_TOP := 206.0
+const MESSAGE_SIZE := Vector2(152, 30)
+const BUTTONS_TOP := 238.0
 const READY_MESSAGE := "Ready to craft."
 
 ## Tests turn this off so the test runner itself is not paused.
@@ -223,14 +226,14 @@ func _build() -> void:
 	_buff_grid.add_theme_constant_override("h_separation", 6)
 	_buff_grid.add_theme_constant_override("v_separation", 1)
 	content.add_child(_buff_grid)
-	_preview_label = _label("", Vector2(322, 46), PREVIEW_SIZE)
+	_preview_label = _label("", Vector2(322, PREVIEW_TOP), PREVIEW_SIZE)
 	content.add_child(_preview_label)
-	_message_label = _label("", Vector2(322, 196), MESSAGE_SIZE)
+	_message_label = _label("", Vector2(322, MESSAGE_TOP), MESSAGE_SIZE)
 	content.add_child(_message_label)
-	_confirm_button = _button("Confirm", Vector2(322, 232), Vector2(70, 22), &"ButtonRed")
+	_confirm_button = _button("Confirm", Vector2(322, BUTTONS_TOP), Vector2(70, 22), &"ButtonRed")
 	_confirm_button.pressed.connect(confirm)
 	content.add_child(_confirm_button)
-	_cancel_button = _button("Cancel", Vector2(398, 232), Vector2(70, 22), &"ButtonGreen")
+	_cancel_button = _button("Cancel", Vector2(398, BUTTONS_TOP), Vector2(70, 22), &"ButtonGreen")
 	_cancel_button.pressed.connect(cancel)
 	content.add_child(_cancel_button)
 
@@ -271,6 +274,7 @@ func _slot_button(index: int) -> Button:
 	button.custom_minimum_size = SLOT_SIZE
 	button.disabled = not _loadout.is_unlocked(index)
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	button.clip_text = true
 	return button
 
 
@@ -312,6 +316,7 @@ func _selectable(text: String, key: String, selected: bool, callback: Callable, 
 	var button := _button(("> " + text) if selected else text, Vector2.ZERO, Vector2(width, ROW_HEIGHT), &"ButtonYellow" if selected else &"")
 	button.set_meta(&"key", key)
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	button.clip_text = true
 	button.pressed.connect(callback)
 	return button
 

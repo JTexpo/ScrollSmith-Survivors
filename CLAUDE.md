@@ -108,7 +108,7 @@ Systems that must stay separate and reusable:
 - Rules: an enemy has one element. It takes the strong multiplier from the element that beats it and the weak one from the element it beats. Same element, no element, or an unknown value is normal damage.
 - The player's hurtbox has no element by default and enemy contact hitboxes carry none, so hits on the player are neutral. This is today's default, not a rule: equipment (robes, hats) may later give the player an element through `HurtboxComponent.element`, so never hardcode "the player is neutral".
 - `EnemyData` is the composed shape an enemy runs on (element, colour, stats, rewards, behaviour). Since Sprint 11 it is built from an archetype and an element (see Enemies and bosses below), not hand-written per enemy. There is still one enemy scene. The five old enemy files live on only as test fixtures in `tests/fixtures/enemies/` (enemies with a known element and health).
-- `Enemy.damaged(position, amount, effect)` is re-emitted by `EnemySpawner.enemy_damaged`, and `Main` routes it to `DamageNumbers`, a pooled node that draws every number in one `_draw`. Vulnerable hits show larger, yellow and "!", resisted hits smaller and grey.
+- `Enemy.damaged(position, amount, effect)` is re-emitted by `EnemySpawner.enemy_damaged`, and `Main` routes it to `DamageNumbers`, a pooled node that draws every number in one `_draw`. Vulnerable hits are yellow and end in "!", resisted hits grey; all use the one font size (Sprint 13d).
 
 ## Scrolls (Sprint 5)
 
