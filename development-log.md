@@ -596,3 +596,15 @@ Measured: the committed audio is about 2.5 MB; stress (`--enemies=300 --seconds=
 
 Left open: **none of it was listened to** (the user auditions it in the sound-test scene and tunes it round by round); hits take the element of the last cast; the focus tick also fires when a rebuilt crafting list re-grabs focus; the music loops are short (12 bars); the mute button's icon is small at 9 px; volume sliders are Sprint 15.
 
+
+## 2026-11-23: Sprint 13f (polish)
+
+Decisions (user): two things felt flattest, remaining health ("it sneaks up on me that I only have 25% left") and the impact of spells (a long-cooldown spell felt no heavier than a spammed one), so those two were done properly and the rest of the polish list got light touches; pixel-art effects from our own pipeline (approach A: pooled particles, whole-pixel shake, a dithered frame, data-driven weight); and, mid-sprint, every effect must be switchable from a later settings screen, so each has a switch in `FxSettings`.
+
+What was built: `ImpactConfig`, `ImpactWeight`, `ImpactEvents` (a static emitter, announced from `AreaEffect._announce_hits`), `ParticlePool` and `BurstLayer`, `ShakeTrauma` and `CameraShake`, `ScreenFlash`, `FxDirector`, `VignetteImage` and `LowHealthWarning`, `HitIndicator`, `BodyView.set_jitter`, the heart's beat drawing, the `heartbeat` and `mana_low` sounds, pickup, level-up and Rare-drop bursts, the low-mana slot pulse, `FxSettings` with its switches, the effects-test scene and the stress `--fx` option.
+
+Measured (`--enemies=300 --seconds=8 --obstacles --drops`, three runs each): about 108, 107 and 121 fps without effects and 96, 107 and 107 with them (106 with `--boss --fx`); the pool peaked at 95 of 256.
+
+Checked in a real window: 45%, 25% and 8% health (rates 0.5, 1.0 and 1.68 Hz), a heal and a death clear the warning at once, the crafting screen at low health shows nothing pulsing behind it, and the effects-test scene.
+
+Left open: **the feel was not judged**, every weight, size, gap and opacity is a starting value to tune in the effects-test scene; the starting spells weigh about 0.07, 0.32 and 0.42, so only the heaviest shakes the screen; the second new sound (`mana_low`) was not in the design; the settings screen and saving the switches are Sprint 15.

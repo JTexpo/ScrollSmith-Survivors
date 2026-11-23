@@ -616,6 +616,10 @@ The HUD and every screen share one light, cartoony look: cream panels with a thi
 
 The game sounds like its look: chirpy, whimsical, bouncy chiptune. Each element has its own cast and impact sound (Fire crackles, Thunder zaps, Land thumps, Sea bubbles), pickups chirp, potions glug, level-ups and the Lectern play little chimes, enemies pop, bosses rumble, and a bouncy run loop plays throughout with a faster, tenser loop while a boss lives (music drops a little behind a pause screen). Sound starts on the first tap, click or key press (browsers require it). **M** or the speaker button on the HUD mutes everything, and the choice is remembered. Every sound is made from a small text recipe by the same art tool as the sprites, so replacing one means overwriting its WAV.
 
+### Polish (Sprint 13f)
+
+The game tells you how you are doing. When health falls to half the heart on the health bar starts to beat, and below 30% a red, dotted frame pulses round the edge of the screen, faster as you get closer to dying, with a quiet heartbeat; healing clears it at once. A hit on the wizard flashes it red and shows an arc at the screen edge on the side the hit came from. A spell hits as hard as it is: a long-wait or hard-hitting spell throws a bigger burst of sparks, shakes the screen a little, flashes softly and thuds lower, while a quick, light spell only sparkles. Pickups spark, a level-up showers stars, a Rare scroll sparkles where it lands and a spell nearly out of mana pulses red. Shake is never more than 4 pixels and flashes are soft and rare, and every effect can be switched off from the settings screen planned for Sprint 15.
+
 ### User Interface
 
 The interface should prioritize readability during combat.

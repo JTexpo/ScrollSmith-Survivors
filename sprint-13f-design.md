@@ -1,6 +1,6 @@
 # Sprint 13f Design: Polish
 
-**Status:** Proposed, awaiting approval.
+**Status:** Built (Sprint 13f).
 
 Sprint 13 is six parts: **13a** art foundation, **13b** the world, **13c** spells and equipment, **13d** the interface, **13e** audio (all done), **13f** polish (this doc). Scope comes from the conversation, the Polish and Animation lists in `sprint-development.md`, `CLAUDE.md` and the art and audio pipelines of 13a to 13e. Decisions below were agreed with the user in conversation, except where marked "my call".
 
@@ -75,3 +75,12 @@ Two things feel flat in play (the user's words): **how much health is left** ("s
 - **Guards:** nothing outside the effects code references the director, the burst layer or the camera shake; no autoload; no effect scales or rotates a node (a scan of the effect scenes for scale and rotation); every particle position is rounded to whole pixels.
 - **Real window:** the effects-test scene, then the game with a crowd, a boss and low health. The stress scene with effects on (a `--fx` option) against today's frame rate, and the particle pool never above its cap. Whether it feels right is judged by the user; I cannot feel it, and say so.
 - `godot --headless --import` after adding a `class_name`, then the full suite.
+
+## 6. Revisions during the build
+
+- The hit sound comes from the impact event, not from the 13e "element of the last cast" guess: the event carries the exact element and weight, and `_on_enemy_damaged` only plays the strong and resisted accents.
+- `ImpactWeight.of` takes the cast's `damage_scale` (equipment) so a boosted spell weighs more; `CameraShake` gained `kick(amount)` for fixed shakes and `trauma()` for the test scene.
+- The low-health frame is a code-built dithered image (`VignetteImage`), not a sliced sprite, because the asset test needs a sliced sprite's middle to be one colour.
+- Two new sounds, not one: `heartbeat` and `mana_low`.
+- Every effect has a switch (`FxSettings`: `particles`, `low_health_frame`, `heart_beat`, `hurt_feedback`, `hit_indicators`, `low_mana_pulse`, with the two scales), a user request during the build.
+- The effects-test scene puts impacts and the wizard at the lower left, clear of the buttons; `FxSettings` gained `get_switch` and `set_switch` (Object `get` and `set` cannot reach static variables).
