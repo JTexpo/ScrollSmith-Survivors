@@ -27,7 +27,7 @@ position = Vector2(1540, 780)
 [sub_resource type="Resource" id="poi_chest"]
 script = ExtResource("2")
 scene = ExtResource("p3")
-position = Vector2(1480, 150)
+position = Vector2(208, 944)
 
 [sub_resource type="Resource" id="poi_mana"]
 script = ExtResource("2")
@@ -42,22 +42,22 @@ position = Vector2(760, 970)
 [sub_resource type="Resource" id="poi_merchant"]
 script = ExtResource("2")
 scene = ExtResource("p5")
-position = Vector2(620, 860)
+position = Vector2(1210, 384)
 
 [sub_resource type="Resource" id="west"]
 script = ExtResource("2")
 scene = ExtResource("3")
-position = Vector2(440, 840)
+position = Vector2(176, 656)
 
 [sub_resource type="Resource" id="east"]
 script = ExtResource("2")
 scene = ExtResource("3")
-position = Vector2(1700, 444)
+position = Vector2(1744, 444)
 
 [sub_resource type="Resource" id="south"]
 script = ExtResource("2")
 scene = ExtResource("3")
-position = Vector2(960, 330)
+position = Vector2(1024, 144)
 
 [sub_resource type="Resource" id="ent_w"]
 script = ExtResource("7")
@@ -232,34 +232,6 @@ kind = 1
 position = Vector2(529, 670)
 radius = 18
 
-[sub_resource type="Resource" id="o16"]
-script = ExtResource("5")
-material = &"hedge"
-kind = 0
-position = Vector2(990, 180)
-size = Vector2(220, 16)
-
-[sub_resource type="Resource" id="o17"]
-script = ExtResource("5")
-material = &"hedge"
-kind = 0
-position = Vector2(990, 260)
-size = Vector2(220, 16)
-
-[sub_resource type="Resource" id="o18"]
-script = ExtResource("5")
-material = &"hedge"
-kind = 0
-position = Vector2(200, 740)
-size = Vector2(16, 280)
-
-[sub_resource type="Resource" id="o19"]
-script = ExtResource("5")
-material = &"hedge"
-kind = 0
-position = Vector2(280, 740)
-size = Vector2(16, 280)
-
 [sub_resource type="Resource" id="o20"]
 script = ExtResource("5")
 material = &"hedge"
@@ -337,6 +309,230 @@ kind = 0
 position = Vector2(760, 1010)
 size = Vector2(560, 16)
 
+[sub_resource type="Resource" id="ring_chest_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(265.3, 967.7)
+radius = 17
+
+[sub_resource type="Resource" id="ring_chest_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(231.7, 1001.3)
+radius = 17
+
+[sub_resource type="Resource" id="ring_chest_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(184.3, 1001.3)
+radius = 17
+
+[sub_resource type="Resource" id="ring_chest_3"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(150.7, 967.7)
+radius = 17
+
+[sub_resource type="Resource" id="ring_chest_4"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(150.7, 920.3)
+radius = 17
+
+[sub_resource type="Resource" id="ring_chest_5"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(184.3, 886.7)
+radius = 17
+
+[sub_resource type="Resource" id="ring_west_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(199.7, 713.3)
+radius = 17
+
+[sub_resource type="Resource" id="ring_west_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(152.3, 713.3)
+radius = 17
+
+[sub_resource type="Resource" id="ring_west_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(118.7, 679.7)
+radius = 17
+
+[sub_resource type="Resource" id="ring_west_3"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(118.7, 632.3)
+radius = 17
+
+[sub_resource type="Resource" id="ring_west_4"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(152.3, 598.7)
+radius = 17
+
+[sub_resource type="Resource" id="ring_west_5"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(199.7, 598.7)
+radius = 17
+
+[sub_resource type="Resource" id="ring_north_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(966.7, 167.7)
+radius = 17
+
+[sub_resource type="Resource" id="ring_north_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(966.7, 120.3)
+radius = 17
+
+[sub_resource type="Resource" id="ring_north_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1000.3, 86.7)
+radius = 17
+
+[sub_resource type="Resource" id="ring_north_3"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1047.7, 86.7)
+radius = 17
+
+[sub_resource type="Resource" id="ring_north_4"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1081.3, 120.3)
+radius = 17
+
+[sub_resource type="Resource" id="ring_north_5"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1081.3, 167.7)
+radius = 17
+
+[sub_resource type="Resource" id="yard_0"]
+script = ExtResource("5")
+material = &"hedge"
+kind = 0
+position = Vector2(1210, 316)
+size = Vector2(160, 16)
+
+[sub_resource type="Resource" id="yard_1"]
+script = ExtResource("5")
+material = &"hedge"
+kind = 0
+position = Vector2(1210, 452)
+size = Vector2(160, 16)
+
+[sub_resource type="Resource" id="yard_2"]
+script = ExtResource("5")
+material = &"hedge"
+kind = 0
+position = Vector2(1282, 384)
+size = Vector2(16, 120)
+
+[sub_resource type="Resource" id="yard_3"]
+script = ExtResource("5")
+material = &"hedge"
+kind = 0
+position = Vector2(1138, 326)
+size = Vector2(16, 36)
+
+[sub_resource type="Resource" id="yard_4"]
+script = ExtResource("5")
+material = &"hedge"
+kind = 0
+position = Vector2(1138, 442)
+size = Vector2(16, 36)
+
+[sub_resource type="Resource" id="room_0"]
+script = ExtResource("5")
+material = &"hedge"
+kind = 0
+position = Vector2(1640, 370)
+size = Vector2(16, 68)
+
+[sub_resource type="Resource" id="room_1"]
+script = ExtResource("5")
+material = &"hedge"
+kind = 0
+position = Vector2(1640, 514)
+size = Vector2(16, 60)
+
+[sub_resource type="Resource" id="room_2"]
+script = ExtResource("5")
+material = &"hedge"
+kind = 0
+position = Vector2(1852, 440)
+size = Vector2(16, 208)
+
+[sub_resource type="Resource" id="grove_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(330.0, 780.0)
+radius = 22
+
+[sub_resource type="Resource" id="grove_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(367.0, 802.0)
+radius = 20
+
+[sub_resource type="Resource" id="grove_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(349.0, 820.0)
+radius = 18
+
+[sub_resource type="Resource" id="grove_3"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(460.0, 750.0)
+radius = 22
+
+[sub_resource type="Resource" id="grove_4"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(497.0, 772.0)
+radius = 20
+
+[sub_resource type="Resource" id="grove_5"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(479.0, 790.0)
+radius = 18
+
 [resource]
 script = ExtResource("1")
 id = &"first_map"
@@ -349,7 +545,7 @@ border_style = &"border"
 player_start = Vector2(960, 540)
 spawn_config = ExtResource("4")
 placements = Array[ExtResource("2")]([SubResource("west"), SubResource("east"), SubResource("south"), SubResource("poi_rare_nw"), SubResource("poi_rare_se"), SubResource("poi_chest"), SubResource("poi_mana"), SubResource("poi_health"), SubResource("poi_merchant")])
-obstacles = Array[ExtResource("5")]([SubResource("o01"), SubResource("o02"), SubResource("o03"), SubResource("o07"), SubResource("o08"), SubResource("o09"), SubResource("o10"), SubResource("o11"), SubResource("o12"), SubResource("o13"), SubResource("o14"), SubResource("o15"), SubResource("o16"), SubResource("o17"), SubResource("o18"), SubResource("o19"), SubResource("o20"), SubResource("o21"), SubResource("o22"), SubResource("o23"), SubResource("o24"), SubResource("o25"), SubResource("o26"), SubResource("o27"), SubResource("o28"), SubResource("o29"), SubResource("o30")])
+obstacles = Array[ExtResource("5")]([SubResource("o01"), SubResource("o02"), SubResource("o03"), SubResource("o07"), SubResource("o08"), SubResource("o09"), SubResource("o10"), SubResource("o11"), SubResource("o12"), SubResource("o13"), SubResource("o14"), SubResource("o15"), SubResource("o20"), SubResource("o21"), SubResource("o22"), SubResource("o23"), SubResource("o24"), SubResource("o25"), SubResource("o26"), SubResource("o27"), SubResource("o28"), SubResource("o29"), SubResource("o30"), SubResource("ring_chest_0"), SubResource("ring_chest_1"), SubResource("ring_chest_2"), SubResource("ring_chest_3"), SubResource("ring_chest_4"), SubResource("ring_chest_5"), SubResource("ring_west_0"), SubResource("ring_west_1"), SubResource("ring_west_2"), SubResource("ring_west_3"), SubResource("ring_west_4"), SubResource("ring_west_5"), SubResource("ring_north_0"), SubResource("ring_north_1"), SubResource("ring_north_2"), SubResource("ring_north_3"), SubResource("ring_north_4"), SubResource("ring_north_5"), SubResource("yard_0"), SubResource("yard_1"), SubResource("yard_2"), SubResource("yard_3"), SubResource("yard_4"), SubResource("room_0"), SubResource("room_1"), SubResource("room_2"), SubResource("grove_0"), SubResource("grove_1"), SubResource("grove_2"), SubResource("grove_3"), SubResource("grove_4"), SubResource("grove_5")])
 mazes = Array[ExtResource("6")]([SubResource("maze_nw"), SubResource("maze_se")])
 zones = Array[ExtResource("8")]([SubResource("zone_maze"), SubResource("zone_labyrinth"), SubResource("zone_island"), SubResource("zone_corridor"), SubResource("zone_plaza")])
 decoration_count = 0

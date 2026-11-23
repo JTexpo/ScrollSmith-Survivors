@@ -608,3 +608,13 @@ Measured (`--enemies=300 --seconds=8 --obstacles --drops`, three runs each): abo
 Checked in a real window: 45%, 25% and 8% health (rates 0.5, 1.0 and 1.68 Hz), a heal and a death clear the warning at once, the crafting screen at low health shows nothing pulsing behind it, and the effects-test scene.
 
 Left open: **the feel was not judged**, every weight, size, gap and opacity is a starting value to tune in the effects-test scene; the starting spells weigh about 0.07, 0.32 and 0.42, so only the heaviest shakes the screen; the second new sound (`mana_low`) was not in the design; the settings screen and saving the switches are Sprint 15.
+
+## 2026-11-23: Sprint 14a (the world pass)
+
+Decisions (user): spread the points of interest evenly and make each one a struggle to reach, taking the Rare spots, the Health Shrine and the Mana Shrine as the model; guard the merchant and the Lecterns too; fill the bare bottom-left with trees and the chest; Sprint 14 is split into 14a world, 14b balance (the Missile gets a small explosion and a slower cast, potion stock is capped and potions are no longer sold before or after runs, XP pacing stays) and 14c optimization.
+
+What was built: map data only. Five placements moved, a tree ring for the chest and two Lecterns, a hedge yard for the merchant, a hedge room for the east Lectern, a two-clump grove, and four old hedge walls removed; `tests/test_first_map_world_pass.gd` pins it.
+
+Found while building: a 158 px ring does not fit the 184 px strip east of the island (one-cell slivers), a circular clearing off the 16 px grid has one-cell edge rows, and a ray test needs the body clearance because ring trees leave 13 px slits. Stress is about 106 fps (unchanged within noise).
+
+Left open: the feel of the layout is the user's call; the west Lectern and the chest are about 320 px apart.
