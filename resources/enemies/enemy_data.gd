@@ -34,3 +34,5 @@ extends Resource
 @export var behavior: EnemyBehaviorData
 ## The archetype this was composed from (empty for hand-made data).
 @export var archetype_id: StringName
+## The element this was composed with ("fire", "none" ...), which picks the sprite's colour variant. Empty for hand-made data.
+@export var element_id: StringName

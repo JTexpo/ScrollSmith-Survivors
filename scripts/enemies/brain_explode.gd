@@ -30,6 +30,7 @@ func step(enemy: Enemy, _delta: float) -> Vector2:
 func _start_fuse(enemy: Enemy, behavior: EnemyBehaviorData) -> void:
 	_fusing = true
 	enemy.modulate = FUSE_TINT
+	enemy.show_state(&"fuse")
 	_zone = BlastZone.place(
 		enemy.get_parent(),
 		BLAST_SCENE,

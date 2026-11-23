@@ -14,6 +14,7 @@ func compose(archetype: EnemyArchetype, element: EnemyElement) -> EnemyData:
 	var data := EnemyData.new()
 	data.display_name = ("%s %s" % [element.display_name, archetype.display_name]).strip_edges()
 	data.archetype_id = archetype.id
+	data.element_id = element.id
 	data.max_health = archetype.max_health
 	data.speed = archetype.speed
 	data.contact_damage = archetype.contact_damage

@@ -119,7 +119,7 @@ func test_a_composed_enemy_can_be_set_up_on_the_enemy_scene() -> void:
 	enemy.setup(data, Rect2(0, 0, 960, 540), RandomNumberGenerator.new())
 	add_child_autofree(enemy)
 	assert_eq(enemy.get_node("HealthComponent").max_health, 80.0)
-	assert_eq(enemy.get_node("Body").color, data.color)
+	assert_eq((enemy.get_node("Body") as BodyView).fallback_color, data.color)
 	assert_eq(enemy.get_node("HurtboxComponent").element, SpellData.Element.LAND)
 
 

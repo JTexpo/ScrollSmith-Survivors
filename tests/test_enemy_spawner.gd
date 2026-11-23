@@ -261,7 +261,7 @@ func test_a_spawned_enemy_is_a_composed_pair() -> void:
 	assert_eq(enemy.data.display_name, "Fire Tank")
 	assert_eq(enemy.data.element, SpellData.Element.FIRE)
 	assert_eq(enemy.data.archetype_id, &"tank")
-	assert_eq(enemy.get_node("Body").color, enemy.data.color)
+	assert_eq((enemy.get_node("Body") as BodyView).fallback_color, enemy.data.color)
 	assert_eq(enemy.scale, Vector2.ONE * 1.5)
 
 

@@ -37,6 +37,7 @@ func step(enemy: Enemy, delta: float) -> Vector2:
 			behavior.projectile_damage * enemy.damage_multiplier(),
 			behavior.projectile_range,
 		)
+		enemy.show_state(&"attack", 0.3)
 	if distance > behavior.preferred_distance + HOLD_MARGIN or not clear:
 		return enemy.direction_to_target() * enemy.speed
 	if distance < behavior.preferred_distance - HOLD_MARGIN and distance > 0.0:

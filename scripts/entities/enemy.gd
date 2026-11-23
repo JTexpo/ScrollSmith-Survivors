@@ -28,6 +28,10 @@ var _brain: EnemyBrain
 
 var _bounds: Rect2 = Rect2(0, 0, 960, 540)
 var _dead: bool = false
+## Seconds left of a timed state animation (an attack, a pulse). 0 means no timer.
+var _state_left: float = 0.0
+## The sprite and colour variant last shown, so the sprite is only looked up when it changes.
+var _look_key: String = ""
 ## The map's obstacles, found once at `_ready`. Null means there are none, and the enemy moves as before.
 var _obstacle_map: ObstacleMap
 
@@ -36,7 +40,7 @@ var _obstacle_map: ObstacleMap
 @onready var _hitbox: HitboxComponent = $ContactHitbox
 @onready var _knockback: KnockbackComponent = $KnockbackComponent
 @onready var _flash: HitFlashComponent = $HitFlashComponent
-@onready var _body: ColorRect = $Body
+@onready var _body: BodyView = $Body
 
 
 func _ready() -> void:
@@ -55,6 +59,8 @@ func _physics_process(delta: float) -> void:
 	if _brain == null:
 		_brain = EnemyBrain.for_data(data)
 	var velocity := _brain.step(self, delta) + _knockback.update(delta)
+	_body.set_facing(velocity.x)
+	_tick_state(delta)
 	var next := position + velocity * delta
 	if _obstacle_map != null:
 		next = _obstacle_map.resolve_move(position, next)
@@ -185,12 +191,15 @@ func _apply_data() -> void:
 	if _base_speed > 0.0:
 		speed = _base_speed * _speed_scale * (_elite.speed_multiplier if _elite != null else 1.0)
 	scale = Vector2.ONE * data.body_scale * (_elite.size_multiplier if _elite != null else 1.0)
+	_apply_look()
 	if _elite != null:
-		_ensure_outline()
+		if _body.has_art():
+			_body.set_outline(_elite.outline_color, true)
+		else:
+			_ensure_outline()
 	_hitbox.hit_cooldown = data.contact_cooldown
 	_hitbox.knockback = data.contact_knockback
 	_hurtbox.element = data.element
-	_body.color = data.color
 
 
 func _scaled_reward(base: int) -> int:
@@ -199,7 +208,39 @@ func _scaled_reward(base: int) -> int:
 	return maxi(roundi(base * (_elite.reward_multiplier if _elite != null else 1.0)), 1)
 
 
-## A coloured square just behind the body, so an elite can be told apart at a glance.
+## Chooses what the enemy looks like: the sprite of its archetype in its element's colours, or the coloured square
+## when there is no art (hand-made data). The sprite is kept 1:1 whatever the node's scale, which sizes the hit shapes.
+func _apply_look() -> void:
+	_body.fallback_color = data.color
+	var key := "%s|%s" % [data.archetype_id, data.element_id]
+	if key != _look_key:
+		_look_key = key
+		if data.archetype_id != &"":
+			_body.set_look(StringName("enemy_%s" % data.archetype_id), data.element_id if data.element_id != &"" else &"none")
+	if _body.has_art():
+		_body.counter_scale(scale)
+		_body.play(&"move")
+
+
+## Plays a state animation (an attack, a fuse, a pulse), and goes back to walking after `seconds` (0 keeps it until
+## something else replaces it). A state the sprite does not have is ignored.
+func show_state(state: StringName, seconds: float = 0.0) -> void:
+	if _dead or not _body.has_animation(state):
+		return
+	_body.play(state)
+	_state_left = seconds
+
+
+func _tick_state(delta: float) -> void:
+	if _state_left <= 0.0:
+		return
+	_state_left -= delta
+	if _state_left <= 0.0:
+		_state_left = 0.0
+		_body.play(&"move")
+
+
+## A coloured square just behind the body, so an elite without art can be told apart at a glance.
 func _ensure_outline() -> void:
 	var outline := get_node_or_null("EliteOutline") as ColorRect
 	if outline == null:
@@ -221,6 +262,11 @@ func _on_hit_received(damage: float, source_position: Vector2, knockback: float,
 	damaged.emit(global_position, damage, effect)
 
 
+func _on_death_animation_done(animation: StringName) -> void:
+	if animation == &"death":
+		queue_free()
+
+
 func _on_died() -> void:
 	if _dead:
 		return
@@ -229,6 +275,15 @@ func _on_died() -> void:
 	_hitbox.set_deferred("monitorable", false)
 	set_physics_process(false)
 	died.emit(self)
+	if _body.has_animation(&"death"):
+		# The death animation ends it. The timer is a net, so a missing or empty animation cannot keep it for ever.
+		_state_left = 0.0
+		_body.animation_done.connect(_on_death_animation_done, CONNECT_ONE_SHOT)
+		_body.play(&"death")
+		var net := create_tween()
+		net.tween_interval(1.0)
+		net.tween_callback(queue_free)
+		return
 	var tween := create_tween()
 	tween.tween_property(self, "scale", Vector2.ZERO, 0.12)
 	tween.tween_callback(queue_free)

@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://scripts/components/knockback_component.gd" id="5"]
 [ext_resource type="Script" path="res://scripts/components/hit_flash_component.gd" id="6"]
 [ext_resource type="Resource" path="res://resources/enemies/default_enemy.tres" id="7"]
+[ext_resource type="Script" path="res://scripts/entities/body_view.gd" id="8"]
 
 [sub_resource type="RectangleShape2D" id="box"]
 size = Vector2(12, 12)
@@ -15,13 +16,9 @@ size = Vector2(12, 12)
 script = ExtResource("1")
 data = ExtResource("7")
 
-[node name="Body" type="ColorRect" parent="."]
-mouse_filter = 2
-offset_left = -6.0
-offset_top = -6.0
-offset_right = 6.0
-offset_bottom = 6.0
-color = Color(0.9, 0.25, 0.25, 1)
+[node name="Body" type="Node2D" parent="."]
+script = ExtResource("8")
+fallback_color = Color(0.9, 0.25, 0.25, 1)
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("2")

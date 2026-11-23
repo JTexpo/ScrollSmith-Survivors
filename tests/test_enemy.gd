@@ -167,7 +167,7 @@ func test_enemy_takes_its_element_and_colour_from_data() -> void:
 	for row in ENEMY_FILES:
 		var enemy := _enemy_from(row[0])
 		assert_eq((enemy.get_node("HurtboxComponent") as HurtboxComponent).element, row[1], row[0])
-		assert_eq((enemy.get_node("Body") as ColorRect).color, row[5], row[0])
+		assert_eq((enemy.get_node("Body") as BodyView).fallback_color, row[5], row[0])
 		assert_eq((enemy.get_node("ContactHitbox") as HitboxComponent).damage, row[3], row[0])
 		assert_eq((enemy.get_node("ContactHitbox") as HitboxComponent).element, SpellData.NO_ELEMENT, row[0])
 
