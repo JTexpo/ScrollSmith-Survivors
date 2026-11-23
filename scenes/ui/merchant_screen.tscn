@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/merchant_screen.gd" id="1"]
+
+[node name="MerchantScreen" type="CanvasLayer"]
+process_mode = 3
+layer = 12
+visible = false
+script = ExtResource("1")
