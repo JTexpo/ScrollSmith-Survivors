@@ -118,3 +118,13 @@ func test_the_crescent_is_a_faint_tint_with_an_edge_in_its_elements_colours() ->
 	assert_eq((wave.get_node("Visual") as Polygon2D).color, look.tint)
 	assert_eq(((wave.get_node("Visual") as Polygon2D).get_node("Edge") as Line2D).default_color, look.edge)
 
+
+func test_the_orbs_never_drift_ahead_of_the_hit_area_as_the_wave_widens() -> void:
+	var spell := _spell(WAVE)
+	var wave := _wave(spell)
+	var front := spell.effective_size() * WaveArea.BULGE_RATIO
+	for step in 8:
+		wave._physics_process(0.2)
+		for orb in wave.orbs():
+			assert_lte(wave.to_local(orb.global_position).x, front + 0.6, "only the crescent's height stretches, so its front stays at %s" % front)
+

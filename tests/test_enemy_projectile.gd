@@ -142,3 +142,11 @@ func test_a_shot_is_drawn_one_to_one() -> void:
 	var shot := _fire_as(&"land")
 	assert_almost_eq((shot.get_node("Orb/Sprite") as Node2D).global_transform.get_scale().x, 1.0, 0.001)
 
+
+func test_a_shot_draws_above_the_players_effect_sprites() -> void:
+	var shot := _fire_as(&"fire")
+	var effect := EffectSprite.spawn(_root, &"fx_fire_burst", Vector2(100, 100), 0.0, 0.1)
+	assert_gt(shot.z_index, effect.z_index, "an enemy shot is never covered by a spell effect")
+	assert_eq(shot.z_index, WarningMark.ATTACK_Z)
+	effect.queue_free()
+

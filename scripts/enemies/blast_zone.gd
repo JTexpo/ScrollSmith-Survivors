@@ -62,6 +62,7 @@ static func _eviction_victim(zones: Array) -> BlastZone:
 
 
 func _ready() -> void:
+	z_index = WarningMark.ATTACK_Z
 	add_to_group(&"blast_zones")
 
 
@@ -163,7 +164,10 @@ func _spawn_bursts() -> void:
 		for i in count:
 			spots.append(global_position + Vector2.from_angle(TAU * i / count) * radius * 0.55)
 	for spot in spots:
-		EffectSprite.spawn(parent, &"fx_blast_burst", spot + Vector2(0.0, BURST_SIZE / 2.0 - 2.0), 0.0, 0.1)
+		var burst := EffectSprite.spawn(parent, &"fx_blast_burst", spot + Vector2(0.0, BURST_SIZE / 2.0 - 2.0), 0.0, 0.1)
+		if burst != null:
+			burst.z_as_relative = false
+			burst.z_index = WarningMark.ATTACK_Z
 
 
 func is_detonated() -> bool:

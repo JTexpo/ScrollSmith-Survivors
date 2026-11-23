@@ -86,7 +86,8 @@ func _update_orbs() -> void:
 		_orbs.append(orb)
 	while _orbs.size() > wanted:
 		_orbs.pop_back().queue_free()
-	var bulge := width * BULGE_RATIO
+	# Only the crescent's height stretches as it widens, so its front stays where it was launched.
+	var bulge := _base_width * BULGE_RATIO
 	for i in _orbs.size():
 		var t := lerpf(-1.0, 1.0, float(i) / float(maxi(_orbs.size() - 1, 1)))
 		_orbs[i].global_position = to_global(Vector2(bulge * (1.0 - t * t), t * width * 0.5)).round()

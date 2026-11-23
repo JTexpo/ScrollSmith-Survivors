@@ -41,6 +41,7 @@ static func fire(
 
 
 func _ready() -> void:
+	z_index = WarningMark.ATTACK_Z
 	add_to_group(&"enemy_projectiles")
 	_obstacle_map = get_tree().get_first_node_in_group(&"obstacle_map") as ObstacleMap
 	hitbox.hit_landed.connect(_on_hit_landed)

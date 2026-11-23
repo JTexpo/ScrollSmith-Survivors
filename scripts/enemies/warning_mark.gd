@@ -4,6 +4,9 @@ extends RefCounted
 ## sprite on a world point, dim or bright. Null without art, which is how a caller knows to draw its old shapes.
 
 const SPRITE := &"fx_warning_mark"
+## The depth every enemy attack is drawn at (a shot, a blast zone, its warning marks and its burst): above the player's effect
+## sprites (depth 0), so a spell played over an enemy attack never hides it, and above the pickups (1 and 2).
+const ATTACK_Z := 3
 
 static var _set_cache: Dictionary = {}
 
@@ -17,6 +20,8 @@ static func make(parent: Node2D, at: Vector2, bright: bool) -> Sprite2D:
 	mark.texture = found.sheet
 	mark.region_enabled = true
 	mark.top_level = true
+	mark.z_as_relative = false
+	mark.z_index = ATTACK_Z
 	parent.add_child(mark)
 	mark.global_position = at.round()
 	set_bright(mark, bright)

@@ -194,3 +194,17 @@ func test_run_start_puts_the_equipped_items_on_the_wizard_and_twice_is_the_same(
 	RunStart.prepare(_player, _profile, _track, _buffs, _catalog)
 	assert_eq(body.layer_names().size(), 4)
 
+
+func after_each() -> void:
+	SpriteLibrary.root = "res://assets/sprites"
+
+
+func test_run_start_adds_no_layers_to_a_wizard_that_is_not_layered() -> void:
+	SpriteLibrary.root = "res://.godot/art_tests/no_such_folder"
+	var plain := load("res://scenes/player/player.tscn").instantiate() as Player
+	_root.add_child(plain)
+	_profile.grant(&"hood_mana")
+	_profile.equip(int(EquipmentData.Slot.HEADWEAR), &"hood_mana")
+	RunStart.prepare(plain, _profile, _track, _buffs, _catalog)
+	assert_eq((plain.get_node("Body") as BodyView).layer_names().size(), 0, "no body art means no robe, beard or hood floating on the fallback")
+

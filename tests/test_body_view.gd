@@ -319,3 +319,21 @@ func test_only_a_shown_layer_turns_processing_on() -> void:
 	_body.add_layer(&"robe")
 	assert_false(_body.is_processing(), "an empty layer does not either")
 
+
+func test_a_layer_changes_frame_in_the_same_moment_as_the_body_not_a_frame_later() -> void:
+	var root := "res://.godot/art_tests/layers_%s" % str(randi())
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(root))
+	_save_layer_art("hat_base.tres", root)
+	SpriteLibrary.root = root
+	_body.set_set(_two_frame_set(Color.BLUE))
+	_body.add_layer(&"headwear")
+	_body.set_layer(&"headwear", &"hat")
+	_body.play(&"idle")
+	_sprite().frame = 1
+	assert_eq(_layer_sprite(&"headwear").frame, 1, "no wait for the next _process: a hat that lags the head by a frame jumps off it")
+	_sprite().frame = 0
+	assert_eq(_layer_sprite(&"headwear").frame, 0)
+	SpriteLibrary.root = "res://assets/sprites"
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("%s/hat_base.tres" % root))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(root))
+

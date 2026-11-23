@@ -172,3 +172,11 @@ func test_the_charge_warning_uses_marks_along_the_dash_line_then_clears() -> voi
 	_step(boss, 0.6)
 	assert_eq(boss.charge_marks().size(), 0, "gone when the charge starts")
 
+
+func test_the_charge_marks_draw_above_the_players_effect_sprites() -> void:
+	var boss := _titan(_attack(K.CHARGE, 0.5))
+	_step(boss, 0.5)
+	for mark in boss.charge_marks():
+		assert_eq(mark.z_index, WarningMark.ATTACK_Z)
+		assert_false(mark.z_as_relative)
+

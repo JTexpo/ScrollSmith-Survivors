@@ -52,6 +52,13 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
+	_sync_followers()
+
+
+## The outline and every layer copy the sprite's animation and frame. This runs the moment the sprite's frame or animation changes
+## (its signals), because the sprite advances after this node's own `_process`, so syncing only there lagged a frame behind and a
+## worn hat jumped off the head for a moment on every step. `_process` stays for the flip and for anything that changed no frame.
+func _sync_followers() -> void:
 	# The outline copies the sprite's frame, so it is always the same pose, a pixel bigger.
 	if _outline.visible and _sprite.animation != &"" and _outline.sprite_frames != null and _outline.sprite_frames.has_animation(_sprite.animation):
 		_outline.animation = _sprite.animation
@@ -285,6 +292,8 @@ func _ensure_children() -> void:
 	_sprite.name = "Sprite"
 	_sprite.visible = false
 	_sprite.animation_finished.connect(func() -> void: animation_done.emit(_sprite.animation))
+	_sprite.frame_changed.connect(_sync_followers)
+	_sprite.animation_changed.connect(_sync_followers)
 	add_child(_sprite)
 	_fallback = ColorRect.new()
 	_fallback.name = "Fallback"

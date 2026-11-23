@@ -241,3 +241,14 @@ func test_a_zone_without_art_still_draws_its_circles() -> void:
 	zone._process(1.0)
 	assert_eq(_effects().size(), 0)
 
+
+func test_the_warning_and_the_burst_draw_above_the_players_effect_sprites() -> void:
+	var zone := _zone(_player.global_position, 30.0)
+	assert_eq(zone.z_index, WarningMark.ATTACK_Z)
+	for mark in zone.outer_marks() + zone.inner_marks():
+		assert_eq(mark.z_index, WarningMark.ATTACK_Z)
+		assert_false(mark.z_as_relative, "the same depth whatever its parent's")
+	zone._process(1.0)
+	for effect in _effects():
+		assert_eq(effect.z_index, WarningMark.ATTACK_Z, "the blast's burst is an enemy attack too")
+
