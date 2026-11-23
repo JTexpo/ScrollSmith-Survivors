@@ -38,3 +38,22 @@ func test_prompt_starts_hidden_and_toggles() -> void:
 
 func test_lectern_joins_the_group() -> void:
 	assert_true(_lectern().is_in_group(&"lecterns"))
+
+
+func after_each() -> void:
+	SpriteLibrary.root = "res://assets/sprites"
+
+
+func test_the_lectern_has_art_and_a_glow() -> void:
+	var body := _lectern().get_node("Body") as BodyView
+	assert_true(body.has_art())
+	assert_true(body.has_animation(&"idle"))
+	assert_eq(body.current_animation(), &"idle")
+
+
+func test_the_lectern_without_art_shows_the_fallback_square() -> void:
+	SpriteLibrary.root = "res://.godot/art_tests/no_such_folder"
+	var body := _lectern().get_node("Body") as BodyView
+	assert_false(body.has_art())
+	assert_true((body.get_node("Fallback") as ColorRect).visible)
+

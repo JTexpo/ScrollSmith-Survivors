@@ -20,10 +20,15 @@ var cooldown_left: float = 0.0
 var stock: MerchantStock
 
 @onready var _prompt: Label = $Prompt
+@onready var _body: BodyView = $Body
 
 
 func _ready() -> void:
 	add_to_group(&"points_of_interest")
+	# With art the sprite shows and only the ring is drawn; without it the old drawn shape stands in and the square hides.
+	var has_art := data != null and data.sprite_name != &"" and _body.set_look(data.sprite_name)
+	_body.visible = has_art
+	_refresh_look()
 	if data != null and data.kind == PointOfInterestData.Kind.MERCHANT:
 		stock = MerchantStock.new()
 		stock.setup(PotionCatalog.default_catalog(), data.stock_per_potion)
@@ -35,6 +40,8 @@ func _process(delta: float) -> void:
 	if cooldown_left > 0.0:
 		cooldown_left = maxf(cooldown_left - delta, 0.0)
 		queue_redraw()
+		if cooldown_left <= 0.0:
+			_refresh_look()
 	if stock != null:
 		var restocking := not stock.is_full()
 		stock.tick(delta, data.refresh_seconds)
@@ -54,7 +61,18 @@ func is_ready() -> bool:
 
 func start_cooldown() -> void:
 	cooldown_left = data.refresh_seconds
+	_refresh_look()
 	queue_redraw()
+
+
+## The dimmed look while it refreshes and the lively one when it is ready. A merchant never refreshes.
+func _refresh_look() -> void:
+	_body.play(&"used" if cooldown_left > 0.0 else &"ready")
+
+
+## True when the old drawn rectangles are used because there is no sprite.
+func draws_fallback_shape() -> bool:
+	return not _body.has_art()
 
 
 ## 0 just after a use, 1 when ready again. For a merchant it is the restock, and 1 while its stock is full.
@@ -91,8 +109,9 @@ func _draw() -> void:
 	if data == null:
 		return
 	var color := data.color
-	draw_rect(Rect2(-7, -6, 14, 12), color.darkened(0.35))
-	draw_rect(Rect2(-9, -10, 18, 5), color)
+	if draws_fallback_shape():
+		draw_rect(Rect2(-7, -6, 14, 12), color.darkened(0.35))
+		draw_rect(Rect2(-9, -10, 18, 5), color)
 	draw_arc(Vector2.ZERO, RING_RADIUS, 0.0, TAU, 32, Color(color, 0.3), 1.0)
 	var progress := refresh_progress()
 	if progress < 1.0:

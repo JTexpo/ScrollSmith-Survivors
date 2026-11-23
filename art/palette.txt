@@ -57,6 +57,9 @@ color E #7a4e2a
 color F #53331a
 # Flower pink
 color H #ff8fb8
+# Mana blue: dark and light
+color e #3aa0ff
+color D #a8dcff
 
 # Element variants (README: Fire orange, red, yellow; Thunder yellow, white, electric blue; Land brown, green; Sea blue, cyan, turquoise)
 variant none    #5a5470 #8a829c #c9c3d6 #7a5a3a #c9a06a

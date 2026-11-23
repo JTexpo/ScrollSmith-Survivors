@@ -16,4 +16,5 @@ scroll_table = ExtResource("2")
 stock_per_potion = 0
 price_multiplier = 1.0
 refresh_seconds = 300.0
+sprite_name = &"poi_chest"
 color = Color(0.95, 0.8, 0.25, 1)

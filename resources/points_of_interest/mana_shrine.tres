@@ -16,4 +16,5 @@ scroll_count = 0
 stock_per_potion = 0
 price_multiplier = 1.0
 refresh_seconds = 240.0
+sprite_name = &"poi_mana_shrine"
 color = Color(0.3, 0.5, 0.95, 1)

@@ -16,4 +16,5 @@ scroll_count = 0
 stock_per_potion = 2
 price_multiplier = 1.5
 refresh_seconds = 300.0
+sprite_name = &"poi_merchant"
 color = Color(0.3, 0.8, 0.55, 1)
