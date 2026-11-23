@@ -340,3 +340,70 @@ func test_floor_patches_never_catch_touches() -> void:
 	for patch in patches:
 		assert_true(patch is Node2D and not patch is Control, "%s is a drawing, not a Control" % patch.name)
 
+
+func _wall_art(file: String, tile: bool = true) -> void:
+	_tile_art(file)
+	var set_data := load("%s/%s" % [_art_dir, file]) as SpriteSetData
+	set_data.slice = Vector4i(4, 4, 4, 4) if tile else Vector4i.ZERO
+	assert_eq(ResourceSaver.save(set_data, "%s/%s" % [_art_dir, file]), OK)
+
+
+func _art_obstacle(kind: MapObstacle.Kind, at: Vector2, material: StringName) -> MapObstacle:
+	var obstacle := MapObstacle.new()
+	obstacle.kind = kind
+	obstacle.position = at
+	obstacle.size = Vector2(160, 16)
+	obstacle.radius = 20.0
+	obstacle.material = material
+	return obstacle
+
+
+func _art_obstacle_data(material: StringName) -> MapData:
+	var data := _data()
+	data.obstacles = [_art_obstacle(MapObstacle.Kind.RECT, Vector2(150, 200), material), _art_obstacle(MapObstacle.Kind.CIRCLE, Vector2(300, 100), material)] as Array[MapObstacle]
+	return data
+
+
+func test_obstacle_art_never_changes_the_shapes_bodies_or_blocking() -> void:
+	var plain := _map_node(_art_obstacle_data(&""))
+	_wall_art("wall_hedge_base.tres")
+	_wall_art("post_hedge_base.tres", false)
+	var styled := _map_node(_art_obstacle_data(&"hedge"))
+	assert_eq((styled.get_node("Obstacles") as ObstacleLayer).item_count(), (plain.get_node("Obstacles") as ObstacleLayer).item_count())
+	assert_eq(styled.get_node("ObstacleBodies").get_child_count(), plain.get_node("ObstacleBodies").get_child_count())
+	for i in styled.get_node("ObstacleBodies").get_child_count():
+		var a := styled.get_node("ObstacleBodies").get_child(i) as StaticBody2D
+		var b := plain.get_node("ObstacleBodies").get_child(i) as StaticBody2D
+		assert_eq(a.position, b.position)
+		assert_eq((a.get_node("CollisionShape2D") as CollisionShape2D).shape.get_rect(), (b.get_node("CollisionShape2D") as CollisionShape2D).shape.get_rect())
+	var plain_map := plain.get_node("ObstacleMap") as ObstacleMap
+	var styled_map := styled.get_node("ObstacleMap") as ObstacleMap
+	for point in [Vector2(150, 200), Vector2(300, 100), Vector2(50, 50), Vector2(150, 230)]:
+		assert_eq(styled_map.is_blocked(point), plain_map.is_blocked(point), "%s" % point)
+
+
+func test_a_wall_with_art_is_drawn_as_art_and_one_without_keeps_the_flat_colour() -> void:
+	_wall_art("wall_hedge_base.tres")
+	_wall_art("post_hedge_base.tres", false)
+	var chunks := (_map_node(_art_obstacle_data(&"hedge")).get_node("Obstacles") as ObstacleLayer)
+	var with_art := 0
+	for chunk in chunks.get_children():
+		with_art += (chunk as DrawChunk).art_obstacle_count()
+	assert_eq(with_art, 2, "the wall and the post use their art")
+	for material in [&"", &"no_such_material"]:
+		var flat := (_map_node(_art_obstacle_data(material)).get_node("Obstacles") as ObstacleLayer)
+		var count := 0
+		for chunk in flat.get_children():
+			count += (chunk as DrawChunk).art_obstacle_count()
+		assert_eq(count, 0, "no art for '%s' keeps the flat fill" % material)
+
+
+func test_draw_chunks_with_art_still_split_the_layer() -> void:
+	_wall_art("wall_hedge_base.tres")
+	var data := _art_obstacle_data(&"hedge")
+	data.obstacles[0].position = Vector2(250, 220)
+	data.obstacles[1].position = Vector2(900, 700)
+	data.size = Vector2(1200, 900)
+	var layer := _map_node(data).get_node("Obstacles") as ObstacleLayer
+	assert_gt(layer.chunk_count(), 1, "far apart obstacles are in different chunks")
+

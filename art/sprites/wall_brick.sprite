@@ -1,0 +1,22 @@
+# A brick wall: a light top course, red bricks and dark mortar.
+tile
+slice 4 4 4 4
+size 16 16
+anim idle 0 0 1 loop
+frame
+KKKKKKKKKKKKKKKK
+KzzzzzzzzzzzzzzK
+KzxxxxxxxxxxxxzK
+KzxrrrrrrrrrrxzK
+KzxrrzzzxxxxrxzK
+KzxrrxxxxxxxrxzK
+KzxrrxxxxxxxrxzK
+KzxrrrrrrrrrrxzK
+KzxrxxxxrzzzrxzK
+KzxrxxxxrxxxrxzK
+KzxrxxxxrxxxrxzK
+KzxrrrrrrrrrrxzK
+KzxrrrrrrrrrrxzK
+KzxxxxxxxxxxxxzK
+KzzzzzzzzzzzzzzK
+KKKKKKKKKKKKKKKK

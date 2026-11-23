@@ -1,0 +1,22 @@
+# A hedge wall: a dark underside, leafy green and a lighter top edge.
+tile
+slice 4 4 4 4
+size 16 16
+anim idle 0 0 1 loop
+frame
+KKKKKKKKKKKKKKKK
+KuuuuuuuuuuuuuuK
+KuvvvvvvvvvvvvuK
+KuvwwwwwwwwwwvuK
+KuvwvuuvvuwvwvuK
+KuvwuvuvwvuvwvuK
+KuvwvvwuuwwvwvuK
+KuvwvvvvuwvvwvuK
+KuvwvvvuvvvvwvuK
+KuvwwuvwvwwvwvuK
+KuvwuwvvvvvwwvuK
+KuvwvvvwvvwuwvuK
+KuvwwwwwwwwwwvuK
+KuvvvvvvvvvvvvuK
+KuuuuuuuuuuuuuuK
+KKKKKKKKKKKKKKKK

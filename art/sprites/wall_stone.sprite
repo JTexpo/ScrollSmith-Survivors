@@ -1,0 +1,22 @@
+# A cool grey stone block wall, so it stands out from the warm hall floor.
+tile
+slice 4 4 4 4
+size 16 16
+anim idle 0 0 1 loop
+frame
+KKKKKKKKKKKKKKKK
+KkkkkkkkkkkkkkkK
+KkjjjjjjjjjjjjkK
+KkjlllllllllljkK
+KkjllkkjjjjjljkK
+KkjlljjjjjjjljkK
+KkjlljjjjjjjljkK
+KkjlllllllllljkK
+KkjljjjjlkkjljkK
+KkjljjjjljjjljkK
+KkjljjjjljjjljkK
+KkjlllllllllljkK
+KkjlllllllllljkK
+KkjjjjjjjjjjjjkK
+KkkkkkkkkkkkkkkK
+KKKKKKKKKKKKKKKK
