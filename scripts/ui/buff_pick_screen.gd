@@ -1,6 +1,6 @@
 class_name BuffPickScreen
 extends CanvasLayer
-## TEMPORARY look (Sprint 8): a small screen that lists buffs and asks the player to pick one (a
+## A small screen that lists buffs and asks the player to pick one (a
 ## level's "chosen buff" reward, asked at the start of a run). It cannot be cancelled, and it holds
 ## no rules: Main decides which buffs are on offer and what the pick does. It pauses the world while
 ## open and works with mouse, keyboard, controller focus, and touch (bridged, because mouse
@@ -8,8 +8,7 @@ extends CanvasLayer
 
 signal chosen(scroll: ScrollData)
 
-const FONT_SIZE := 8
-const BUTTON_SIZE := Vector2(300, 24)
+const BUTTON_SIZE := Vector2(300, 26)
 
 ## Tests turn this off so the test runner itself is not paused.
 @export var pause_tree: bool = true
@@ -123,40 +122,19 @@ func _build() -> void:
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(root)
-	var dim := ColorRect.new()
-	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	dim.color = Color(0.04, 0.03, 0.08, 1.0)
-	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(dim)
-	_title_label = Label.new()
+	var content := UiKit.window(root)
+	_title_label = UiKit.label("", &"Heading")
 	_title_label.position = Vector2(90, 24)
-	_title_label.add_theme_font_size_override("font_size", FONT_SIZE)
-	_title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(_title_label)
+	content.add_child(_title_label)
 	_box = VBoxContainer.new()
 	_box.position = Vector2(90, 44)
 	_box.add_theme_constant_override("separation", 3)
-	root.add_child(_box)
+	content.add_child(_box)
 
 
 func _button(text: String) -> Button:
-	var button := Button.new()
-	button.text = text
+	var button := UiKit.button(text)
 	button.custom_minimum_size = BUTTON_SIZE
-	button.focus_mode = Control.FOCUS_ALL
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	button.add_theme_font_size_override("font_size", FONT_SIZE)
-	button.add_theme_stylebox_override("normal", _style(Color(0.14, 0.13, 0.2)))
-	button.add_theme_stylebox_override("hover", _style(Color(0.22, 0.2, 0.32)))
-	button.add_theme_stylebox_override("pressed", _style(Color(0.3, 0.28, 0.42)))
-	button.add_theme_stylebox_override("focus", _style(Color(0.14, 0.13, 0.2), Color.WHITE))
+	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	return button
-
-
-func _style(fill: Color, border: Color = Color(0, 0, 0, 0)) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = fill
-	style.border_color = border
-	style.set_border_width_all(1 if border.a > 0.0 else 0)
-	style.set_content_margin_all(2)
-	return style

@@ -47,3 +47,17 @@ func test_an_icon_with_no_art_is_an_empty_rect_not_a_crash() -> void:
 	var icon := UiKit.icon(&"no_such_icon")
 	autofree(icon)
 	assert_null(icon.texture)
+
+
+func test_a_window_adds_a_backdrop_a_cream_panel_and_returns_the_content_area() -> void:
+	var parent := Control.new()
+	add_child_autofree(parent)
+	var content := UiKit.window(parent)
+	assert_eq(content.get_parent(), parent)
+	assert_not_null(parent.get_node_or_null("Backdrop"))
+	var panel := parent.get_node("Window") as Panel
+	assert_eq(panel.get_rect(), UiKit.WINDOW_RECT)
+	assert_eq(panel.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+	assert_eq(content.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+	assert_eq(parent.get_child(0).name, &"Backdrop", "the backdrop is behind the panel")
+	assert_eq(parent.get_child(1).name, &"Window")

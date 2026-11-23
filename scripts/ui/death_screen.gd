@@ -1,6 +1,7 @@
 class_name DeathScreen
 extends CanvasLayer
-## TEMPORARY (Sprint 1): simple "You died" overlay. A real game-over flow comes later.
+## The "You died" overlay: a dimmed world, a cream card with the run summary and a green Shop button. Restarting is
+## the R key, a controller button or a tap anywhere else.
 
 signal restart_requested
 ## The player asked for the shop (the Shop button, a tap on it, or Enter or the controller's accept

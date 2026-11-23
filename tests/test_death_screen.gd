@@ -214,3 +214,27 @@ func test_summary_without_seconds_is_unchanged() -> void:
 func test_zero_seconds_still_shows_the_time() -> void:
 	_screen.set_run_summary(0, 1, 0, 0.0)
 	assert_eq(_screen.summary_text(), "+0 XP, +0 Gold this run, level 1, survived 0:00")
+
+
+func test_the_death_screen_sits_on_a_card_and_the_shop_button_is_green() -> void:
+	assert_true(_screen.get_node("Card") is Panel)
+	assert_eq((_screen.get_node("Card") as Panel).mouse_filter, Control.MOUSE_FILTER_IGNORE)
+	assert_eq((_screen.get_node("ShopButton") as Button).theme_type_variation, &"ButtonGreen")
+
+
+func test_the_death_message_is_a_heading_with_no_font_size_override() -> void:
+	var message := _screen.get_node("Message") as Label
+	assert_eq(message.theme_type_variation, &"Heading")
+	assert_false(message.has_theme_font_size_override("font_size"))
+	assert_false((_screen.get_node("Summary") as Label).has_theme_font_size_override("font_size"))
+
+
+func test_the_longest_summary_wraps_inside_the_card() -> void:
+	_screen.set_run_summary(99999, 20, 99999, 5999.0)
+	var summary := _screen.get_node("Summary") as Label
+	assert_ne(summary.autowrap_mode, TextServer.AUTOWRAP_OFF)
+	var width := summary.size.x if summary.size.x > 0.0 else 320.0
+	var wrapped := UiFont.plain().get_multiline_string_size(summary.text, HORIZONTAL_ALIGNMENT_CENTER, width, UiFont.SIZE, -1, TextServer.BREAK_WORD_BOUND | TextServer.BREAK_MANDATORY)
+	assert_lte(wrapped.y, 3.0 * UiFont.SIZE, "at most three lines")
+	var card := _screen.get_node("Card") as Panel
+	assert_lte(width, card.size.x, "the summary is no wider than the card")

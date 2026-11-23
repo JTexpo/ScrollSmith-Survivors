@@ -1,6 +1,6 @@
 class_name MerchantScreen
 extends CanvasLayer
-## TEMPORARY look (Sprint 12d): a merchant's potion stall, opened from a Merchant point of interest. One button
+## A merchant's potion stall, opened from a Merchant point of interest. One button
 ## per potion shows its price (the merchant's multiplier already applied), what the merchant has left and how many
 ## you own. It is a thin layer over ShopSystem and the merchant's MerchantStock and holds no rules. A purchase is
 ## all or nothing: Gold, the potion count and the stock change together or not at all. It pauses the world while
@@ -10,8 +10,7 @@ extends CanvasLayer
 signal changed
 signal closed
 
-const FONT_SIZE := 8
-const BUTTON_SIZE := Vector2(152, 15)
+const BUTTON_SIZE := Vector2(152, 26)
 const GRID_POSITION := Vector2(8, 40)
 
 ## Tests turn this off so the test runner itself is not paused.
@@ -148,31 +147,29 @@ func _build() -> void:
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(root)
-	var dim := ColorRect.new()
-	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	dim.color = Color(0.04, 0.03, 0.08, 1.0)
-	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(dim)
-	_title_label = _label("Merchant", Vector2(8, 3), Vector2(200, 12))
-	root.add_child(_title_label)
-	root.add_child(_label("Potions", Vector2(8, 28), Vector2(152, 10)))
+	var content := UiKit.window(root)
+	_title_label = _label("Merchant", Vector2(8, 3), Vector2(200, 12), &"Heading")
+	content.add_child(_title_label)
+	content.add_child(_label("Potions", Vector2(8, 28), Vector2(152, 10), &"Heading"))
+	var coin := UiKit.icon(&"icon_coin")
+	coin.position = Vector2(366, 2)
+	content.add_child(coin)
 	_gold_label = _label("", Vector2(380, 3), Vector2(92, 12))
-	_gold_label.add_theme_color_override("font_color", Color(1.0, 0.72, 0.1))
-	root.add_child(_gold_label)
+	content.add_child(_gold_label)
 	_grid = GridContainer.new()
 	_grid.columns = 3
 	_grid.position = GRID_POSITION
 	_grid.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_grid.add_theme_constant_override("h_separation", 4)
 	_grid.add_theme_constant_override("v_separation", 1)
-	root.add_child(_grid)
+	content.add_child(_grid)
 	_detail_label = _label("", Vector2(8, 100), Vector2(464, 30))
-	root.add_child(_detail_label)
+	content.add_child(_detail_label)
 	_message_label = _label("", Vector2(8, 208), Vector2(464, 24))
-	root.add_child(_message_label)
-	_close_button = _button("Close", Vector2(402, 244), Vector2(70, 18))
+	content.add_child(_message_label)
+	_close_button = _button("Close", Vector2(402, 244), Vector2(70, 18), &"ButtonGreen")
 	_close_button.pressed.connect(close)
-	root.add_child(_close_button)
+	content.add_child(_close_button)
 
 
 ## One button per potion. Built once per open.
@@ -182,8 +179,7 @@ func _fill() -> void:
 		_grid.remove_child(child)
 		child.queue_free()
 	for potion in _catalog.potions:
-		var button := _button("", Vector2.ZERO, BUTTON_SIZE)
-		button.clip_text = true
+		var button := _button("", Vector2.ZERO, BUTTON_SIZE, &"ButtonRed")
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.pressed.connect(press.bind(potion.id))
 		button.focus_entered.connect(_show_detail.bind(potion))
@@ -199,9 +195,9 @@ func _refresh() -> void:
 		var left := _merchant.stock.count(id)
 		var button := _buttons[id] as Button
 		if left <= 0:
-			button.text = "%s  sold out  own %d" % [title, _profile.potion_count(id)]
+			button.text = "%s\nsold out  own %d" % [title, _profile.potion_count(id)]
 		else:
-			button.text = "%s  %dg  x%d  own %d" % [title, ShopSystem.potion_price(potion, _merchant.data.price_multiplier), left, _profile.potion_count(id)]
+			button.text = "%s\n%dg  x%d  own %d" % [title, ShopSystem.potion_price(potion, _merchant.data.price_multiplier), left, _profile.potion_count(id)]
 	_gold_label.text = gold_text()
 	_message_label.text = _message
 
@@ -216,35 +212,16 @@ func _first_button() -> Button:
 	return _close_button
 
 
-func _label(text: String, at: Vector2, minimum: Vector2) -> Label:
-	var label := Label.new()
-	label.text = text
+func _label(text: String, at: Vector2, minimum: Vector2, variation: StringName = &"") -> Label:
+	var label := UiKit.label(text, variation)
 	label.position = at
 	label.custom_minimum_size = minimum
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.add_theme_font_size_override("font_size", FONT_SIZE)
 	return label
 
 
-func _button(text: String, at: Vector2, minimum: Vector2) -> Button:
-	var button := Button.new()
-	button.text = text
+func _button(text: String, at: Vector2, minimum: Vector2, variation: StringName = &"") -> Button:
+	var button := UiKit.button(text, variation)
 	button.position = at
 	button.custom_minimum_size = minimum
-	button.focus_mode = Control.FOCUS_ALL
-	button.add_theme_font_size_override("font_size", FONT_SIZE)
-	button.add_theme_stylebox_override("normal", _style(Color(0.14, 0.13, 0.2)))
-	button.add_theme_stylebox_override("hover", _style(Color(0.22, 0.2, 0.32)))
-	button.add_theme_stylebox_override("pressed", _style(Color(0.3, 0.28, 0.42)))
-	button.add_theme_stylebox_override("focus", _style(Color(0.14, 0.13, 0.2), Color.WHITE))
 	return button
-
-
-func _style(fill: Color, border: Color = Color(0, 0, 0, 0)) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = fill
-	style.border_color = border
-	style.set_border_width_all(1 if border.a > 0.0 else 0)
-	style.set_content_margin_all(2)
-	return style

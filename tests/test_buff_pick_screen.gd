@@ -111,3 +111,25 @@ func test_touch_event_is_bridged_while_open() -> void:
 	_screen.open(_options, "Choose a buff")
 	assert_true(_screen.handle_input(touch), "open")
 	assert_false(_screen.handle_input(InputEventScreenDrag.new()), "only touches are bridged")
+
+
+func test_the_screen_sits_on_a_window_panel() -> void:
+	_screen.open(_options, "Choose a buff")
+	assert_not_null(_screen.find_child("Window", true, false))
+	assert_not_null(_screen.find_child("Backdrop", true, false))
+
+
+func test_every_buff_text_wraps_inside_its_button() -> void:
+	for scroll in LevelTrack.default_track().buff_pool:
+		_screen.open([scroll] as Array[ScrollData], "Choose a buff")
+		var button := _screen.find_children("*", "Button", true, false)[0] as Button
+		assert_ne(button.autowrap_mode, TextServer.AUTOWRAP_OFF, "buttons wrap long text")
+		var wrapped := UiFont.plain().get_multiline_string_size(_screen.button_text(0), HORIZONTAL_ALIGNMENT_LEFT, BuffPickScreen.BUTTON_SIZE.x - 8.0, UiFont.SIZE, -1, TextServer.BREAK_WORD_BOUND | TextServer.BREAK_MANDATORY)
+		assert_lte(wrapped.y, 3.0 * UiFont.SIZE, "%s fits in three lines" % scroll.display_name)
+		_screen.choose(0)
+
+
+func test_no_buff_pick_widget_sets_a_font_size() -> void:
+	_screen.open(_options, "Choose a buff")
+	for node in _screen.find_children("*", "Control", true, false):
+		assert_false((node as Control).has_theme_font_size_override("font_size"), str(node.name))

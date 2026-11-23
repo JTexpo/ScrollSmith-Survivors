@@ -4,6 +4,12 @@ extends RefCounted
 ## (the theme variation, how the control takes the mouse and focus); the look itself comes from the game theme.
 
 
+## A full screen's cream page: 2 px in from the screen edge (the backdrop shows round it), and its content starts 2 px
+## lower so text clears the page's outline.
+const WINDOW_RECT := Rect2(2, 2, 476, 266)
+const CONTENT_TOP := 2.0
+const BACKDROP_COLOR := Color("6fd3ff")
+
 ## A label that lets touches and clicks through. `variation` is a theme type variation such as `HudGold`.
 static func label(text: String, variation: StringName = &"") -> Label:
 	var made := Label.new()
@@ -46,3 +52,28 @@ static func icon(sprite_name: StringName) -> TextureRect:
 	made.stretch_mode = TextureRect.STRETCH_KEEP
 	made.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return made
+
+
+## The cream page every full screen sits on: a sky-blue backdrop that hides the world, a cream panel almost as big as the
+## screen, and a content area inside it. Returns the content area. The backdrop and panel let touches through (the screen's
+## own root decides who takes input).
+static func window(parent: Control) -> Control:
+	var backdrop := ColorRect.new()
+	backdrop.name = "Backdrop"
+	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	backdrop.color = BACKDROP_COLOR
+	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(backdrop)
+	var page := Panel.new()
+	page.name = "Window"
+	page.position = WINDOW_RECT.position
+	page.size = WINDOW_RECT.size
+	page.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(page)
+	var content := Control.new()
+	content.name = "Content"
+	content.position = Vector2(0.0, CONTENT_TOP)
+	content.size = Vector2(480.0, 266.0)
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(content)
+	return content

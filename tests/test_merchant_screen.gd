@@ -157,3 +157,35 @@ func test_pressing_a_button_buys_exactly_one() -> void:
 	assert_eq(_profile.potion_count(&"potion_health"), 1)
 	assert_eq(_merchant.stock.count(&"potion_health"), 1)
 	assert_eq(_profile.gold, 1000 - _price(&"potion_health"))
+
+
+func test_the_screen_sits_on_a_window_panel_and_close_is_green() -> void:
+	_screen.open(_profile, _catalog, _merchant)
+	assert_not_null(_screen.find_child("Window", true, false))
+	var found := false
+	for button in _screen.find_children("*", "Button", true, false):
+		if (button as Button).text == "Close":
+			found = true
+			assert_eq((button as Button).theme_type_variation, &"ButtonGreen")
+	assert_true(found, "a Close button")
+
+
+func test_every_potion_button_line_fits_its_button() -> void:
+	_profile.add_potion(&"potion_health", 99)
+	_screen.open(_profile, _catalog, _merchant)
+	for potion in _catalog.potions:
+		for line in _screen.button_text(potion.id).split("\n"):
+			var width := UiFont.plain().get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, UiFont.SIZE).x
+			assert_lte(width, MerchantScreen.BUTTON_SIZE.x - 8.0, "%s: %s" % [potion.id, line])
+
+
+func test_potion_buttons_are_the_red_buy_buttons_and_no_widget_sets_a_font_size() -> void:
+	_screen.open(_profile, _catalog, _merchant)
+	for node in _screen.find_children("*", "Control", true, false):
+		assert_false((node as Control).has_theme_font_size_override("font_size"), str(node.name))
+	var buttons := _screen.find_children("*", "Button", true, false)
+	var red := 0
+	for button in buttons:
+		if (button as Button).theme_type_variation == &"ButtonRed":
+			red += 1
+	assert_eq(red, _catalog.potions.size())

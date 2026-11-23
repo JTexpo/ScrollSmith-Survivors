@@ -1,10 +1,10 @@
 class_name InventoryPanel
 extends Control
-## TEMPORARY (Sprint 5): a panel listing the collected scrolls under Base, Area and Buff headings,
+## A cream panel listing the collected scrolls under Base, Area and Buff headings,
 ## with name, rarity and count. It reads the inventory and never changes it. It does not pause the
 ## game. Starts closed.
 
-const SIZE := Vector2(200, 160)
+const SIZE := Vector2(260, 214)
 const HEADINGS := {
 	ScrollData.Category.BASE: "Base",
 	ScrollData.Category.AREA: "Area",
@@ -25,11 +25,11 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	custom_minimum_size = SIZE
 	size = SIZE
-	var background := ColorRect.new()
-	background.size = SIZE
-	background.color = Color(0.08, 0.08, 0.1, 0.9)
-	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(background)
+	var surface := Panel.new()
+	surface.name = "Surface"
+	surface.size = SIZE
+	surface.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(surface)
 	_rows = VBoxContainer.new()
 	_rows.position = Vector2(6, 4)
 	_rows.size = SIZE - Vector2(12, 8)
@@ -93,10 +93,10 @@ func _rebuild() -> void:
 	if _inventory == null:
 		return
 	for category in HEADINGS:
-		_rows.add_child(_label(HEADINGS[category], Color(0.8, 0.8, 0.9)))
+		_rows.add_child(UiKit.label(HEADINGS[category], &"Heading"))
 		var scrolls := _inventory.by_category(category)
 		if scrolls.is_empty():
-			_rows.add_child(_label("-", Color(0.5, 0.5, 0.55)))
+			_rows.add_child(UiKit.label("-", &"Muted"))
 		for scroll in scrolls:
 			_rows.add_child(_scroll_row(scroll))
 			_row_count += 1
@@ -110,14 +110,5 @@ func _scroll_row(scroll: ScrollData) -> HBoxContainer:
 	swatch.color = scroll.color
 	swatch.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(swatch)
-	row.add_child(_label(_row_text(scroll), Color.WHITE))
+	row.add_child(UiKit.label(_row_text(scroll)))
 	return row
-
-
-func _label(text: String, color: Color) -> Label:
-	var label := Label.new()
-	label.text = text
-	label.add_theme_font_size_override("font_size", 8)
-	label.add_theme_color_override("font_color", color)
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	return label

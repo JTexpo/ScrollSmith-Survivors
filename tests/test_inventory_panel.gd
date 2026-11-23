@@ -71,3 +71,19 @@ func test_removed_scrolls_leave_no_row() -> void:
 	_inventory.remove(fire)
 	assert_eq(_panel.entries(), ["Base", "-", "Area", "-", "Buff", "-"])
 	assert_eq(_panel.row_count(), 0)
+
+
+func test_the_panel_sits_on_a_cream_panel() -> void:
+	assert_true(_panel.get_node("Surface") is Panel)
+
+
+func test_every_scroll_row_fits_the_panel_even_at_ninety_nine() -> void:
+	for category in ["base", "area", "buff"]:
+		for file in DirAccess.get_files_at("res://resources/scrolls/%s" % category):
+			if String(file).ends_with(".tres"):
+				_inventory.add(load("res://resources/scrolls/%s/%s" % [category, file]) as ScrollData, 99)
+	_panel.set_open(true)
+	for line in _panel.entries():
+		var width := UiFont.plain().get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, UiFont.SIZE).x
+		assert_lte(width + 12.0 + 10.0, InventoryPanel.SIZE.x, line)
+	assert_lte(float(_panel.entries().size()) * (UiFont.SIZE + 1.0) + 8.0, InventoryPanel.SIZE.y, "every row is inside the panel")
