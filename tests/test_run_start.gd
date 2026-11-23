@@ -192,5 +192,5 @@ func test_run_start_puts_the_equipped_items_on_the_wizard_and_twice_is_the_same(
 	var sheet := ((((body.get_node("Layer_robe") as AnimatedSprite2D).sprite_frames.get_frame_texture(&"idle", 0)) as AtlasTexture).atlas).resource_path
 	assert_string_contains(sheet, "robe_wizard_sea")
 	RunStart.prepare(_player, _profile, _track, _buffs, _catalog)
-	assert_eq(body.layer_names().size(), 3)
+	assert_eq(body.layer_names().size(), 4)
 

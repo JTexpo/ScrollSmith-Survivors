@@ -13,22 +13,24 @@ func _sheet(sprite_name: String) -> Image:
 func test_the_starter_layers_compose_to_exactly_todays_wizard() -> void:
 	var body := _sheet("player_body")
 	var robe := _sheet("robe_starter")
+	var beard := _sheet("beard_white")
 	var hat := _sheet("hat_starter")
 	var original := _sheet("player")
 	assert_eq(body.get_size(), original.get_size())
 	assert_eq(original.get_width(), 16 * FRAMES)
 	var composed := Image.create(original.get_width(), original.get_height(), false, Image.FORMAT_RGBA8)
-	for layer in [body, robe, hat]:
+	for layer in [body, robe, beard, hat]:
 		composed.blend_rect(layer, Rect2i(Vector2i.ZERO, layer.get_size()), Vector2i.ZERO)
 	var differing := 0
 	for y in original.get_height():
 		for x in original.get_width():
 			if composed.get_pixel(x, y) != original.get_pixel(x, y):
 				differing += 1
-	assert_eq(differing, 0, "the body, starter robe and starter hat make today's wizard pixel for pixel, in all eight frames")
+	assert_eq(differing, 0, "the body, starter robe, beard and starter hat make the wizard pixel for pixel, in all eight frames")
 
 
-func test_the_layers_do_not_overlap() -> void:
+func test_the_body_robe_and_hat_do_not_overlap() -> void:
+	# The beard hangs over the robe on purpose, so it is left out.
 	var sheets := [_sheet("player_body"), _sheet("robe_starter"), _sheet("hat_starter")]
 	for y in sheets[0].get_height():
 		for x in sheets[0].get_width():
@@ -40,7 +42,7 @@ func test_the_layers_do_not_overlap() -> void:
 
 
 func test_every_layer_set_has_the_players_animations_and_frame_count() -> void:
-	for sprite_name in [&"player_body", &"robe_starter", &"hat_starter"]:
+	for sprite_name in [&"player_body", &"robe_starter", &"hat_starter", &"beard_white"]:
 		var set_data := SpriteLibrary.find(sprite_name)
 		assert_not_null(set_data, str(sprite_name))
 		assert_eq(set_data.frame_count(), FRAMES, str(sprite_name))
@@ -64,7 +66,7 @@ func _body_view() -> BodyView:
 func test_with_nothing_equipped_the_starters_show_and_the_weapon_does_not() -> void:
 	var body := _body_view()
 	PlayerLook.apply(body, PlayerProfile.new(), EquipmentCatalog.default_catalog())
-	assert_eq(body.layer_names(), [&"robe", &"headwear", &"weapon"] as Array[StringName])
+	assert_eq(body.layer_names(), [&"robe", &"beard", &"headwear", &"weapon"] as Array[StringName])
 	assert_true((body.get_node("Layer_robe") as AnimatedSprite2D).visible)
 	assert_true((body.get_node("Layer_headwear") as AnimatedSprite2D).visible)
 	assert_false((body.get_node("Layer_weapon") as AnimatedSprite2D).visible)
@@ -82,7 +84,7 @@ func test_applying_twice_changes_nothing() -> void:
 	PlayerLook.apply(body)
 	var frames := (body.get_node("Layer_robe") as AnimatedSprite2D).sprite_frames
 	PlayerLook.apply(body)
-	assert_eq(body.layer_names().size(), 3)
+	assert_eq(body.layer_names().size(), 4)
 	assert_eq((body.get_node("Layer_robe") as AnimatedSprite2D).sprite_frames.get_frame_count(&"idle"), frames.get_frame_count(&"idle"))
 
 
@@ -91,7 +93,7 @@ func test_the_player_wears_the_starters_when_the_scene_loads() -> void:
 	add_child_autofree(player)
 	var body := player.get_node("Body") as BodyView
 	assert_true(body.has_art())
-	assert_eq(body.layer_names(), [&"robe", &"headwear", &"weapon"] as Array[StringName])
+	assert_eq(body.layer_names(), [&"robe", &"beard", &"headwear", &"weapon"] as Array[StringName])
 	assert_true((body.get_node("Layer_robe") as AnimatedSprite2D).visible)
 
 
@@ -197,7 +199,7 @@ func test_layers_are_anchored_in_every_frame() -> void:
 			assert_true(low.x >= 1 and low.y >= 1 and high.x <= 14 and high.y <= 14, "%s frame %d is inside the margin" % [item.id, frame])
 			match item.slot():
 				EquipmentData.Slot.HEADWEAR:
-					assert_lte(high.y, band + 5, "%s frame %d stays on the head" % [item.id, frame])
+					assert_lte(high.y, band + 6, "%s frame %d stays on the head" % [item.id, frame])
 					assert_lt(low.y, band, "%s frame %d reaches above the hat band" % [item.id, frame])
 				EquipmentData.Slot.ROBE:
 					assert_gte(low.y, band + 6, "%s frame %d stays below the collar line" % [item.id, frame])
@@ -226,5 +228,84 @@ func test_the_player_scene_applies_the_profile_through_run_start() -> void:
 	assert_string_contains(_sheet_of(body, "headwear"), "hat_pointed_hardy")
 	assert_string_contains(_sheet_of(body, "weapon"), "wand_short_flicker")
 	RunStart.prepare(player, profile, LevelTrack.default_track(), RunBuffs.new(), catalog)
-	assert_eq(body.layer_names().size(), 3, "running it twice changes nothing")
+	assert_eq(body.layer_names().size(), 4, "running it twice changes nothing")
+
+
+## True when a pixel is one of the two skin tones of the palette.
+func _is_skin(pixel: Color) -> bool:
+	var palette := ArtPalette.parse(FileAccess.get_file_as_string("res://art/palette.txt"))
+	return pixel.a > 0.0 and (pixel.to_html(false) == (palette.colors["S"] as Color).to_html(false) or pixel.to_html(false) == (palette.colors["s"] as Color).to_html(false))
+
+
+func test_the_wizard_shows_no_skin_at_all() -> void:
+	# The face is in the hat's shadow with only the eyes showing, and the beard covers the rest, so no one is left out.
+	for sprite_name in ["player_body", "robe_starter", "beard_white", "hat_starter", "player"]:
+		var sheet := _sheet(sprite_name)
+		for y in sheet.get_height():
+			for x in sheet.get_width():
+				assert_false(_is_skin(sheet.get_pixel(x, y)), "%s has a skin-coloured pixel at %d, %d" % [sprite_name, x, y])
+	for path in ["hat_pointed_hardy", "hat_pointed_mana", "hat_pointed_swift", "hood_soft_hardy", "hood_soft_mana", "hood_soft_swift", "robe_wizard_fire", "robe_wizard_none"]:
+		var sheet := Image.load_from_file(ProjectSettings.globalize_path("res://assets/sprites/%s.png" % path))
+		sheet.convert(Image.FORMAT_RGBA8)
+		for y in sheet.get_height():
+			for x in sheet.get_width():
+				assert_false(_is_skin(sheet.get_pixel(x, y)), path)
+
+
+## The width in pixels of the widest row a layer draws in a frame.
+func _widest_row(sheet: Image, frame: int) -> int:
+	var widest := 0
+	for y in 16:
+		var low := 99
+		var high := -1
+		for x in 16:
+			if sheet.get_pixel(frame * 16 + x, y).a > 0.0:
+				low = mini(low, x)
+				high = maxi(high, x)
+		if high >= 0:
+			widest = maxi(widest, high - low + 1)
+	return widest
+
+
+func test_the_hat_and_every_hood_are_wider_than_the_head_so_the_head_reads_small() -> void:
+	var head := _widest_face_row(_sheet("player_body"), 0)
+	assert_lte(head, 10, "the face is ten pixels wide at most")
+	for sprite_name in ["hat_starter"]:
+		assert_gte(_widest_row(_sheet(sprite_name), 0), head + 4, "%s is at least four pixels wider than the head" % sprite_name)
+	for path in ["hat_pointed_hardy", "hood_soft_hardy", "hood_soft_mana", "hood_soft_swift"]:
+		var sheet := Image.load_from_file(ProjectSettings.globalize_path("res://assets/sprites/%s.png" % path))
+		sheet.convert(Image.FORMAT_RGBA8)
+		assert_gte(_widest_row(sheet, 0), head + 4, "%s is at least four pixels wider than the head" % path)
+
+
+## The width of the face rows of the bare wizard in a frame (its rows below the brim, above the collar).
+func _widest_face_row(sheet: Image, frame: int) -> int:
+	var widest := 0
+	for y in range(8, 12):
+		var low := 99
+		var high := -1
+		for x in 16:
+			if sheet.get_pixel(frame * 16 + x, y).a > 0.0:
+				low = mini(low, x)
+				high = maxi(high, x)
+		if high >= 0:
+			widest = maxi(widest, high - low + 1)
+	return widest
+
+
+func test_the_beard_is_white_and_hangs_over_the_robe() -> void:
+	var beard := _sheet("beard_white")
+	var bands := _band_rows()
+	for frame in FRAMES:
+		var white := 0
+		var lowest := -1
+		for y in 16:
+			for x in 16:
+				var pixel := beard.get_pixel(frame * 16 + x, y)
+				if pixel.a > 0.0:
+					lowest = maxi(lowest, y)
+					if pixel.get_luminance() > 0.7:
+						white += 1
+		assert_gte(white, 14, "frame %d: the beard is mostly white" % frame)
+		assert_gte(lowest, bands[frame] + 7, "frame %d: it hangs down over the robe" % frame)
 

@@ -1,13 +1,15 @@
 class_name PlayerLook
 extends RefCounted
-## Dresses the wizard: the layers `robe`, `headwear` and `weapon` on the player's `BodyView`, from what the profile has
+## Dresses the wizard: the layers `robe`, `beard`, `headwear` and `weapon` on the player's `BodyView`, from what the profile has
 ## equipped (the same ownership and slot rules as `ShopSystem.bonuses`). With nothing equipped in a slot the robe and the
-## headwear show the starter look and the weapon shows nothing, so the bare wizard looks exactly as the original sprite did.
+## headwear show the starter look and the weapon shows nothing. The white beard is part of the wizard, not an item: it is always
+## worn, over the robe and under the headwear, and with the shadow of the hat it hides every bit of skin.
 ## It holds no state, so applying it twice gives the same result.
 
 ## The layers in draw order: the layer, the equipment slot it shows, and the starter sprite for it (none for a weapon).
 const LAYERS := [
 	[&"robe", EquipmentData.Slot.ROBE, &"robe_starter"],
+	[&"beard", -1, &"beard_white"],
 	[&"headwear", EquipmentData.Slot.HEADWEAR, &"hat_starter"],
 	[&"weapon", EquipmentData.Slot.WEAPON, &""],
 ]
