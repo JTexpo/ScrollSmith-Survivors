@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="SoundCatalog" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://resources/audio/sound_catalog.gd" id="1"]
+[ext_resource type="Script" path="res://resources/audio/sound_data.gd" id="2"]
+
+[sub_resource type="Resource" id="ui_click"]
+script = ExtResource("2")
+id = &"ui_click"
+volume_db = -8.0
+max_voices = 2
+min_gap_msec = 30
+pausable = false
+
+[sub_resource type="Resource" id="music_run"]
+script = ExtResource("2")
+id = &"music_run"
+volume_db = -14.0
+max_voices = 1
+pausable = false
+music = true
+
+[resource]
+script = ExtResource("1")
+sounds = Array[ExtResource("2")]([SubResource("ui_click"), SubResource("music_run")])

@@ -143,3 +143,51 @@ static func _tone(wave: StringName, phase: float) -> float:
 		&"saw":
 			return 2.0 * phase - 1.0
 	return 0.0
+
+
+## Builds every `.sfx` in `<source_dir>/sounds` and `.tune` in `<source_dir>/music` into `<out_dir>/<id>.wav` (22,050 Hz mono
+## 16 bit; a tune that says `loop` gets a loop chunk). A source with errors writes nothing and is reported; a `hand_made`
+## source keeps the WAV already there (reported if it is missing). Returns the problems found.
+static func build_all(source_dir: String, out_dir: String) -> PackedStringArray:
+	var problems := PackedStringArray()
+	for kind in ["sounds", "music"]:
+		var files := Array(DirAccess.get_files_at("%s/%s" % [source_dir, kind]))
+		files.sort()
+		for file in files:
+			var extension := ".sfx" if kind == "sounds" else ".tune"
+			if not String(file).ends_with(extension):
+				continue
+			var path := "%s/%s/%s" % [source_dir, kind, file]
+			var text := FileAccess.get_file_as_string(path)
+			var wav_path := "%s/%s.wav" % [out_dir, String(file).get_basename()]
+			var errors := PackedStringArray()
+			var hand_made := false
+			var bytes := PackedByteArray()
+			if kind == "sounds":
+				var source := SfxSource.parse(text)
+				errors = source.errors
+				hand_made = source.hand_made
+				if errors.is_empty() and not hand_made:
+					bytes = WavWriter.encode(render_sfx(source), RATE)
+			else:
+				var tune := TuneSource.parse(text)
+				errors = tune.errors
+				hand_made = tune.hand_made
+				if errors.is_empty() and not hand_made:
+					bytes = WavWriter.encode(render_tune(tune), RATE, tune.loops)
+			if not errors.is_empty():
+				for error in errors:
+					problems.append("%s: %s" % [path, error])
+				continue
+			if hand_made:
+				if not FileAccess.file_exists(wav_path):
+					problems.append("%s: hand_made needs its file %s" % [path, wav_path])
+				continue
+			var handle := FileAccess.open(wav_path, FileAccess.WRITE)
+			if handle == null:
+				problems.append("%s: cannot write %s" % [path, wav_path])
+				continue
+			handle.store_buffer(bytes)
+			handle.close()
+	return problems
+

@@ -1,0 +1,7 @@
+# The run music (a placeholder until Task 5 composes it).
+tempo 130
+loop
+channel pulse25 0.45
+C5 . E5 . G5 . E5 . | C5 . E5 . G5 . C6 .
+channel triangle 0.5
+C3 . . . G3 . . . | C3 . . . G3 . . .
