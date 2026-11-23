@@ -1,0 +1,17 @@
+# A dark plum pill for text over the world: a near-black outline and a light top edge.
+slice 4 4 4 4
+size 12 12
+anim idle 0 0 1 loop
+frame
+...KKKKKK...
+.KKKKKKKKKK.
+.KKLLLLLLKK.
+KKJJJJJJJJKK
+KKJJJJJJJJKK
+KKJJJJJJJJKK
+KKJJJJJJJJKK
+KKJJJJJJJJKK
+KKJJJJJJJJKK
+.KKJJJJJJKK.
+.KKKKKKKKKK.
+...KKKKKK...

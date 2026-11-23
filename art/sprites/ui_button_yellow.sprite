@@ -1,0 +1,56 @@
+# A yellow highlight button (the equipped item, Interact). Frames: normal, hover, pressed, disabled.
+slice 4 4 4 4
+size 12 12
+anim idle 0 3 1 loop
+frame
+...JJJJJJ...
+.JJJJJJJJJJ.
+.JJ!!!!!!JJ.
+JJ!!!!!!!!JJ
+JJ!!!!!!!!JJ
+JJ!!!!!!!!JJ
+JJ!!!!!!!!JJ
+JJ!!!!!!!!JJ
+JJ%%%%%%%%JJ
+.JJ%%%%%%JJ.
+.JJJJJJJJJJ.
+...JJJJJJ...
+frame
+...JJJJJJ...
+.JJJJJJJJJJ.
+.JJWWWWWWJJ.
+JJ!!!!!!!!JJ
+JJ!!!!!!!!JJ
+JJ!!!!!!!!JJ
+JJ!!!!!!!!JJ
+JJ!!!!!!!!JJ
+JJ%%%%%%%%JJ
+.JJ%%%%%%JJ.
+.JJJJJJJJJJ.
+...JJJJJJ...
+frame
+...JJJJJJ...
+.JJJJJJJJJJ.
+.JJ%%%%%%JJ.
+JJ%%%%%%%%JJ
+JJ%%%%%%%%JJ
+JJ%%%%%%%%JJ
+JJ%%%%%%%%JJ
+JJ%%%%%%%%JJ
+JJ%%%%%%%%JJ
+.JJ%%%%%%JJ.
+.JJJJJJJJJJ.
+...JJJJJJ...
+frame
+...LLLLLL...
+.LLLLLLLLLL.
+.LLIIIIIILL.
+LLIIIIIIIILL
+LLIIIIIIIILL
+LLIIIIIIIILL
+LLIIIIIIIILL
+LLIIIIIIIILL
+LLGGGGGGGGLL
+.LLGGGGGGLL.
+.LLLLLLLLLL.
+...LLLLLL...

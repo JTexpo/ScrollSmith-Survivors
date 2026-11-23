@@ -1,0 +1,7 @@
+# The sky-blue XP fill, 2 px tall (inside the thin trough).
+slice 1 0 1 0
+size 4 2
+anim idle 0 0 1 loop
+frame
+OOOO
+TTTT

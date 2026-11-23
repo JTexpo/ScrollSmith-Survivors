@@ -278,6 +278,29 @@ func test_a_tile_gets_no_silhouette_and_its_set_records_tile_and_slice() -> void
 	assert_string_contains(text, "slice = Vector4i(1, 1, 1, 1)")
 
 
+const PANEL_SPRITE := """
+slice 1 1 1 1
+size 4 4
+anim a 0 0 1 loop
+frame
+.KK.
+KWWK
+KWWK
+.KK.
+"""
+
+
+func test_a_sliced_sprite_gets_no_silhouette() -> void:
+	_write("palette.txt", PALETTE_TEXT)
+	_write("sources/panel.sprite", PANEL_SPRITE)
+	var problems := ArtBuilder.build_all(_dir + "/sources", _dir + "/palette.txt", _dir + "/out")
+	assert_eq(problems.size(), 0, str(problems))
+	var files := Array(DirAccess.get_files_at(ProjectSettings.globalize_path(_dir + "/out")))
+	assert_true(files.has("panel_base.png"))
+	assert_false(files.has("panel_silhouette.png"), "a sliced sprite has no outline")
+	assert_string_contains(FileAccess.get_file_as_string(_dir + "/out/panel_base.tres"), "slice = Vector4i(1, 1, 1, 1)")
+
+
 func test_a_plain_set_text_has_no_tile_line() -> void:
 	var text := ArtBuilder.set_text("res://x.png", SpriteSource.parse(PLAIN_SPRITE, _palette()))
 	assert_false(text.contains("tile ="))

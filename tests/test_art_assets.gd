@@ -47,7 +47,7 @@ func _load_png(png_path: String) -> Image:
 ## The variants a source produces: every needed variant, plus the silhouette unless it is a tile.
 func _variants_for(source: SpriteSource, palette: ArtPalette) -> Array[String]:
 	var variants: Array[String] = []
-	if not source.tile:
+	if not source.is_surface():
 		variants.append("silhouette")
 	for variant in source.variants_needed(palette):
 		variants.append(String(variant))
@@ -81,7 +81,7 @@ func test_every_source_parses_with_no_errors() -> void:
 func test_every_source_keeps_a_one_pixel_margin() -> void:
 	for sprite_name in _names():
 		var source := _source(sprite_name)
-		if source.tile:
+		if source.is_surface():
 			continue
 		for f in source.frames.size():
 			var rows := source.frames[f]
@@ -108,6 +108,28 @@ func test_every_tile_is_full_bleed_and_its_slice_fits() -> void:
 	assert_gt(tiles, 0, "the world has floor tiles")
 
 
+func test_every_sliced_sprite_has_a_middle_that_tiles() -> void:
+	for sprite_name in _names():
+		var source := _source(sprite_name)
+		if source.slice == Vector4i.ZERO or source.tile:
+			continue  # a wall tile repeats a pattern in its middle on purpose
+		var width := source.frame_size.x
+		var height := source.frame_size.y
+		for f in source.frames.size():
+			var rows := source.frames[f]
+			# Tiling the middle columns sideways shows no seam when every row is one colour across them.
+			for y in height:
+				var first := rows[y][source.slice.x]
+				for x in range(source.slice.x, width - source.slice.z):
+					assert_eq(rows[y][x], first, "%s frame %d row %d: the tiled middle must be one colour per row" % [sprite_name, f, y])
+			# Tiling the middle rows downwards shows no seam when every column is one colour across them.
+			if source.slice.y + source.slice.w > 0:
+				for x in width:
+					var top := rows[source.slice.y][x]
+					for y in range(source.slice.y, height - source.slice.w):
+						assert_eq(rows[y][x], top, "%s frame %d column %d: the tiled middle must be one colour per column" % [sprite_name, f, x])
+
+
 func test_the_committed_sheets_exist_for_every_variant_and_the_silhouette() -> void:
 	var palette := _palette()
 	for sprite_name in _names():
@@ -132,7 +154,7 @@ func test_each_committed_png_equals_what_the_tool_builds() -> void:
 			var committed := _load_png(png_path)
 			assert_eq(committed.get_size(), built.get_size(), "%s size" % png_path)
 			assert_true(committed.get_data() == built.get_data(), "%s is stale: run the art tool" % png_path)
-		if source.tile:
+		if source.is_surface():
 			continue
 		var silhouette_path := "%s/%s_silhouette.png" % [OUT_DIR, sprite_name]
 		assert_true(_load_png(silhouette_path).get_data() == ArtBuilder.build_silhouette(source).get_data(), "%s is stale" % silhouette_path)
@@ -174,6 +196,8 @@ func _check_hand_drawn(sprite_name: String, source: SpriteSource, palette: ArtPa
 	for variant in variants:
 		var png_path := "%s/%s_%s.png" % [OUT_DIR, sprite_name, variant]
 		assert_eq(_load_png(png_path).get_size(), Vector2i(source.frame_size.x * source.frames.size(), source.frame_size.y), "%s size" % png_path)
+	if source.is_surface():
+		return
 	var silhouette_path := "%s/%s_silhouette.png" % [OUT_DIR, sprite_name]
 	var expected := ArtBuilder.silhouette_of(_load_png("%s/%s_%s.png" % [OUT_DIR, sprite_name, variants[0]]), source.frame_size)
 	assert_true(_load_png(silhouette_path).get_data() == expected.get_data(), "%s is stale: run the art tool" % silhouette_path)

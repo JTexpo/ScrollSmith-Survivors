@@ -5,7 +5,7 @@ extends RefCounted
 ## slot 1 to 5). `#` starts a comment. A line `hand_drawn` says the sheets were drawn by hand: the tool then keeps them
 ## and only writes the animation data and silhouette (the grid is a placeholder). A line `tile` marks a full-bleed
 ## repeating tile (no transparent pixel, no 1 px margin, no silhouette), and `slice <left> <top> <right> <bottom>` gives a
-## tile's 9-slice margins in pixels, for walls. Mistakes are collected in `errors`,
+## 9-slice margins in pixels, for walls (on a `tile`) and for panels and buttons (alone, so their corners may be transparent). Mistakes are collected in `errors`,
 ## never thrown.
 
 var errors := PackedStringArray()
@@ -55,6 +55,12 @@ static func parse(text: String, palette: ArtPalette) -> SpriteSource:
 			source.frames[source.frames.size() - 1] = rows
 	source._validate(palette)
 	return source
+
+
+## True for a surface: a tile, or a sliced sprite (a panel or button whose corners may be transparent). A surface skips the
+## 1 px margin rule and has no silhouette.
+func is_surface() -> bool:
+	return tile or slice != Vector4i.ZERO
 
 
 ## True when any pixel uses a ramp slot (1 to 5), so the sprite is built once per element variant.
@@ -120,11 +126,8 @@ func _validate(palette: ArtPalette) -> void:
 	for id in variants:
 		if not palette.variants.has(id):
 			errors.append("'variants' names '%s', which the palette does not have" % id)
-	if slice != Vector4i.ZERO:
-		if not tile:
-			errors.append("'slice' needs a 'tile' line")
-		elif frame_size != Vector2i.ZERO and (slice.x + slice.z >= frame_size.x or slice.y + slice.w >= frame_size.y):
-			errors.append("the slice margins leave no middle in a %dx%d tile" % [frame_size.x, frame_size.y])
+	if slice != Vector4i.ZERO and frame_size != Vector2i.ZERO and (slice.x + slice.z >= frame_size.x or slice.y + slice.w >= frame_size.y):
+		errors.append("the slice margins leave no middle in a %dx%d sprite" % [frame_size.x, frame_size.y])
 	if frames.is_empty():
 		errors.append("no frames")
 	elif frame_size != Vector2i.ZERO:

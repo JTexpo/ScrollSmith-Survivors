@@ -95,7 +95,7 @@ static func build_all(source_dir: String, palette_path: String, out_dir: String)
 			continue
 		for variant in source.variants_needed(palette):
 			_write_image(out_dir, sprite_name, String(variant), build_sheet(source, palette, variant), source)
-		if not source.tile:
+		if not source.is_surface():
 			_write_image(out_dir, sprite_name, "silhouette", build_silhouette(source), source)
 	return problems
 
@@ -114,7 +114,7 @@ static func _build_hand_drawn(out_dir: String, sprite_name: String, source: Spri
 	for variant in variants:
 		var png_path := "%s/%s_%s.png" % [out_dir, sprite_name, variant]
 		_write_set(out_dir, sprite_name, String(variant), png_path, source)
-	if source.tile:
+	if source.is_surface():
 		return problems
 	var first := Image.load_from_file(ProjectSettings.globalize_path("%s/%s_%s.png" % [out_dir, sprite_name, variants[0]]))
 	first.convert(Image.FORMAT_RGBA8)
