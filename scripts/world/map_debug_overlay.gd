@@ -13,6 +13,7 @@ const ARROW_RANGE := 160.0
 const REDRAW_INTERVAL := 0.2
 
 var _data: MapData
+var _shapes: Array[MapObstacle] = []
 var _obstacle_map: ObstacleMap
 var _since_redraw: float = 0.0
 
@@ -24,6 +25,7 @@ func _ready() -> void:
 
 func setup(data: MapData) -> void:
 	_data = data
+	_shapes = data.solid_shapes()
 	queue_redraw()
 
 
@@ -53,7 +55,7 @@ func _draw() -> void:
 	for placement in _data.placements:
 		if placement != null and placement.scene != null:
 			_draw_marker(placement.position, placement.scene.resource_path.get_file().get_basename())
-	for obstacle in _data.obstacles:
+	for obstacle in _shapes:
 		if obstacle != null and obstacle.is_valid():
 			draw_rect(obstacle.bounds(), LINE_COLOR, false, 1.0)
 	if _obstacle_map != null and _obstacle_map.grid != null:

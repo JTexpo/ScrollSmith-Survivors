@@ -20,6 +20,8 @@ const MAX_QUICK_CELLS := 9
 var rebuild_count: int = 0
 
 var data: MapData
+## Every solid shape of the map, taken once at `setup` (a maze adds dozens, so it is not rebuilt per segment).
+var shapes: Array[MapObstacle] = []
 var grid: ObstacleGrid
 var field := FlowField.new()
 
@@ -35,6 +37,7 @@ func _ready() -> void:
 func setup(map: MapData) -> void:
 	data = map
 	grid = ObstacleGrid.build(map)
+	shapes = map.solid_shapes()
 	var player := _player()
 	if player != null:
 		field.rebuild(grid, player.global_position)
@@ -77,7 +80,7 @@ func blocks_segment(from: Vector2, to: Vector2) -> bool:
 		return false
 	if grid != null and _cells_under_are_free(from, to):
 		return false
-	for obstacle in data.obstacles:
+	for obstacle in shapes:
 		if obstacle != null and obstacle.blocks_segment(from, to):
 			return true
 	return false

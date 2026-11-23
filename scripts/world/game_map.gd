@@ -27,7 +27,7 @@ func _ready() -> void:
 	var obstacles := ObstacleLayer.new()
 	obstacles.name = &"Obstacles"
 	add_child(obstacles)
-	obstacles.set_obstacles(map_data.obstacles)
+	obstacles.set_obstacles(map_data.solid_shapes())
 	_build_walls()
 	_build_obstacle_bodies()
 	var placements := Node2D.new()
@@ -111,7 +111,7 @@ func _build_obstacle_bodies() -> void:
 	var bodies := Node2D.new()
 	bodies.name = &"ObstacleBodies"
 	add_child(bodies)
-	for obstacle in map_data.obstacles:
+	for obstacle in map_data.solid_shapes():
 		if obstacle == null or not obstacle.is_valid():
 			continue
 		var body := StaticBody2D.new()

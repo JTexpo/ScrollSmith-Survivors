@@ -188,3 +188,24 @@ func test_an_unreachable_placement_is_reported_when_it_loads() -> void:
 	data.obstacles = walls
 	_map_node(data)
 	assert_push_error("not reachable")
+
+
+func _maze_only_data() -> MapData:
+	var data := _data()
+	data.size = Vector2(700, 420)
+	data.player_start = Vector2(8, 8)
+	data.placements = [] as Array[MapPlacement]
+	var maze := MapMaze.new()
+	maze.area = Rect2(100, 52, 480, 320)
+	maze.seed = 3
+	data.mazes = [maze] as Array[MapMaze]
+	return data
+
+
+func test_a_maze_is_drawn_and_has_wall_bodies() -> void:
+	var data := _maze_only_data()
+	var node := _map_node(data)
+	var walls := data.mazes[0].shapes().size()
+	assert_gt(walls, 10)
+	assert_eq((node.get_node("Obstacles") as ObstacleLayer).item_count(), walls)
+	assert_eq(node.get_node("ObstacleBodies").get_child_count(), walls)

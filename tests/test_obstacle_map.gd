@@ -140,3 +140,44 @@ func test_blocks_segment_agrees_with_testing_every_shape() -> void:
 		assert_eq(node.blocks_segment(from, to), expected, "%s to %s" % [from, to])
 		blocked += int(expected)
 	assert_gt(blocked, 10, "the sample must include real hits")
+
+
+func _maze_map(entrances: Array[MazeEntrance], extras: int = 0) -> MapData:
+	var map := MapData.new()
+	map.id = &"test"
+	map.size = Vector2(700, 420)
+	map.player_start = Vector2(8, 8)
+	map.nav_cell_size = 16.0
+	var maze := MapMaze.new()
+	maze.area = Rect2(100, 52, 480, 320)
+	maze.seed = 3
+	maze.extra_openings = extras
+	maze.entrances = entrances
+	map.mazes = [maze] as Array[MapMaze]
+	return map
+
+
+func test_a_maze_wall_blocks_points_and_segments() -> void:
+	var node := _obstacle_map(_maze_map([] as Array[MazeEntrance], 1000))
+	assert_true(node.is_blocked(Vector2(100, 172)))
+	assert_true(node.blocks_segment(Vector2(60, 172), Vector2(140, 172)), "across the outer wall")
+	assert_false(node.blocks_segment(Vector2(140, 172), Vector2(220, 172)), "along an open corridor")
+
+
+func test_the_flow_field_leads_through_a_maze() -> void:
+	var entrance := MazeEntrance.new()
+	entrance.cell = Vector2i(0, 1)
+	entrance.side = MazeEntrance.Edge.WEST
+	_player.global_position = Vector2(380, 252)
+	var node := _obstacle_map(_maze_map([entrance] as Array[MazeEntrance]))
+	var at := Vector2(60, 172)
+	var reached := false
+	for step in 900:
+		if node.field.distance_at(at) == 0:
+			reached = true
+			break
+		var direction := node.direction_from(at)
+		if direction == Vector2.ZERO:
+			break
+		at += direction * 4.0
+	assert_true(reached, "stopped at %s" % at)
