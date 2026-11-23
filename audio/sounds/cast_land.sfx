@@ -1,0 +1,5 @@
+# Land cast: a low earthy thump with a gritty tick.
+length 0.3
+voice triangle 160 70 0.9 0.003 0.2
+voice noise 3000 800 0.3 0 0.08
+voice pulse50 90 60 0.25 0.003 0.15

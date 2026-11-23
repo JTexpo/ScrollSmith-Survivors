@@ -1,0 +1,6 @@
+# The Lectern opens: a three-note magic chime.
+length 0.5
+voice pulse25 523 523 0.38 0.002 0.1
+voice pulse25 784 784 0.38 0.002 0.1 delay 0.1
+voice pulse25 1047 1047 0.38 0.002 0.25 delay 0.2
+voice triangle 262 262 0.4 0.01 0.4

@@ -1,0 +1,4 @@
+# Enemy shot: a small sour blip.
+length 0.2
+voice pulse25 900 400 0.38 0.002 0.15
+voice noise 9000 5000 0.18 0 0.04

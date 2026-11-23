@@ -1,0 +1,7 @@
+# Chest opens: a creak then a treasure arpeggio.
+length 0.8
+voice pulse25 200 400 0.38 0.02 0.15 vibrato 20 1.0
+voice pulse50 784 784 0.38 0.002 0.1 delay 0.2
+voice pulse50 1047 1047 0.38 0.002 0.1 delay 0.32
+voice pulse50 1319 1319 0.38 0.002 0.1 delay 0.44
+voice pulse50 1568 1568 0.38 0.002 0.25 delay 0.56

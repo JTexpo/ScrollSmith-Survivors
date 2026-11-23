@@ -1,0 +1,7 @@
+# Crafting works: a rising flourish.
+length 0.6
+voice pulse25 659 659 0.38 0.002 0.08
+voice pulse25 784 784 0.38 0.002 0.08 delay 0.08
+voice pulse25 1047 1047 0.38 0.002 0.1 delay 0.16
+voice pulse25 1319 1319 0.38 0.002 0.2 delay 0.24
+voice pulse12 2093 2093 0.25 0.01 0.25 delay 0.34

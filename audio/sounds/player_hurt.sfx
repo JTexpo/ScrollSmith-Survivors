@@ -1,0 +1,4 @@
+# Player hurt: a wobbly ouch.
+length 0.25
+voice pulse50 500 220 0.45 0.001 0.2 vibrato 30 1.0
+voice noise 4000 2000 0.18 0 0.08

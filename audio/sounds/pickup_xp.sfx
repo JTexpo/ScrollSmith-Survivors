@@ -1,0 +1,3 @@
+# XP pickup: a tiny blip.
+length 0.1
+voice pulse50 1319 1760 0.38 0.001 0.07

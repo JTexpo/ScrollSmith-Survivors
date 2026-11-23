@@ -1,0 +1,4 @@
+# The merchant's shop opens: a little bell.
+length 0.4
+voice pulse50 1047 1047 0.38 0.001 0.2
+voice pulse50 1319 1319 0.3 0.001 0.25 delay 0.08

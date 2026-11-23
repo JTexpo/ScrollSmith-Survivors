@@ -1,0 +1,6 @@
+# Elite dies: a big pop with a sparkle.
+length 0.42
+voice triangle 300 60 0.75 0.002 0.25
+voice noise 5000 1500 0.3 0 0.18
+voice pulse50 1319 1319 0.3 0.001 0.06 delay 0.18
+voice pulse50 1760 1760 0.3 0.001 0.1 delay 0.24

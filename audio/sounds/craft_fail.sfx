@@ -1,0 +1,4 @@
+# Crafting refused: two sad notes.
+length 0.3
+voice pulse50 300 200 0.45 0.002 0.12
+voice pulse50 220 150 0.45 0.002 0.15 delay 0.12

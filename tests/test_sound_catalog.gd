@@ -70,3 +70,49 @@ func test_library_returns_null_for_a_missing_sound_and_warns_once() -> void:
 func test_library_with_another_root_finds_nothing_there() -> void:
 	SoundLibrary.root = "res://assets/no_such_folder"
 	assert_null(SoundLibrary.find(SoundId.UI_CLICK))
+
+
+const DESIGN_IDS: Array[StringName] = [&"cast_fire", &"cast_thunder", &"cast_land", &"cast_sea", &"hit_fire", &"hit_thunder", &"hit_land", &"hit_sea", &"hit_strong", &"hit_resisted", &"enemy_shot", &"blast_warn", &"blast_boom", &"enemy_die", &"enemy_die_big", &"enemy_die_elite", &"boss_spawn", &"boss_slam", &"boss_charge", &"boss_burst", &"boss_die", &"player_hurt", &"player_die", &"level_up", &"step", &"pickup_scroll", &"pickup_xp", &"pickup_gold", &"potion_drink", &"potion_refused", &"ui_click", &"ui_back", &"ui_hover", &"lectern_open", &"craft_confirm", &"craft_fail", &"shop_buy", &"shop_fail", &"shop_equip", &"shrine_heal", &"shrine_mana", &"chest_open", &"merchant_open", &"music_run"]
+
+
+func _data(id: StringName) -> SoundData:
+	return SoundCatalog.default_catalog().find(id)
+
+
+func test_the_catalog_lists_every_sound_in_the_design() -> void:
+	var listed: Array[StringName] = []
+	for data in SoundCatalog.default_catalog().sounds:
+		listed.append(data.id)
+	listed.sort()
+	var wanted := DESIGN_IDS.duplicate()
+	wanted.sort()
+	assert_eq(listed, wanted)
+	var constants := _ids()
+	constants.sort()
+	assert_eq(constants, wanted, "every sound has a SoundId constant")
+
+
+func test_hits_deaths_and_steps_are_low_priority_and_capped() -> void:
+	for id in [&"hit_fire", &"hit_thunder", &"hit_land", &"hit_sea", &"hit_strong", &"hit_resisted", &"enemy_die", &"step", &"pickup_xp"]:
+		var data := _data(id)
+		assert_eq(data.priority, SoundData.Priority.LOW, str(id))
+		assert_lte(data.max_voices, 4, str(id))
+		assert_gt(data.min_gap_msec, 0, "%s has a gap" % id)
+
+
+func test_the_important_sounds_are_not_low_priority() -> void:
+	for id in [&"boss_spawn", &"boss_slam", &"boss_charge", &"boss_burst", &"boss_die", &"player_hurt", &"player_die", &"level_up", &"blast_warn", &"blast_boom", &"potion_refused", &"craft_confirm", &"shrine_heal", &"shrine_mana", &"chest_open"]:
+		assert_ne(_data(id).priority, SoundData.Priority.LOW, str(id))
+
+
+func test_the_loud_events_are_louder_than_the_busy_ones() -> void:
+	assert_gt(_data(&"level_up").volume_db, _data(&"hit_fire").volume_db + 4.0)
+	assert_gt(_data(&"boss_spawn").volume_db, _data(&"enemy_die").volume_db + 4.0)
+	assert_lt(_data(&"step").volume_db, _data(&"hit_fire").volume_db, "footsteps are the quietest thing")
+
+
+func test_ui_sounds_do_not_stop_when_paused() -> void:
+	for id in [&"ui_click", &"ui_back", &"ui_hover", &"lectern_open", &"craft_confirm", &"craft_fail", &"shop_buy", &"shop_fail", &"shop_equip", &"merchant_open"]:
+		assert_false(_data(id).pausable, str(id))
+	for id in [&"cast_fire", &"hit_fire", &"enemy_die", &"step"]:
+		assert_true(_data(id).pausable, str(id))

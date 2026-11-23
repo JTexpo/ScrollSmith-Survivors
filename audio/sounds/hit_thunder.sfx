@@ -1,0 +1,4 @@
+# Thunder hit: a short zap.
+length 0.12
+voice pulse12 1600 600 0.45 0.001 0.07
+voice noise 12000 8000 0.25 0 0.04

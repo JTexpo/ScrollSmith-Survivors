@@ -1,0 +1,6 @@
+# Thunder cast: a zig-zag zap with a crack.
+length 0.3
+voice pulse12 1800 300 0.5 0.002 0.1
+voice pulse12 1500 250 0.45 0.002 0.1 delay 0.09
+voice noise 12000 4000 0.3 0 0.06 delay 0.03
+voice noise 12000 4000 0.25 0 0.05 delay 0.1

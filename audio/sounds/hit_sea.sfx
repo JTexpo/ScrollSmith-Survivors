@@ -1,0 +1,4 @@
+# Sea hit: a wobbly plink.
+length 0.14
+voice pulse25 700 350 0.4 0.002 0.1 vibrato 20 0.5
+voice noise 5000 2500 0.12 0 0.06

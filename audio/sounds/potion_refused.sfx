@@ -1,0 +1,4 @@
+# Potion refused: a flat bonk.
+length 0.2
+voice triangle 180 120 0.7 0.002 0.18
+voice pulse50 200 200 0.18 0 0.08

@@ -1,0 +1,4 @@
+# Gold pickup: a coin ding.
+length 0.22
+voice pulse50 988 988 0.42 0.001 0.06
+voice pulse50 1319 1319 0.42 0.001 0.15 delay 0.06

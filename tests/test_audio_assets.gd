@@ -159,3 +159,20 @@ func test_build_all_writes_a_wav_per_source_and_reports_a_bad_one() -> void:
 	assert_true(FileAccess.file_exists(TEMP + "/b/out/good.wav"))
 	assert_true(FileAccess.file_exists(TEMP + "/b/out/loopy.wav"))
 	assert_false(FileAccess.file_exists(TEMP + "/b/out/bad.wav"), "a bad source writes nothing")
+
+
+func _seconds(id: StringName) -> float:
+	return float(_samples_of(FileAccess.get_file_as_bytes("%s/%s.wav" % [OUT_DIR, id])).size()) / float(AudioBuilder.RATE)
+
+
+func test_every_sound_is_short() -> void:
+	for entry in _sources():
+		if entry["kind"] != "sfx":
+			continue
+		var limit := 2.5 if entry["id"] in [&"level_up", &"player_die", &"boss_spawn", &"boss_die"] else 1.5
+		assert_lt(_seconds(entry["id"]), limit, str(entry["id"]))
+
+
+func test_the_busy_sounds_are_very_short() -> void:
+	for id in [&"hit_fire", &"hit_thunder", &"hit_land", &"hit_sea", &"hit_strong", &"hit_resisted", &"enemy_die", &"step", &"pickup_xp", &"ui_click", &"ui_hover"]:
+		assert_lt(_seconds(id), 0.35, str(id))

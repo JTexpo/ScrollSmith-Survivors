@@ -1,0 +1,7 @@
+# Player dies: a sad falling arpeggio.
+length 1.2
+voice pulse25 659 659 0.4 0.003 0.18
+voice pulse25 523 523 0.4 0.003 0.18 delay 0.2
+voice pulse25 392 392 0.4 0.003 0.18 delay 0.4
+voice pulse25 262 262 0.4 0.003 0.5 delay 0.6
+voice triangle 131 131 0.6 0.01 0.5 delay 0.6

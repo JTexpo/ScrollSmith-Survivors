@@ -1,0 +1,5 @@
+# Potion: three glugging bubbles.
+length 0.38
+voice pulse25 300 900 0.4 0.01 0.1 vibrato 10 0.8
+voice pulse25 400 1100 0.4 0.01 0.1 vibrato 10 0.8 delay 0.1
+voice pulse25 500 1300 0.4 0.01 0.12 vibrato 10 0.8 delay 0.2

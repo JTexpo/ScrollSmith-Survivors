@@ -1,0 +1,5 @@
+# Fire cast: a hot rising whoosh with a puff of noise.
+length 0.3
+voice pulse25 300 1200 0.55 0.005 0.2
+voice noise 8000 3000 0.22 0 0.12
+voice pulse12 600 1800 0.28 0.01 0.2 delay 0.04

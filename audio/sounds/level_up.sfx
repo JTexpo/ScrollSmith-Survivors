@@ -1,0 +1,8 @@
+# Level up: a happy rising arpeggio with a shimmer.
+length 0.85
+voice pulse25 523 523 0.4 0.002 0.1
+voice pulse25 659 659 0.4 0.002 0.1 delay 0.09
+voice pulse25 784 784 0.4 0.002 0.1 delay 0.18
+voice pulse25 1047 1047 0.4 0.002 0.25 delay 0.27
+voice pulse12 1568 2093 0.3 0.01 0.3 delay 0.45
+voice triangle 262 262 0.5 0.01 0.5 delay 0.27

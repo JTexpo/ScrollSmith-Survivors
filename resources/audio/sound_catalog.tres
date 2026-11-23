@@ -1,7 +1,255 @@
-[gd_resource type="Resource" script_class="SoundCatalog" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="SoundCatalog" load_steps=47 format=3]
 
 [ext_resource type="Script" path="res://resources/audio/sound_catalog.gd" id="1"]
 [ext_resource type="Script" path="res://resources/audio/sound_data.gd" id="2"]
+
+[sub_resource type="Resource" id="cast_fire"]
+script = ExtResource("2")
+id = &"cast_fire"
+volume_db = -5.0
+max_voices = 3
+min_gap_msec = 40
+wobble = 0.3
+
+[sub_resource type="Resource" id="cast_thunder"]
+script = ExtResource("2")
+id = &"cast_thunder"
+volume_db = -5.0
+max_voices = 3
+min_gap_msec = 40
+wobble = 0.3
+
+[sub_resource type="Resource" id="cast_land"]
+script = ExtResource("2")
+id = &"cast_land"
+volume_db = -5.0
+max_voices = 3
+min_gap_msec = 40
+wobble = 0.3
+
+[sub_resource type="Resource" id="cast_sea"]
+script = ExtResource("2")
+id = &"cast_sea"
+volume_db = -5.0
+max_voices = 3
+min_gap_msec = 40
+wobble = 0.3
+
+[sub_resource type="Resource" id="hit_fire"]
+script = ExtResource("2")
+id = &"hit_fire"
+volume_db = -12.0
+max_voices = 3
+min_gap_msec = 45
+priority = 0
+wobble = 1.5
+
+[sub_resource type="Resource" id="hit_thunder"]
+script = ExtResource("2")
+id = &"hit_thunder"
+volume_db = -12.0
+max_voices = 3
+min_gap_msec = 45
+priority = 0
+wobble = 1.5
+
+[sub_resource type="Resource" id="hit_land"]
+script = ExtResource("2")
+id = &"hit_land"
+volume_db = -12.0
+max_voices = 3
+min_gap_msec = 45
+priority = 0
+wobble = 1.5
+
+[sub_resource type="Resource" id="hit_sea"]
+script = ExtResource("2")
+id = &"hit_sea"
+volume_db = -12.0
+max_voices = 3
+min_gap_msec = 45
+priority = 0
+wobble = 1.5
+
+[sub_resource type="Resource" id="hit_strong"]
+script = ExtResource("2")
+id = &"hit_strong"
+volume_db = -9.0
+max_voices = 2
+min_gap_msec = 80
+priority = 0
+wobble = 0.5
+
+[sub_resource type="Resource" id="hit_resisted"]
+script = ExtResource("2")
+id = &"hit_resisted"
+volume_db = -13.0
+max_voices = 2
+min_gap_msec = 80
+priority = 0
+wobble = 0.5
+
+[sub_resource type="Resource" id="enemy_shot"]
+script = ExtResource("2")
+id = &"enemy_shot"
+volume_db = -9.0
+max_voices = 3
+min_gap_msec = 60
+wobble = 0.8
+
+[sub_resource type="Resource" id="blast_warn"]
+script = ExtResource("2")
+id = &"blast_warn"
+volume_db = -6.0
+max_voices = 2
+min_gap_msec = 120
+priority = 2
+
+[sub_resource type="Resource" id="blast_boom"]
+script = ExtResource("2")
+id = &"blast_boom"
+volume_db = -6.0
+max_voices = 2
+min_gap_msec = 80
+priority = 2
+wobble = 0.5
+
+[sub_resource type="Resource" id="enemy_die"]
+script = ExtResource("2")
+id = &"enemy_die"
+volume_db = -11.0
+max_voices = 3
+min_gap_msec = 50
+priority = 0
+wobble = 1.5
+
+[sub_resource type="Resource" id="enemy_die_big"]
+script = ExtResource("2")
+id = &"enemy_die_big"
+volume_db = -8.0
+max_voices = 2
+min_gap_msec = 80
+wobble = 1.0
+
+[sub_resource type="Resource" id="enemy_die_elite"]
+script = ExtResource("2")
+id = &"enemy_die_elite"
+volume_db = -7.0
+max_voices = 2
+min_gap_msec = 100
+wobble = 0.5
+
+[sub_resource type="Resource" id="boss_spawn"]
+script = ExtResource("2")
+id = &"boss_spawn"
+volume_db = -3.0
+max_voices = 1
+priority = 2
+
+[sub_resource type="Resource" id="boss_slam"]
+script = ExtResource("2")
+id = &"boss_slam"
+volume_db = -4.0
+max_voices = 2
+min_gap_msec = 100
+priority = 2
+wobble = 0.3
+
+[sub_resource type="Resource" id="boss_charge"]
+script = ExtResource("2")
+id = &"boss_charge"
+volume_db = -4.0
+max_voices = 1
+min_gap_msec = 150
+priority = 2
+
+[sub_resource type="Resource" id="boss_burst"]
+script = ExtResource("2")
+id = &"boss_burst"
+volume_db = -4.0
+max_voices = 2
+min_gap_msec = 100
+priority = 2
+wobble = 0.3
+
+[sub_resource type="Resource" id="boss_die"]
+script = ExtResource("2")
+id = &"boss_die"
+volume_db = -3.0
+max_voices = 1
+priority = 2
+
+[sub_resource type="Resource" id="player_hurt"]
+script = ExtResource("2")
+id = &"player_hurt"
+volume_db = -6.0
+max_voices = 2
+min_gap_msec = 150
+priority = 2
+wobble = 0.5
+
+[sub_resource type="Resource" id="player_die"]
+script = ExtResource("2")
+id = &"player_die"
+volume_db = -3.0
+max_voices = 1
+priority = 2
+
+[sub_resource type="Resource" id="level_up"]
+script = ExtResource("2")
+id = &"level_up"
+volume_db = -4.0
+max_voices = 1
+priority = 2
+
+[sub_resource type="Resource" id="step"]
+script = ExtResource("2")
+id = &"step"
+volume_db = -20.0
+max_voices = 2
+min_gap_msec = 150
+priority = 0
+wobble = 0.8
+
+[sub_resource type="Resource" id="pickup_scroll"]
+script = ExtResource("2")
+id = &"pickup_scroll"
+volume_db = -7.0
+max_voices = 3
+min_gap_msec = 60
+wobble = 0.4
+
+[sub_resource type="Resource" id="pickup_xp"]
+script = ExtResource("2")
+id = &"pickup_xp"
+volume_db = -12.0
+max_voices = 3
+min_gap_msec = 40
+priority = 0
+wobble = 1.0
+
+[sub_resource type="Resource" id="pickup_gold"]
+script = ExtResource("2")
+id = &"pickup_gold"
+volume_db = -10.0
+max_voices = 3
+min_gap_msec = 50
+wobble = 0.8
+
+[sub_resource type="Resource" id="potion_drink"]
+script = ExtResource("2")
+id = &"potion_drink"
+volume_db = -7.0
+max_voices = 1
+min_gap_msec = 100
+priority = 2
+
+[sub_resource type="Resource" id="potion_refused"]
+script = ExtResource("2")
+id = &"potion_refused"
+volume_db = -9.0
+max_voices = 1
+min_gap_msec = 150
 
 [sub_resource type="Resource" id="ui_click"]
 script = ExtResource("2")
@@ -9,6 +257,96 @@ id = &"ui_click"
 volume_db = -8.0
 max_voices = 2
 min_gap_msec = 30
+wobble = 0.2
+pausable = false
+
+[sub_resource type="Resource" id="ui_back"]
+script = ExtResource("2")
+id = &"ui_back"
+volume_db = -8.0
+max_voices = 2
+min_gap_msec = 30
+wobble = 0.2
+pausable = false
+
+[sub_resource type="Resource" id="ui_hover"]
+script = ExtResource("2")
+id = &"ui_hover"
+volume_db = -14.0
+max_voices = 1
+min_gap_msec = 40
+priority = 0
+pausable = false
+
+[sub_resource type="Resource" id="lectern_open"]
+script = ExtResource("2")
+id = &"lectern_open"
+volume_db = -6.0
+max_voices = 1
+pausable = false
+
+[sub_resource type="Resource" id="craft_confirm"]
+script = ExtResource("2")
+id = &"craft_confirm"
+volume_db = -5.0
+max_voices = 1
+priority = 2
+pausable = false
+
+[sub_resource type="Resource" id="craft_fail"]
+script = ExtResource("2")
+id = &"craft_fail"
+volume_db = -8.0
+max_voices = 1
+pausable = false
+
+[sub_resource type="Resource" id="shop_buy"]
+script = ExtResource("2")
+id = &"shop_buy"
+volume_db = -6.0
+max_voices = 1
+pausable = false
+
+[sub_resource type="Resource" id="shop_fail"]
+script = ExtResource("2")
+id = &"shop_fail"
+volume_db = -8.0
+max_voices = 1
+pausable = false
+
+[sub_resource type="Resource" id="shop_equip"]
+script = ExtResource("2")
+id = &"shop_equip"
+volume_db = -7.0
+max_voices = 1
+pausable = false
+
+[sub_resource type="Resource" id="shrine_heal"]
+script = ExtResource("2")
+id = &"shrine_heal"
+volume_db = -5.0
+max_voices = 1
+priority = 2
+
+[sub_resource type="Resource" id="shrine_mana"]
+script = ExtResource("2")
+id = &"shrine_mana"
+volume_db = -5.0
+max_voices = 1
+priority = 2
+
+[sub_resource type="Resource" id="chest_open"]
+script = ExtResource("2")
+id = &"chest_open"
+volume_db = -5.0
+max_voices = 1
+priority = 2
+
+[sub_resource type="Resource" id="merchant_open"]
+script = ExtResource("2")
+id = &"merchant_open"
+volume_db = -7.0
+max_voices = 1
 pausable = false
 
 [sub_resource type="Resource" id="music_run"]
@@ -21,4 +359,4 @@ music = true
 
 [resource]
 script = ExtResource("1")
-sounds = Array[ExtResource("2")]([SubResource("ui_click"), SubResource("music_run")])
+sounds = Array[ExtResource("2")]([SubResource("cast_fire"), SubResource("cast_thunder"), SubResource("cast_land"), SubResource("cast_sea"), SubResource("hit_fire"), SubResource("hit_thunder"), SubResource("hit_land"), SubResource("hit_sea"), SubResource("hit_strong"), SubResource("hit_resisted"), SubResource("enemy_shot"), SubResource("blast_warn"), SubResource("blast_boom"), SubResource("enemy_die"), SubResource("enemy_die_big"), SubResource("enemy_die_elite"), SubResource("boss_spawn"), SubResource("boss_slam"), SubResource("boss_charge"), SubResource("boss_burst"), SubResource("boss_die"), SubResource("player_hurt"), SubResource("player_die"), SubResource("level_up"), SubResource("step"), SubResource("pickup_scroll"), SubResource("pickup_xp"), SubResource("pickup_gold"), SubResource("potion_drink"), SubResource("potion_refused"), SubResource("ui_click"), SubResource("ui_back"), SubResource("ui_hover"), SubResource("lectern_open"), SubResource("craft_confirm"), SubResource("craft_fail"), SubResource("shop_buy"), SubResource("shop_fail"), SubResource("shop_equip"), SubResource("shrine_heal"), SubResource("shrine_mana"), SubResource("chest_open"), SubResource("merchant_open"), SubResource("music_run")])
