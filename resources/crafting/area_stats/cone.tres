@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 damage = 10.0
-cast_interval = 0.55
+cast_interval = 0.8
 mana_cost = 2.0
 max_mana = 100.0
 projectile_speed = 220.0

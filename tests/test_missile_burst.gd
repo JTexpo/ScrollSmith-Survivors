@@ -36,7 +36,7 @@ func _burst_at(spell: SpellData, at: Vector2, scale: float = 1.0) -> MissileBurs
 
 func test_the_missile_area_data_has_the_burst_numbers() -> void:
 	var data := load(AREA_DIR + "missile_area.tres") as AreaData
-	assert_eq(data.burst_radius, 36.0)
+	assert_eq(data.burst_radius, 18.0, "small: half of the first 36 px (user play-test feedback)")
 	assert_eq(data.burst_damage_share, 0.5)
 
 
@@ -57,8 +57,8 @@ func test_a_missile_bursts_once_where_it_hits() -> void:
 
 func test_the_burst_hits_every_enemy_in_the_radius_once() -> void:
 	var spell := _fire()
-	var inside := [_enemy(Vector2(200, 0)), _enemy(Vector2(216, 10)), _enemy(Vector2(190, -12))]
-	var outside := _enemy(Vector2(200, 70))
+	var inside := [_enemy(Vector2(200, 0)), _enemy(Vector2(210, 8)), _enemy(Vector2(192, -8))]
+	var outside := _enemy(Vector2(200, 40))
 	_burst_at(spell, Vector2(200, 0))
 	await wait_physics_frames(8)
 	for enemy in inside:

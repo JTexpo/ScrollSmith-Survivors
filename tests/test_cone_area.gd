@@ -20,7 +20,7 @@ func test_cone_hits_enemies_inside_it_once() -> void:
 
 
 func test_cone_misses_outside_angle_range_and_behind() -> void:
-	var outside := [_enemy(O + Vector2(20, 40)), _enemy(O + Vector2(90, 0)), _enemy(O + Vector2(-30, 0))]
+	var outside := [_enemy(O + Vector2(20, 40)), _enemy(O + Vector2(130, 0)), _enemy(O + Vector2(-30, 0))]
 	_launch(_spell(CONE), O)
 	await wait_physics_frames(8)
 	for enemy in outside:
@@ -42,7 +42,7 @@ func test_cone_range_scale_shortens_it() -> void:
 	await wait_physics_frames(8)
 	assert_true(_damaged(near))
 	var far := _enemy(O_LOW + Vector2(50, 0))
-	_launch(_spell(CONE, 10.0, 0.0, 0.5), O_LOW)
+	_launch(_spell(CONE, 10.0, 0.0, 0.4), O_LOW)
 	await wait_physics_frames(8)
 	assert_false(_damaged(far))
 
@@ -75,3 +75,10 @@ func test_the_cone_polygon_and_hitbox_are_unchanged_by_the_skin() -> void:
 	var expected := ConeArea._sector(spell.effective_range(), spell.effective_size())
 	assert_eq((cone.get_node("Hitbox/Shape") as CollisionPolygon2D).polygon, expected, "what hits is the exact sector")
 	assert_eq((cone.get_node("Visual") as Polygon2D).polygon, expected, "and what is tinted is the same sector")
+
+
+func test_the_cone_is_long_enough_to_use_at_short_range() -> void:
+	var data := load("res://resources/spells/areas/cone_area.tres") as AreaData
+	assert_eq(data.default_range, 94.0, "Normal reaches 94 px (user play-test feedback)")
+	var short := ((load("res://resources/crafting/crafting_rules.tres") as CraftingRules).range_options[0] as RangeOption).range_scale
+	assert_almost_eq(data.default_range * short, 56.0, 1.0, "Short is what Normal used to be")

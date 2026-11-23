@@ -1,6 +1,6 @@
 # Sprint 14b Design: Balance
 
-**Status:** Proposed, awaiting approval.
+**Status:** Approved, in progress.
 
 Sprint 14 is three parts: **14a** the world pass (done), **14b** balance (this doc), **14c** optimization. Scope comes from the user's play-test notes after Sprint 13, `CLAUDE.md` and the numbers in the data files. Decisions below were agreed with the user in conversation, except where marked "my call".
 
@@ -16,7 +16,7 @@ Play-testing showed three things (the user's words, shortened): **the Missile "i
 - **XP and enemy pacing stay.**
 
 **My calls**
-- **Burst numbers (starting values, all data):** radius about 36 px, damage share 50% of the spell's damage, and the Missile's cast interval 0.35 s to about 0.6 s. The burst happens at the Missile's first enemy hit or at its maximum range, whichever comes first, and damages every enemy in the radius (including the one it hit), using the same elemental rules.
+- **Burst numbers (starting values, all data):** radius about 18 px, damage share 50% of the spell's damage, and the Missile's cast interval 0.35 s to about 0.6 s. The burst happens at the Missile's first enemy hit or at its maximum range, whichever comes first, and damages every enemy in the radius (including the one it hit), using the same elemental rules.
 - **Run-only potions live in a new in-memory `RunPotions`** (like the run's starting buffs), never in the saved profile. The potion belt and merchant screen take it where they took the profile's potions.
 - **Old saves:** a save that holds potions loads, and its potions are cashed in for Gold at their list price once, so nobody loses what they paid for. After that the save no longer writes potions.
 - **A spell audit tool** (`scripts/dev/spell_audit.gd`, run like the stress scene) prints damage per full mana pool for every Base, Area and buff combination at one target and at eight, and flags anything beyond 3 times the median. I only change a flagged combination if it is a clear outlier, and show the table first.
@@ -42,7 +42,7 @@ Play-testing showed three things (the user's words, shortened): **the Missile "i
 
 | Area | Decision |
 |---|---|
-| Burst data | `AreaData.burst_radius` (px, 0 means none) and `burst_damage_share` (0 to 1), set on `missile_area.tres` (36 and 0.5) and zero elsewhere. `SpellData` reads them through its `area_data`. |
+| Burst data | `AreaData.burst_radius` (px, 0 means none) and `burst_damage_share` (0 to 1), set on `missile_area.tres` (18 and 0.5) and zero elsewhere. `SpellData` reads them through its `area_data`. |
 | Burst behaviour | `MissileArea` ends on its first hit, on max range, or on an obstacle, and then (if `burst_radius > 0`) spawns one burst effect at that point: a passive hitbox of that radius that hits every enemy once with `damage * burst_damage_share`, through `AreaEffect._configure_hitbox` so the damage scale, element, attack profile and impact announcement are the shared ones. A short ring of element-coloured effect sprites marks it (existing `SpellSkin`/`EffectSprite` pieces, no new art). Duplicate Area bursts per copy. |
 | Missile numbers | `missile.tres` area stats `cast_interval` 0.35 to 0.6 (about); `fire_missile.tres` changes the same way so the crafted-equals-starting test holds. Damage per hit stays 10. |
 | Run potions | `RunPotions` (RefCounted): `count`, `add`, `use`, `changed`, cap `MAX_POTIONS = 3` per type. Created at run start by `Main`, bound to the belt and merchant screen. `PlayerProfile` loses `potions` (loader cashes old ones in for Gold once; `to_dict` writes none). |
@@ -64,3 +64,8 @@ Play-testing showed three things (the user's words, shortened): **the Missile "i
 - **Audit tests:** the maths on known spells; the table includes every Base, Area and buff.
 - **Real window:** a screenshot of a burst on a crowd and at max range, the merchant screen and the shop screen, and a stress run (`--area=missile`) to check the burst's cost. Whether the Missile now feels right is the user's call.
 - `godot --headless --import` after adding a `class_name`, then the full suite and a smoke run.
+
+## 6. Revisions during the build
+
+- **User feedback after trying the Missile burst (mid-build):** the burst was "massive" and "almost steals the Area's role", so its radius is halved to **18 px** (was 36).
+- **The Cone was impractical at Short range** (enemies are fast), so its Normal range grows from 56 to **94 px** (Short becomes about 56, what Normal was; Long 141, Very long 188), and it was "the strongest spell", so its baseline cast interval grows from 0.55 s to **0.8 s**. The starting Sea Cone follows (0.4675 s to 0.68 s) because it matches the builder. Both are starting values for the user to tune. This goes beyond the original scope (the audit was to report outliers, not change them): the user asked for these directly.
