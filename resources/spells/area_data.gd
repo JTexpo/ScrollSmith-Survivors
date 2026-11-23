@@ -20,5 +20,9 @@ enum AreaType { LINE, CONE, AREA, MISSILE, WAVE }
 @export var widen_rate: float = 0.0
 ## True if the spell lands where the player points (the reticle and targeting read this).
 @export var needs_ground_target: bool = false
+## Missile: radius (px) of the small burst where it ends (its first enemy hit, or the end of its range). 0 means none.
+@export var burst_radius: float = 0.0
+## Missile: the burst's damage as a share of the spell's damage (0 to 1).
+@export var burst_damage_share: float = 0.0
 ## What an Area crafted from this scroll starts with, before Base multipliers and range.
 @export var base_stats: AreaStats
