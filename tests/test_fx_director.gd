@@ -154,3 +154,93 @@ func test_main_has_a_bound_director_with_its_parts() -> void:
 	var before := layer.active_count()
 	ImpactEvents.bus.hit.emit(Vector2(100, 100), 1.0, &"sea")
 	assert_gt(layer.active_count(), before)
+
+
+func _hurt_setup() -> Array:
+	var body := BodyView.new()
+	add_child_autofree(body)
+	var indicator := HitIndicator.new()
+	add_child_autofree(indicator)
+	_director.setup_player(body, indicator)
+	return [body, indicator]
+
+
+func test_a_player_hit_tints_jitters_and_restores_after_the_timer() -> void:
+	var parts := _hurt_setup()
+	var body: BodyView = parts[0]
+	_director.on_player_hit(Vector2(100, 100), Vector2(60, 100))
+	assert_true(_director.hurt_active())
+	assert_ne(body.get_node("Sprite").self_modulate, Color.WHITE)
+	var moved := false
+	for i in 4:
+		_director._process(0.04)
+		if body.position != Vector2.ZERO:
+			moved = true
+	assert_true(moved, "the body jitters while hurt")
+	for offset in [body.position]:
+		assert_lte(absf(offset.x), 2.0)
+	_director._process(0.2)
+	assert_false(_director.hurt_active())
+	assert_eq(body.position, Vector2.ZERO)
+	assert_eq(body.get_node("Sprite").self_modulate, Color.WHITE)
+
+
+func test_a_second_hit_restarts_the_timer() -> void:
+	_hurt_setup()
+	_director.on_player_hit(Vector2.ZERO, Vector2(-10, 0))
+	_director._process(0.15)
+	_director.on_player_hit(Vector2.ZERO, Vector2(-10, 0))
+	_director._process(0.15)
+	assert_true(_director.hurt_active(), "restarted by the second hit")
+	_director._process(0.2)
+	assert_false(_director.hurt_active())
+
+
+func test_a_player_hit_shows_an_arc_towards_the_source() -> void:
+	var parts := _hurt_setup()
+	var indicator: HitIndicator = parts[1]
+	_director.on_player_hit(Vector2(100, 100), Vector2(40, 100))
+	assert_eq(indicator.visible_arcs().size(), 1)
+	assert_lt(indicator.visible_arcs()[0].position.x, 20.0, "the hit came from the left")
+
+
+func test_the_player_hit_shake_is_tiny() -> void:
+	_hurt_setup()
+	_director.on_player_hit(Vector2.ZERO, Vector2(-10, 0))
+	assert_eq(_shake.shakes_made(), 1)
+	for i in 6:
+		_shake.advance(0.016)
+		assert_lte(absf(_camera.offset.x), 1.0, "a hurt kick is at most a pixel")
+		assert_lte(absf(_camera.offset.y), 1.0)
+
+
+func test_hurt_feedback_off_leaves_the_wizard_alone_but_the_arc_still_shows() -> void:
+	var parts := _hurt_setup()
+	var body: BodyView = parts[0]
+	FxSettings.hurt_feedback = false
+	_director.on_player_hit(Vector2(100, 100), Vector2(40, 100))
+	assert_false(_director.hurt_active())
+	assert_eq(body.get_node("Sprite").self_modulate, Color.WHITE)
+	assert_eq(parts[1].visible_arcs().size(), 1)
+
+
+func test_hit_indicators_off_hides_the_arc_but_the_flash_still_shows() -> void:
+	var parts := _hurt_setup()
+	FxSettings.hit_indicators = false
+	_director.on_player_hit(Vector2(100, 100), Vector2(40, 100))
+	assert_eq(parts[1].visible_arcs().size(), 0)
+	assert_true(_director.hurt_active())
+
+
+func test_a_real_player_hit_reaches_the_director_through_main() -> void:
+	var main := load("res://scenes/main/main.tscn").instantiate() as Main
+	main.save_path = ""
+	for screen in ["BuffPickScreen", "CraftingScreen", "MerchantScreen"]:
+		main.get_node(screen).pause_tree = false
+	add_child_autofree(main)
+	var director := main.get_node("FxDirector") as FxDirector
+	var player := main.get_node("Player") as Player
+	player.hurtbox.hit_received.emit(5.0, player.global_position + Vector2(-30, 0), 0.0, ElementTable.Effect.NEUTRAL)
+	assert_true(director.hurt_active())
+	director._process(1.0)
+	assert_false(director.hurt_active())

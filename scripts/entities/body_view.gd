@@ -40,6 +40,8 @@ var _outline: AnimatedSprite2D
 var _sprite: AnimatedSprite2D
 var _fallback: ColorRect
 var _facing: float = 1.0
+var _jitter: Vector2 = Vector2.ZERO
+var _jitter_base: Vector2 = Vector2.ZERO
 ## Layers drawn over the body sprite (a worn robe, headwear, a weapon), by name, in the order they were added. Each copies the
 ## body's animation, frame and flip every frame, and runs nothing while it is hidden.
 var _layers: Dictionary = {}
@@ -144,6 +146,14 @@ func set_facing(direction_x: float) -> void:
 	_outline.flip_h = _facing < 0.0
 	for layer in _layers.values():
 		layer.flip_h = _facing < 0.0
+
+
+## Moves the whole body (the sprite, its layers, its outline and its shadow) by a whole-pixel offset, for a hurt jitter. Zero restores it.
+func set_jitter(offset: Vector2) -> void:
+	if _jitter == Vector2.ZERO and offset != Vector2.ZERO:
+		_jitter_base = position
+	_jitter = offset.round()
+	position = _jitter_base + _jitter
 
 
 ## A state tint on the sprite (white is none). Separate from the hit flash.

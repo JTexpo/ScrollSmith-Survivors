@@ -10,6 +10,12 @@ const DUST_FROM := 0.5
 const DUST_MAX_COUNT := 8
 const BLAST_KICK := 0.6
 const SLAM_KICK := 0.8
+## The player's own hurt: how long the red tint and the jitter last, the jitter in pixels, how fast it alternates, the shake kick.
+const HURT_SECONDS := 0.2
+const HURT_JITTER_PX := 2.0
+const HURT_JITTER_STEP := 0.05
+const HURT_KICK := 0.45
+const HURT_TINT := Color(1.0, 0.55, 0.55)
 
 var _burst: BurstLayer
 var _shake: CameraShake
@@ -18,10 +24,22 @@ var _config: ImpactConfig
 var _connected: bool = false
 var _bursts: int = 0
 var _frame_bursts: int = 0
+var _body: BodyView
+var _indicator: HitIndicator
+var _hurt_left: float = 0.0
+var _hurt_clock: float = 0.0
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	begin_frame()
+	if _hurt_left > 0.0:
+		_hurt_left -= delta
+		_hurt_clock += delta
+		if _hurt_left <= 0.0:
+			_end_hurt()
+		elif _body != null:
+			var step := int(_hurt_clock / HURT_JITTER_STEP) % 2
+			_body.set_jitter(Vector2(HURT_JITTER_PX if step == 0 else -HURT_JITTER_PX, 0.0))
 
 
 ## Builds the parts under `main` and wires them (Main calls this once).
@@ -40,6 +58,12 @@ func bind(main: Node) -> void:
 	shake.bind(main.get_node("Player/Camera2D") as Camera2D)
 	setup(burst, shake, flash)
 	(main.get_node("RunDirector") as RunDirector).boss_spawned.connect(_on_boss_spawned)
+	var indicator := HitIndicator.new()
+	indicator.name = "HitIndicator"
+	add_child(indicator)
+	var player := main.get_node("Player") as Player
+	setup_player(player.get_node("Body") as BodyView, indicator)
+	player.hurtbox.hit_received.connect(func(_damage: float, source: Vector2, _knockback: float, _effect: int) -> void: on_player_hit(player.global_position, source))
 
 
 ## Uses these three parts and listens for the announcements. Safe to call twice.
@@ -73,6 +97,40 @@ func burst_layer() -> BurstLayer:
 
 func camera_shake() -> CameraShake:
 	return _shake
+
+
+## The wizard's body and the arc indicator (Main's `bind` passes the real ones).
+func setup_player(body: BodyView, indicator: HitIndicator) -> void:
+	_body = body
+	_indicator = indicator
+
+
+## The player was hit: the wizard flashes red and jitters for a moment, a few red sparks fly, the camera gives a tiny kick and an arc at the
+## screen edge points at where the hit came from. A second hit restarts the timer instead of stacking.
+func on_player_hit(at: Vector2, source: Vector2) -> void:
+	if FxSettings.hurt_feedback and _body != null:
+		_body.set_tint(HURT_TINT)
+		_hurt_left = HURT_SECONDS
+		_hurt_clock = 0.0
+	if _burst != null and FxSettings.particles and _frame_bursts < MAX_BURSTS_PER_FRAME:
+		_frame_bursts += 1
+		_bursts += 1
+		_burst.burst(at, &"sparks", [Color("e0483c"), Color("ff6f8f")], 5)
+	if _shake != null:
+		_shake.kick(HURT_KICK)
+	if _indicator != null:
+		_indicator.show_hit(source - at)
+
+
+func hurt_active() -> bool:
+	return _hurt_left > 0.0
+
+
+func _end_hurt() -> void:
+	_hurt_left = 0.0
+	if _body != null:
+		_body.set_tint(Color.WHITE)
+		_body.set_jitter(Vector2.ZERO)
 
 
 func on_boss_attack(attack: BossAttack) -> void:

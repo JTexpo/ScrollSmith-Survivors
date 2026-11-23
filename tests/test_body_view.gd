@@ -337,3 +337,25 @@ func test_a_layer_changes_frame_in_the_same_moment_as_the_body_not_a_frame_later
 	DirAccess.remove_absolute(ProjectSettings.globalize_path("%s/hat_base.tres" % root))
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(root))
 
+
+func test_a_jitter_moves_the_body_and_everything_in_it_together_and_zero_restores_it() -> void:
+	var body := BodyView.new()
+	add_child_autofree(body)
+	body.position = Vector2(10, 20)
+	var sprite := body.get_node("Sprite") as Node2D
+	var before := sprite.global_position
+	body.set_jitter(Vector2(2, 0))
+	assert_eq(sprite.global_position, before + Vector2(2, 0))
+	body.set_jitter(Vector2.ZERO)
+	assert_eq(sprite.global_position, before)
+	assert_eq(body.position, Vector2(10, 20))
+
+
+func test_the_jitter_is_whole_pixels_and_never_scales_the_body() -> void:
+	var body := BodyView.new()
+	add_child_autofree(body)
+	body.set_jitter(Vector2(1.6, -0.4))
+	assert_eq(body.position, Vector2(2, 0))
+	assert_eq(body.scale, Vector2.ONE)
+	body.set_jitter(Vector2.ZERO)
+	assert_eq(body.position, Vector2.ZERO)
