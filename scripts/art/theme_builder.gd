@@ -138,6 +138,7 @@ static func theme_text(sprite_dir: String = SPRITE_DIR, sheet_dir: String = SHEE
 		lines.append("region_rect = Rect2(%d, 0, %d, %d)" % [int(spec[3]) * frame.x, frame.x, frame.y])
 		blocks.append("\n".join(lines) + "\n")
 		props.append("%s/styles/%s = SubResource(\"%s\")" % [spec[0], spec[1], id])
+	props.append("Label/constants/line_spacing = 0")
 	for variation in VARIATIONS:
 		props.append("%s/base_type = &\"%s\"" % [variation, VARIATIONS[variation]])
 	for entry in COLORS:

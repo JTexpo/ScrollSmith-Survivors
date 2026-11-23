@@ -376,3 +376,88 @@ func test_focus_survives_a_stepper_becoming_disabled() -> void:
 	var owner := _screen.get_viewport().gui_get_focus_owner()
 	assert_not_null(owner, "the last owned stack disabled the plus button")
 	assert_false((owner as Button).disabled)
+
+
+func _stock_everything() -> void:
+	for category in ["base", "area", "buff"]:
+		for file in DirAccess.get_files_at("res://resources/scrolls/%s" % category):
+			if String(file).ends_with(".tres"):
+				_inventory.add(_scroll("%s/%s" % [category, String(file).get_basename()]), 9)
+
+
+func _wrapped(text: String, width: float) -> Vector2:
+	return UiFont.plain().get_multiline_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, width, UiFont.SIZE, -1, TextServer.BREAK_WORD_BOUND | TextServer.BREAK_MANDATORY)
+
+
+func _button_with_text(text: String) -> Button:
+	for button in _screen.find_children("*", "Button", true, false):
+		if (button as Button).text == text:
+			return button as Button
+	return null
+
+
+func test_the_screen_sits_on_a_window_panel() -> void:
+	_screen.open(_inventory, _loadout)
+	assert_not_null(_screen.find_child("Window", true, false))
+	assert_not_null(_screen.find_child("Backdrop", true, false))
+
+
+func test_the_confirm_button_is_red_and_cancel_is_green() -> void:
+	_screen.open(_inventory, _loadout)
+	assert_eq(_button_with_text("Confirm").theme_type_variation, &"ButtonRed")
+	assert_eq(_button_with_text("Cancel").theme_type_variation, &"ButtonGreen")
+
+
+func test_the_chosen_scrolls_are_yellow_buttons() -> void:
+	_inventory.add(_fire)
+	_inventory.add(_missile)
+	_screen.open(_inventory, _loadout)
+	_screen.choose_base(_fire)
+	var found := false
+	for button in _screen.find_children("*", "Button", true, false):
+		if str(button.get_meta(&"key", "")) == "scroll:%s" % _fire.id:
+			found = true
+			assert_eq((button as Button).theme_type_variation, &"ButtonYellow")
+	assert_true(found, "the Fire button")
+
+
+func test_no_crafting_widget_sets_a_font_size() -> void:
+	_stock_everything()
+	_screen.open(_inventory, _loadout)
+	for node in _screen.find_children("*", "Control", true, false):
+		assert_false((node as Control).has_theme_font_size_override("font_size"), str(node.name))
+
+
+func test_the_preview_and_drawbacks_fit_the_preview_panel() -> void:
+	_stock_everything()
+	_screen.open(_inventory, _loadout)
+	_screen.add_buff(_scroll("buff/additional_base"))
+	_screen.choose_base(_fire)
+	_screen.choose_base(_thunder)
+	_screen.choose_area(_wave)
+	for id in ["damage", "double_vulnerability", "duplicate_area", "ignore_resistance", "max_mana"]:
+		_screen.add_buff(_scroll("buff/%s" % id))
+	var size := _wrapped(_screen.preview_text(), CraftingScreen.PREVIEW_SIZE.x)
+	assert_lte(size.y, CraftingScreen.PREVIEW_SIZE.y, "the whole preview is inside its panel")
+	assert_lte(_screen.preview_height(), CraftingScreen.PREVIEW_SIZE.y, "and so is the label that really draws it")
+	assert_lte(_wrapped(_screen.message_text(), CraftingScreen.MESSAGE_SIZE.x).y, CraftingScreen.MESSAGE_SIZE.y)
+
+
+func test_every_scroll_and_slot_button_text_fits_its_button() -> void:
+	_stock_everything()
+	_screen.open(_inventory, _loadout)
+	for button in _screen.find_children("*", "Button", true, false):
+		var text := (button as Button).text
+		if text in ["Confirm", "Cancel", "-", "+"]:
+			continue
+		for line in text.split("\n"):
+			var width := UiFont.plain().get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, UiFont.SIZE).x
+			assert_lte(width, (button as Button).custom_minimum_size.x - 8.0, line)
+
+
+func test_a_buff_name_fits_beside_its_steppers() -> void:
+	_stock_everything()
+	_screen.open(_inventory, _loadout)
+	for scroll in _screen.session.owned_buffs():
+		var width := UiFont.plain().get_string_size(scroll.display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, UiFont.SIZE).x
+		assert_lte(width, CraftingScreen.BUFF_NAME_WIDTH, scroll.display_name)

@@ -124,3 +124,7 @@ func test_text_with_an_empty_library_has_no_styleboxes_and_loads() -> void:
 
 func test_the_project_uses_the_game_theme() -> void:
 	assert_eq(ProjectSettings.get_setting("gui/theme/custom"), THEME_PATH)
+
+
+func test_labels_add_no_line_spacing_because_the_font_already_has_leading() -> void:
+	assert_eq(_theme.get_constant(&"line_spacing", &"Label"), 0)
