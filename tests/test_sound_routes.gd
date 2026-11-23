@@ -247,3 +247,41 @@ func test_binding_twice_does_not_double_every_sound() -> void:
 	_board.bind(_main)
 	_spawner.enemy_died.emit(_enemy(&"standard"))
 	assert_eq(_heard.count(&"enemy_die"), 1)
+
+
+func test_pressing_mute_toggles_the_board_the_button_and_the_saved_profile() -> void:
+	var button := _main.get_node("Hud/MuteButton") as MuteButton
+	assert_false(_board.muted)
+	button.pressed.emit()
+	assert_true(_board.muted)
+	assert_true(button.is_muted())
+	assert_true(_main.profile.muted)
+	var press := InputEventAction.new()
+	press.action = &"mute"
+	press.pressed = true
+	_main._unhandled_input(press)
+	assert_false(_board.muted)
+	assert_false(button.is_muted())
+	assert_false(_main.profile.muted)
+
+
+func test_a_muted_profile_starts_the_game_muted() -> void:
+	var folder := "res://.godot/save_tests/mute_%d" % randi()
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(folder))
+	var saved := PlayerProfile.new()
+	saved.muted = true
+	assert_true(SaveGame.save_profile(saved, folder + "/save.json"))
+	var muted_main := load("res://scenes/main/main.tscn").instantiate() as Main
+	muted_main.save_path = folder + "/save.json"
+	for screen in ["BuffPickScreen", "CraftingScreen", "MerchantScreen"]:
+		muted_main.get_node(screen).pause_tree = false
+	add_child_autofree(muted_main)
+	var board := muted_main.get_node("SoundBoard") as SoundBoard
+	assert_true(board.muted)
+	assert_true((muted_main.get_node("Hud/MuteButton") as MuteButton).is_muted())
+	board.set_muted(false)
+	AudioServer.set_bus_mute(0, false)
+	var absolute := ProjectSettings.globalize_path(folder)
+	for file in DirAccess.get_files_at(absolute):
+		DirAccess.remove_absolute("%s/%s" % [absolute, file])
+	DirAccess.remove_absolute(absolute)

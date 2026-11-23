@@ -12,6 +12,8 @@ const MAX_POTIONS := 99
 
 var total_xp: int = 0
 var gold: int = 0
+## The player turned the sound off (the mute button or the M key). Saved so a phone player does not mute again every launch.
+var muted: bool = false
 var owned: Array[StringName] = []
 ## Slot (int, 0 to SLOT_COUNT - 1) to equipment id (StringName).
 var equipped: Dictionary = {}
@@ -32,6 +34,8 @@ static func from_dict(data: Dictionary) -> PlayerProfile:
 		if not _is_whole_in_range(data["gold"]):
 			return null
 		profile.gold = int(data["gold"])
+	if data.get("muted") is bool:
+		profile.muted = data["muted"]
 	if data.has("owned"):
 		if not data["owned"] is Array:
 			return null
@@ -152,7 +156,7 @@ func to_dict() -> Dictionary:
 	for id in potions:
 		if int(potions[id]) > 0:
 			potion_counts[str(id)] = int(potions[id])
-	return {
+	var data := {
 		"version": SaveGame.VERSION,
 		"total_xp": total_xp,
 		"gold": gold,
@@ -160,6 +164,9 @@ func to_dict() -> Dictionary:
 		"equipped": equipped_ids,
 		"potions": potion_counts,
 	}
+	if muted:
+		data["muted"] = true
+	return data
 
 
 ## `current + amount` held at MAX_VALUE, ignoring amounts at or below 0 (and safe from int overflow).

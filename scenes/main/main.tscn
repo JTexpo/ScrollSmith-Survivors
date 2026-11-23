@@ -49,6 +49,7 @@
 [ext_resource type="Resource" path="res://resources/scrolls/buff/duplicate_area.tres" id="33"]
 [ext_resource type="Resource" path="res://resources/scrolls/buff/additional_base.tres" id="34"]
 [ext_resource type="PackedScene" path="res://scenes/audio/sound_board.tscn" id="sound_board"]
+[ext_resource type="PackedScene" path="res://scenes/ui/mute_button.tscn" id="mute_button"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("0")
@@ -166,6 +167,16 @@ offset_left = -52.0
 offset_top = 8.0
 offset_right = -8.0
 offset_bottom = 36.0
+grow_horizontal = 0
+
+[node name="MuteButton" parent="Hud" instance=ExtResource("mute_button")]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -92.0
+offset_top = 8.0
+offset_right = -60.0
+offset_bottom = 40.0
 grow_horizontal = 0
 
 [node name="InventoryPanel" parent="Hud" instance=ExtResource("14")]

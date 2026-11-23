@@ -157,3 +157,10 @@ func test_a_save_with_a_bad_potions_field_is_kept_as_bak() -> void:
 	var profile := SaveGame.load_profile(_path())
 	assert_eq(profile.gold, 0)
 	assert_true(FileAccess.file_exists(_path() + ".bak"))
+
+
+func test_muted_survives_a_save_and_load() -> void:
+	var profile := PlayerProfile.new()
+	profile.muted = true
+	assert_true(SaveGame.save_profile(profile, _path()))
+	assert_true(SaveGame.load_profile(_path()).muted)

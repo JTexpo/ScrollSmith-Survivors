@@ -35,6 +35,8 @@ signal point_effect_applied(kind: int)
 @onready var _potion_bar: PotionBar = $Hud/PotionBar
 @onready var _director: RunDirector = $RunDirector
 @onready var _boss_bar: BossBar = $Hud/BossBar
+@onready var _mute_button: MuteButton = $Hud/MuteButton
+@onready var _board: SoundBoard = $SoundBoard
 
 ## Where the profile is saved. Empty means "do not load or save": tests set it before adding Main to
 ## the tree so they never touch the player's real save.
@@ -89,13 +91,20 @@ func _ready() -> void:
 	_director.boss_spawned.connect(_on_boss_spawned)
 	_director.boss_defeated.connect(_on_boss_defeated)
 	_begin_progression()
-	$SoundBoard.bind(self)
+	_board.bind(self)
+	_board.mute_changed.connect(_mute_button.set_muted)
+	_mute_button.pressed.connect(_on_mute_button_pressed)
+	_player.died.connect(_mute_button.hide)
+	if profile.muted:
+		_board.set_muted(true)
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"toggle_inventory"):
 		_toggle_inventory()
 	# DEBUG: shows the map's bounds and placements. Delete when no longer needed.
+	elif event.is_action_pressed(&"mute"):
+		_toggle_mute()
 	elif event.is_action_pressed(&"debug_toggle_map"):
 		_map.toggle_debug()
 	# DEBUG: refills every spell's mana. Delete once potions exist.
@@ -239,6 +248,19 @@ func _on_merchant_purchase() -> void:
 ## A drunk potion is saved at once, so quitting cannot refund it.
 func _on_potion_used(_potion: PotionData) -> void:
 	_saver.save_now()
+
+
+## Mutes or unmutes everything and saves the choice. The board tells the button through `mute_changed`.
+func _toggle_mute() -> void:
+	_board.set_muted(not _board.muted)
+	profile.muted = _board.muted
+	_saver.save_now()
+
+
+## A click on the button must not also fire a spell, so casting waits for the click to be released.
+func _on_mute_button_pressed() -> void:
+	_toggle_mute()
+	_player.require_cast_release()
 
 
 func _on_boss_spawned(boss: Boss, _number: int) -> void:
