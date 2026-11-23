@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="PointOfInterestData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://resources/points_of_interest/point_of_interest_data.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/bosses/boss_scrolls.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = &"rare_scroll_spot"
+display_name = "Rare Scroll"
+kind = 2
+amount = 0.0
+gold_min = 0
+gold_max = 0
+scroll_count = 1
+scroll_table = ExtResource("2")
+stock_per_potion = 0
+price_multiplier = 1.0
+refresh_seconds = 300.0
+color = Color(0.75, 0.4, 0.95, 1)

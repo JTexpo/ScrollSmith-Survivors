@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="PointOfInterestData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://resources/points_of_interest/point_of_interest_data.gd" id="1"]
+
+
+[resource]
+script = ExtResource("1")
+id = &"merchant"
+display_name = "Merchant"
+kind = 3
+amount = 0.0
+gold_min = 0
+gold_max = 0
+scroll_count = 0
+
+stock_per_potion = 2
+price_multiplier = 1.5
+refresh_seconds = 300.0
+color = Color(0.3, 0.8, 0.55, 1)

@@ -31,26 +31,33 @@ static func buy(profile: PlayerProfile, catalog: EquipmentCatalog, id: StringNam
 	return result
 
 
+## What a potion costs at a price multiplier (a merchant charges extra): rounded up, never free when it has a price.
+static func potion_price(potion: PotionData, price_multiplier: float = 1.0) -> int:
+	if potion.price <= 0:
+		return 0
+	return maxi(ceili(potion.price * price_multiplier), 1)
+
+
 ## Buys one potion. Nothing changes on any failure (unknown id, too little Gold, already at the limit).
-static func buy_potion(profile: PlayerProfile, catalog: PotionCatalog, id: StringName) -> ShopResult:
+static func buy_potion(profile: PlayerProfile, catalog: PotionCatalog, id: StringName, price_multiplier: float = 1.0) -> ShopResult:
 	var result := ShopResult.new()
 	var potion := catalog.find(id)
 	if potion == null:
 		result.reason = REASON_UNKNOWN
-	elif not can_afford_potion(profile, potion):
+	elif not can_afford_potion(profile, potion, price_multiplier):
 		result.reason = REASON_BROKE
 	elif profile.potion_count(id) >= PlayerProfile.MAX_POTIONS:
 		result.reason = REASON_FULL
 	else:
-		profile.spend_gold(potion.price)
+		profile.spend_gold(potion_price(potion, price_multiplier))
 		profile.add_potion(id)
 		result.ok = true
 		result.potion = potion
 	return result
 
 
-static func can_afford_potion(profile: PlayerProfile, potion: PotionData) -> bool:
-	return profile.gold >= potion.price
+static func can_afford_potion(profile: PlayerProfile, potion: PotionData, price_multiplier: float = 1.0) -> bool:
+	return profile.gold >= potion_price(potion, price_multiplier)
 
 
 ## Puts an owned item on, for free.

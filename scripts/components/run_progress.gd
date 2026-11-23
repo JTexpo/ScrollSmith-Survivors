@@ -51,6 +51,11 @@ func add_gold(amount: int) -> void:
 	gold_changed.emit(profile.gold)
 
 
+## Tells the HUD the profile's Gold changed some other way than by collecting a coin (a purchase).
+func announce_gold() -> void:
+	if profile != null:
+		gold_changed.emit(profile.gold)
+
 func _apply(reached: int, reward: LevelReward) -> void:
 	match reward.kind:
 		LevelReward.Kind.SPEED, LevelReward.Kind.HEALTH, LevelReward.Kind.MANA:
