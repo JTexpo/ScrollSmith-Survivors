@@ -1,6 +1,6 @@
 class_name RunClockLabel
 extends Label
-## TEMPORARY look: the run clock as "M:SS". It reads the pausable RunClock about four times a second from
+## The run clock as "M:SS". It reads the pausable RunClock about four times a second from
 ## _process, so it stops while the game is paused.
 
 const UPDATE_EVERY := 0.25
@@ -10,7 +10,6 @@ var _since_update: float = 0.0
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_theme_font_size_override("font_size", 8)
 	text = clock_text()
 
 

@@ -4,4 +4,5 @@
 
 [node name="RunClockLabel" type="Label"]
 mouse_filter = 2
+theme_type_variation = &"HudLabel"
 script = ExtResource("1")

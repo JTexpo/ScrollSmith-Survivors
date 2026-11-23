@@ -53,3 +53,18 @@ func test_every_child_ignores_the_mouse() -> void:
 	assert_eq(_bar.mouse_filter, Control.MOUSE_FILTER_IGNORE)
 	for child in _bar.find_children("*", "Control", true, false):
 		assert_eq((child as Control).mouse_filter, Control.MOUSE_FILTER_IGNORE, child.name)
+
+
+func test_the_bar_is_a_themed_progress_bar_that_follows_the_ratio() -> void:
+	_progress.profile.total_xp = 15
+	_bar.bind(_progress)
+	var themed := _bar.get_node("Bar") as ProgressBar
+	assert_eq(themed.theme_type_variation, &"BarXp")
+	assert_almost_eq(themed.value, 0.5, 0.0001)
+
+
+func test_the_level_text_uses_the_outlined_hud_label() -> void:
+	_bar.bind(_progress)
+	var label := _bar.get_node("Level") as Label
+	assert_eq(label.theme_type_variation, &"HudLabel")
+	assert_eq(label.text, "Lv 1")

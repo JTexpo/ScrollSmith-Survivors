@@ -55,15 +55,12 @@ func test_full_pool_replaces_the_oldest() -> void:
 func test_style_by_effect() -> void:
 	var neutral := DamageNumbers.style_for(N.NEUTRAL)
 	assert_eq(neutral["color"], Color.WHITE)
-	assert_eq(neutral["size"], 8)
 	assert_eq(neutral["suffix"], "")
 	var vulnerable := DamageNumbers.style_for(N.VULNERABLE)
 	assert_eq(vulnerable["color"], Color(1, 0.9, 0.2))
-	assert_eq(vulnerable["size"], 12)
 	assert_eq(vulnerable["suffix"], "!")
 	var resisted := DamageNumbers.style_for(N.RESISTED)
 	assert_eq(resisted["color"], Color(0.6, 0.6, 0.6))
-	assert_eq(resisted["size"], 6)
 	assert_eq(resisted["suffix"], "")
 	assert_eq(DamageNumbers.style_for(99), neutral)
 
@@ -74,3 +71,21 @@ func test_numbers_age_independently() -> void:
 	_numbers.show_number(Vector2.ZERO, 2.0, N.NEUTRAL)
 	_numbers._process(0.3)
 	assert_eq(_numbers.active_texts(), ["2"])
+
+
+func test_one_font_size_is_used_for_every_style() -> void:
+	assert_eq(DamageNumbers.FONT_SIZE, UiFont.SIZE)
+	for effect in [N.NEUTRAL, N.VULNERABLE, N.RESISTED]:
+		assert_false(DamageNumbers.style_for(effect).has("size"), "styles differ by colour and suffix, never by size")
+
+
+func test_vulnerable_and_resisted_differ_by_colour_and_suffix() -> void:
+	var vulnerable := DamageNumbers.style_for(N.VULNERABLE)
+	var resisted := DamageNumbers.style_for(N.RESISTED)
+	assert_ne(vulnerable["color"], resisted["color"])
+	assert_eq(vulnerable["suffix"], "!")
+	assert_eq(resisted["suffix"], "")
+
+
+func test_numbers_draw_with_the_outlined_font() -> void:
+	assert_eq(DamageNumbers.number_font(), UiFont.outlined())
