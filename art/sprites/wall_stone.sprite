@@ -1,4 +1,4 @@
-# A cool grey stone block wall, so it stands out from the warm hall floor.
+# The one stone wall of the mazes, the stronghold and the tunnel: dark purple-grey blocks with a light top edge.
 tile
 slice 4 4 4 4
 size 16 16
@@ -8,14 +8,14 @@ KKKKKKKKKKKKKKKK
 KkkkkkkkkkkkkkkK
 KkjjjjjjjjjjjjkK
 KkjlllllllllljkK
-KkjllkkjjjjjljkK
-KkjlljjjjjjjljkK
-KkjlljjjjjjjljkK
-KkjlllllllllljkK
-KkjljjjjlkkjljkK
-KkjljjjjljjjljkK
-KkjljjjjljjjljkK
-KkjlllllllllljkK
+KkjlqjjlllllljkK
+KkjlqlllllllljkK
+KkjlqlllllllljkK
+KkjlqqqqqqqqljkK
+KkjlllllqjjlljkK
+KkjlllllqlllljkK
+KkjlllllqlllljkK
+KkjlqqqqqqqqljkK
 KkjlllllllllljkK
 KkjjjjjjjjjjjjkK
 KkkkkkkkkkkkkkkK

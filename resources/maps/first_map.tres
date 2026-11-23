@@ -76,7 +76,7 @@ side = 2
 
 [sub_resource type="Resource" id="maze_nw"]
 script = ExtResource("6")
-material = &"brick"
+material = &"stone"
 area = Rect2(60, 60, 720, 480)
 cell_size = 80.0
 wall_thickness = 16.0
@@ -88,7 +88,7 @@ rotated = false
 
 [sub_resource type="Resource" id="maze_se"]
 script = ExtResource("6")
-material = &"brick"
+material = &"stone"
 area = Rect2(1140, 540, 720, 480)
 cell_size = 80.0
 wall_thickness = 16.0
@@ -100,43 +100,43 @@ rotated = true
 
 [sub_resource type="Resource" id="zone_maze"]
 script = ExtResource("8")
-decoration_styles = PackedStringArray("moss", "pebbles", "grass")
-floor_style = &"path"
+decoration_styles = PackedStringArray("pebbles")
+floor_style = &"ruin"
 area = Rect2(40, 40, 780, 520)
 display_name = "Maze"
 floor_color = Color(0.12, 0.17, 0.2, 1)
 decoration_colors = PackedColorArray(0.1, 0.14, 0.18, 1, 0.14, 0.2, 0.22, 1)
-decoration_count = 55
+decoration_count = 30
 
 [sub_resource type="Resource" id="zone_labyrinth"]
 script = ExtResource("8")
-decoration_styles = PackedStringArray("moss", "pebbles", "grass")
-floor_style = &"path"
+decoration_styles = PackedStringArray("pebbles")
+floor_style = &"ruin"
 area = Rect2(1100, 520, 780, 520)
 display_name = "Labyrinth"
 floor_color = Color(0.17, 0.12, 0.2, 1)
 decoration_colors = PackedColorArray(0.14, 0.1, 0.18, 1, 0.2, 0.14, 0.22, 1)
-decoration_count = 55
+decoration_count = 30
 
 [sub_resource type="Resource" id="zone_island"]
 script = ExtResource("8")
-decoration_styles = PackedStringArray("cracks", "pebbles")
+decoration_styles = PackedStringArray("pebbles")
 floor_style = &"ruin"
 area = Rect2(1360, 40, 420, 330)
 display_name = "Island"
 floor_color = Color(0.2, 0.2, 0.22, 1)
 decoration_colors = PackedColorArray(0.26, 0.26, 0.28, 1, 0.16, 0.16, 0.18, 1)
-decoration_count = 28
+decoration_count = 16
 
 [sub_resource type="Resource" id="zone_corridor"]
 script = ExtResource("8")
-decoration_styles = PackedStringArray("cracks", "pebbles")
-floor_style = &"hall"
+decoration_styles = PackedStringArray("pebbles")
+floor_style = &"ruin"
 area = Rect2(460, 900, 600, 150)
 display_name = "Corridor"
 floor_color = Color(0.22, 0.19, 0.14, 1)
 decoration_colors = PackedColorArray(0.28, 0.24, 0.17, 1, 0.18, 0.15, 0.1, 1)
-decoration_count = 22
+decoration_count = 12
 
 [sub_resource type="Resource" id="zone_plaza"]
 script = ExtResource("8")
@@ -171,21 +171,21 @@ radius = 18
 
 [sub_resource type="Resource" id="o07"]
 script = ExtResource("5")
-material = &"marble"
+material = &"tree"
 kind = 1
 position = Vector2(690, 750)
 radius = 24
 
 [sub_resource type="Resource" id="o08"]
 script = ExtResource("5")
-material = &"marble"
+material = &"tree"
 kind = 1
 position = Vector2(727, 772)
 radius = 20
 
 [sub_resource type="Resource" id="o09"]
 script = ExtResource("5")
-material = &"marble"
+material = &"tree"
 kind = 1
 position = Vector2(706, 792)
 radius = 18
@@ -213,21 +213,21 @@ radius = 18
 
 [sub_resource type="Resource" id="o13"]
 script = ExtResource("5")
-material = &"marble"
+material = &"tree"
 kind = 1
 position = Vector2(510, 630)
 radius = 22
 
 [sub_resource type="Resource" id="o14"]
 script = ExtResource("5")
-material = &"marble"
+material = &"tree"
 kind = 1
 position = Vector2(547, 652)
 radius = 20
 
 [sub_resource type="Resource" id="o15"]
 script = ExtResource("5")
-material = &"marble"
+material = &"tree"
 kind = 1
 position = Vector2(529, 670)
 radius = 18
@@ -283,42 +283,42 @@ size = Vector2(96, 16)
 
 [sub_resource type="Resource" id="o23"]
 script = ExtResource("5")
-material = &"brick"
+material = &"stone"
 kind = 0
 position = Vector2(1568, 68)
 size = Vector2(376, 16)
 
 [sub_resource type="Resource" id="o24"]
 script = ExtResource("5")
-material = &"brick"
+material = &"stone"
 kind = 0
 position = Vector2(1748, 204)
 size = Vector2(16, 288)
 
 [sub_resource type="Resource" id="o25"]
 script = ExtResource("5")
-material = &"brick"
+material = &"stone"
 kind = 0
 position = Vector2(1388, 135)
 size = Vector2(16, 150)
 
 [sub_resource type="Resource" id="o26"]
 script = ExtResource("5")
-material = &"brick"
+material = &"stone"
 kind = 0
 position = Vector2(1388, 319)
 size = Vector2(16, 58)
 
 [sub_resource type="Resource" id="o27"]
 script = ExtResource("5")
-material = &"brick"
+material = &"stone"
 kind = 0
 position = Vector2(1455, 340)
 size = Vector2(150, 16)
 
 [sub_resource type="Resource" id="o28"]
 script = ExtResource("5")
-material = &"brick"
+material = &"stone"
 kind = 0
 position = Vector2(1683, 340)
 size = Vector2(146, 16)
