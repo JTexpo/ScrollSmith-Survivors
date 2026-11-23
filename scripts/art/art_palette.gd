@@ -7,6 +7,9 @@ extends RefCounted
 const TRANSPARENT_LETTER := "."
 ## Ramp slots: 1 to 3 are the body (dark, mid, light), 4 and 5 are the trim (dark, light).
 const RAMP_LETTERS := "12345"
+## The variants every ramp sprite is built in unless it names its own with a `variants` line: the five elements. Item
+## colourways (hat and hood trims, wands, staffs) are built only for the sprites that ask for them.
+const ELEMENT_VARIANTS: Array[StringName] = [&"none", &"fire", &"thunder", &"land", &"sea"]
 
 var errors := PackedStringArray()
 ## Fixed colours: letter to Color.

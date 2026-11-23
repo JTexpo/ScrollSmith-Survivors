@@ -58,7 +58,7 @@ func test_the_palette_is_valid_small_and_has_an_outline_color() -> void:
 	assert_eq(palette.errors.size(), 0, str(palette.errors))
 	assert_lte(palette.distinct_color_count(), MAX_COLORS)
 	assert_true(palette.colors.has("K"), "K is the dark outline")
-	for id in [&"none", &"fire", &"thunder", &"land", &"sea"]:
+	for id in [&"none", &"fire", &"thunder", &"land", &"sea", &"hardy", &"mana", &"swift", &"flicker", &"quick", &"oak", &"elder"]:
 		assert_true(palette.variants.has(id), "variant %s" % id)
 
 
