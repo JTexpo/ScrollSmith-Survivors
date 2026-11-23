@@ -7,6 +7,10 @@ extends Resource
 @export var sheet: Texture2D
 @export var frame_size: Vector2i = Vector2i(16, 16)
 @export var animations: Array[SpriteAnimationData] = []
+## A repeating floor or wall tile: one full-bleed frame the world draws tiled.
+@export var tile: bool = false
+## A wall's 9-slice margins in pixels (left, top, right, bottom), zero when it has none.
+@export var slice: Vector4i = Vector4i.ZERO
 
 var _frames: SpriteFrames
 

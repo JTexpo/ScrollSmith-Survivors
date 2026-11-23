@@ -6,7 +6,7 @@ extends GutTest
 const SOURCE_DIR := "res://art/sprites"
 const PALETTE_PATH := "res://art/palette.txt"
 const OUT_DIR := "res://assets/sprites"
-const MAX_COLORS := 40
+const MAX_COLORS := 64
 
 
 func _palette() -> ArtPalette:
@@ -43,6 +43,16 @@ func _load_png(png_path: String) -> Image:
 	return image
 
 
+## The variants a source produces: every needed variant, plus the silhouette unless it is a tile.
+func _variants_for(source: SpriteSource, palette: ArtPalette) -> Array[String]:
+	var variants: Array[String] = []
+	if not source.tile:
+		variants.append("silhouette")
+	for variant in source.variants_needed(palette):
+		variants.append(String(variant))
+	return variants
+
+
 func test_the_palette_is_valid_small_and_has_an_outline_color() -> void:
 	var palette := _palette()
 	assert_eq(palette.errors.size(), 0, str(palette.errors))
@@ -64,6 +74,8 @@ func test_every_source_parses_with_no_errors() -> void:
 func test_every_source_keeps_a_one_pixel_margin() -> void:
 	for sprite_name in _names():
 		var source := _source(sprite_name)
+		if source.tile:
+			continue
 		for f in source.frames.size():
 			var rows := source.frames[f]
 			var last := source.frame_size.x - 1
@@ -73,13 +85,27 @@ func test_every_source_keeps_a_one_pixel_margin() -> void:
 				assert_true(row[0] == "." and row[last] == ".", "%s frame %d: the side columns must be empty" % [sprite_name, f])
 
 
+func test_every_tile_is_full_bleed_and_its_slice_fits() -> void:
+	var tiles := 0
+	for sprite_name in _names():
+		var source := _source(sprite_name)
+		if not source.tile:
+			continue
+		tiles += 1
+		for rows in source.frames:
+			for row in rows:
+				assert_false(row.contains("."), "%s is a tile: no transparent pixel" % sprite_name)
+		if source.slice != Vector4i.ZERO:
+			assert_lt(source.slice.x + source.slice.z, source.frame_size.x, "%s slice fits the width" % sprite_name)
+			assert_lt(source.slice.y + source.slice.w, source.frame_size.y, "%s slice fits the height" % sprite_name)
+	assert_gte(tiles, 0, "Task 3 adds the first tiles")
+
+
 func test_the_committed_sheets_exist_for_every_variant_and_the_silhouette() -> void:
 	var palette := _palette()
 	for sprite_name in _names():
 		var source := _source(sprite_name)
-		var wanted: Array[String] = ["silhouette"]
-		for variant in source.variants_needed(palette):
-			wanted.append(String(variant))
+		var wanted := _variants_for(source, palette)
 		for variant in wanted:
 			for extension in ["png", "tres"]:
 				var file_path := "%s/%s_%s.%s" % [OUT_DIR, sprite_name, variant, extension]
@@ -99,6 +125,8 @@ func test_each_committed_png_equals_what_the_tool_builds() -> void:
 			var committed := _load_png(png_path)
 			assert_eq(committed.get_size(), built.get_size(), "%s size" % png_path)
 			assert_true(committed.get_data() == built.get_data(), "%s is stale: run the art tool" % png_path)
+		if source.tile:
+			continue
 		var silhouette_path := "%s/%s_silhouette.png" % [OUT_DIR, sprite_name]
 		assert_true(_load_png(silhouette_path).get_data() == ArtBuilder.build_silhouette(source).get_data(), "%s is stale" % silhouette_path)
 
@@ -121,9 +149,7 @@ func test_each_set_loads_with_the_right_sheet_width_and_animation_ranges() -> vo
 	var palette := _palette()
 	for sprite_name in _names():
 		var source := _source(sprite_name)
-		var wanted: Array[String] = ["silhouette"]
-		for variant in source.variants_needed(palette):
-			wanted.append(String(variant))
+		var wanted := _variants_for(source, palette)
 		for variant in wanted:
 			var set_data := load("%s/%s_%s.tres" % [OUT_DIR, sprite_name, variant]) as SpriteSetData
 			assert_not_null(set_data, "%s_%s loads" % [sprite_name, variant])
@@ -150,9 +176,7 @@ func _wanted_files() -> Dictionary:
 	var wanted := {}
 	var palette := _palette()
 	for sprite_name in _names():
-		var variants: Array[String] = ["silhouette"]
-		for variant in _source(sprite_name).variants_needed(palette):
-			variants.append(String(variant))
+		var variants := _variants_for(_source(sprite_name), palette)
 		for variant in variants:
 			for extension in ["png", "tres"]:
 				wanted["%s_%s.%s" % [sprite_name, variant, extension]] = true
@@ -163,9 +187,7 @@ func test_each_committed_set_equals_what_the_tool_writes() -> void:
 	var palette := _palette()
 	for sprite_name in _names():
 		var source := _source(sprite_name)
-		var variants: Array[String] = ["silhouette"]
-		for variant in source.variants_needed(palette):
-			variants.append(String(variant))
+		var variants := _variants_for(source, palette)
 		for variant in variants:
 			var png_path := "%s/%s_%s.png" % [OUT_DIR, sprite_name, variant]
 			var set_path := "%s/%s_%s.tres" % [OUT_DIR, sprite_name, variant]

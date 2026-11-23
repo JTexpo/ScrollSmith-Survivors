@@ -22,6 +22,42 @@ color y #c98e1a
 color R #e8483f
 color r #a82626
 
+# The world (Sprint 13b): mid-tone, low-contrast floors so pickups and enemies read on top of them.
+# Grass: dark, mid, light
+color c #3e7336
+color a #4f8a3e
+color b #5f9a48
+# Stone path (the mazes): dark, mid, light
+color i #6f6a60
+color f #8a8478
+color h #9d978a
+# Ruin flagstones (the island): dark, mid, light
+color l #4b4852
+color j #5d5a63
+color k #706d78
+# Hall flagstones (the corridor): dark, mid, light
+color o #5f5242
+color m #7a6a55
+color n #8c7b64
+# The world's edge
+color q #2a2630
+color t #38333f
+# Hedge: dark, mid, light
+color u #2f6b2c
+color v #3f8a37
+color w #57a645
+# Brick: mid, light (the mortar is the dark red r)
+color x #9b4a3a
+color z #b8604a
+# Marble: light, mid (the shade is the grey g)
+color B #e8e4dc
+color C #c4bfb4
+# Wood: trunk mid, dark
+color E #7a4e2a
+color F #53331a
+# Flower pink
+color H #ff8fb8
+
 # Element variants (README: Fire orange, red, yellow; Thunder yellow, white, electric blue; Land brown, green; Sea blue, cyan, turquoise)
 variant none    #5a5470 #8a829c #c9c3d6 #7a5a3a #c9a06a
 variant fire    #b3261e #f0561d #ffb02e #7a1d12 #ffe36a
