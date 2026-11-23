@@ -1,0 +1,4 @@
+# Enemy dies: a quick pop.
+length 0.15
+voice pulse50 700 200 0.42 0.001 0.12
+voice noise 6000 2000 0.18 0 0.07

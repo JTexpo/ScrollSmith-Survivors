@@ -1,0 +1,4 @@
+# A soft footstep tick.
+length 0.06
+voice triangle 200 140 0.7 0.001 0.04
+voice noise 1500 1000 0.12 0 0.03

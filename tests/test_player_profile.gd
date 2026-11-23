@@ -295,3 +295,28 @@ func test_from_dict_rejects_bad_potion_fields() -> void:
 		var data := base.duplicate()
 		data.merge(cases[name], true)
 		assert_null(PlayerProfile.from_dict(data), name)
+
+
+func test_muted_round_trips_and_a_fresh_profile_is_not_muted() -> void:
+	assert_false(PlayerProfile.new().muted)
+	var profile := PlayerProfile.new()
+	profile.muted = true
+	var restored := PlayerProfile.from_dict(profile.to_dict())
+	assert_not_null(restored)
+	assert_true(restored.muted)
+
+
+func test_a_save_without_the_muted_field_loads_as_not_muted_and_it_is_only_written_when_true() -> void:
+	var data := PlayerProfile.new().to_dict()
+	assert_false(data.has("muted"), "an unmuted profile writes nothing new, so old saves and files are unchanged")
+	var restored := PlayerProfile.from_dict(data)
+	assert_not_null(restored)
+	assert_false(restored.muted)
+
+
+func test_a_wrongly_typed_muted_field_is_ignored_not_fatal() -> void:
+	var data := PlayerProfile.new().to_dict()
+	data["muted"] = "yes"
+	var restored := PlayerProfile.from_dict(data)
+	assert_not_null(restored, "the rest of the save still loads")
+	assert_false(restored.muted)

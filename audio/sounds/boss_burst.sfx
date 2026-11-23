@@ -1,0 +1,5 @@
+# Boss burst: an explosive scatter.
+length 0.4
+voice noise 8000 1500 0.45 0 0.3
+voice pulse12 1400 300 0.4 0.002 0.3
+voice pulse25 700 1400 0.28 0 0.1 delay 0.05

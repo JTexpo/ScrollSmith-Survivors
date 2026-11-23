@@ -575,3 +575,17 @@ func test_every_choice_stepper_and_slot_button_is_big_enough_to_press() -> void:
 func test_the_pages_fit_above_the_bottom_of_the_screen() -> void:
 	var rows := 6.0
 	assert_lte(CraftingScreen.PAGE_TOP + 24.0 + rows * (CraftingScreen.ROW_HEIGHT + 1.0), 264.0, "six rows of buffs or scrolls fit")
+
+
+func test_crafting_emits_crafted_on_success_and_refused_with_the_reason_on_failure() -> void:
+	_inventory.add(_fire)
+	_inventory.add(_missile)
+	_screen.open(_inventory, _loadout)
+	watch_signals(_screen)
+	_screen.confirm()
+	assert_signal_emitted(_screen, "refused", "nothing chosen yet is refused")
+	assert_signal_not_emitted(_screen, "crafted")
+	_screen.choose_base(_fire)
+	_screen.choose_area(_missile)
+	_screen.confirm()
+	assert_signal_emit_count(_screen, "crafted", 1)

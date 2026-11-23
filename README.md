@@ -612,6 +612,10 @@ Area spells keep their exact hit area as a faint tint with a bright edge, and pl
 
 The HUD and every screen share one light, cartoony look: cream panels with a thick plum outline and stepped corners, pink health and sky-blue XP bars, red buttons for the main action and green for the second, and yellow for Gold, highlights and the selected choice. Text uses a slim pixel font (5 px letters); text over the world has a dark outline baked into the letters so it reads on grass, stone and bosses. The font, panels, buttons and bars are drawn in the same pipeline as the sprites (`art/fonts/`, `art/sprites/ui_*.sprite`), so replacing one is editing a grid and re-running the art tool. Everything is drawn at the game's one pixel size and never scaled.
 
+### Audio (Sprint 13e)
+
+The game sounds like its look: chirpy, whimsical, bouncy chiptune. Each element has its own cast and impact sound (Fire crackles, Thunder zaps, Land thumps, Sea bubbles), pickups chirp, potions glug, level-ups and the Lectern play little chimes, enemies pop, bosses rumble, and a bouncy run loop plays throughout with a faster, tenser loop while a boss lives (music drops a little behind a pause screen). Sound starts on the first tap, click or key press (browsers require it). **M** or the speaker button on the HUD mutes everything, and the choice is remembered. Every sound is made from a small text recipe by the same art tool as the sprites, so replacing one means overwriting its WAV.
+
 ### User Interface
 
 The interface should prioritize readability during combat.

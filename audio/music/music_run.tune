@@ -1,0 +1,12 @@
+# The run music: a bouncy C major chiptune loop (12 bars at 130 bpm, about 22 s). A phrase, a bridge, then A again with a turn
+# back into the start. Pulse melody, quiet pulse arpeggio, triangle bass and a noise hat on the offbeats.
+tempo 130
+loop
+channel pulse25 0.42
+C5 . E5 . G5 . E5 . C5 . E5 . G5 . - - | D5 . F5 . A5 . F5 . D5 . F5 . A5 . - - | E5 . G5 . C6 . G5 . E5 . G5 . C6 . G5 . | D5 . . . G5 . . . B5 . . . - - - - | A5 . G5 . A5 . C6 . A5 . G5 . E5 . - - | F5 . E5 . F5 . A5 . F5 . E5 . C5 . - - | G5 . F5 . E5 . D5 . C5 . D5 . E5 . G5 . | C5 . . . E5 . . . G5 . . . C6 . . . | C5 . E5 . G5 . E5 . C5 . E5 . G5 . - - | D5 . F5 . A5 . F5 . D5 . F5 . A5 . - - | E5 . G5 . C6 . G5 . E5 . G5 . C6 . G5 . | D5 . . . G5 . . . C6 . . . - - - -
+channel pulse12 0.16
+C4 E4 G4 E4 C4 E4 G4 E4 C4 E4 G4 E4 C4 E4 G4 E4 | D4 F4 A4 F4 D4 F4 A4 F4 D4 F4 A4 F4 D4 F4 A4 F4 | C4 E4 G4 E4 C4 E4 G4 E4 C4 E4 G4 E4 C4 E4 G4 E4 | G3 B3 D4 B3 G3 B3 D4 B3 G3 B3 D4 B3 G3 B3 D4 B3 | A3 C4 E4 C4 A3 C4 E4 C4 A3 C4 E4 C4 A3 C4 E4 C4 | F3 A3 C4 A3 F3 A3 C4 A3 F3 A3 C4 A3 F3 A3 C4 A3 | G3 B3 D4 B3 G3 B3 D4 B3 G3 B3 D4 B3 G3 B3 D4 B3 | C4 E4 G4 E4 C4 E4 G4 E4 C4 E4 G4 E4 C4 E4 G4 E4 | C4 E4 G4 E4 C4 E4 G4 E4 C4 E4 G4 E4 C4 E4 G4 E4 | D4 F4 A4 F4 D4 F4 A4 F4 D4 F4 A4 F4 D4 F4 A4 F4 | C4 E4 G4 E4 C4 E4 G4 E4 C4 E4 G4 E4 C4 E4 G4 E4 | G3 B3 D4 B3 G3 B3 D4 B3 G3 B3 D4 B3 G3 B3 D4 B3
+channel triangle 0.5
+C3 . . . G3 . . . C3 . . . G3 . . . | D3 . . . A3 . . . D3 . . . A3 . . . | C3 . . . G3 . . . C3 . . . G3 . . . | G2 . . . D3 . . . G2 . . . D3 . . . | A2 . . . E3 . . . A2 . . . E3 . . . | F2 . . . C3 . . . F2 . . . C3 . . . | G2 . . . D3 . . . G2 . . . D3 . . . | C3 . . . G3 . . . C3 . . . G3 . . . | C3 . . . G3 . . . C3 . . . G3 . . . | D3 . . . A3 . . . D3 . . . A3 . . . | C3 . . . G3 . . . C3 . . . G3 . . . | G2 . . . D3 . . . G2 . . . D3 . . .
+channel noise 0.16
+- - x - - - x - - - x - - - x - | - - x - - - x - - - x - - - x - | - - x - - - x - - - x - - - x - | - - x - - - x - - - x - - - x - | - - x - - - x - - - x - - - x - | - - x - - - x - - - x - - - x - | - - x - - - x - - - x - - - x - | - - x - - - x - - - x - - - x - | - - x - - - x - - - x - - - x - | - - x - - - x - - - x - - - x - | - - x - - - x - - - x - - - x - | - - x - - - x - - - x - - - x -

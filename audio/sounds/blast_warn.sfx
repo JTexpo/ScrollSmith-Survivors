@@ -1,0 +1,5 @@
+# Blast warning: tick, tick, TICK.
+length 0.5
+voice pulse50 600 600 0.4 0.002 0.06
+voice pulse50 600 600 0.4 0.002 0.06 delay 0.15
+voice pulse50 900 900 0.45 0.002 0.15 delay 0.3

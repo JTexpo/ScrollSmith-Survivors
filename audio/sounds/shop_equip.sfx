@@ -1,0 +1,4 @@
+# Equipped: a quick two-note.
+length 0.25
+voice pulse25 523 523 0.4 0.002 0.08
+voice pulse25 784 784 0.4 0.002 0.15 delay 0.08

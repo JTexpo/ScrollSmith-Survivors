@@ -1,0 +1,4 @@
+# Fire hit: a tiny crackle.
+length 0.14
+voice noise 7000 3000 0.45 0 0.08
+voice pulse25 500 250 0.28 0.002 0.1

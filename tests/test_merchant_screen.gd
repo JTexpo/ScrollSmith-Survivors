@@ -194,3 +194,12 @@ func test_potion_buttons_are_the_green_buy_buttons_and_no_widget_sets_a_font_siz
 func test_potion_buttons_are_big_and_the_detail_text_clears_them() -> void:
 	assert_gte(MerchantScreen.BUTTON_SIZE.y, 32.0)
 	assert_gt(MerchantScreen.DETAIL_TOP, MerchantScreen.GRID_POSITION.y + 2.0 * (MerchantScreen.BUTTON_SIZE.y + 1.0) - 1.0, "the detail text starts below the two button rows")
+
+
+func test_the_merchant_emits_refused_for_sold_out_and_too_little_gold() -> void:
+	var broke := PlayerProfile.new()
+	_screen.open(broke, _catalog, _merchant)
+	watch_signals(_screen)
+	_screen.activate(&"potion_health")
+	assert_signal_emitted(_screen, "refused")
+	assert_signal_not_emitted(_screen, "changed")

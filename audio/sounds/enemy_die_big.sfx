@@ -1,0 +1,5 @@
+# Big enemy dies: a fatter pop.
+length 0.28
+voice triangle 300 60 0.75 0.002 0.25
+voice noise 5000 1500 0.3 0 0.18
+voice pulse25 500 100 0.3 0.002 0.2

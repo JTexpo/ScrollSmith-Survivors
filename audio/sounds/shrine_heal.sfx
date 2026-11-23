@@ -1,0 +1,6 @@
+# Health shrine: a soft rising chime.
+length 0.7
+voice triangle 523 523 0.7 0.01 0.2
+voice triangle 659 659 0.7 0.01 0.2 delay 0.12
+voice triangle 784 784 0.7 0.01 0.35 delay 0.24
+voice pulse12 2093 2093 0.15 0.02 0.3 delay 0.3

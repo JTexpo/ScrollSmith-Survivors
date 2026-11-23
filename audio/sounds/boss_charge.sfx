@@ -1,0 +1,4 @@
+# Boss charge: a rising wind-up.
+length 0.6
+voice pulse25 150 900 0.45 0.4 0.15
+voice noise 3000 9000 0.2 0.4 0.15

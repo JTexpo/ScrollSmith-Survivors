@@ -37,6 +37,7 @@ static func fire(
 	parent.add_child(projectile)
 	projectile.show_element(element_id)
 	projectile.launch(origin, direction, speed, damage, max_range)
+	EnemyAttackEvents.bus.shot_fired.emit(origin)
 	return projectile
 
 

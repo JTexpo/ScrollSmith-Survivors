@@ -9,6 +9,8 @@ extends CanvasLayer
 
 signal changed
 signal closed
+## A purchase that failed (sold out, too little Gold, a full stack), with the reason shown.
+signal refused(reason: String)
 
 const BUTTON_SIZE := Vector2(152, 32)
 const GRID_POSITION := Vector2(8, 40)
@@ -131,6 +133,7 @@ func activate(id: StringName) -> void:
 	if _merchant.stock.count(id) <= 0:
 		_message = "Sold out."
 		_refresh()
+		refused.emit(_message)
 		return
 	var result := ShopSystem.buy_potion(_profile, _catalog, id, _merchant.data.price_multiplier)
 	if result.ok:
@@ -141,6 +144,8 @@ func activate(id: StringName) -> void:
 	_refresh()
 	if result.ok:
 		changed.emit()
+	else:
+		refused.emit(_message)
 
 
 func _build() -> void:

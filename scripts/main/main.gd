@@ -2,6 +2,9 @@ class_name Main
 extends Node2D
 ## Wires the main scene together: health and spell bars to the player, death screen to player death.
 
+## A point of interest's effect was applied (not refused), or a merchant's stall opened. The sound board listens.
+signal point_effect_applied(kind: int)
+
 ## DEBUG: the scrolls F10 hands out (3 of each). Delete with the debug key.
 @export var debug_scrolls: Array[ScrollData] = []
 
@@ -32,6 +35,8 @@ extends Node2D
 @onready var _potion_bar: PotionBar = $Hud/PotionBar
 @onready var _director: RunDirector = $RunDirector
 @onready var _boss_bar: BossBar = $Hud/BossBar
+@onready var _mute_button: MuteButton = $Hud/MuteButton
+@onready var _board: SoundBoard = $SoundBoard
 
 ## Where the profile is saved. Empty means "do not load or save": tests set it before adding Main to
 ## the tree so they never touch the player's real save.
@@ -86,6 +91,14 @@ func _ready() -> void:
 	_director.boss_spawned.connect(_on_boss_spawned)
 	_director.boss_defeated.connect(_on_boss_defeated)
 	_begin_progression()
+	_board.bind(self)
+	_board.mute_changed.connect(_mute_button.set_muted)
+	_mute_button.pressed.connect(_on_mute_button_pressed)
+	_player.died.connect(_mute_button.hide)
+	if profile.muted:
+		_board.set_muted(true)
+	_board.mute_changed.connect(_on_mute_changed)
+	_board.start_if_allowed()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -207,6 +220,7 @@ func _on_point_used(point: PointOfInterest, _actor: Node) -> void:
 	if point.data.kind == PointOfInterestData.Kind.MERCHANT:
 		if not _merchant_screen.is_open():
 			_merchant_screen.open(profile, potion_catalog, point)
+			point_effect_applied.emit(point.data.kind)
 		return
 	var reason := PointOfInterestSystem.refusal(point.data, _player, point.cooldown_left)
 	if not reason.is_empty():
@@ -220,6 +234,7 @@ func _on_point_used(point: PointOfInterest, _actor: Node) -> void:
 	if not result.message.is_empty():
 		_level_toast.show_message(result.message)
 	point.start_cooldown()
+	point_effect_applied.emit(point.data.kind)
 
 
 ## A potion bought from a merchant is saved at once, so quitting cannot undo the sale. The sale spent Gold on the
@@ -233,6 +248,18 @@ func _on_merchant_purchase() -> void:
 ## A drunk potion is saved at once, so quitting cannot refund it.
 func _on_potion_used(_potion: PotionData) -> void:
 	_saver.save_now()
+
+
+## The board mutes or unmutes (its M key, or the button below) and tells the HUD button; the choice is saved here.
+func _on_mute_changed(value: bool) -> void:
+	profile.muted = value
+	_saver.save_now()
+
+
+## A click on the button must not also fire a spell, so casting waits for the click to be released.
+func _on_mute_button_pressed() -> void:
+	_board.set_muted(not _board.muted)
+	_player.require_cast_release()
 
 
 func _on_boss_spawned(boss: Boss, _number: int) -> void:

@@ -1,0 +1,4 @@
+# Could not buy: a short buzz.
+length 0.22
+voice pulse50 250 180 0.45 0.002 0.12
+voice pulse50 200 150 0.4 0.002 0.08 delay 0.1

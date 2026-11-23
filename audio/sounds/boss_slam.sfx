@@ -1,0 +1,4 @@
+# Boss slam: a heavy thud.
+length 0.45
+voice triangle 100 35 0.55 0.003 0.4
+voice noise 2500 400 0.28 0 0.25

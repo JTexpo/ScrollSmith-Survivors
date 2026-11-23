@@ -1,0 +1,4 @@
+# Land hit: a dull thud.
+length 0.14
+voice triangle 140 70 0.8 0.002 0.1
+voice noise 2500 1000 0.2 0 0.05

@@ -4,7 +4,7 @@ extends Node2D
 ## attacker fires, and reports frame time. Not part of the player-facing game.
 ##
 ## Run: godot --path . res://scenes/world/stress_test.tscn -- --enemies=300 --seconds=10
-## Options: --area=<missile|cone|zone|line|wave> --drops --boss --obstacles --minutes=M --copies=N --interval=SECONDS
+## Options: --area=<missile|cone|zone|line|wave> --drops --boss --obstacles --sound --minutes=M --copies=N --interval=SECONDS
 ## The clock starts at --minutes (default 5), so by default every archetype is unlocked and elites are in the mix.
 
 const WARMUP_FRAMES := 30
@@ -32,6 +32,9 @@ const AREA_SPELLS := {
 @export var minutes: float = 5.0
 ## --boss: spawns an Ember Titan next to the player at the start, so its warnings, shots and summons are measured.
 @export var boss: bool = false
+## --sound: adds a sound board that plays a cast, hit and death sound for every one in the fight (audible), to measure the cost of
+## sound and to prove the voice caps hold at the stress rate. The STRESS line then also shows how many requests were dropped.
+@export var sound: bool = false
 ## --obstacles: uses the first map (its walls, obstacles and flow field) instead of the plain test arena.
 @export var obstacles: bool = false
 ## --copies=N makes the stress spell fire N copies per cast (Duplicate Area), as a ring.
@@ -48,6 +51,7 @@ var _frames: int = 0
 var _angle: float = 0.0
 var _label_timer: float = 0.0
 var _rng := RandomNumberGenerator.new()
+var _board: SoundBoard
 
 @onready var _spawner: EnemySpawner = $EnemySpawner
 @onready var _player: Player = $Player
@@ -79,6 +83,8 @@ func _ready() -> void:
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 		Engine.max_fps = 0
 	_spawner.enemy_died.connect(_on_enemy_died)
+	if sound:
+		_add_sound()
 	while _spawner.alive < enemy_count:
 		if not _spawn_one():
 			break
@@ -140,6 +146,17 @@ func _spawn_one() -> bool:
 	return _spawner.spawn_at(_player.global_position + offset, enemy_count - _spawner.alive) != null
 
 
+## A board with the busiest sounds wired to the fight, so the caps are exercised at the stress rate.
+func _add_sound() -> void:
+	_board = (load("res://scenes/audio/sound_board.tscn") as PackedScene).instantiate() as SoundBoard
+	add_child(_board)
+	_board.unlock()
+	_board.start_music()
+	_loadout.cast_fired.connect(func(_index: int) -> void: _board.play(SoundId.CAST_FIRE))
+	_spawner.enemy_damaged.connect(func(_at: Vector2, _amount: float, _effect: int) -> void: _board.play(SoundId.HIT_FIRE))
+	_spawner.enemy_died.connect(func(_enemy: Enemy) -> void: _board.play(SoundId.ENEMY_DIE))
+
+
 func _on_enemy_died(_enemy: Enemy) -> void:
 	_refill.call_deferred()
 
@@ -182,6 +199,8 @@ func _read_command_line() -> void:
 			boss = true
 		elif argument == "--obstacles":
 			obstacles = true
+		elif argument == "--sound":
+			sound = true
 		elif argument.begins_with("--minutes="):
 			minutes = maxf(float(argument.get_slice("=", 1)), 0.0)
 		elif argument.begins_with("--copies="):
@@ -205,4 +224,6 @@ func _report_and_quit() -> void:
 		_physics_ms_total / maxf(_samples, 1),
 		_process_ms_total / maxf(_samples, 1),
 	])
+	if sound:
+		print("SOUND started=%d dropped=%d voices_in_use=%d of %d" % [_board.plays_started(), _board.calls_dropped(), _board.voices_in_use(), SoundBoard.VOICES])
 	get_tree().quit()

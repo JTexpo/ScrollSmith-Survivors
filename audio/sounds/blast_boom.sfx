@@ -1,0 +1,5 @@
+# Blast: a cartoon boom.
+length 0.45
+voice noise 4000 300 0.32 0 0.35
+voice triangle 120 40 0.42 0.002 0.4
+voice pulse50 200 60 0.14 0.002 0.2

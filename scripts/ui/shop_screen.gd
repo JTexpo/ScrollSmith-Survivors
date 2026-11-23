@@ -7,6 +7,11 @@ extends CanvasLayer
 
 signal changed
 signal closed
+## A buy, equip or purchase that failed, with the reason shown to the player.
+signal refused(reason: String)
+
+## What the last successful action was (buy, equip, unequip), so a listener can tell a purchase from a change of clothes.
+var last_action: StringName = &""
 
 const COLUMN_X := [8.0, 164.0, 320.0]
 const BUTTON_SIZE := Vector2(152, 22)
@@ -131,16 +136,19 @@ func activate(id: StringName) -> void:
 
 
 func buy(id: StringName) -> void:
+	last_action = &"buy"
 	var result := ShopSystem.buy(_profile, _catalog, id)
 	_finish(result.ok, result.reason, "Bought and equipped %s." % (result.item.display_name if result.item != null else ""))
 
 
 func equip(id: StringName) -> void:
+	last_action = &"equip"
 	var result := ShopSystem.equip(_profile, _catalog, id)
 	_finish(result.ok, result.reason, "Equipped %s." % (result.item.display_name if result.item != null else ""))
 
 
 func unequip(slot: int) -> void:
+	last_action = &"unequip"
 	var worn := _catalog.find(_profile.equipped_id(slot))
 	if ShopSystem.unequip(_profile, slot):
 		_finish(true, "", "Took off %s." % (worn.display_name if worn != null else "it"))
@@ -148,6 +156,7 @@ func unequip(slot: int) -> void:
 
 ## Buys one potion (it is not drunk: the stock is carried into the run).
 func buy_potion(id: StringName) -> void:
+	last_action = &"buy"
 	var result := ShopSystem.buy_potion(_profile, _potion_catalog, id)
 	_finish(result.ok, result.reason, "Bought %s." % (result.potion.display_name if result.potion != null else ""))
 
@@ -157,6 +166,8 @@ func _finish(ok: bool, reason: String, success_message: String) -> void:
 	_refresh()
 	if ok:
 		changed.emit()
+	else:
+		refused.emit(reason)
 
 
 func _build() -> void:
