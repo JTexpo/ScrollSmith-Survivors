@@ -123,7 +123,13 @@ wizard-survivor/
 │   │   └── scroll_pickup.tscn
 │   │
 │   ├── interactables/
-│   │   └── lectern.tscn
+│   │   ├── lectern.tscn
+│   │   ├── point_of_interest.tscn
+│   │   ├── health_shrine.tscn
+│   │   ├── mana_shrine.tscn
+│   │   ├── treasure_chest.tscn
+│   │   ├── rare_scroll_spot.tscn
+│   │   └── merchant.tscn
 │   │
 │   ├── world/
 │   │   ├── game_map.tscn
@@ -156,6 +162,12 @@ wizard-survivor/
 │   │   ├── obstacle_layer.gd
 │   │   └── map_debug_overlay.gd
 │   │
+│   ├── points_of_interest/
+│   │   ├── point_of_interest.gd
+│   │   ├── point_of_interest_system.gd
+│   │   ├── point_of_interest_result.gd
+│   │   └── merchant_stock.gd
+│   │
 │   └── utilities/
 │
 ├── resources/
@@ -173,6 +185,7 @@ wizard-survivor/
 │   ├── map_zone.gd
 │   │   ├── map_obstacle.gd
 │   │   └── first_map.tres
+│   ├── points_of_interest/
 │   ├── equipment/
 │   └── potions/
 │

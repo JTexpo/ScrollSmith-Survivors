@@ -195,13 +195,13 @@ func _fill() -> void:
 func _refresh() -> void:
 	for id in _buttons:
 		var potion := _catalog.find(id)
-		var name := potion.display_name.trim_suffix(" Potion")
+		var title := potion.display_name.trim_suffix(" Potion")
 		var left := _merchant.stock.count(id)
 		var button := _buttons[id] as Button
 		if left <= 0:
-			button.text = "%s  sold out  own %d" % [name, _profile.potion_count(id)]
+			button.text = "%s  sold out  own %d" % [title, _profile.potion_count(id)]
 		else:
-			button.text = "%s  %dg  x%d  own %d" % [name, ShopSystem.potion_price(potion, _merchant.data.price_multiplier), left, _profile.potion_count(id)]
+			button.text = "%s  %dg  x%d  own %d" % [title, ShopSystem.potion_price(potion, _merchant.data.price_multiplier), left, _profile.potion_count(id)]
 	_gold_label.text = gold_text()
 	_message_label.text = _message
 

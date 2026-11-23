@@ -1,6 +1,6 @@
 # Sprint 12d Design: Points of Interest
 
-**Status:** Proposed.
+**Status:** Built (Sprint 12d).
 
 Sprint 12 is four sprints: **12a** the world, **12b** obstacles, **12c** the map's regions (all done) and **12d** points of interest (this doc). Scope comes from the conversation, `sprint-12c-design.md`, `sprint-development.md` and the README (section 9, "Map Exploration"). Architecture follows `CLAUDE.md` and `technical-design.md`. Decisions below were agreed with the user in conversation, except where marked "my call".
 

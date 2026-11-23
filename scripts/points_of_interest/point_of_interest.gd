@@ -72,7 +72,7 @@ func prompt_text() -> String:
 	if cooldown_left <= 0.0 or stock != null:
 		return "%s (E)" % title
 	var seconds := ceili(cooldown_left)
-	return "%s %d:%02d" % [title, seconds / 60, seconds % 60]
+	return "%s %d:%02d" % [title, floori(seconds / 60.0), seconds % 60]
 
 
 ## The shown or hidden "E" prompt, called by the player's InteractionComponent.

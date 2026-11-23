@@ -664,12 +664,12 @@ A variety of enemies and at least one fully functional boss encounter.
 - [x] Create the first playable map (12a).
 - [x] Implement environmental boundaries (12a).
 - [x] Implement environmental obstacles (12b).
-- [ ] Implement treasure chests (12d).
+- [x] Implement treasure chests (12d).
 - [x] Implement Arcane Lectern placement (12a).
-- [ ] Implement Health Shrines (12d).
-- [ ] Implement Mana Shrines (12d).
-- [ ] Implement merchant encounters (12d).
-- [ ] Implement rare scroll locations (12d).
+- [x] Implement Health Shrines (12d).
+- [x] Implement Mana Shrines (12d).
+- [x] Implement merchant encounters (12d).
+- [x] Implement rare scroll locations (12d).
 - [x] Implement environmental decorations (12a).
 - [x] Implement map-specific enemy spawn configurations (12a).
 
@@ -689,6 +689,8 @@ A complete playable environment with points of interest that encourage explorati
 **Built note (12b):** obstacles are data (`MapObstacle` rectangles and circles in `MapData`) that block movement and enemy projectiles but never the player's spells (user decision, Missile blocking rejected). Enemies, the boss and enemy shots find them through an `ObstacleMap`, and enemies route around them with a flow field: a coarse grid swept outward from the player, rebuilt a few hundred cells a frame as the player moves, so nobody gets stuck behind a wall or in a dead end. The first map has 27 obstacles: five pillar clusters for small loops, three corridor pairs, a U-shaped dead end, a short wall by each Lectern and an open centre. F7 also shows the blocked cells and the field. Balance and the layout have not been tested in play.
 
 **Built note (12c):** the first map gained regions. Two seeded mazes (`MapMaze`, 9 by 6 cells each, in opposite corners, the second an exact half-turn image of the first, with loops, a cleared centre room and three entrances), a walled island with two gates, a 560 px corridor along the bottom, and floor tints and decorations per zone (`MapZone`). The new walls are ordinary obstacles, reached through one list (`MapData.solid_shapes()`), so enemy routing, projectiles and spawning did not change. Every free cell is reachable, and the maze centre and the island interior are left empty for the points of interest in 12d. Balance and the layout have not been tested in play.
+
+**Built note (12d):** five points of interest sit on the first map, all driven by one data resource (`PointOfInterestData`) and one node (`PointOfInterest`): a Health Shrine (heals half your health, refreshes in 3 minutes), a Mana Shrine (restores half of every spell's pool, 4 minutes), a Treasure Chest (Gold and a scroll, 5 minutes), a Rare scroll spot at each maze's centre room (a Rare scroll, 5 minutes) and a Merchant (potions only, at 1.5 times the death-screen price, 2 of each in stock, restocking after 5 minutes). Shrines and chests are free, only the merchant costs Gold (user decisions), and a refused use never consumes anything. The merchant screen pauses the world, and a purchase is saved at once. Balance and the placements have not been tested in play.
 
 ---
 
