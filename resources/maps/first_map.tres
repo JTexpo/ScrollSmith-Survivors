@@ -8,6 +8,41 @@
 [ext_resource type="Script" path="res://resources/maps/map_maze.gd" id="6"]
 [ext_resource type="Script" path="res://resources/maps/maze_entrance.gd" id="7"]
 [ext_resource type="Script" path="res://resources/maps/map_zone.gd" id="8"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/health_shrine.tscn" id="p1"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/mana_shrine.tscn" id="p2"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/treasure_chest.tscn" id="p3"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/rare_scroll_spot.tscn" id="p4"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/merchant.tscn" id="p5"]
+
+[sub_resource type="Resource" id="poi_rare_nw"]
+script = ExtResource("2")
+scene = ExtResource("p4")
+position = Vector2(380, 300)
+
+[sub_resource type="Resource" id="poi_rare_se"]
+script = ExtResource("2")
+scene = ExtResource("p4")
+position = Vector2(1540, 780)
+
+[sub_resource type="Resource" id="poi_chest"]
+script = ExtResource("2")
+scene = ExtResource("p3")
+position = Vector2(1480, 150)
+
+[sub_resource type="Resource" id="poi_mana"]
+script = ExtResource("2")
+scene = ExtResource("p2")
+position = Vector2(1660, 150)
+
+[sub_resource type="Resource" id="poi_health"]
+script = ExtResource("2")
+scene = ExtResource("p1")
+position = Vector2(760, 970)
+
+[sub_resource type="Resource" id="poi_merchant"]
+script = ExtResource("2")
+scene = ExtResource("p5")
+position = Vector2(620, 860)
 
 [sub_resource type="Resource" id="west"]
 script = ExtResource("2")
@@ -272,7 +307,7 @@ floor_color = Color(0.16, 0.2, 0.17, 1)
 border_color = Color(0.08, 0.1, 0.09, 1)
 player_start = Vector2(960, 540)
 spawn_config = ExtResource("4")
-placements = Array[ExtResource("2")]([SubResource("west"), SubResource("east"), SubResource("south")])
+placements = Array[ExtResource("2")]([SubResource("west"), SubResource("east"), SubResource("south"), SubResource("poi_rare_nw"), SubResource("poi_rare_se"), SubResource("poi_chest"), SubResource("poi_mana"), SubResource("poi_health"), SubResource("poi_merchant")])
 obstacles = Array[ExtResource("5")]([SubResource("o01"), SubResource("o02"), SubResource("o03"), SubResource("o07"), SubResource("o08"), SubResource("o09"), SubResource("o10"), SubResource("o11"), SubResource("o12"), SubResource("o13"), SubResource("o14"), SubResource("o15"), SubResource("o16"), SubResource("o17"), SubResource("o18"), SubResource("o19"), SubResource("o20"), SubResource("o21"), SubResource("o22"), SubResource("o23"), SubResource("o24"), SubResource("o25"), SubResource("o26"), SubResource("o27"), SubResource("o28"), SubResource("o29"), SubResource("o30")])
 mazes = Array[ExtResource("6")]([SubResource("maze_nw"), SubResource("maze_se")])
 zones = Array[ExtResource("8")]([SubResource("zone_maze"), SubResource("zone_labyrinth"), SubResource("zone_island"), SubResource("zone_corridor"), SubResource("zone_plaza")])

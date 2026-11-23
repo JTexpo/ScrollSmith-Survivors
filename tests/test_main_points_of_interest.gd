@@ -188,3 +188,11 @@ func test_a_scroll_dropped_by_a_point_survives_until_the_pickup_cap_is_really_ex
 	third.interact(_player)
 	assert_eq(_pickups().size(), 2, "past the cap the oldest goes, as for every drop")
 	assert_true(first_pickup.is_queued_for_deletion())
+
+
+func test_the_first_maps_points_are_all_wired_to_main() -> void:
+	_start()
+	var points := get_tree().get_nodes_in_group(&"points_of_interest").filter(func(node: Node) -> bool: return _main.is_ancestor_of(node))
+	assert_eq(points.size(), 6, "two Rare scroll spots, a chest, a Mana Shrine, a Health Shrine and a merchant")
+	for point in points:
+		assert_false((point as PointOfInterest).used.get_connections().is_empty(), "%s is not wired" % (point as PointOfInterest).data.display_name)
