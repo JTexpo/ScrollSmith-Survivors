@@ -38,7 +38,7 @@ static func refusal(
 		return REASON_ACTIVE
 	if potion.kind == PotionData.Kind.HEAL and player.health.current_health >= player.health.max_health:
 		return REASON_FULL_HEALTH
-	if potion.kind == PotionData.Kind.RESTORE_MANA and _all_spells_full(player):
+	if potion.kind == PotionData.Kind.RESTORE_MANA and all_spells_full(player):
 		return REASON_FULL_MANA
 	return ""
 
@@ -59,8 +59,9 @@ static func apply(potion: PotionData, player: Player) -> bool:
 	return false
 
 
-## True when every filled slot is at its full pool, and for a player with no spells at all.
-static func _all_spells_full(player: Player) -> bool:
+## True when every filled slot is at its full pool, and for a player with no spells at all (also used by the
+## Mana Shrine).
+static func all_spells_full(player: Player) -> bool:
 	for instance in player.loadout.slots:
 		if instance != null and instance.current_mana < instance.max_mana():
 			return false
