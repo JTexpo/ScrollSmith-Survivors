@@ -9,7 +9,10 @@ signal changed
 signal closed
 
 const COLUMN_X := [8.0, 164.0, 320.0]
-const BUTTON_SIZE := Vector2(152, 15)
+const BUTTON_SIZE := Vector2(152, 22)
+## The description sits at the bottom left and stops before the Close button.
+const DETAIL_LEFT := 8.0
+const DETAIL_WIDTH := 376.0
 const SLOT_NAMES := ["Robes", "Wands and Staffs", "Hats and Hoods"]
 
 ## Item presses are ignored for this long after the shop opens, so the press that opened it (or one
@@ -176,20 +179,22 @@ func _build() -> void:
 		column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		column.add_theme_constant_override("separation", 1)
 		content.add_child(column)
-	content.add_child(_label("Potions", Vector2(8, 127), Vector2(152, 10), &"Heading"))
+	content.add_child(_label("Potions", Vector2(8, 171), Vector2(152, 10), &"Heading"))
 	var grid := GridContainer.new()
 	grid.name = "PotionGrid"
 	grid.columns = 3
-	grid.position = Vector2(8, 138)
+	grid.position = Vector2(8, 182)
 	grid.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	grid.add_theme_constant_override("h_separation", 4)
 	grid.add_theme_constant_override("v_separation", 1)
 	content.add_child(grid)
-	_detail_label = _label("", Vector2(8, 174), Vector2(464, 30))
+	_detail_label = _label("", Vector2(DETAIL_LEFT, 230), Vector2(DETAIL_WIDTH, 30))
 	content.add_child(_detail_label)
-	_message_label = _label("", Vector2(8, 208), Vector2(464, 24))
+	_message_label = _label("", Vector2(60, 3), Vector2(300, 12), &"Muted")
+	_message_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_message_label.clip_text = true
 	content.add_child(_message_label)
-	_close_button = _button("Close", Vector2(402, 244), Vector2(70, 18), &"ButtonGreen")
+	_close_button = _button("Close", Vector2(392, 236), UiKit.ACTION_SIZE, &"ButtonRed")
 	_close_button.pressed.connect(close)
 	content.add_child(_close_button)
 
@@ -216,7 +221,7 @@ func _fill() -> void:
 		grid.remove_child(child)
 		child.queue_free()
 	for potion in _potion_catalog.potions:
-		var button := _button("", Vector2.ZERO, BUTTON_SIZE, &"ButtonRed")
+		var button := _button("", Vector2.ZERO, BUTTON_SIZE, &"ButtonGreen")
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.pressed.connect(_on_potion_pressed.bind(potion.id))
 		button.focus_entered.connect(_show_potion_detail.bind(potion))

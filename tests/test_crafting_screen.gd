@@ -402,10 +402,10 @@ func test_the_screen_sits_on_a_window_panel() -> void:
 	assert_not_null(_screen.find_child("Backdrop", true, false))
 
 
-func test_the_confirm_button_is_red_and_cancel_is_green() -> void:
+func test_the_confirm_button_is_green_and_cancel_is_red() -> void:
 	_screen.open(_inventory, _loadout)
-	assert_eq(_button_with_text("Confirm").theme_type_variation, &"ButtonRed")
-	assert_eq(_button_with_text("Cancel").theme_type_variation, &"ButtonGreen")
+	assert_eq(_button_with_text("Confirm").theme_type_variation, &"ButtonGreen")
+	assert_eq(_button_with_text("Cancel").theme_type_variation, &"ButtonRed")
 
 
 func test_the_chosen_scrolls_are_yellow_buttons() -> void:
@@ -509,3 +509,69 @@ func test_every_refusal_message_fits_the_message_box() -> void:
 	for reason in [CraftingSystem.REASON_NO_BASE, CraftingSystem.REASON_NO_AREA, CraftingSystem.REASON_WRONG_BASE, CraftingSystem.REASON_WRONG_AREA, CraftingSystem.REASON_BAD_RANGE, CraftingSystem.REASON_BAD_BUFF, CraftingSystem.REASON_STACK_CAP, CraftingSystem.REASON_TOO_MANY_BASES, CraftingSystem.REASON_DUPLICATE_ELEMENT, CraftingSystem.REASON_LOCKED_SLOT, CraftingSystem.REASON_MISSING, CraftingSystem.REASON_CANNOT_BUILD, CraftingSystem.REASON_TOO_COSTLY]:
 		assert_lte(_wrapped(reason, CraftingScreen.MESSAGE_SIZE.x).y, CraftingScreen.MESSAGE_SIZE.y, reason)
 	assert_lte(CraftingScreen.MESSAGE_TOP + CraftingScreen.MESSAGE_SIZE.y, CraftingScreen.BUTTONS_TOP, "the message ends above the buttons")
+
+
+func _node_visible(node_name: String) -> bool:
+	return (_screen.find_child(node_name, true, false) as Control).visible
+
+
+func test_two_tabs_show_the_spell_page_or_the_buff_page() -> void:
+	_stock_everything()
+	_screen.open(_inventory, _loadout)
+	assert_eq(_screen.tab(), 0)
+	assert_true(_node_visible("SpellPage"))
+	assert_false(_node_visible("BuffPage"))
+	_screen.show_tab(1)
+	assert_eq(_screen.tab(), 1)
+	assert_false(_node_visible("SpellPage"))
+	assert_true(_node_visible("BuffPage"))
+	_screen.show_tab(0)
+	assert_true(_node_visible("SpellPage"))
+
+
+func test_the_active_tab_is_yellow_and_the_other_is_cream() -> void:
+	_screen.open(_inventory, _loadout)
+	assert_eq(_button_with_text("Spell").theme_type_variation, &"ButtonYellow")
+	assert_eq(_button_with_text("Buffs").theme_type_variation, &"")
+	_screen.show_tab(1)
+	assert_eq(_button_with_text("Spell").theme_type_variation, &"")
+	assert_eq(_button_with_text("Buffs").theme_type_variation, &"ButtonYellow")
+
+
+func test_a_new_craft_session_starts_on_the_spell_tab() -> void:
+	_screen.open(_inventory, _loadout)
+	_screen.show_tab(1)
+	_screen.close()
+	_screen.open(_inventory, _loadout)
+	assert_eq(_screen.tab(), 0)
+
+
+func test_buffs_can_still_be_stepped_from_the_buff_tab_and_show_in_the_preview() -> void:
+	_stock_everything()
+	_screen.open(_inventory, _loadout)
+	_screen.show_tab(1)
+	var plus := _screen.find_children("*", "Button", true, false).filter(func(b): return str(b.get_meta(&"key", "")) == "buff+:%s" % _scroll("buff/damage").id)
+	assert_eq(plus.size(), 1)
+	(plus[0] as Button).pressed.emit()
+	assert_eq(_screen.session.buff_stacks(_scroll("buff/damage")), 1)
+
+
+func test_every_choice_stepper_and_slot_button_is_big_enough_to_press() -> void:
+	_stock_everything()
+	_screen.open(_inventory, _loadout)
+	for button in _screen.find_children("*", "Button", true, false):
+		var key := str((button as Button).get_meta(&"key", ""))
+		if key.begins_with("slot:"):
+			assert_gte((button as Button).custom_minimum_size.y, 28.0, key)
+		elif key.begins_with("scroll:") or key.begins_with("range:"):
+			assert_gte((button as Button).custom_minimum_size.y, 24.0, key)
+		elif key.begins_with("buff"):
+			assert_gte((button as Button).custom_minimum_size.x, 24.0, key)
+			assert_gte((button as Button).custom_minimum_size.y, 24.0, key)
+	for text in ["Spell", "Buffs"]:
+		assert_gte(_button_with_text(text).custom_minimum_size.y, 26.0, text)
+
+
+func test_the_pages_fit_above_the_bottom_of_the_screen() -> void:
+	var rows := 6.0
+	assert_lte(CraftingScreen.PAGE_TOP + 24.0 + rows * (CraftingScreen.ROW_HEIGHT + 1.0), 264.0, "six rows of buffs or scrolls fit")

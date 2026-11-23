@@ -10,8 +10,9 @@ extends CanvasLayer
 signal changed
 signal closed
 
-const BUTTON_SIZE := Vector2(152, 26)
+const BUTTON_SIZE := Vector2(152, 32)
 const GRID_POSITION := Vector2(8, 40)
+const DETAIL_TOP := 112.0
 
 ## Tests turn this off so the test runner itself is not paused.
 @export var pause_tree: bool = true
@@ -163,11 +164,11 @@ func _build() -> void:
 	_grid.add_theme_constant_override("h_separation", 4)
 	_grid.add_theme_constant_override("v_separation", 1)
 	content.add_child(_grid)
-	_detail_label = _label("", Vector2(8, 100), Vector2(464, 30))
+	_detail_label = _label("", Vector2(8, DETAIL_TOP), Vector2(464, 30))
 	content.add_child(_detail_label)
 	_message_label = _label("", Vector2(8, 208), Vector2(464, 24))
 	content.add_child(_message_label)
-	_close_button = _button("Close", Vector2(402, 244), Vector2(70, 18), &"ButtonGreen")
+	_close_button = _button("Close", Vector2(392, 236), UiKit.ACTION_SIZE, &"ButtonRed")
 	_close_button.pressed.connect(close)
 	content.add_child(_close_button)
 
@@ -179,7 +180,7 @@ func _fill() -> void:
 		_grid.remove_child(child)
 		child.queue_free()
 	for potion in _catalog.potions:
-		var button := _button("", Vector2.ZERO, BUTTON_SIZE, &"ButtonRed")
+		var button := _button("", Vector2.ZERO, BUTTON_SIZE, &"ButtonGreen")
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.pressed.connect(press.bind(potion.id))
 		button.focus_entered.connect(_show_detail.bind(potion))

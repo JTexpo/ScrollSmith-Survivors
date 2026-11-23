@@ -8,7 +8,13 @@ extends CanvasLayer
 
 signal chosen(scroll: ScrollData)
 
-const BUTTON_SIZE := Vector2(300, 26)
+const BUTTON_SIZE := Vector2(360, 40)
+const OPTIONS_TOP := 40.0
+const OPTION_GAP := 4.0
+const PAGE_BOTTOM := 262.0
+const BANNER_COLOR := Color("ff6f8f")
+## How much of an option's own colour its button keeps (the rest is white), so the cream button turns pastel, not muddy.
+const TINT_STRENGTH := 0.55
 
 ## Tests turn this off so the test runner itself is not paused.
 @export var pause_tree: bool = true
@@ -55,7 +61,7 @@ func open(options: Array[ScrollData], title: String) -> void:
 		_box.remove_child(child)
 		child.queue_free()
 	for i in _options.size():
-		var button := _button("%s\n%s" % [_options[i].display_name, effect_text(_options[i])])
+		var button := _button(_options[i])
 		button.pressed.connect(choose.bind(i))
 		_box.add_child(button)
 	_open = true
@@ -123,18 +129,46 @@ func _build() -> void:
 	root.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(root)
 	var content := UiKit.window(root)
-	_title_label = UiKit.label("", &"Heading")
-	_title_label.position = Vector2(90, 24)
+	var banner := ColorRect.new()
+	banner.name = "Banner"
+	banner.color = BANNER_COLOR
+	banner.position = Vector2(8, 6)
+	banner.size = Vector2(464, 26)
+	banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(banner)
+	for x in [14.0, 455.0]:
+		var star := UiKit.icon(&"icon_star")
+		star.position = Vector2(x, 12.0)
+		content.add_child(star)
+	_title_label = UiKit.label("")
+	_title_label.position = Vector2(40, 13)
+	_title_label.size = Vector2(400, 12)
+	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	content.add_child(_title_label)
 	_box = VBoxContainer.new()
-	_box.position = Vector2(90, 44)
-	_box.add_theme_constant_override("separation", 3)
+	_box.name = "Options"
+	_box.position = Vector2((480.0 - BUTTON_SIZE.x) * 0.5, OPTIONS_TOP)
+	_box.add_theme_constant_override("separation", int(OPTION_GAP))
 	content.add_child(_box)
 
 
-func _button(text: String) -> Button:
-	var button := UiKit.button(text)
-	button.custom_minimum_size = BUTTON_SIZE
+## One option: a tall button tinted by its buff's own colour, with its icon, name and effect.
+func _button(scroll: ScrollData) -> Button:
+	var button := UiKit.button("%s\n%s" % [scroll.display_name, effect_text(scroll)])
+	button.custom_minimum_size = Vector2(BUTTON_SIZE.x, _option_height())
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	button.expand_icon = false
+	if scroll.buff != null:
+		button.self_modulate = Color.WHITE.lerp(scroll.buff.color, TINT_STRENGTH)
+		var set_data := SpriteLibrary.find(scroll.buff.icon)
+		if set_data != null:
+			button.icon = set_data.sheet
 	return button
+
+
+## The height of one option: 40 px, less when many options must still fit above the bottom of the page.
+func _option_height() -> float:
+	var count := maxi(_options.size(), 1)
+	var room := PAGE_BOTTOM - OPTIONS_TOP - OPTION_GAP * float(count - 1)
+	return minf(BUTTON_SIZE.y, floorf(room / float(count)))

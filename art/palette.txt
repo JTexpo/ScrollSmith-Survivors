@@ -77,6 +77,8 @@ color U #e0483c
 color V #9e2a22
 color X #5fbf5a
 color Z #348a3a
+# Heading blue (so a heading never reads as the red 'stop' colour)
+color 6 #2a5aa0
 # Yellow (Gold, highlights): light, dark
 color ! #ffd24a
 color % #d99a1a

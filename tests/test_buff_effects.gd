@@ -71,3 +71,17 @@ func test_attack_profile_is_built_once_per_spell_and_mirrors_it() -> void:
 	assert_eq(profile.vulnerability_scale, 3.0)
 	assert_true(profile.ignores_resistance)
 	assert_eq(SpellData.new().attack_profile().elements, [])
+
+
+func test_every_buff_has_its_own_accent_colour_and_an_icon_that_exists() -> void:
+	var colors := {}
+	for file in DirAccess.get_files_at("res://resources/crafting/buff_effects"):
+		if not String(file).ends_with(".tres"):
+			continue
+		var effect := load("res://resources/crafting/buff_effects/%s" % file) as BuffEffect
+		assert_ne(effect.color, Color.WHITE, "%s has a colour" % file)
+		assert_false(colors.has(effect.color.to_html()), "%s repeats a colour" % file)
+		colors[effect.color.to_html()] = true
+		assert_ne(effect.icon, &"", "%s has an icon name" % file)
+		assert_not_null(SpriteLibrary.find(effect.icon), "%s: the icon %s exists" % [file, effect.icon])
+	assert_gte(colors.size(), 6)

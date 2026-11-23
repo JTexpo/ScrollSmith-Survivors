@@ -159,14 +159,14 @@ func test_pressing_a_button_buys_exactly_one() -> void:
 	assert_eq(_profile.gold, 1000 - _price(&"potion_health"))
 
 
-func test_the_screen_sits_on_a_window_panel_and_close_is_green() -> void:
+func test_the_screen_sits_on_a_window_panel_and_close_is_red() -> void:
 	_screen.open(_profile, _catalog, _merchant)
 	assert_not_null(_screen.find_child("Window", true, false))
 	var found := false
 	for button in _screen.find_children("*", "Button", true, false):
 		if (button as Button).text == "Close":
 			found = true
-			assert_eq((button as Button).theme_type_variation, &"ButtonGreen")
+			assert_eq((button as Button).theme_type_variation, &"ButtonRed")
 	assert_true(found, "a Close button")
 
 
@@ -179,13 +179,18 @@ func test_every_potion_button_line_fits_its_button() -> void:
 			assert_lte(width, MerchantScreen.BUTTON_SIZE.x - 8.0, "%s: %s" % [potion.id, line])
 
 
-func test_potion_buttons_are_the_red_buy_buttons_and_no_widget_sets_a_font_size() -> void:
+func test_potion_buttons_are_the_green_buy_buttons_and_no_widget_sets_a_font_size() -> void:
 	_screen.open(_profile, _catalog, _merchant)
 	for node in _screen.find_children("*", "Control", true, false):
 		assert_false((node as Control).has_theme_font_size_override("font_size"), str(node.name))
 	var buttons := _screen.find_children("*", "Button", true, false)
-	var red := 0
+	var green := 0
 	for button in buttons:
-		if (button as Button).theme_type_variation == &"ButtonRed":
-			red += 1
-	assert_eq(red, _catalog.potions.size())
+		if (button as Button).theme_type_variation == &"ButtonGreen":
+			green += 1
+	assert_eq(green, _catalog.potions.size())
+
+
+func test_potion_buttons_are_big_and_the_detail_text_clears_them() -> void:
+	assert_gte(MerchantScreen.BUTTON_SIZE.y, 32.0)
+	assert_gt(MerchantScreen.DETAIL_TOP, MerchantScreen.GRID_POSITION.y + 2.0 * (MerchantScreen.BUTTON_SIZE.y + 1.0) - 1.0, "the detail text starts below the two button rows")

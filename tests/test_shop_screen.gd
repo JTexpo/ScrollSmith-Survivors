@@ -268,19 +268,19 @@ func test_the_screen_sits_on_a_window_panel() -> void:
 	assert_not_null(_screen.find_child("Backdrop", true, false))
 
 
-func test_the_close_button_is_green_and_potion_buy_buttons_are_red() -> void:
+func test_the_close_button_is_red_and_potion_buy_buttons_are_green() -> void:
 	_screen.open(_profile, _catalog)
 	var red := 0
 	var green := 0
 	for button in _screen.find_children("*", "Button", true, false):
 		match (button as Button).theme_type_variation:
-			&"ButtonRed":
-				red += 1
 			&"ButtonGreen":
 				green += 1
+			&"ButtonRed":
+				red += 1
 				assert_eq((button as Button).text, "Close")
-	assert_eq(green, 1)
-	assert_eq(red, _screen.potion_button_count())
+	assert_eq(red, 1, "Close is the one red button: red means stop")
+	assert_eq(green, _screen.potion_button_count(), "buying is green: green means go")
 
 
 func test_the_equipped_item_is_a_yellow_button_and_others_are_cream() -> void:
@@ -316,6 +316,18 @@ func test_the_longest_descriptions_wrap_inside_the_detail_area() -> void:
 	var lines := 0
 	for item in _catalog.items:
 		var text := "%s  (%d Gold)\n%s" % [item.display_name, item.price, item.description]
-		var size := UiFont.plain().get_multiline_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, 464.0, UiFont.SIZE, -1, TextServer.BREAK_WORD_BOUND | TextServer.BREAK_MANDATORY)
+		var size := UiFont.plain().get_multiline_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, ShopScreen.DETAIL_WIDTH, UiFont.SIZE, -1, TextServer.BREAK_WORD_BOUND | TextServer.BREAK_MANDATORY)
 		lines = maxi(lines, roundi(size.y / UiFont.SIZE))
 	assert_lte(lines, 3, "the detail label is three lines tall")
+
+
+func test_item_and_potion_buttons_are_at_least_22_px_tall() -> void:
+	_screen.open(_profile, _catalog)
+	assert_gte(ShopScreen.BUTTON_SIZE.y, 22.0)
+	for button in _screen.find_children("*", "Button", true, false):
+		if (button as Button).text != "Close":
+			assert_gte((button as Button).custom_minimum_size.y, 22.0, (button as Button).text)
+
+
+func test_the_detail_area_leaves_room_for_the_close_button() -> void:
+	assert_lte(ShopScreen.DETAIL_LEFT + ShopScreen.DETAIL_WIDTH, 392.0, "the detail text ends before the Close button")

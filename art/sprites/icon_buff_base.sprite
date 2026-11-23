@@ -1,0 +1,15 @@
+# Additional Base: a green orb with a plus.
+size 11 11
+anim idle 0 0 1 loop
+frame
+...........
+...JJJJJ...
+..JXXXXXJ..
+.JXXXWXXZJ.
+.JXXXWXXZJ.
+.JXWWWWWZJ.
+.JXXXWXXZJ.
+..JXXWXZJ..
+..JZZZZZJ..
+...JJJJJ...
+...........

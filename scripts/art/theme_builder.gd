@@ -19,6 +19,7 @@ const WHITE := Color("ffffff")
 const RED := Color("e0483c")
 const RED_DARK := Color("9e2a22")
 const YELLOW := Color("ffd24a")
+const HEADING_BLUE := Color("2a5aa0")
 
 ## Text inside a button: left, top, right, bottom (the sprite's own 4 px slice is the outline, shade and corners).
 const BUTTON_CONTENT := Vector4(4, 2, 4, 3)
@@ -80,7 +81,7 @@ const COLORS := [
 	["HudLabel", "font_color", WHITE],
 	["HudToast", "font_color", CREAM],
 	["HudGold", "font_color", YELLOW],
-	["Heading", "font_color", RED_DARK],
+	["Heading", "font_color", HEADING_BLUE],
 	["Muted", "font_color", PLUM_LIGHT],
 	["Warning", "font_color", RED],
 	["Button", "font_color", PLUM],

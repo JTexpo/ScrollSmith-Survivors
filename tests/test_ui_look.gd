@@ -132,3 +132,39 @@ func test_the_project_uses_the_game_theme_and_the_theme_uses_the_ui_fonts() -> v
 	var theme := load("res://resources/ui/game_theme.tres") as Theme
 	assert_eq(theme.default_font.resource_path, UiFont.plain_path)
 	assert_eq(theme.default_font_size, UiFont.SIZE)
+
+
+func _button_text(screen: Node, text: String) -> Button:
+	for button in screen.find_children("*", "Button", true, false):
+		if (button as Button).text == text:
+			return button as Button
+	return null
+
+
+func test_main_action_buttons_are_big_enough_for_a_thumb() -> void:
+	assert_gte(UiKit.ACTION_SIZE.x, 64.0)
+	assert_gte(UiKit.ACTION_SIZE.y, 28.0)
+	for entry in [["res://scenes/ui/shop_screen.tscn", "Close"], ["res://scenes/ui/merchant_screen.tscn", "Close"], ["res://scenes/ui/crafting_screen.tscn", "Confirm"], ["res://scenes/ui/crafting_screen.tscn", "Cancel"]]:
+		var screen := (load(entry[0]) as PackedScene).instantiate()
+		add_child_autofree(screen)
+		var button := _button_text(screen, entry[1])
+		assert_not_null(button, "%s %s" % [entry[0], entry[1]])
+		assert_gte(button.custom_minimum_size.x, UiKit.ACTION_SIZE.x, "%s %s is wide enough" % [entry[0], entry[1]])
+		assert_gte(button.custom_minimum_size.y, UiKit.ACTION_SIZE.y, "%s %s is tall enough" % [entry[0], entry[1]])
+	var death := (load("res://scenes/ui/death_screen.tscn") as PackedScene).instantiate()
+	add_child_autofree(death)
+	var shop_button := death.get_node("ShopButton") as Button
+	assert_gte(shop_button.offset_right - shop_button.offset_left, UiKit.ACTION_SIZE.x)
+	assert_gte(shop_button.offset_bottom - shop_button.offset_top, UiKit.ACTION_SIZE.y)
+
+
+func test_hud_touch_targets_are_big_enough() -> void:
+	assert_gte(InteractButton.SIZE.x, 64.0)
+	assert_gte(InteractButton.SIZE.y, 28.0)
+	assert_gte(InventoryButton.SIZE.x, 44.0)
+	assert_gte(InventoryButton.SIZE.y, 28.0)
+	assert_gte(SpellSlotWidget.SIZE.x, 34.0)
+	assert_gte(SpellSlotWidget.SIZE.y, 24.0)
+	assert_gte(PotionSlotWidget.SIZE.x, 30.0)
+	assert_gte(PotionSlotWidget.SIZE.y, 22.0)
+

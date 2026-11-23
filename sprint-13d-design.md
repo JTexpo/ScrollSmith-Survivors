@@ -67,3 +67,5 @@ The world now has the cartoon look, and the interface still looks like a prototy
 - The death screen has no "Try again" button (restart is the R key, a controller button or a tap anywhere else), so the Shop button is the green one.
 - Extra sprites and variations: `ui_focus` (the focus ring), `ui_bar_back_thin` and a 2 px XP fill, `PanelSlot`, `PanelSlotSelected`, `HudToast` and a `Label` line spacing of 0.
 - Layout nudges to fit the new font: the inventory panel is 260 by 214, merchant buttons are two lines, the crafting buff list is one column and its range column is 112 px wide.
+- Play-test follow-up: the first map's scatter was removed, green is go and red is stop (headings are blue), touch targets were enlarged (the crafting screen has Spell and Buffs tabs), and the starting-buff screen tints each option by data (`BuffEffect.color` and `icon`).
+

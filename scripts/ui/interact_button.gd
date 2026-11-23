@@ -6,7 +6,7 @@ extends Control
 
 signal pressed
 
-const SIZE := Vector2(40, 16)
+const SIZE := Vector2(64, 30)
 
 ## Desktop players press E, so the button normally only shows on a touchscreen.
 @export var require_touchscreen: bool = true

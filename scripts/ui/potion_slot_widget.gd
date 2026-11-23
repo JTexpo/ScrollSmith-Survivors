@@ -8,10 +8,10 @@ extends Control
 
 signal pressed(index: int)
 
-const SIZE := Vector2(24, 16)
+const SIZE := Vector2(30, 22)
 ## The frame's outline, so everything inside sits 2 px from the edge.
 const FRAME := 2.0
-const SWATCH_SIZE := Vector2(20, 8)
+const SWATCH_SIZE := Vector2(26, 13)
 const EFFECT_COLOR := Color("ffd24a")
 
 var slot_index: int = 0
@@ -42,8 +42,8 @@ func _ready() -> void:
 	_swatch = _add_rect(Vector2(FRAME, FRAME), SWATCH_SIZE, Color.WHITE)
 	_cooldown_overlay = _add_rect(Vector2(FRAME, FRAME), Vector2(SWATCH_SIZE.x, 0.0), Color(0, 0, 0, 0.65))
 	_effect_bar = _add_rect(Vector2(FRAME, SIZE.y - FRAME - 2.0), Vector2(effect_bar_full_width(), 2), EFFECT_COLOR)
-	_count_label = _label(Vector2(11, 3))
-	_key_label = _label(Vector2(FRAME + 1.0, 0.0))
+	_count_label = _label(Vector2(15, 5))
+	_key_label = _label(Vector2(FRAME + 1.0, 1.0))
 	_refresh()
 
 

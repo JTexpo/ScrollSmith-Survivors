@@ -106,3 +106,10 @@ func test_the_south_east_maze_is_the_half_turn_image_of_the_north_west_one() -> 
 				found = true
 				break
 		assert_true(found, "no mirrored wall for %s" % shape.position)
+
+
+func test_the_first_map_has_no_scattered_decoration() -> void:
+	assert_eq(MapDecor.scatter(_map).size(), 0, "the plaza's flowers, mushrooms and pebbles were removed (play feedback: distracting)")
+	for i in _map.zones.size():
+		assert_eq(MapDecor.scatter_zone(_map, i).size(), 0, "zone %d" % i)
+

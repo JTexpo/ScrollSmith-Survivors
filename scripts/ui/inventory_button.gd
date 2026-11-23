@@ -5,7 +5,7 @@ extends Control
 
 signal pressed
 
-const SIZE := Vector2(28, 16)
+const SIZE := Vector2(44, 28)
 
 var total: int = 0
 
@@ -16,7 +16,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	custom_minimum_size = SIZE
 	size = SIZE
-	_label = UiKit.button("", &"ButtonGreen")
+	_label = UiKit.button("", &"ButtonYellow")
 	_label.name = "Face"
 	_label.focus_mode = Control.FOCUS_NONE
 	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE

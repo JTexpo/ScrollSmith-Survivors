@@ -6,11 +6,11 @@ extends Control
 
 signal pressed(index: int)
 
-const SIZE := Vector2(28, 18)
+const SIZE := Vector2(34, 24)
 ## The frame's outline, so everything inside sits 2 px from the edge.
 const FRAME := 2.0
-const SWATCH_HEIGHT := 9.0
-const FILL_HEIGHT := 3.0
+const SWATCH_HEIGHT := 14.0
+const FILL_HEIGHT := 4.0
 const FLASH_TIME := 0.25
 const DEPLETED_TINT := Color(0.4, 0.4, 0.4, 1)
 const MANA_COLOR := Color("6fd3ff")
@@ -46,7 +46,7 @@ func _ready() -> void:
 	_flash = _add_rect(Vector2(FRAME, FRAME), Vector2(inner, SIZE.y - 2.0 * FRAME), FLASH_COLOR)
 	_fill = _add_rect(Vector2(FRAME, SIZE.y - FRAME - FILL_HEIGHT), Vector2(inner, FILL_HEIGHT), MANA_COLOR)
 	_label = UiKit.label("", &"HudLabel")
-	_label.position = Vector2(FRAME + 1.0, 0.0)
+	_label.position = Vector2(FRAME + 1.0, 1.0)
 	add_child(_label)
 	set_process(false)
 	_refresh()

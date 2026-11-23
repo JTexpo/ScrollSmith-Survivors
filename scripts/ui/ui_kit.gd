@@ -10,6 +10,8 @@ const WINDOW_RECT := Rect2(2, 2, 476, 266)
 const CONTENT_TOP := 2.0
 const BACKDROP_COLOR := Color("6fd3ff")
 const SCREEN_WIDTH := 480.0
+## The smallest a main action button (Confirm, Cancel, Close) may be: a thumb has to hit it on a phone.
+const ACTION_SIZE := Vector2(72, 28)
 
 ## A label that lets touches and clicks through. `variation` is a theme type variation such as `HudGold`.
 static func label(text: String, variation: StringName = &"") -> Label:

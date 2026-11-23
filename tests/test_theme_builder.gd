@@ -105,6 +105,11 @@ func test_every_theme_color_is_a_palette_color() -> void:
 			assert_true(allowed.has(color.to_html(true)), "%s/%s %s is not a palette colour" % [type, color_name, color.to_html()])
 
 
+func test_headings_are_blue_never_red() -> void:
+	var heading := _theme.get_color(&"font_color", &"Heading")
+	assert_gt(heading.b, heading.r, "red means stop, so a heading is blue")
+
+
 func test_theme_text_is_deterministic() -> void:
 	assert_eq(ThemeBuilder.theme_text(), ThemeBuilder.theme_text())
 
