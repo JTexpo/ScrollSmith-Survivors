@@ -143,8 +143,12 @@ func resolve_move(from: Vector2, to: Vector2) -> Vector2:
 	var slide_y := Vector2(from.x, to.y)
 	if _free_for_a_body(slide_y):
 		return slide_y
-	if not _free_for_a_body(from):
+	if overlaps_wall(from):
 		return grid.nearest_free(from)
+	if not _free_for_a_body(from):
+		# Standing in the grid's band (clear of the wall) with the player out of range: drift toward the nearest free
+		# cell at the pace the body meant to move, not a jump.
+		return from.move_toward(grid.nearest_free(from), from.distance_to(to))
 	return from
 
 

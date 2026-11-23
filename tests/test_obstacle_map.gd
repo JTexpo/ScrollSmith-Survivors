@@ -210,3 +210,19 @@ func test_overlaps_wall_is_exact_while_the_grid_band_is_not() -> void:
 	assert_true(node.overlaps_wall(Vector2(148, 40)))
 	assert_true(node.overlaps_wall(Vector2(160, 40)), "inside the wall")
 	assert_false(node.overlaps_wall(Vector2(40, 40)), "open ground")
+
+
+func test_a_body_in_the_grid_band_out_of_range_drifts_out_instead_of_jumping() -> void:
+	_player.global_position = Vector2(600, 40)
+	var node := _obstacle_map(_wall_map(8.0))
+	# In the grid's band (a blocked cell) but clear of the wall (its face is x = 152), and far from the player.
+	var from := Vector2(146, 40)
+	assert_true(node.is_blocked(from))
+	assert_false(node.overlaps_wall(from))
+	var result := node.resolve_move(from, from + Vector2(2, 0))
+	assert_lte(from.distance_to(result), 2.01, "it moved %s in one step" % snappedf(from.distance_to(result), 0.1))
+	var free_spot := node.push_out(from)
+	assert_lte(result.distance_to(free_spot), from.distance_to(free_spot), "it drifts toward the free cell")
+	# A body that really is inside a wall is still pushed out at once.
+	var inside := node.resolve_move(Vector2(160, 40), Vector2(161, 40))
+	assert_false(node.overlaps_wall(inside))
