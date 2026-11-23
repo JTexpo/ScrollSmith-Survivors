@@ -618,3 +618,5 @@ What was built: map data only. Five placements moved, a tree ring for the chest 
 Found while building: a 158 px ring does not fit the 184 px strip east of the island (one-cell slivers), a circular clearing off the 16 px grid has one-cell edge rows, and a ray test needs the body clearance because ring trees leave 13 px slits. Stress is about 106 fps (unchanged within noise).
 
 Left open: the feel of the layout is the user's call; the west Lectern and the chest are about 320 px apart.
+
+Follow-up (review after 14a merged): the whole-branch review found the tree rings leaked (13 px slits, the player is 12 px) and the east room had a second opening on its north side. Fixed on `sprint-14a-review-fixes`: seven-tree rings with slits of about 6 px, a cap wall on the room, the west Lectern moved to (176, 688), the chest ring opening east, and stronger guard tests (exactly one opening, no slit of 12 px or more). Stress about 98 fps (run to run noise 96 to 108).
