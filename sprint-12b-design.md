@@ -1,6 +1,6 @@
 # Sprint 12b Design: Obstacles
 
-**Status:** Proposed.
+**Status:** Built (Sprint 12b).
 
 Scope comes from `sprint-12a-design.md` (the 12b notes), `sprint-development.md` (Sprint 12) and the README (section 9). Architecture follows `CLAUDE.md`, `technical-design.md` and `sprint-0` to `sprint-12a-design.md`. Decisions below were agreed with the user in conversation, except where marked "my call".
 

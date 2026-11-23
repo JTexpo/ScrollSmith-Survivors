@@ -4,7 +4,7 @@ extends Node2D
 ## attacker fires, and reports frame time. Not part of the player-facing game.
 ##
 ## Run: godot --path . res://scenes/world/stress_test.tscn -- --enemies=300 --seconds=10
-## Options: --area=<missile|cone|zone|line|wave> --drops --boss --minutes=M --copies=N --interval=SECONDS
+## Options: --area=<missile|cone|zone|line|wave> --drops --boss --obstacles --minutes=M --copies=N --interval=SECONDS
 ## The clock starts at --minutes (default 5), so by default every archetype is unlocked and elites are in the mix.
 
 const WARMUP_FRAMES := 30
@@ -32,6 +32,8 @@ const AREA_SPELLS := {
 @export var minutes: float = 5.0
 ## --boss: spawns an Ember Titan next to the player at the start, so its warnings, shots and summons are measured.
 @export var boss: bool = false
+## --obstacles: uses the first map (its walls, obstacles and flow field) instead of the plain test arena.
+@export var obstacles: bool = false
 ## --copies=N makes the stress spell fire N copies per cast (Duplicate Area), as a ring.
 @export var copies: int = 1
 ## --interval=S overrides the stress spell's cast interval (seconds), to measure at a real one.
@@ -59,6 +61,8 @@ var _rng := RandomNumberGenerator.new()
 
 func _ready() -> void:
 	_read_command_line()
+	if obstacles:
+		_use_first_map()
 	_rng.randomize()
 	_spawner.set_process(false)
 	_spawner.elapsed_override = minutes * 60.0
@@ -146,6 +150,26 @@ func _refill() -> void:
 			break
 
 
+## Swaps the test arena for the first map, and sets the spawner, camera and player start from it as Main does.
+func _use_first_map() -> void:
+	var arena := get_node_or_null("TestArena")
+	if arena != null:
+		remove_child(arena)
+		arena.queue_free()
+	var map := (load("res://scenes/world/game_map.tscn") as PackedScene).instantiate() as GameMap
+	# The player is placed first, so the map's field is built for where the player really stands.
+	_player.global_position = map.player_start()
+	add_child(map)
+	move_child(map, 0)
+	var area := map.bounds()
+	_spawner.arena_bounds = area
+	var camera := _player.get_node("Camera2D") as Camera2D
+	camera.limit_left = int(area.position.x)
+	camera.limit_top = int(area.position.y)
+	camera.limit_right = int(area.end.x)
+	camera.limit_bottom = int(area.end.y)
+
+
 func _read_command_line() -> void:
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--enemies="):
@@ -156,6 +180,8 @@ func _read_command_line() -> void:
 			drops = true
 		elif argument == "--boss":
 			boss = true
+		elif argument == "--obstacles":
+			obstacles = true
 		elif argument.begins_with("--minutes="):
 			minutes = maxf(float(argument.get_slice("=", 1)), 0.0)
 		elif argument.begins_with("--copies="):

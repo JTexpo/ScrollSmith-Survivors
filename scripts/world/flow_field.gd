@@ -46,6 +46,10 @@ var _cursor: int = 0
 var _level: int = 0
 var _pending: int = 0
 var _active: bool = false
+## Directions already worked out for the finished field, per cell (padded layout). Enemies share cells, so
+## most reads are one lookup. Cleared whenever a new field is swapped in.
+var _direction_cache := PackedVector2Array()
+var _direction_cached := PackedByteArray()
 
 
 ## Sweeps to the end in one call.
@@ -68,6 +72,7 @@ func begin_rebuild(grid: ObstacleGrid, target: Vector2) -> void:
 		goal = grid.cell_of(grid.nearest_free(target))
 	if grid.is_blocked_cell(goal):
 		_distance = _building
+		_clear_direction_cache()
 		return
 	_buckets.clear()
 	for i in BUCKETS:
@@ -126,6 +131,7 @@ func advance(cell_budget: int) -> bool:
 	_building = distance
 	_distance = distance
 	_active = false
+	_clear_direction_cache()
 	return true
 
 
@@ -142,6 +148,15 @@ func direction_at(point: Vector2) -> Vector2:
 	if _grid == null or _distance.is_empty():
 		return Vector2.ZERO
 	var here := _index_of(point)
+	if _direction_cached[here] == 1:
+		return _direction_cache[here]
+	var direction := _work_out_direction(point, here)
+	_direction_cache[here] = direction
+	_direction_cached[here] = 1
+	return direction
+
+
+func _work_out_direction(point: Vector2, here: int) -> Vector2:
 	var level := _distance[here]
 	if level <= 0:
 		return Vector2.ZERO
@@ -170,6 +185,12 @@ func direction_at(point: Vector2) -> Vector2:
 	if cancelled or _grid.is_blocked(_grid.cell_center(cell) + blended * _grid.cell_size):
 		return _unit[best]
 	return blended
+
+
+func _clear_direction_cache() -> void:
+	_direction_cache.resize(_distance.size())
+	_direction_cached.resize(_distance.size())
+	_direction_cached.fill(0)
 
 
 func _index_of(point: Vector2) -> int:

@@ -118,3 +118,25 @@ func test_without_a_player_nothing_breaks() -> void:
 	node._physics_process(0.5)
 	assert_eq(node.direction_from(Vector2(130, 40)), Vector2.ZERO)
 	assert_true(node.is_blocked(Vector2(160, 56)))
+
+
+func test_blocks_segment_agrees_with_testing_every_shape() -> void:
+	var map := _wall_map(8.0)
+	var circle := MapObstacle.new()
+	circle.kind = MapObstacle.Kind.CIRCLE
+	circle.position = Vector2(60, 100)
+	circle.radius = 14.0
+	map.obstacles.append(circle)
+	var node := _obstacle_map(map)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 21
+	var blocked := 0
+	for i in 600:
+		var from := Vector2(rng.randf_range(0, 320), rng.randf_range(0, 160))
+		var to := from + Vector2.from_angle(rng.randf_range(0, TAU)) * rng.randf_range(1.0, 40.0)
+		var expected := false
+		for obstacle in map.obstacles:
+			expected = expected or obstacle.blocks_segment(from, to)
+		assert_eq(node.blocks_segment(from, to), expected, "%s to %s" % [from, to])
+		blocked += int(expected)
+	assert_gt(blocked, 10, "the sample must include real hits")

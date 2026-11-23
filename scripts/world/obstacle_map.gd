@@ -10,6 +10,8 @@ extends Node
 
 ## Shortest time between the starts of two rebuilds, in physics seconds.
 const REBUILD_INTERVAL := 0.2
+## The most grid cells a segment's box may cover for the quick all-free check in `blocks_segment`.
+const MAX_QUICK_CELLS := 9
 
 ## How many cells of the sweep are done per physics frame.
 @export var cells_per_frame: int = 400
@@ -73,6 +75,8 @@ func is_blocked(point: Vector2) -> bool:
 func blocks_segment(from: Vector2, to: Vector2) -> bool:
 	if data == null:
 		return false
+	if grid != null and _cells_under_are_free(from, to):
+		return false
 	for obstacle in data.obstacles:
 		if obstacle != null and obstacle.blocks_segment(from, to):
 			return true
@@ -98,6 +102,21 @@ func resolve_move(from: Vector2, to: Vector2) -> Vector2:
 	if grid.is_blocked(from):
 		return grid.nearest_free(from)
 	return from
+
+
+## A quick no for a short segment: a cell is blocked whenever an obstacle (grown, never shrunk) touches it, so
+## if every cell the segment's box covers is free, no obstacle touches the segment. Long segments (more than
+## MAX_QUICK_CELLS cells) skip the shortcut and use the exact tests.
+func _cells_under_are_free(from: Vector2, to: Vector2) -> bool:
+	var low := grid.cell_of(Vector2(minf(from.x, to.x), minf(from.y, to.y)))
+	var high := grid.cell_of(Vector2(maxf(from.x, to.x), maxf(from.y, to.y)))
+	if (high.x - low.x + 1) * (high.y - low.y + 1) > MAX_QUICK_CELLS:
+		return false
+	for y in range(low.y, high.y + 1):
+		for x in range(low.x, high.x + 1):
+			if grid.is_blocked_cell(Vector2i(x, y)):
+				return false
+	return true
 
 
 func _advance() -> void:

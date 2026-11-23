@@ -150,3 +150,14 @@ func test_the_last_finished_field_stays_readable_while_a_new_one_builds() -> voi
 	while not field.advance(50):
 		pass
 	assert_eq(field.distance_at(Vector2(136, 136)), 0)
+
+
+func test_cached_directions_are_dropped_when_a_new_field_is_swapped_in() -> void:
+	var grid := ObstacleGrid.build(_map(Vector2(160, 160)))
+	var field := FlowField.new()
+	field.rebuild(grid, Vector2(24, 88))
+	assert_lt(field.direction_at(Vector2(136, 88)).x, -0.9, "toward the first target (west), now cached")
+	field.rebuild(grid, Vector2(136, 136))
+	assert_gt(field.direction_at(Vector2(136, 88)).y, 0.9, "toward the second target (south), not the cached one")
+	field.begin_rebuild(grid, Vector2(24, 88))
+	assert_gt(field.direction_at(Vector2(136, 88)).y, 0.9, "the old field stays readable while a new one builds")
