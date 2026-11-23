@@ -26,3 +26,4 @@ material = SubResource("bob")
 
 [node name="Body" type="Node2D" parent="."]
 script = ExtResource("9")
+shadow_enabled = true

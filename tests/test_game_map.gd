@@ -486,3 +486,11 @@ func test_wall_centres_are_drawn_after_every_border_even_across_chunks() -> void
 	for chunk in centres.get_children():
 		assert_true((chunk as DrawChunk).centres_only)
 
+
+func test_the_floor_layers_draw_below_the_shadows_and_the_walls_above_them() -> void:
+	var node := _map_node(_data())
+	for layer in ["Border", "Floor", "BaseArt", "Zones", "ZoneArt", "Decor"]:
+		assert_lt((node.get_node(layer) as CanvasItem).z_index, BodyView.SHADOW_Z, "%s is under the shadows" % layer)
+		assert_true((node.get_node(layer) as CanvasItem).z_as_relative)
+	assert_eq((node.get_node("Obstacles") as CanvasItem).z_index, 0, "walls and trees are over the shadows")
+

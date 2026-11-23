@@ -1,0 +1,8 @@
+# A 8 px oval shadow. Drawn behind a sprite, see-through.
+size 10 4
+anim idle 0 0 1 loop
+frame
+..........
+..KKKKKK..
+..KKKKKK..
+..........

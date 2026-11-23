@@ -19,6 +19,7 @@ data = ExtResource("7")
 [node name="Body" type="Node2D" parent="."]
 script = ExtResource("8")
 fallback_color = Color(0.9, 0.25, 0.25, 1)
+shadow_enabled = true
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("2")

@@ -52,6 +52,7 @@ func _ready() -> void:
 	for i in map_data.zones.size():
 		items.append_array(MapDecor.scatter_zone(map_data, i))
 	decor.set_decor(items)
+	_put_floor_layers_under_the_shadows()
 	var obstacles := ObstacleLayer.new()
 	obstacles.name = &"Obstacles"
 	add_child(obstacles)
@@ -93,6 +94,13 @@ func bounds() -> Rect2:
 
 func player_start() -> Vector2:
 	return map_data.player_start if map_data != null else Vector2.ZERO
+
+
+## The floor, its art and the decorations draw just below the shadows (`BodyView.SHADOW_Z`), and the walls and everything that
+## stands on the world stay at depth 0 above them. All shadows share one depth, so they draw together and batch.
+func _put_floor_layers_under_the_shadows() -> void:
+	for layer_name in [&"Border", &"Floor", &"BaseArt", &"Zones", &"ZoneArt", &"Decor"]:
+		(get_node(NodePath(layer_name)) as CanvasItem).z_index = BodyView.SHADOW_Z - 1
 
 
 ## A tiled floor over `rect` when `style` has art (true), nothing otherwise (false). A soft patch has a ragged edge,

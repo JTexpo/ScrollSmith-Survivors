@@ -14,6 +14,7 @@ script = ExtResource("1")
 
 [node name="Body" type="Node2D" parent="."]
 script = ExtResource("2")
+shadow_enabled = true
 
 [node name="Prompt" type="Label" parent="."]
 visible = false

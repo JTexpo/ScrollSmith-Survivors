@@ -8,6 +8,13 @@ extends Node2D
 signal animation_done(animation: StringName)
 
 const FALLBACK_SIZE := 12.0
+## The widths of the shadow sprites (`shadow_<width>`), and how see-through a shadow is.
+const SHADOW_WIDTHS: Array[int] = [8, 12, 16, 24, 32]
+const SHADOW_ALPHA := 0.4
+## The one depth every shadow is drawn at, whatever its owner's depth. Sprites are at 0 and `GameMap` puts the floor layers
+## below this, so all the shadows come together in the draw order and batch (a shadow between every pair of sprites
+## halved the frame rate at 300 enemies).
+const SHADOW_Z := -1
 
 ## The colour of the fallback square (what `Body.color` used to be).
 var fallback_color: Color = Color(0.9, 0.25, 0.25):
@@ -16,7 +23,18 @@ var fallback_color: Color = Color(0.9, 0.25, 0.25):
 		if _fallback != null:
 			_fallback.color = value
 
+## Whether this body draws a soft oval shadow on the ground under its sprite. Things that move, can be picked up or can
+## be used have one and static things (walls, trees, decorations) do not, so a player can tell them apart.
+@export var shadow_enabled: bool = false:
+	set(value):
+		shadow_enabled = value
+		if _sprite != null:
+			_refresh_shadow()
+
 var _set_data: SpriteSetData
+var _shadow: Sprite2D
+var _shadow_y: float = 0.0
+var _shadow_width: int = 0
 var _outline_set: SpriteSetData
 var _outline: AnimatedSprite2D
 var _sprite: AnimatedSprite2D
@@ -49,6 +67,7 @@ func set_look(sprite_name: StringName, variant: StringName = &"base") -> bool:
 		_outline.visible = false
 		set_process(false)
 		_fallback.visible = true
+		_refresh_shadow()
 		return false
 	set_set(found)
 	set_outline_set(SpriteLibrary.find_silhouette(sprite_name))
@@ -64,6 +83,7 @@ func set_set(set_data: SpriteSetData) -> void:
 	_fallback.visible = false
 	_sprite.flip_h = _facing < 0.0
 	_outline.flip_h = _facing < 0.0
+	_refresh_shadow()
 
 
 ## The silhouette used for an outline (null for none).
@@ -144,11 +164,47 @@ func counter_scale(parent_scale: Vector2) -> void:
 		inverse = Vector2.ONE / parent_scale
 	_sprite.scale = inverse
 	_outline.scale = inverse
+	_shadow.scale = inverse
+	_shadow.position = Vector2(0.0, _shadow_y) * inverse
+
+
+## The content width of the shadow in use (0 when there is none).
+func shadow_width() -> int:
+	return _shadow_width if _shadow != null and _shadow.visible else 0
+
+
+## Shows the biggest shadow no wider than the sprite, at its feet, or hides it. Only with art and `shadow_enabled`.
+func _refresh_shadow() -> void:
+	_ensure_children()
+	_shadow.visible = false
+	_shadow_width = 0
+	if not shadow_enabled or _set_data == null:
+		return
+	var width := SHADOW_WIDTHS[0]
+	for candidate in SHADOW_WIDTHS:
+		if candidate <= _set_data.frame_size.x:
+			width = candidate
+	var shadow_set := SpriteLibrary.find(StringName("shadow_%d" % width))
+	if shadow_set == null:
+		return
+	_shadow.texture = shadow_set.sheet
+	_shadow_width = width
+	# At the feet, in world pixels: the sprite is drawn 1:1, so its feet are half its height below the middle.
+	_shadow_y = floorf(_set_data.frame_size.y / 2.0) - 1.0
+	_shadow.position = Vector2(0.0, _shadow_y) * _shadow.scale
+	_shadow.visible = true
 
 
 func _ensure_children() -> void:
 	if _sprite != null:
 		return
+	_shadow = Sprite2D.new()
+	_shadow.name = "Shadow"
+	_shadow.visible = false
+	_shadow.modulate = Color(1.0, 1.0, 1.0, SHADOW_ALPHA)
+	_shadow.z_as_relative = false
+	_shadow.z_index = SHADOW_Z
+	add_child(_shadow)
 	_outline = AnimatedSprite2D.new()
 	_outline.name = "Outline"
 	_outline.visible = false
