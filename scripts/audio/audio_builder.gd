@@ -1,6 +1,6 @@
 class_name AudioBuilder
 extends RefCounted
-## Renders sound recipes (and, from Task 2, tunes) into samples. Pure and deterministic: the same recipe always gives the same
+## Renders sound recipes and tunes into samples. Pure and deterministic: the same recipe always gives the same
 ## samples (the noise is a fixed shift register, never a random number), so a committed WAV can be compared with a fresh render.
 
 const RATE := 22050
@@ -17,6 +17,71 @@ static func render_sfx(source: SfxSource) -> PackedFloat32Array:
 	for i in total:
 		out[i] = clampf(out[i], -1.0, 1.0)
 	return out
+
+
+## Every channel of the tune mixed into `duration * RATE` samples, clamped to -1..1. A note has a short attack, then a bouncy
+## decay inside its step (a held note stretches it), and always fades out at its end, so the tune starts and ends silent and
+## loops without a click.
+static func render_tune(source: TuneSource) -> PackedFloat32Array:
+	var step := float(RATE) * source.step_seconds()
+	var total := roundi(float(source.step_count()) * step)
+	var out := PackedFloat32Array()
+	out.resize(total)
+	for channel in source.channels:
+		_mix_channel(out, channel, step)
+	for i in total:
+		out[i] = clampf(out[i], -1.0, 1.0)
+	return out
+
+
+static func _mix_channel(out: PackedFloat32Array, channel: Dictionary, step: float) -> void:
+	var cells: PackedStringArray = channel["cells"]
+	var wave: StringName = channel["wave"]
+	var volume: float = channel["volume"]
+	var index := 0
+	while index < cells.size():
+		var cell := cells[index]
+		var hz := TuneSource.note_hz(cell)
+		var sounds := hz > 0.0 or (wave == &"noise" and cell == "x")
+		var end := index + 1
+		if sounds and wave != &"noise":
+			while end < cells.size() and cells[end] == ".":
+				end += 1
+		if sounds:
+			_mix_note(out, wave, volume, hz, roundi(float(index) * step), roundi(float(end) * step))
+		index = end
+
+
+static func _mix_note(out: PackedFloat32Array, wave: StringName, volume: float, hz: float, from: int, to: int) -> void:
+	var span := maxi(to - from, 1)
+	if wave == &"noise":
+		span = mini(span, roundi(0.05 * RATE))
+	var decay_rate := 1.2 if wave == &"triangle" else 2.6
+	var phase := 0.0
+	var lfsr := NOISE_SEED
+	var noise_value := 1.0
+	for i in span:
+		var at := from + i
+		if at >= out.size():
+			break
+		var t := float(i) / RATE
+		var progress := float(i) / float(span)
+		var value: float
+		if wave == &"noise":
+			phase += 9000.0 / RATE
+			if phase >= 1.0:
+				phase -= floorf(phase)
+				var bit := (lfsr ^ (lfsr >> 1)) & 1
+				lfsr = (lfsr >> 1) | (bit << 14)
+				noise_value = 1.0 if (lfsr & 1) == 0 else -1.0
+			value = noise_value
+		else:
+			phase = fposmod(phase + hz / RATE, 1.0)
+			value = _tone(wave, phase)
+		var env := minf(t / 0.004, 1.0) * exp(-decay_rate * progress)
+		var remaining := float(span - i) / RATE
+		env *= minf(remaining / 0.006, 1.0)
+		out[at] += volume * env * value
 
 
 static func _mix_voice(out: PackedFloat32Array, voice: Dictionary) -> void:

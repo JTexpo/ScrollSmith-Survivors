@@ -122,3 +122,59 @@ func test_a_loop_wav_has_a_smpl_chunk_covering_the_whole_sample_and_a_one_shot_h
 	assert_eq(_u32(looped, 244 + 8 + 28), 1, "one loop")
 	assert_eq(_u32(looped, loop_start + 8), 0, "from the first sample")
 	assert_eq(_u32(looped, loop_start + 12), 99, "to the last")
+
+
+func _tune(text: String) -> PackedFloat32Array:
+	var source := TuneSource.parse(text)
+	assert_eq(source.errors.size(), 0, str(source.errors))
+	return AudioBuilder.render_tune(source)
+
+
+func _peak(samples: PackedFloat32Array, from: int, to: int) -> float:
+	var best := 0.0
+	for i in range(from, mini(to, samples.size())):
+		best = maxf(best, absf(samples[i]))
+	return best
+
+
+func test_a_tune_renders_its_duration_in_samples() -> void:
+	var samples := _tune("tempo 120\nchannel pulse50 0.5\nC4 . . . D4 . . . E4 . . . F4 . . .")
+	assert_eq(samples.size(), roundi(2.0 * AudioBuilder.RATE))
+
+
+func test_a_rest_is_silent_and_a_note_is_not() -> void:
+	var samples := _tune("tempo 120\nchannel pulse50 0.5\nC4 . - - D4 . - -")
+	var step := roundi(AudioBuilder.RATE * 60.0 / 120.0 / 4.0)
+	assert_gt(_peak(samples, 0, step), 0.05)
+	assert_eq(_peak(samples, 2 * step + 50, 4 * step - 50), 0.0, "the rest is silent")
+
+
+func test_a_held_cell_keeps_sounding_across_the_step_boundary() -> void:
+	var held := _tune("tempo 120\nchannel pulse50 0.5\nC4 . . . - - - -")
+	var step := roundi(AudioBuilder.RATE * 60.0 / 120.0 / 4.0)
+	assert_gt(_peak(held, step, 2 * step), 0.01, "the second cell of a held note still sounds")
+	var separate := _tune("tempo 120\nchannel pulse50 0.5\nC4 - - - - - - -")
+	assert_eq(_peak(separate, step + 50, 4 * step), 0.0, "a rest after a short note is silent")
+
+
+func test_two_channels_are_mixed_and_clamped() -> void:
+	var text := "tempo 120\n"
+	for i in 6:
+		text += "channel pulse50 1.0\nC4 . . .\n"
+	for sample in _tune(text):
+		assert_between(sample, -1.0, 1.0)
+	var one := _tune("tempo 120\nchannel pulse50 0.4\nC4 . . .")
+	var two := _tune("tempo 120\nchannel pulse50 0.4\nC4 . . .\nchannel triangle 0.4\nC2 . . .")
+	assert_ne(one, two)
+
+
+func test_the_end_of_a_looping_tune_is_silent_so_it_loops_without_a_click() -> void:
+	var samples := _tune("tempo 120\nloop\nchannel pulse25 0.6\nC4 . . . D4 . . . E4 . . . F4 . . .\nchannel triangle 0.6\nC3 . . . . . . . G2 . . . . . . .")
+	assert_eq(samples[0], 0.0)
+	assert_lt(_peak(samples, samples.size() - 3, samples.size()), 0.003, "the last samples are near zero, so the jump back to the first one is not a click")
+
+
+func test_a_tune_renders_the_same_samples_twice() -> void:
+	var text := "tempo 140\nchannel pulse25 0.5\nC4 E4 G4 E4\nchannel noise 0.3\nx - x -"
+	assert_true(_tune(text) == _tune(text))
+
