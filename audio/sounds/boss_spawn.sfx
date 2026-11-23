@@ -1,5 +1,5 @@
 # Boss appears: a three-note falling stinger over a rumble.
-length 0.9
+length 0.92
 voice pulse25 262 262 0.45 0.005 0.18
 voice pulse25 196 196 0.45 0.005 0.18 delay 0.2
 voice triangle 131 131 0.8 0.01 0.5 delay 0.4

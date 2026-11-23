@@ -275,3 +275,48 @@ func test_a_missing_music_stream_is_skipped_and_reported_once() -> void:
 	assert_true(SoundLibrary.has_warned(SoundId.MUSIC_RUN))
 	assert_eq(SoundLibrary.warnings_issued, 1)
 
+
+func test_a_controller_button_press_unlocks_sound_too() -> void:
+	var event := InputEventJoypadButton.new()
+	event.pressed = true
+	event.button_index = JOY_BUTTON_A
+	_board._input(event)
+	assert_true(_board.is_unlocked())
+	assert_eq(_board.music_state(), &"run")
+
+
+func test_a_desktop_game_starts_unlocked_but_the_web_and_a_headless_run_wait_for_input() -> void:
+	assert_true(SoundBoard.starts_unlocked(false, "macOS"))
+	assert_false(SoundBoard.starts_unlocked(true, "web"), "a browser needs a tap, click or key first")
+	assert_false(SoundBoard.starts_unlocked(false, "headless"), "tests and servers stay quiet")
+
+
+func test_on_the_web_a_board_made_by_a_restart_keeps_the_pages_permission() -> void:
+	SoundBoard.page_unlocked = true
+	assert_true(SoundBoard.inherits_page_unlock(true))
+	assert_false(SoundBoard.inherits_page_unlock(false), "only a browser remembers it")
+	SoundBoard.page_unlocked = false
+	assert_false(SoundBoard.inherits_page_unlock(true))
+
+
+func test_a_voice_whose_player_stopped_without_a_finished_signal_is_released() -> void:
+	_board.unlock()
+	_board.play(SoundId.CAST_FIRE)
+	assert_eq(_board.voices_in_use(), 1)
+	for child in _board.get_children():
+		if child is AudioStreamPlayer and (child as AudioStreamPlayer).playing:
+			(child as AudioStreamPlayer).stop()
+	_tick()
+	_board.play(SoundId.CAST_THUNDER)
+	assert_eq(_board.voices_in_use(), 1, "the dead voice was freed, so it does not leak for the rest of the run")
+
+
+func test_the_mute_key_is_handled_by_the_board_which_keeps_running_while_paused() -> void:
+	assert_eq(_board.process_mode, Node.PROCESS_MODE_ALWAYS)
+	var press := InputEventAction.new()
+	press.action = &"mute"
+	press.pressed = true
+	_board._unhandled_input(press)
+	assert_true(_board.muted)
+	_board._unhandled_input(press)
+	assert_false(_board.muted)

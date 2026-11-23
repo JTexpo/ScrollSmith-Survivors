@@ -97,14 +97,14 @@ func _ready() -> void:
 	_player.died.connect(_mute_button.hide)
 	if profile.muted:
 		_board.set_muted(true)
+	_board.mute_changed.connect(_on_mute_changed)
+	_board.start_if_allowed()
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"toggle_inventory"):
 		_toggle_inventory()
 	# DEBUG: shows the map's bounds and placements. Delete when no longer needed.
-	elif event.is_action_pressed(&"mute"):
-		_toggle_mute()
 	elif event.is_action_pressed(&"debug_toggle_map"):
 		_map.toggle_debug()
 	# DEBUG: refills every spell's mana. Delete once potions exist.
@@ -250,16 +250,15 @@ func _on_potion_used(_potion: PotionData) -> void:
 	_saver.save_now()
 
 
-## Mutes or unmutes everything and saves the choice. The board tells the button through `mute_changed`.
-func _toggle_mute() -> void:
-	_board.set_muted(not _board.muted)
-	profile.muted = _board.muted
+## The board mutes or unmutes (its M key, or the button below) and tells the HUD button; the choice is saved here.
+func _on_mute_changed(value: bool) -> void:
+	profile.muted = value
 	_saver.save_now()
 
 
 ## A click on the button must not also fire a spell, so casting waits for the click to be released.
 func _on_mute_button_pressed() -> void:
-	_toggle_mute()
+	_board.set_muted(not _board.muted)
 	_player.require_cast_release()
 
 

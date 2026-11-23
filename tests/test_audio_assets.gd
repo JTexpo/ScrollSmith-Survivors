@@ -205,3 +205,13 @@ func test_each_loop_has_at_least_four_voices_of_chiptune() -> void:
 			waves[channel["wave"]] = true
 		assert_gte(_tune(id).channels.size(), 4, "%s has melody, arpeggio, bass and drums" % id)
 		assert_true(waves.has(&"triangle") and waves.has(&"noise"), "%s has a bass and drums" % id)
+
+
+func test_no_voice_outlasts_its_recipes_length() -> void:
+	for entry in _sources():
+		if entry["kind"] != "sfx":
+			continue
+		var source := SfxSource.parse(FileAccess.get_file_as_string(entry["path"]))
+		for voice in source.voices:
+			var ends: float = float(voice["delay"]) + float(voice["attack"]) + float(voice["decay"])
+			assert_lte(ends, source.length + 0.001, "%s: a voice ends at %.3f s but the recipe is %.3f s, so it would be cut off with a click" % [entry["id"], ends, source.length])

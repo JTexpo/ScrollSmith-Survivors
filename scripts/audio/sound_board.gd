@@ -29,6 +29,8 @@ const BIG_ENEMY_SCALE := 1.4
 ## Milliseconds now. Tests replace it so time can be driven by hand.
 var clock: Callable = func() -> int: return Time.get_ticks_msec()
 var muted: bool = false
+## In a browser, the permission to play sound lasts for the whole page, so a board made by a restart keeps it.
+static var page_unlocked: bool = false
 var rng := RandomNumberGenerator.new()
 
 var _limiter: VoiceLimiter
@@ -55,6 +57,8 @@ var _step_left: float = 0.0
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	rng.seed = 13
+	if inherits_page_unlock(OS.has_feature("web")):
+		_unlocked = true
 	if catalog == null:
 		catalog = SoundCatalog.default_catalog()
 	_setup_buses()
@@ -91,7 +95,7 @@ func _process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if _unlocked:
 		return
-	var pressed: bool = (event is InputEventScreenTouch and event.pressed) or (event is InputEventMouseButton and event.pressed) or (event is InputEventKey and event.pressed)
+	var pressed: bool = (event is InputEventScreenTouch and event.pressed) or (event is InputEventMouseButton and event.pressed) or (event is InputEventKey and event.pressed) or (event is InputEventJoypadButton and event.pressed)
 	if pressed:
 		unlock()
 		start_music()
@@ -106,8 +110,33 @@ func _notification(what: int) -> void:
 			_set_music_stream_paused(false)
 
 
+## M mutes and unmutes. The board keeps running while the game is paused, so the key works in every menu too.
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(&"mute"):
+		set_muted(not muted)
+
+
 func unlock() -> void:
 	_unlocked = true
+	if OS.has_feature("web"):
+		page_unlocked = true
+
+
+## A desktop game needs no gesture to play sound; a browser does, and a headless run (tests, servers) stays quiet.
+static func starts_unlocked(is_web: bool, display_name: String) -> bool:
+	return not is_web and display_name != "headless"
+
+
+## Whether a new board in a browser already has the page's permission.
+static func inherits_page_unlock(is_web: bool) -> bool:
+	return is_web and page_unlocked
+
+
+## Called by Main once the game is up: unlocks and starts the music where no gesture is needed (or the page already has one).
+func start_if_allowed() -> void:
+	if _unlocked or starts_unlocked(OS.has_feature("web"), DisplayServer.get_name()):
+		unlock()
+		start_music()
 
 
 func is_unlocked() -> bool:
@@ -158,6 +187,7 @@ func play(id: StringName, pitch: float = 1.0) -> void:
 	if not _streams.has(id):
 		SoundLibrary.warn_once(id)
 		return
+	_release_idle_voices()
 	var now: int = clock.call()
 	var index := _limiter.request(data, now)
 	if index < 0:
@@ -421,6 +451,14 @@ func stop_all() -> void:
 	for i in _players.size():
 		_players[i].stop()
 		_limiter.finished(i)
+
+
+## A voice is normally freed by its player's `finished` signal. If that signal is ever missed (a player stopped from outside, a
+## platform that does not send it), the slot would stay taken for the rest of the run, so idle players are released here.
+func _release_idle_voices() -> void:
+	for i in _players.size():
+		if not _players[i].playing:
+			_limiter.finished(i)
 
 
 func _on_voice_finished(index: int) -> void:

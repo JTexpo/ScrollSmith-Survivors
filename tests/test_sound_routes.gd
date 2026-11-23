@@ -259,7 +259,7 @@ func test_pressing_mute_toggles_the_board_the_button_and_the_saved_profile() -> 
 	var press := InputEventAction.new()
 	press.action = &"mute"
 	press.pressed = true
-	_main._unhandled_input(press)
+	_board._unhandled_input(press)
 	assert_false(_board.muted)
 	assert_false(button.is_muted())
 	assert_false(_main.profile.muted)
