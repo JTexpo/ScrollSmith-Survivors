@@ -14,6 +14,10 @@ enum Slot { ROBE, WEAPON, HEADWEAR }
 @export var modifiers: Array[EquipmentModifier] = []
 ## Placeholder colour, standing in for the icon.
 @export var color: Color = Color.WHITE
+## The sprite the wizard wears (`robe_wizard`, `hat_pointed`, `wand_short` ...) and its colourway (a palette variant). Empty means
+## the slot's starter look (a robe and a hat) or nothing (a weapon).
+@export var sprite_name: StringName = &""
+@export var sprite_variant: StringName = &""
 
 
 func slot() -> Slot:
