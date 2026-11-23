@@ -657,19 +657,19 @@ A variety of enemies and at least one fully functional boss encounter.
 
 **Goal:** Make the world more interesting to explore.
 
-**Split into three sprints (user decision):** **12a** the world (map as data, a bigger map, boundaries, placement, decorations, map-specific spawns), **12b** obstacles (they also break up wide circling), **12c** points of interest (chests, shrines, merchant, rare scroll spots). Items are tagged with the sprint that builds them.
+**Split into four sprints (user decision):** **12a** the world (map as data, a bigger map, boundaries, placement, decorations, map-specific spawns), **12b** obstacles (they also break up wide circling), **12c** the map's regions (a maze, a walled island, a corridor, zone tints) and **12d** points of interest (chests, shrines, merchant, rare scroll spots, with refresh timers). Items are tagged with the sprint that builds them.
 
 ### Tasks
 
 - [x] Create the first playable map (12a).
 - [x] Implement environmental boundaries (12a).
 - [x] Implement environmental obstacles (12b).
-- [ ] Implement treasure chests.
+- [ ] Implement treasure chests (12d).
 - [x] Implement Arcane Lectern placement (12a).
-- [ ] Implement Health Shrines.
-- [ ] Implement Mana Shrines.
-- [ ] Implement merchant encounters.
-- [ ] Implement rare scroll locations.
+- [ ] Implement Health Shrines (12d).
+- [ ] Implement Mana Shrines (12d).
+- [ ] Implement merchant encounters (12d).
+- [ ] Implement rare scroll locations (12d).
 - [x] Implement environmental decorations (12a).
 - [x] Implement map-specific enemy spawn configurations (12a).
 
@@ -687,6 +687,8 @@ A complete playable environment with points of interest that encourage explorati
 **Built note (12a):** the map is data (`MapData`, with `MapPlacement`s) and a `GameMap` scene builds the floor, boundary walls, decorations and placed scenes from it. The first map is 1920×1080 (four screens by four, user decision) with three Lecterns spread far apart, and `Main` hands its bounds to the spawner and camera. Decorations are a seeded scatter and F7 shows a debug overlay of the bounds and placements. Nothing blocks movement except the outer wall yet, so a bigger map alone makes wide circling easier until 12b. Balance has not been tested in play.
 
 **Built note (12b):** obstacles are data (`MapObstacle` rectangles and circles in `MapData`) that block movement and enemy projectiles but never the player's spells (user decision, Missile blocking rejected). Enemies, the boss and enemy shots find them through an `ObstacleMap`, and enemies route around them with a flow field: a coarse grid swept outward from the player, rebuilt a few hundred cells a frame as the player moves, so nobody gets stuck behind a wall or in a dead end. The first map has 27 obstacles: five pillar clusters for small loops, three corridor pairs, a U-shaped dead end, a short wall by each Lectern and an open centre. F7 also shows the blocked cells and the field. Balance and the layout have not been tested in play.
+
+**Built note (12c):** the first map gained regions. A seeded maze generator (`MapMaze`, 8 by 5 cells, with loops, a cleared centre room and three entrances), a walled island with two gates, a 720 px corridor along the bottom, and floor tints and decorations per zone (`MapZone`). The new walls are ordinary obstacles, reached through one list (`MapData.solid_shapes()`), so enemy routing, projectiles and spawning did not change. Every free cell is reachable, and the maze centre and the island interior are left empty for the points of interest in 12d. Balance and the layout have not been tested in play.
 
 ---
 

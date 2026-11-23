@@ -9,7 +9,7 @@ extends Resource
 ## Distance between wall centres. A wall of 16 px at 80 leaves a 64 px gap.
 @export var cell_size: float = 80.0
 @export var wall_thickness: float = 16.0
-@export var seed: int = 0
+@export var maze_seed: int = 0
 ## Gaps in the outer wall.
 @export var entrances: Array[MazeEntrance] = []
 ## Walls removed after generating, so the maze has loops (never more than remain).
@@ -120,7 +120,7 @@ func _faces_out(entrance: MazeEntrance) -> bool:
 func _generate() -> Layout:
 	var layout := Layout.new(columns(), rows())
 	var rng := RandomNumberGenerator.new()
-	rng.seed = seed
+	rng.seed = maze_seed
 	# A recursive backtracker (iterative depth-first search) from the top-left cell.
 	var visited := PackedByteArray()
 	visited.resize(layout.columns * layout.rows)
@@ -172,8 +172,8 @@ func _open_extras(layout: Layout, rng: RandomNumberGenerator) -> void:
 
 
 func _open_center(layout: Layout) -> void:
-	var left := layout.columns / 2 - 1
-	var top := layout.rows / 2 - 1
+	var left := floori(layout.columns / 2.0) - 1
+	var top := floori(layout.rows / 2.0) - 1
 	layout.carve(Vector2i(left, top), Vector2i(1, 0))
 	layout.carve(Vector2i(left, top + 1), Vector2i(1, 0))
 	layout.carve(Vector2i(left, top), Vector2i(0, 1))

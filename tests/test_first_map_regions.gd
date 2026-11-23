@@ -52,7 +52,9 @@ func test_the_maze_and_island_are_deterministic() -> void:
 
 
 func test_the_maze_centre_and_the_island_interior_are_free_for_12d() -> void:
-	var maze_centre := _map.mazes[0].area.get_center()
+	var maze := _map.mazes[0]
+	# The cleared room is the middle 2 by 2 cells, whose centre is the corner they share.
+	var maze_centre := maze.area.position + Vector2(floori(maze.columns() / 2.0), floori(maze.rows() / 2.0)) * maze.cell_size
 	assert_false(_grid.is_blocked(maze_centre), "the maze's cleared centre")
 	var island_centre := _zone("Island").area.get_center()
 	assert_false(_grid.is_blocked(island_centre), "the island's interior")

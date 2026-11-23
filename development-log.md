@@ -455,3 +455,27 @@ Review fixes (Sprint 12b whole-branch review: 0 Critical, 1 Important fixed, 7 m
 - A Ranged enemy decided to hold or back away by straight-line distance, so with a wall between it and the player it stood still while every shot hit the wall (the parking exploit, for one archetype). It now goes round the wall for a line of sight, and fires only when the line is clear (`Enemy.has_clear_line_to`).
 
 Deferred minors: the first field is built for the Player's scene position (the map's top-left) before `Main` moves the Player to the start, so the first half second of enemies walk toward the wrong spot, plus a 37 ms load sweep; the field is read with parent-local `position` while the grid and target use global positions (equal today, wrong if `GameMap` or the spawn root is ever offset); passing a different grid to `begin_rebuild` leaves the old field readable at the old size; a boss Charge that is blocked at once still opens its vulnerability window, so keeping a pillar between you and the boss gives free windows (follows the ruling, a play-test question); the field's cost on the web build is unmeasured; a Swarmer cluster pushed out of a wall stacks on one point; nothing tests "pickups never land unreachable" or "each Lectern has two routes".
+
+## 2026-11-22: Sprint 12c (the map's regions)
+
+Sprint 12 became four sprints (user agreed): 12a the world, 12b obstacles, 12c regions, 12d points of interest (with refresh timers, user decision). The first map was called bare, so it got a maze, a walled island and a corridor, each tinted. The map stays 1920x1080 (user decision).
+
+Decisions:
+- The hybrid build (user decision): a maze generator (`MapMaze`), hand-authored island and corridor, and `MapZone` data for floors and decorations.
+- `MapData.solid_shapes()` is the one list every reader of obstacles uses, so the new walls needed no change to routing, projectiles or spawning.
+- The maze first shipped at 6 by 4 cells. While Task 6 was running the user asked for a bigger one, so it is 8 by 5 (640x400), with pillar groves A and E moved, the north corridor wall shortened and the east entrance moved to row 3. A bigger maze than that needs a bigger map.
+
+Rulings:
+- `MazeEntrance`'s enum is `Edge` and the seed field is `maze_seed`: `Side` is a Godot global enum, and `seed` shadows a built-in function (an MCP run caught that warning; headless runs hide it).
+- `MapData.problems()` skips the shape checks of a maze that already reports problems, so one fault is one line. A validator catching a wrong entrance row after the resize is how that was found.
+- The solid-shape limit in the layout test is 50 to 160 (the plan said 60 to 160). The layout has 79.
+- Stress gate: with the 8 by 5 maze the `--obstacles` median is about 204 fps (192 to 207) against 392 without obstacles today, and about 275 for Sprint 12b's layout. The plan asked for within about 15% of Sprint 12b, so this is a miss, accepted: it is more than three times the 60 fps target and p99 is about 9 ms. The likely causes are more shapes for the projectile checks (79 against 27) and enemies spending longer in narrow routes.
+
+Measured: loading the map costs about 0.3 ms for the shapes, 2.3 ms for the grid and 19 ms for 450 decorations. A flow field rebuild is 16 frames at 1.8 ms or less each.
+
+Verified: a real window run with the overlay and without it (whole map, zoomed out), and a chase check in which enemies placed outside the maze on all sides reached a player in its centre room and enemies outside the island reached a player inside it through the gates, with none ever standing in a blocked cell. Smoke and MCP runs clean (after fixing the warnings). The real save was not used.
+
+Left open on purpose:
+- The layout and the maze's difficulty have not been tested in play. Tuning is the user's call (a different seed, more or fewer loops).
+- Enemies take a long time to wind through the maze, which slows kills while the player is inside. That is by design for now.
+- Not checked on a phone or a controller, and the cost of the extra shapes on the web build is unmeasured.

@@ -572,7 +572,7 @@ Potential points of interest include:
 
 These points of interest provide incentives to move around the map and take calculated risks.
 
-The first map is 1920×1080, four screens wide and four tall. A map is data (its size, colours, where things are placed and which enemies spawn), so new maps are new data and no new code. The three Lecterns start far apart, so reaching one takes real time. Solid obstacles (pillar clusters, walls and corridors) block the player, every enemy and enemy projectiles, but never the player's spells. Enemies find their way around them, into corridors and out of dead ends, so standing behind a wall does not make the player safe, and a wide circle around the horde is no longer the winning move. The remaining points of interest follow in the next sprint.
+The first map is 1920×1080, four screens wide and four tall. A map is data (its size, colours, where things are placed and which enemies spawn), so new maps are new data and no new code. The three Lecterns start far apart, so reaching one takes real time. Solid obstacles (pillar clusters, walls and corridors) block the player, every enemy and enemy projectiles, but never the player's spells. Enemies find their way around them, into corridors and out of dead ends, so standing behind a wall does not make the player safe, and a wide circle around the horde is no longer the winning move. The map is laid out in regions: a maze, a walled island with gates, a long corridor, an open plaza and pillar groves, each tinted differently. The remaining points of interest follow in the next sprint.
 
 # 10. Art Direction and Presentation
 

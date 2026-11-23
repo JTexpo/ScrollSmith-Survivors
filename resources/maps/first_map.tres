@@ -31,31 +31,31 @@ side = 3
 
 [sub_resource type="Resource" id="ent_e"]
 script = ExtResource("7")
-cell = Vector2i(5, 2)
+cell = Vector2i(7, 3)
 side = 1
 
 [sub_resource type="Resource" id="ent_s"]
 script = ExtResource("7")
-cell = Vector2i(3, 3)
+cell = Vector2i(3, 4)
 side = 2
 
 [sub_resource type="Resource" id="maze"]
 script = ExtResource("6")
-area = Rect2(100, 60, 480, 320)
+area = Rect2(100, 60, 640, 400)
 cell_size = 80.0
 wall_thickness = 16.0
-seed = 7
+maze_seed = 7
 entrances = Array[ExtResource("7")]([SubResource("ent_w"), SubResource("ent_e"), SubResource("ent_s")])
 extra_openings = 3
 clear_center = true
 
 [sub_resource type="Resource" id="zone_maze"]
 script = ExtResource("8")
-area = Rect2(60, 40, 560, 360)
+area = Rect2(60, 40, 720, 440)
 display_name = "Maze"
 floor_color = Color(0.12, 0.17, 0.2, 1)
 decoration_colors = PackedColorArray(0.1, 0.14, 0.18, 1, 0.14, 0.2, 0.22, 1)
-decoration_count = 90
+decoration_count = 130
 
 [sub_resource type="Resource" id="zone_island"]
 script = ExtResource("8")
@@ -84,19 +84,19 @@ decoration_count = 40
 [sub_resource type="Resource" id="o01"]
 script = ExtResource("5")
 kind = 1
-position = Vector2(690, 510)
+position = Vector2(750, 590)
 radius = 22
 
 [sub_resource type="Resource" id="o02"]
 script = ExtResource("5")
 kind = 1
-position = Vector2(727, 532)
+position = Vector2(787, 612)
 radius = 20
 
 [sub_resource type="Resource" id="o03"]
 script = ExtResource("5")
 kind = 1
-position = Vector2(709, 550)
+position = Vector2(769, 630)
 radius = 18
 
 [sub_resource type="Resource" id="o04"]
@@ -156,32 +156,32 @@ radius = 18
 [sub_resource type="Resource" id="o13"]
 script = ExtResource("5")
 kind = 1
-position = Vector2(410, 490)
+position = Vector2(510, 580)
 radius = 22
 
 [sub_resource type="Resource" id="o14"]
 script = ExtResource("5")
 kind = 1
-position = Vector2(445, 512)
+position = Vector2(547, 602)
 radius = 20
 
 [sub_resource type="Resource" id="o15"]
 script = ExtResource("5")
 kind = 1
-position = Vector2(427, 530)
+position = Vector2(529, 620)
 radius = 18
 
 [sub_resource type="Resource" id="o16"]
 script = ExtResource("5")
 kind = 0
-position = Vector2(900, 180)
-size = Vector2(280, 16)
+position = Vector2(930, 180)
+size = Vector2(220, 16)
 
 [sub_resource type="Resource" id="o17"]
 script = ExtResource("5")
 kind = 0
-position = Vector2(900, 260)
-size = Vector2(280, 16)
+position = Vector2(930, 260)
+size = Vector2(220, 16)
 
 [sub_resource type="Resource" id="o18"]
 script = ExtResource("5")

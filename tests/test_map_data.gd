@@ -113,7 +113,7 @@ func _maze_at(area: Rect2) -> MapMaze:
 	maze.area = area
 	maze.cell_size = 80.0
 	maze.wall_thickness = 16.0
-	maze.seed = 4
+	maze.maze_seed = 4
 	return maze
 
 

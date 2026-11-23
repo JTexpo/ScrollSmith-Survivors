@@ -101,7 +101,7 @@ func test_scatter_never_puts_a_decoration_on_a_solid_shape() -> void:
 	map.obstacles = [wall] as Array[MapObstacle]
 	var maze := MapMaze.new()
 	maze.area = Rect2(40, 30, 160, 80)
-	maze.seed = 2
+	maze.maze_seed = 2
 	map.mazes = [maze] as Array[MapMaze]
 	var shapes := map.solid_shapes()
 	var items := MapDecor.scatter(map)

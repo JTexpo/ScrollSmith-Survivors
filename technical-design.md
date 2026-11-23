@@ -164,6 +164,12 @@ wizard-survivor/
 │   ├── maps/
 │   │   ├── map_data.gd
 │   │   ├── map_placement.gd
+│   │   ├── map_maze.gd
+│   │   ├── maze_entrance.gd
+│   │   ├── map_zone.gd
+│   ├── map_maze.gd
+│   ├── maze_entrance.gd
+│   ├── map_zone.gd
 │   │   ├── map_obstacle.gd
 │   │   └── first_map.tres
 │   ├── equipment/

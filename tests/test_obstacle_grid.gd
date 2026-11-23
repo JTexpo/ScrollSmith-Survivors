@@ -142,7 +142,7 @@ func test_a_maze_blocks_cells() -> void:
 	map.size = Vector2(700, 420)
 	var maze := MapMaze.new()
 	maze.area = Rect2(100, 52, 480, 320)
-	maze.seed = 3
+	maze.maze_seed = 3
 	maze.extra_openings = 1000
 	map.mazes = [maze] as Array[MapMaze]
 	var grid := ObstacleGrid.build(map)

@@ -197,7 +197,7 @@ func _maze_only_data() -> MapData:
 	data.placements = [] as Array[MapPlacement]
 	var maze := MapMaze.new()
 	maze.area = Rect2(100, 52, 480, 320)
-	maze.seed = 3
+	maze.maze_seed = 3
 	data.mazes = [maze] as Array[MapMaze]
 	return data
 

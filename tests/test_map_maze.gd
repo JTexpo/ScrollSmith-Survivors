@@ -8,7 +8,7 @@ func _maze(seed_value: int = 1, extras: int = 0, center: bool = false, entrances
 	maze.area = Rect2(100, 52, 480, 320)
 	maze.cell_size = 80.0
 	maze.wall_thickness = 16.0
-	maze.seed = seed_value
+	maze.maze_seed = seed_value
 	maze.extra_openings = extras
 	maze.clear_center = center
 	maze.entrances = entrances

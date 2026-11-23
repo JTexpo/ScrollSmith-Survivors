@@ -1,6 +1,6 @@
 # Sprint 12c Design: The Map's Regions (a Maze, an Island, a Corridor)
 
-**Status:** Proposed.
+**Status:** Built (Sprint 12c). The maze shipped at 8 by 5 cells, after the user asked for a bigger one than the first 6 by 4.
 
 Sprint 12 is now four sprints (the user agreed to split further): **12a** the world (done), **12b** obstacles (done), **12c** the map's regions (this doc) and **12d** points of interest (chests, Health and Mana Shrines, the merchant, rare scroll spots, with refresh timers). Scope comes from the conversation, `sprint-12a-design.md`, `sprint-12b-design.md`, `sprint-development.md` and the README (section 9). Architecture follows `CLAUDE.md` and `technical-design.md`. Decisions below were agreed with the user in conversation, except where marked "my call".
 
