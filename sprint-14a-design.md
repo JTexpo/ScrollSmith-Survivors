@@ -1,6 +1,6 @@
 # Sprint 14a Design: The world pass
 
-**Status:** Proposed, awaiting approval.
+**Status:** Built (Sprint 14a).
 
 Sprint 14 is three parts, split at the user's request: **14a** the world pass (this doc), **14b** balance, **14c** optimization. Scope comes from the user's play-test notes after Sprint 13, `CLAUDE.md` (World and maps, Obstacles, Map regions, Points of interest) and `sprint-development.md`. Decisions below were agreed with the user in conversation, except where marked "my call".
 
@@ -73,3 +73,10 @@ The map is 1920 by 1080, the start is (960, 540). The two mazes are north-west (
 - **New tests:** each of the nine placements is inside a ring (or its structure) whose only opening leads to open ground; the Lecterns are at least 700 px apart and each at least 400 px from the start; the six points of interest are at least 400 px apart; the chest is no longer in the island and the Mana Shrine is its only point; nothing scattered (decoration counts stay 0).
 - **Real window:** a screenshot of every ring, the bottom-left corner and the whole map (`F7` overlay), and a walk with a crowd to each ring to check the gap doesn't jam enemies or the player. Whether the layout feels better is the user's call, and I say so.
 - `godot --headless --import` if needed, then the full suite and a smoke run.
+
+## 6. Revisions during the build
+
+- The east Lectern is a hedge room (walls at x 1640 and x 1852 between the island's south wall and the maze's top wall), not a tree ring: the strip is 184 px tall and a ring left one-cell slivers.
+- The north Lectern is at (1024, 144) and the merchant yard at (1210, 384) with its gate on the west side, for the same reason (lanes under 48 px). Chest and west Lectern moved by 8 px and 6 px onto cell corners.
+- Four old hedge walls were removed (not two tree circles): (200, 740), (280, 740), (990, 180) and (990, 260).
+- The grove is two clumps of three trees, not five single trees.

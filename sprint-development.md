@@ -784,6 +784,10 @@ A visually cohesive and audio-complete game with a recognizable cartoon fantasy 
 
 **Goal:** Ensure the game is enjoyable, stable, and performant.
 
+Sprint 14 is split into three: **14a** the world pass (built), **14b** balance, **14c** optimization.
+
+**Built note (14a):** the first map has its points of interest and Lecterns spread out and guarded. The chest moved to the bottom-left inside a ring of trees, the merchant to a hedge yard north of the plaza, and the Lecterns to a ring at the top, a ring at the west edge and a hedge room east of the island, each with one opening; the Rare scroll spots, Health Shrine and Mana Shrine did not move. Nothing is closer than 400 px to the next, the Lecterns are 700 px or more apart and 400 px or more from the start. Map data only; stress is about 106 fps. Whether it feels better is the user's call.
+
 ### Tasks
 
 #### Gameplay Balancing
