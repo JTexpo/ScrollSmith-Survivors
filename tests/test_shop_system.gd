@@ -246,3 +246,64 @@ func test_can_afford_potion() -> void:
 	assert_false(ShopSystem.can_afford_potion(_profile, potion))
 	_profile.add_gold(1)
 	assert_true(ShopSystem.can_afford_potion(_profile, potion))
+
+
+func _priced_catalog(price: int) -> PotionCatalog:
+	var catalog := PotionCatalog.new()
+	var potion := PotionData.new()
+	potion.id = &"priced"
+	potion.price = price
+	var list: Array[PotionData] = [potion]
+	catalog.potions = list
+	return catalog
+
+
+func test_a_multiplied_price_is_rounded_up() -> void:
+	var potion := PotionData.new()
+	potion.price = 10
+	assert_eq(ShopSystem.potion_price(potion, 1.5), 15)
+	potion.price = 3
+	assert_eq(ShopSystem.potion_price(potion, 1.5), 5)
+	potion.price = 3
+	assert_eq(ShopSystem.potion_price(potion, 1.0), 3)
+	potion.price = 1
+	assert_eq(ShopSystem.potion_price(potion, 1.0), 1, "a priced potion never becomes free")
+	potion.price = 0
+	assert_eq(ShopSystem.potion_price(potion, 1.5), 0, "a free potion stays free")
+
+
+func test_buy_potion_with_a_multiplier_spends_the_multiplied_price_and_grants_one() -> void:
+	_profile.add_gold(40)
+	var result := ShopSystem.buy_potion(_profile, _priced_catalog(10), &"priced", 1.5)
+	assert_true(result.ok)
+	assert_eq(_profile.gold, 25)
+	assert_eq(_profile.potion_count(&"priced"), 1)
+
+
+func test_a_multiplied_purchase_refuses_when_the_gold_is_below_the_multiplied_price_and_changes_nothing() -> void:
+	_profile.add_gold(14)
+	var before := _snapshot()
+	var result := ShopSystem.buy_potion(_profile, _priced_catalog(10), &"priced", 1.5)
+	assert_false(result.ok)
+	assert_eq(result.reason, ShopSystem.REASON_BROKE)
+	assert_eq(_snapshot(), before)
+	assert_false(ShopSystem.can_afford_potion(_profile, _priced_catalog(10).find(&"priced"), 1.5))
+	_profile.add_gold(1)
+	assert_true(ShopSystem.can_afford_potion(_profile, _priced_catalog(10).find(&"priced"), 1.5))
+
+
+func test_a_full_potion_stack_refuses_without_taking_gold_at_any_multiplier() -> void:
+	_profile.add_gold(500)
+	_profile.add_potion(&"priced", PlayerProfile.MAX_POTIONS)
+	var before := _snapshot()
+	var result := ShopSystem.buy_potion(_profile, _priced_catalog(10), &"priced", 1.5)
+	assert_false(result.ok)
+	assert_eq(result.reason, ShopSystem.REASON_FULL)
+	assert_eq(_snapshot(), before)
+
+
+func test_the_default_multiplier_is_the_old_price() -> void:
+	_profile.add_gold(10)
+	var result := ShopSystem.buy_potion(_profile, _priced_catalog(10), &"priced")
+	assert_true(result.ok)
+	assert_eq(_profile.gold, 0)
