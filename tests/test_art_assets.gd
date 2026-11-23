@@ -6,7 +6,8 @@ extends GutTest
 const SOURCE_DIR := "res://art/sprites"
 const PALETTE_PATH := "res://art/palette.txt"
 const OUT_DIR := "res://assets/sprites"
-const MAX_COLORS := 64
+const MAX_COLORS := 96
+const UI_COLORS := ["#fff6e8", "#e9dcf2", "#3b2a5c", "#6b5a8c", "#ff6f8f", "#c9446a", "#6fd3ff", "#3a9fd6", "#e0483c", "#9e2a22", "#5fbf5a", "#348a3a", "#ffd24a", "#d99a1a"]
 
 
 func _palette() -> ArtPalette:
@@ -60,6 +61,12 @@ func test_the_palette_is_valid_small_and_has_an_outline_color() -> void:
 	assert_true(palette.colors.has("K"), "K is the dark outline")
 	for id in [&"none", &"fire", &"thunder", &"land", &"sea", &"hardy", &"mana", &"swift", &"flicker", &"quick", &"oak", &"elder"]:
 		assert_true(palette.variants.has(id), "variant %s" % id)
+
+
+func test_the_palette_has_the_ui_colors() -> void:
+	var allowed := _allowed_colors()
+	for hex in UI_COLORS:
+		assert_true(allowed.has(Color.html(hex).to_html(true)), "palette lacks %s" % hex)
 
 
 func test_there_are_sprite_sources() -> void:
