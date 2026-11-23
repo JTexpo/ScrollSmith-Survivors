@@ -37,6 +37,8 @@ signal point_effect_applied(kind: int)
 @onready var _boss_bar: BossBar = $Hud/BossBar
 @onready var _mute_button: MuteButton = $Hud/MuteButton
 @onready var _board: SoundBoard = $SoundBoard
+@onready var _fx: FxDirector = $FxDirector
+@onready var _warning: LowHealthWarning = $LowHealthWarning
 
 ## Where the profile is saved. Empty means "do not load or save": tests set it before adding Main to
 ## the tree so they never touch the player's real save.
@@ -55,6 +57,8 @@ func _ready() -> void:
 	RunClock.reset()
 	_apply_map()
 	_health_bar.bind(_player.health)
+	_warning.bind(_player.health)
+	_warning.beat.connect(func(_level: int) -> void: _health_bar.beat())
 	_player.died.connect(_death_screen.show_death)
 	# A hidden bar ignores touches, so a dead player can't change spell and the restart tap gets through.
 	_player.died.connect(_spell_bar.hide)
@@ -92,6 +96,7 @@ func _ready() -> void:
 	_director.boss_defeated.connect(_on_boss_defeated)
 	_begin_progression()
 	_board.bind(self)
+	_fx.bind(self)
 	_board.mute_changed.connect(_mute_button.set_muted)
 	_mute_button.pressed.connect(_on_mute_button_pressed)
 	_player.died.connect(_mute_button.hide)

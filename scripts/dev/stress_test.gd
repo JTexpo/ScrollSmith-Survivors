@@ -4,7 +4,7 @@ extends Node2D
 ## attacker fires, and reports frame time. Not part of the player-facing game.
 ##
 ## Run: godot --path . res://scenes/world/stress_test.tscn -- --enemies=300 --seconds=10
-## Options: --area=<missile|cone|zone|line|wave> --drops --boss --obstacles --sound --minutes=M --copies=N --interval=SECONDS
+## Options: --area=<missile|cone|zone|line|wave> --drops --boss --obstacles --sound --fx --minutes=M --copies=N --interval=SECONDS
 ## The clock starts at --minutes (default 5), so by default every archetype is unlocked and elites are in the mix.
 
 const WARMUP_FRAMES := 30
@@ -35,6 +35,9 @@ const AREA_SPELLS := {
 ## --sound: adds a sound board that plays a cast, hit and death sound for every one in the fight (audible), to measure the cost of
 ## sound and to prove the voice caps hold at the stress rate. The STRESS line then also shows how many requests were dropped.
 @export var sound: bool = false
+## --fx: adds the screen effects (the director, the burst layer, the shake and the flash), wired to the fight as in the game, and
+## prints the most particles alive at once and how many shakes and flashes fired after the STRESS line.
+@export var fx: bool = false
 ## --obstacles: uses the first map (its walls, obstacles and flow field) instead of the plain test arena.
 @export var obstacles: bool = false
 ## --copies=N makes the stress spell fire N copies per cast (Duplicate Area), as a ring.
@@ -52,6 +55,10 @@ var _angle: float = 0.0
 var _label_timer: float = 0.0
 var _rng := RandomNumberGenerator.new()
 var _board: SoundBoard
+var _fx_burst: BurstLayer
+var _fx_shake: CameraShake
+var _fx_flash: ScreenFlash
+var _fx_particles_max: int = 0
 
 @onready var _spawner: EnemySpawner = $EnemySpawner
 @onready var _player: Player = $Player
@@ -85,6 +92,8 @@ func _ready() -> void:
 	_spawner.enemy_died.connect(_on_enemy_died)
 	if sound:
 		_add_sound()
+	if fx:
+		_add_fx()
 	while _spawner.alive < enemy_count:
 		if not _spawn_one():
 			break
@@ -101,6 +110,8 @@ func _physics_process(delta: float) -> void:
 func _process(delta: float) -> void:
 	_frames += 1
 	_label_timer += delta
+	if _fx_burst != null:
+		_fx_particles_max = maxi(_fx_particles_max, _fx_burst.active_count())
 	if _label_timer >= 0.25:
 		_label_timer = 0.0
 		_label.text = "enemies %d  fps %d  frame %.1f ms" % [enemy_count, Engine.get_frames_per_second(), delta * 1000.0]
@@ -157,6 +168,21 @@ func _add_sound() -> void:
 	_spawner.enemy_died.connect(func(_enemy: Enemy) -> void: _board.play(SoundId.ENEMY_DIE))
 
 
+## The effects director and its parts, so every hit the casting areas announce makes its burst, shake and flash.
+func _add_fx() -> void:
+	_fx_burst = BurstLayer.new()
+	add_child(_fx_burst)
+	_fx_shake = CameraShake.new()
+	add_child(_fx_shake)
+	_fx_shake.bind(_player.get_node("Camera2D") as Camera2D)
+	_fx_flash = ScreenFlash.new()
+	add_child(_fx_flash)
+	var director := FxDirector.new()
+	add_child(director)
+	director.setup(_fx_burst, _fx_shake, _fx_flash)
+	director.setup_world(_player)
+
+
 func _on_enemy_died(_enemy: Enemy) -> void:
 	_refill.call_deferred()
 
@@ -199,6 +225,8 @@ func _read_command_line() -> void:
 			boss = true
 		elif argument == "--obstacles":
 			obstacles = true
+		elif argument == "--fx":
+			fx = true
 		elif argument == "--sound":
 			sound = true
 		elif argument.begins_with("--minutes="):
@@ -224,6 +252,8 @@ func _report_and_quit() -> void:
 		_physics_ms_total / maxf(_samples, 1),
 		_process_ms_total / maxf(_samples, 1),
 	])
+	if fx:
+		print("FX particles_max=%d shakes=%d flashes=%d" % [_fx_particles_max, _fx_shake.shakes_made(), _fx_flash.flashes_made()])
 	if sound:
 		print("SOUND started=%d dropped=%d voices_in_use=%d of %d" % [_board.plays_started(), _board.calls_dropped(), _board.voices_in_use(), SoundBoard.VOICES])
 	get_tree().quit()

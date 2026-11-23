@@ -320,3 +320,44 @@ func test_the_mute_key_is_handled_by_the_board_which_keeps_running_while_paused(
 	assert_true(_board.muted)
 	_board._unhandled_input(press)
 	assert_false(_board.muted)
+
+
+func test_a_heavy_impact_plays_the_hit_lower_and_louder() -> void:
+	_board.unlock()
+	_board.bind_impacts()
+	var config := ImpactConfig.default_config()
+	ImpactEvents.bus.hit.emit(Vector2.ZERO, 1.0, &"thunder")
+	assert_lt(_board.last_pitch_scale(), 1.0, "a heavy hit sounds lower (the small wobble can not undo the drop)")
+	assert_almost_eq(_board.last_pitch_scale(), 1.0 - config.sound_pitch_drop, 1.5 / 12.0 * 1.5)
+	assert_almost_eq(_board.last_volume_offset_db(), config.sound_volume_up_db, 0.001)
+	_tick()
+	ImpactEvents.bus.hit.emit(Vector2.ZERO, 0.0, &"thunder")
+	assert_almost_eq(_board.last_volume_offset_db(), 0.0, 0.001)
+
+
+func test_the_hit_event_names_the_element_of_the_hit_sound() -> void:
+	var heard: Array[StringName] = []
+	_board.requested.connect(func(id: StringName) -> void: heard.append(id))
+	_board.bind_impacts()
+	ImpactEvents.bus.hit.emit(Vector2.ZERO, 0.5, &"land")
+	assert_true(heard.has(&"hit_land"))
+	heard.clear()
+	_tick()
+	ImpactEvents.bus.hit.emit(Vector2.ZERO, 0.5, &"none")
+	assert_true(heard.has(&"hit_fire"), "an unknown element falls back to the fire hit")
+
+
+func test_a_level_two_beat_plays_the_heartbeat_and_level_one_does_not() -> void:
+	var heard: Array[StringName] = []
+	_board.requested.connect(func(id: StringName) -> void: heard.append(id))
+	_board.on_health_beat(1)
+	assert_false(heard.has(&"heartbeat"), "the slow heart beat is silent")
+	_board.on_health_beat(2)
+	assert_true(heard.has(&"heartbeat"))
+
+
+func test_a_low_mana_slot_plays_the_blip_once() -> void:
+	var heard: Array[StringName] = []
+	_board.requested.connect(func(id: StringName) -> void: heard.append(id))
+	_board.on_mana_low(0)
+	assert_eq(heard, [&"mana_low"] as Array[StringName])

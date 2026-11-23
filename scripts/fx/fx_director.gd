@@ -1,0 +1,239 @@
+class_name FxDirector
+extends Node
+## The one place the screen effects are made. It listens to announcements (a spell hit with its weight, a blast, a boss attack) and
+## answers with a pixel burst, a whole-pixel shake and a soft flash scaled by the weight, within hard budgets (a few bursts per frame,
+## the burst pool's cap, the shake and flash gaps) so a crowd fight stays readable. Gameplay never calls it.
+
+const MAX_BURSTS_PER_FRAME := 4
+## The dust of a heavy hit starts above this weight.
+const DUST_FROM := 0.5
+const DUST_MAX_COUNT := 8
+const BLAST_KICK := 0.6
+const SLAM_KICK := 0.8
+## The player's own hurt: how long the red tint and the jitter last, the jitter in pixels, how fast it alternates, the shake kick.
+const HURT_SECONDS := 0.2
+const HURT_JITTER_PX := 2.0
+const HURT_JITTER_STEP := 0.05
+const HURT_KICK := 0.45
+const HURT_TINT := Color(1.0, 0.55, 0.55)
+## The light touches: sparks when something is collected, stars on a level-up and sparkles where a Rare scroll lands.
+const PICKUP_SPARKS := 4
+const LEVEL_STARS := 14
+const LEVEL_DUST := 8
+const RARE_SPARKLES := 10
+const XP_COLORS: Array[Color] = [Color("6fd3ff"), Color("a8dcff")]
+const GOLD_COLORS: Array[Color] = [Color("ffd24a"), Color("fff1a8")]
+const STAR_COLORS: Array[Color] = [Color("ffd24a"), Color("ffffff"), Color("ff6f8f")]
+
+var _burst: BurstLayer
+var _shake: CameraShake
+var _flash: ScreenFlash
+var _config: ImpactConfig
+var _connected: bool = false
+var _bursts: int = 0
+var _frame_bursts: int = 0
+var _world: Node2D
+var _body: BodyView
+var _indicator: HitIndicator
+var _hurt_left: float = 0.0
+var _hurt_clock: float = 0.0
+
+
+func _process(delta: float) -> void:
+	begin_frame()
+	if _hurt_left > 0.0:
+		_hurt_left -= delta
+		_hurt_clock += delta
+		if _hurt_left <= 0.0:
+			_end_hurt()
+		elif _body != null:
+			var step := int(_hurt_clock / HURT_JITTER_STEP) % 2
+			_body.set_jitter(Vector2(HURT_JITTER_PX if step == 0 else -HURT_JITTER_PX, 0.0))
+
+
+## Builds the parts under `main` and wires them (Main calls this once).
+func bind(main: Node) -> void:
+	if _connected:
+		return
+	var burst := BurstLayer.new()
+	burst.name = "BurstLayer"
+	main.add_child(burst)
+	var shake := CameraShake.new()
+	shake.name = "CameraShake"
+	add_child(shake)
+	var flash := ScreenFlash.new()
+	flash.name = "ScreenFlash"
+	add_child(flash)
+	shake.bind(main.get_node("Player/Camera2D") as Camera2D)
+	setup(burst, shake, flash)
+	(main.get_node("RunDirector") as RunDirector).boss_spawned.connect(_on_boss_spawned)
+	var hero := main.get_node("Player") as Player
+	setup_world(hero)
+	hero.collector.collected.connect(on_scroll_collected)
+	hero.collector.xp_collected.connect(func(_amount: int) -> void: on_xp_collected())
+	hero.collector.gold_collected.connect(func(_amount: int) -> void: on_gold_collected())
+	hero.progress.leveled_up.connect(func(_level: int, _reward: LevelReward) -> void: on_level_up())
+	(main.get_node("ScrollDropper") as ScrollDropper).placed.connect(func(pickup: ScrollPickup) -> void: on_scroll_placed(pickup.scroll, pickup.global_position))
+	var indicator := HitIndicator.new()
+	indicator.name = "HitIndicator"
+	add_child(indicator)
+	var player := main.get_node("Player") as Player
+	setup_player(player.get_node("Body") as BodyView, indicator)
+	player.hurtbox.hit_received.connect(func(_damage: float, source: Vector2, _knockback: float, _effect: int) -> void: on_player_hit(player.global_position, source))
+
+
+## Uses these three parts and listens for the announcements. Safe to call twice.
+func setup(burst: BurstLayer, shake: CameraShake, flash: ScreenFlash) -> void:
+	_burst = burst
+	_shake = shake
+	_flash = flash
+	if _connected:
+		return
+	_connected = true
+	ImpactEvents.bus.hit.connect(_on_hit)
+	EnemyAttackEvents.bus.blast_detonated.connect(_on_blast)
+
+
+func is_bound() -> bool:
+	return _connected
+
+
+## Starts a new frame's burst budget (`_process` does this every frame; tests call it by hand).
+func begin_frame() -> void:
+	_frame_bursts = 0
+
+
+func bursts_made() -> int:
+	return _bursts
+
+
+func burst_layer() -> BurstLayer:
+	return _burst
+
+
+func camera_shake() -> CameraShake:
+	return _shake
+
+
+## The node the pickup and level-up effects appear on (the player).
+func setup_world(world: Node2D) -> void:
+	_world = world
+
+
+func on_scroll_collected(scroll: ScrollData) -> void:
+	_light_burst(&"sparks", [scroll.color, scroll.color.lightened(0.4)], PICKUP_SPARKS)
+
+
+func on_xp_collected() -> void:
+	_light_burst(&"sparks", XP_COLORS, PICKUP_SPARKS)
+
+
+func on_gold_collected() -> void:
+	_light_burst(&"sparks", GOLD_COLORS, PICKUP_SPARKS)
+
+
+## Stars rise round the wizard and a ring of dust puffs out.
+func on_level_up() -> void:
+	_light_burst(&"stars", STAR_COLORS, LEVEL_STARS)
+	_light_burst(&"dust", [Color("fff6e8"), Color("e9dcf2")], LEVEL_DUST)
+
+
+## A Rare scroll that lands sparkles where it lies (the Rare pickup also has its own sparkle drawing).
+func on_scroll_placed(scroll: ScrollData, at: Vector2) -> void:
+	if scroll != null and scroll.rarity == ScrollData.Rarity.RARE:
+		_light_burst(&"sparkle", STAR_COLORS, RARE_SPARKLES, at)
+
+
+## The wizard's body and the arc indicator (Main's `bind` passes the real ones).
+func setup_player(body: BodyView, indicator: HitIndicator) -> void:
+	_body = body
+	_indicator = indicator
+
+
+## The player was hit: the wizard flashes red and jitters for a moment, a few red sparks fly, the camera gives a tiny kick and an arc at the
+## screen edge points at where the hit came from. A second hit restarts the timer instead of stacking.
+func on_player_hit(at: Vector2, source: Vector2) -> void:
+	if FxSettings.hurt_feedback and _body != null:
+		_body.set_tint(HURT_TINT)
+		_hurt_left = HURT_SECONDS
+		_hurt_clock = 0.0
+	if _burst != null and FxSettings.particles and _frame_bursts < MAX_BURSTS_PER_FRAME:
+		_frame_bursts += 1
+		_bursts += 1
+		_burst.burst(at, &"sparks", [Color("e0483c"), Color("ff6f8f")], 5)
+	if _shake != null:
+		_shake.kick(HURT_KICK)
+	if _indicator != null:
+		_indicator.show_hit(source - at)
+
+
+func hurt_active() -> bool:
+	return _hurt_left > 0.0
+
+
+## One of the light-touch bursts at the player (or `at`), inside the frame budget and honouring the particles switch.
+func _light_burst(style: StringName, colors: Array[Color], count: int, at: Vector2 = Vector2.INF) -> void:
+	if _burst == null or not FxSettings.particles or _frame_bursts >= MAX_BURSTS_PER_FRAME:
+		return
+	var where := at if at.is_finite() else (_world.global_position if _world != null else Vector2.ZERO)
+	_frame_bursts += 1
+	_bursts += 1
+	_burst.burst(where, style, colors, count)
+
+
+func _end_hurt() -> void:
+	_hurt_left = 0.0
+	if _body != null:
+		_body.set_tint(Color.WHITE)
+		_body.set_jitter(Vector2.ZERO)
+
+
+func on_boss_attack(attack: BossAttack) -> void:
+	if attack.kind == BossAttack.Kind.SLAM and _shake != null:
+		_shake.kick(SLAM_KICK)
+
+
+func _on_boss_spawned(boss: Boss, _number: int) -> void:
+	boss.attack_started.connect(on_boss_attack)
+
+
+func _on_hit(position: Vector2, weight: float, element_id: StringName) -> void:
+	if _burst == null:
+		return
+	if FxSettings.particles and _frame_bursts < MAX_BURSTS_PER_FRAME:
+		_frame_bursts += 1
+		_bursts += 1
+		var numbers := _numbers()
+		var colors := _colors_for(element_id)
+		_burst.burst(position, &"sparks", colors, roundi(lerpf(numbers.particles_light, numbers.particles_heavy, weight)))
+		if weight > DUST_FROM:
+			_burst.burst(position, &"dust", colors, roundi((weight - DUST_FROM) * 2.0 * DUST_MAX_COUNT))
+	if _shake != null:
+		_shake.shake(weight)
+	if _flash != null:
+		_flash.flash(weight)
+
+
+func _on_blast(position: Vector2) -> void:
+	if _burst != null and FxSettings.particles and _frame_bursts < MAX_BURSTS_PER_FRAME:
+		_frame_bursts += 1
+		_bursts += 1
+		_burst.burst(position, &"dust", [Color(0.95, 0.6, 0.25), Color(0.8, 0.35, 0.2)], 8)
+	if _shake != null:
+		_shake.kick(BLAST_KICK)
+
+
+## An element's burst wears its own look's colours (its edge and its tint, made solid).
+func _colors_for(element_id: StringName) -> Array[Color]:
+	for element in [SpellData.Element.FIRE, SpellData.Element.THUNDER, SpellData.Element.LAND, SpellData.Element.SEA]:
+		if ElementLooks.id_of(element) == element_id:
+			var look := ElementLooks.for_element(element)
+			if look != null:
+				return [look.edge, Color(look.tint.r, look.tint.g, look.tint.b, 1.0)]
+	return [Color.WHITE, Color(0.8, 0.8, 0.9)]
+
+
+func _numbers() -> ImpactConfig:
+	if _config == null:
+		_config = ImpactConfig.default_config()
+	return _config

@@ -337,3 +337,40 @@ func test_a_layer_changes_frame_in_the_same_moment_as_the_body_not_a_frame_later
 	DirAccess.remove_absolute(ProjectSettings.globalize_path("%s/hat_base.tres" % root))
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(root))
 
+
+func test_a_jitter_moves_the_body_and_everything_in_it_together_and_zero_restores_it() -> void:
+	var body := BodyView.new()
+	add_child_autofree(body)
+	body.position = Vector2(10, 20)
+	var sprite := body.get_node("Sprite") as Node2D
+	var before := sprite.global_position
+	body.set_jitter(Vector2(2, 0))
+	assert_eq(sprite.global_position, before + Vector2(2, 0))
+	body.set_jitter(Vector2.ZERO)
+	assert_eq(sprite.global_position, before)
+	assert_eq(body.position, Vector2(10, 20))
+
+
+func test_the_jitter_is_whole_pixels_and_never_scales_the_body() -> void:
+	var body := BodyView.new()
+	add_child_autofree(body)
+	body.set_jitter(Vector2(1.6, -0.4))
+	assert_eq(body.position, Vector2(2, 0))
+	assert_eq(body.scale, Vector2.ONE)
+	body.set_jitter(Vector2.ZERO)
+	assert_eq(body.position, Vector2.ZERO)
+
+
+func test_a_tint_reaches_every_worn_layer() -> void:
+	var root := "res://.godot/art_tests/layers_%s" % str(randi())
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(root))
+	_save_layer_art("hat_base.tres", root)
+	SpriteLibrary.root = root
+	_body.set_set(_two_frame_set(Color.BLUE))
+	_body.add_layer(&"headwear")
+	assert_true(_body.set_layer(&"headwear", &"hat"))
+	_body.set_tint(Color(1.0, 0.5, 0.5))
+	assert_eq(_layer_sprite(&"headwear").self_modulate, Color(1.0, 0.5, 0.5), "the hat turns red with the body")
+	_body.set_tint(Color.WHITE)
+	assert_eq(_layer_sprite(&"headwear").self_modulate, Color.WHITE, "and clears with it")
+	SpriteLibrary.root = "res://assets/sprites"

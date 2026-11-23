@@ -22,3 +22,16 @@ func _configure_hitbox(hitbox: HitboxComponent, spell: SpellData, hit_cooldown: 
 	hitbox.profile = spell.attack_profile()
 	hitbox.knockback = spell.knockback
 	hitbox.hit_cooldown = hit_cooldown
+	_announce_hits(hitbox, spell)
+
+
+## Every hit this effect lands is announced with the spell's impact weight and element, for the screen effects and the hit sound. One
+## connection per hitbox, however often it is configured. Nothing else changes.
+func _announce_hits(hitbox: HitboxComponent, spell: SpellData) -> void:
+	if hitbox.has_meta(&"impact_announced"):
+		return
+	hitbox.set_meta(&"impact_announced", true)
+	var weight := ImpactWeight.of(spell, null, damage_scale)
+	var element_id := ElementLooks.id_of(spell.primary_element())
+	hitbox.hit_landed.connect(func(target: HurtboxComponent) -> void: ImpactEvents.bus.hit.emit(target.global_position, weight, element_id))
+

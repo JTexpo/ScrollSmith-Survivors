@@ -50,6 +50,8 @@
 [ext_resource type="Resource" path="res://resources/scrolls/buff/additional_base.tres" id="34"]
 [ext_resource type="PackedScene" path="res://scenes/audio/sound_board.tscn" id="sound_board"]
 [ext_resource type="PackedScene" path="res://scenes/ui/mute_button.tscn" id="mute_button"]
+[ext_resource type="Script" path="res://scripts/fx/fx_director.gd" id="fx_director"]
+[ext_resource type="PackedScene" path="res://scenes/fx/low_health_warning.tscn" id="low_health"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("0")
@@ -197,3 +199,9 @@ grow_vertical = 2
 [node name="CraftingScreen" parent="." instance=ExtResource("42")]
 
 [node name="SoundBoard" parent="." instance=ExtResource("sound_board")]
+
+[node name="FxDirector" type="Node" parent="."]
+script = ExtResource("fx_director")
+
+[node name="LowHealthWarning" parent="." instance=ExtResource("low_health")]
+

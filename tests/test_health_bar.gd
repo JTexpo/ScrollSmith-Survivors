@@ -41,3 +41,17 @@ func test_the_health_bar_is_a_themed_progress_bar_whose_value_follows_health() -
 	health.take_damage(25.0)
 	assert_eq(themed.value, 0.75)
 	assert_eq(bar.ratio, 0.75)
+
+
+func test_beat_shows_the_beat_heart_briefly_then_the_normal_one() -> void:
+	var bar := _bar_node()
+	var normal := SpriteLibrary.find(&"icon_heart").sheet
+	var beating := SpriteLibrary.find(&"icon_heart_beat").sheet
+	assert_eq(bar.heart_texture(), normal)
+	bar.beat()
+	assert_eq(bar.heart_texture(), beating)
+	bar._process(0.05)
+	assert_eq(bar.heart_texture(), beating)
+	bar._process(0.2)
+	assert_eq(bar.heart_texture(), normal)
+	assert_false(bar.is_processing(), "it only processes while the beat shows")

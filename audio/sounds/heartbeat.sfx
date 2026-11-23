@@ -1,0 +1,4 @@
+# The low-health heartbeat: two soft low thumps, lub-dub.
+length 0.45
+voice triangle 90 60 0.8 0.004 0.12
+voice triangle 80 55 0.6 0.004 0.14 delay 0.18

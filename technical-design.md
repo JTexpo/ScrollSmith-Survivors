@@ -103,6 +103,9 @@ wizard-survivor/
 │
 ├── tools/
 │   └── art/art_builder.gd    # builds assets/sprites from art/
+# Sprint 13f added scripts/fx/ (impact_weight, impact_events, fx_settings: the numbers and switches; particle_pool, burst_layer, shake_trauma,
+# camera_shake, screen_flash, vignette_image, low_health_warning, hit_indicator, fx_director: the effects), resources/fx/impact_config.tres and
+# scenes/world/fx_test.tscn. Only the FxDirector in main.tscn makes effects; gameplay code only announces events (ImpactEvents).
 # Sprint 13e added scripts/audio/ (sfx_source, tune_source, audio_builder, wav_writer: recipes and tunes rendered into WAVs; sound_id, sound_library,
 # voice_limiter, sound_board, enemy_attack_events: the playing side), resources/audio/ (SoundData and the catalog), audio/ (the text sources) and
 # assets/audio/ (the built WAVs). Only the SoundBoard in main.tscn plays sounds; gameplay code only announces events.
