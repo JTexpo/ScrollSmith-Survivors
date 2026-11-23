@@ -149,3 +149,15 @@ func test_pulse_spawns_sprites_only_with_no_tint_and_no_edge() -> void:
 	assert_gt(_sprites().size(), 0)
 	assert_eq(_visual.color, Color(0.3, 0.3, 0.3))
 	assert_null(_visual.get_node_or_null("Edge"))
+
+
+func test_tint_colours_the_visual_and_adds_the_edge_without_any_sprites() -> void:
+	var look := ElementLooks.for_element(SpellData.Element.SEA)
+	SpellSkin.tint(_visual, _polygon(), _spell([SpellData.Element.SEA]))
+	assert_eq(_visual.color, look.tint)
+	assert_eq((_visual.get_node("Edge") as Line2D).default_color, look.edge)
+	assert_eq(_sprites().size(), 0)
+	_visual.color = Color(0.3, 0.3, 0.3)
+	SpellSkin.tint(_visual, _polygon(), _spell([]))
+	assert_eq(_visual.color, Color(0.3, 0.3, 0.3), "no element, no change")
+

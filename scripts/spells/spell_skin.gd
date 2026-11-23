@@ -24,6 +24,15 @@ static func dress(area: Node2D, visual: Polygon2D, polygon: PackedVector2Array, 
 	return _spawn(area, polygon, looks, origin, life, rng)
 
 
+## The tint and the edge only, for a shape that carries its own objects (the Wave). No element look changes nothing.
+static func tint(visual: Polygon2D, polygon: PackedVector2Array, spell: SpellData) -> void:
+	var looks := _looks(spell)
+	if looks.is_empty():
+		return
+	visual.color = looks[0].tint
+	_add_edge(visual, polygon, looks[0].edge)
+
+
 ## A fresh set of sprites only, for a Zone's damage tick: the tint and edge are already there.
 static func pulse(area: Node2D, polygon: PackedVector2Array, spell: SpellData, origin: Vector2, life: float, rng: RandomNumberGenerator) -> Array[EffectSprite]:
 	var looks := _looks(spell)

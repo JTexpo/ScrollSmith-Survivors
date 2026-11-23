@@ -39,7 +39,8 @@ func test_shorter_range_frees_the_missile_sooner() -> void:
 	assert_true(missile.is_queued_for_deletion())
 
 
-func test_missile_size_scales_the_node() -> void:
+func test_without_art_the_missile_size_scales_the_node() -> void:
+	SpriteLibrary.root = "res://.godot/art_tests/no_such_folder"
 	var spell := _fire()
 	spell.size_scale = 2.0
 	assert_eq(_missile(spell).scale, Vector2(2, 2))
@@ -135,3 +136,58 @@ func test_default_damage_scale_leaves_the_damage_alone() -> void:
 	var spell := _fire()
 	var hitbox := _missile(spell).get_node("Hitbox") as HitboxComponent
 	assert_eq(hitbox.damage, spell.damage)
+
+
+func after_each() -> void:
+	SpriteLibrary.root = "res://assets/sprites"
+
+
+func test_orb_class_follows_the_size_in_three_steps() -> void:
+	assert_eq(MissileArea.orb_class(0.5), 12)
+	assert_eq(MissileArea.orb_class(1.0), 12)
+	assert_eq(MissileArea.orb_class(1.2), 12)
+	assert_eq(MissileArea.orb_class(1.5), 16)
+	assert_eq(MissileArea.orb_class(2.0), 16)
+	assert_eq(MissileArea.orb_class(2.5), 24)
+
+
+func _orb(missile: MissileArea) -> BodyView:
+	return missile.get_node("Orb") as BodyView
+
+
+func test_the_missile_shows_its_elements_orb_one_to_one_whatever_its_size() -> void:
+	var spell := _fire()
+	spell.size_scale = 3.0
+	var missile := _missile(spell)
+	assert_eq(missile.scale, Vector2.ONE, "the node is never scaled, so no pixel is")
+	assert_true(_orb(missile).has_art())
+	assert_true(_orb(missile).visible)
+	assert_eq(_orb(missile).current_animation(), &"fly")
+	assert_almost_eq((_orb(missile).get_node("Sprite") as Node2D).global_transform.get_scale().x, 1.0, 0.001)
+	assert_false((missile.get_node("Body") as ColorRect).visible, "the old square steps aside")
+	var sea := _fire()
+	sea.elements = [SpellData.Element.SEA]
+	var sea_missile := _missile(sea)
+	assert_ne((_orb(missile).get_node("Sprite") as AnimatedSprite2D).sprite_frames, (_orb(sea_missile).get_node("Sprite") as AnimatedSprite2D).sprite_frames, "each element has its own object")
+
+
+func test_the_hit_shape_still_follows_the_exact_size() -> void:
+	for size in [1.0, 1.5, 3.0]:
+		var spell := _fire()
+		spell.size_scale = size
+		var missile := _missile(spell)
+		var hitbox := missile.get_node("Hitbox") as Node2D
+		var circle := (missile.get_node("Hitbox/CollisionShape2D") as CollisionShape2D).shape as CircleShape2D
+		assert_almost_eq(circle.radius * hitbox.global_transform.get_scale().x, 4.0 * spell.effective_size(), 0.01, "size %s" % size)
+
+
+func test_a_missile_without_art_keeps_the_scaled_square() -> void:
+	SpriteLibrary.root = "res://.godot/art_tests/no_such_folder"
+	var spell := _fire()
+	spell.size_scale = 2.0
+	var missile := _missile(spell)
+	assert_false(_orb(missile).has_art())
+	assert_false(_orb(missile).visible)
+	assert_true((missile.get_node("Body") as ColorRect).visible)
+	assert_eq(missile.scale, Vector2(2, 2))
+

@@ -65,3 +65,56 @@ func test_wave_carries_damage_and_knockback() -> void:
 	assert_eq(hitbox.damage, DamageSystem.calculate(spell.damage, spell.primary_element()))
 	assert_eq(hitbox.knockback, 100.0)
 	assert_eq(hitbox.max_hits, 0)
+
+
+func after_each() -> void:
+	SpriteLibrary.root = "res://assets/sprites"
+
+
+func test_the_wave_is_a_row_of_orbs_along_its_front() -> void:
+	var wave := _wave(_spell(WAVE))
+	var orbs := wave.orbs()
+	assert_gte(orbs.size(), 2)
+	for orb in orbs:
+		assert_true(orb.has_art())
+		assert_eq(orb.current_animation(), &"fly")
+		var local := wave.to_local(orb.global_position)
+		assert_lte(absf(local.y), wave.current_width() / 2.0 + 0.6, "along the front")
+		assert_gte(local.x, -0.6)
+		assert_lte(local.x, wave.current_width() * WaveArea.BULGE_RATIO + 0.6, "never behind the origin or past the bulge")
+
+
+func test_the_orbs_follow_the_widening_front_and_stay_one_to_one_and_upright() -> void:
+	var spell := _spell(WAVE)
+	var wave := _launch(spell, O, Vector2.DOWN) as WaveArea
+	var before := wave.orbs().size()
+	wave._physics_process(1.0)
+	assert_gt(wave.orbs().size(), before, "a wider wave carries more orbs")
+	assert_lte(wave.orbs().size(), WaveArea.MAX_ORBS)
+	for orb in wave.orbs():
+		assert_almost_eq(orb.global_transform.get_scale().x, 1.0, 0.001)
+		assert_almost_eq(orb.global_transform.get_scale().y, 1.0, 0.001, "not stretched with the crescent")
+		assert_almost_eq(orb.global_rotation, 0.0, 0.001, "upright though the wave faces down")
+
+
+func test_the_wave_hitbox_and_crescent_are_unchanged() -> void:
+	var spell := _spell(WAVE)
+	var wave := _wave(spell)
+	var expected := WaveArea._crescent(spell.effective_size())
+	assert_eq((wave.get_node("Hitbox/Shape") as CollisionPolygon2D).polygon, expected)
+	assert_eq((wave.get_node("Visual") as Polygon2D).polygon, expected)
+
+
+func test_a_wave_without_art_keeps_the_flat_crescent() -> void:
+	SpriteLibrary.root = "res://.godot/art_tests/no_such_folder"
+	var wave := _wave(_spell(WAVE))
+	assert_eq(wave.orbs().size(), 0)
+	assert_gt((wave.get_node("Visual") as Polygon2D).polygon.size(), 0)
+
+
+func test_the_crescent_is_a_faint_tint_with_an_edge_in_its_elements_colours() -> void:
+	var wave := _wave(_spell(WAVE))
+	var look := ElementLooks.for_element(SpellData.Element.FIRE)
+	assert_eq((wave.get_node("Visual") as Polygon2D).color, look.tint)
+	assert_eq(((wave.get_node("Visual") as Polygon2D).get_node("Edge") as Line2D).default_color, look.edge)
+
