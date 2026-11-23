@@ -97,8 +97,15 @@ wizard-survivor/
 │
 ├── project.godot
 │
+├── art/                      # sprite sources and the palette (Sprint 13a)
+│   ├── palette.txt
+│   └── sprites/
+│
+├── tools/
+│   └── art/art_builder.gd    # builds assets/sprites from art/
+│
 ├── assets/
-│   ├── sprites/
+│   ├── sprites/              # built sheets, silhouettes and SpriteSetData (committed)
 │   ├── animations/
 │   ├── audio/
 │   ├── fonts/

@@ -26,6 +26,8 @@ var _facing: float = 1.0
 
 func _ready() -> void:
 	_ensure_children()
+	# Only a shown outline needs to follow the sprite's frame, so 300 plain enemies run no script each frame.
+	set_process(_outline.visible)
 
 
 func _process(_delta: float) -> void:
@@ -45,6 +47,7 @@ func set_look(sprite_name: StringName, variant: StringName = &"base") -> bool:
 		_outline_set = null
 		_sprite.visible = false
 		_outline.visible = false
+		set_process(false)
 		_fallback.visible = true
 		return false
 	set_set(found)
@@ -98,10 +101,14 @@ func current_animation() -> StringName:
 ## Flips the sprite to face a direction (a zero keeps the last facing).
 func set_facing(direction_x: float) -> void:
 	_ensure_children()
+	var facing := _facing
 	if direction_x < 0.0:
-		_facing = -1.0
+		facing = -1.0
 	elif direction_x > 0.0:
-		_facing = 1.0
+		facing = 1.0
+	if facing == _facing and _sprite != null:
+		return
+	_facing = facing
 	_sprite.flip_h = _facing < 0.0
 	_outline.flip_h = _facing < 0.0
 
@@ -118,6 +125,7 @@ func set_outline(color: Color, enabled: bool) -> void:
 	_ensure_children()
 	_outline.self_modulate = color
 	_outline.visible = enabled and _outline_set != null and _set_data != null
+	set_process(_outline.visible)
 
 
 ## Keeps the sprite's pixels 1:1 whatever the owner's scale (the owner's scale sizes its hit shapes). The fallback

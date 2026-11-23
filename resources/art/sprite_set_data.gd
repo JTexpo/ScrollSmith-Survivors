@@ -14,6 +14,7 @@ var _frames: SpriteFrames
 func frame_count() -> int:
 	if sheet == null or frame_size.x <= 0:
 		return 0
+	@warning_ignore("integer_division")
 	return sheet.get_width() / frame_size.x
 
 

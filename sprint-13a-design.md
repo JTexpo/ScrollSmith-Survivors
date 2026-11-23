@@ -1,6 +1,6 @@
 # Sprint 13a Design: The Art Foundation
 
-**Status:** Proposed.
+**Status:** Built.
 
 Sprint 13 (art, animation, audio and polish, about 45 roadmap items) is split into four sprints, each leaving a playable build: **13a** the art foundation (this doc), **13b** the world's art (tiles, Lectern, points of interest, pickups, spell visuals, UI look, font), **13c** audio, **13d** polish effects (screen shake, particles, damage indicators, low-mana and level-up feedback). Scope comes from the conversation, `sprint-development.md` (Sprint 13) and the README (section 10). Architecture follows `CLAUDE.md` and `technical-design.md`. Decisions below were agreed with the user in conversation, except where marked "my call".
 
