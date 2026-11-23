@@ -443,3 +443,25 @@ func test_decor_with_a_missing_style_keeps_its_coloured_squares() -> void:
 	assert_gt((node.get_node("Decor") as MapDecorLayer).item_count(), 0)
 	assert_eq(_decor_art_count(node), 0)
 
+
+func test_a_zone_with_floor_art_hides_its_flat_tint_and_one_without_keeps_it() -> void:
+	_tile_art("tile_path_base.tres")
+	var data := _zoned_data()
+	data.zones[0].floor_style = &"path"
+	var node := _map_node(data)
+	var zones := node.get_node("Zones")
+	assert_false((zones.get_child(0) as ColorRect).visible, "the art covers it, so a hard-edged tint must not show through the ragged edge")
+	assert_true((zones.get_child(1) as ColorRect).visible, "a zone with no art keeps its tint")
+	assert_eq((zones.get_child(0) as ColorRect).color, data.zones[0].floor_color, "the node and its colour stay")
+
+
+func test_zone_patches_are_soft_and_the_base_patches_are_hard() -> void:
+	_tile_art("tile_grass_base.tres")
+	_tile_art("tile_border_base.tres")
+	_tile_art("tile_path_base.tres")
+	var node := _map_node(_styled_data())
+	for patch in node.get_node("BaseArt").get_children():
+		assert_eq((patch as FloorPatch).omitted_cells().size(), 0, "%s is hard-edged" % patch.name)
+	var zone_patch := node.get_node("ZoneArt").get_child(0) as FloorPatch
+	assert_gt(zone_patch.omitted_cells().size(), 0, "the zone's edge is ragged")
+

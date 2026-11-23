@@ -1,21 +1,21 @@
-# A grass floor tile: full-bleed, repeats every 16 px.
+# A grass floor tile: simple, bright and full-bleed, repeats every 16 px.
 tile
 size 16 16
 anim idle 0 0 1 loop
 frame
+aaaaaaaaaaaaaaaa
+aaaaaaaaaaaabaaa
+aaaaaaaaaaacacaa
+aaaabaaaaaaacaaa
+aaacacaaaaaaaaaa
+aaaacaaaaaaaaaaa
+aaaaaaaaabaaaaaa
+aaaaaaaaaaaaaaaa
 aaaaaaaaaaaaabaa
-aacaaabaababbcaa
-aaaaaaacacaaabaa
-aabacaaaaaacaaaa
-abaaaaaaaabaaaaa
-aaaaaaacacaaaaaa
-aaacaaaaaaaaaaaa
-ababaaaaaaaaaaaa
+abaaaaaaaaaaaaaa
+aaaaaaaaabaaaaaa
+aaaaaaaacacaaaaa
+aaaaaaaaacaaaaaa
+aaaaabaaaaaaaaaa
 aaaaaaaaaaaaaaaa
-aaaaabaaaaacaaaa
-aaaaacaaaaaaacaa
 aaaaaaaaaaaaaaaa
-ababaaaaaaaaaaaa
-aabcaaaaabbaaaaa
-aaaabaaaaacaaaca
-aaaacacaacaaaaaa

@@ -22,26 +22,26 @@ color y #c98e1a
 color R #e8483f
 color r #a82626
 
-# The world (Sprint 13b): mid-tone, low-contrast floors so pickups and enemies read on top of them.
+# The world (Sprint 13b): bright, saturated, flat cartoon colours. Floors stay simple (few big shapes) so sprites read on top.
 # Grass: dark, mid, light
-color c #3e7336
-color a #4f8a3e
-color b #5f9a48
+color c #4fb83a
+color a #6fd650
+color b #8ee86a
 # Stone path (the mazes): dark, mid, light
-color i #6f6a60
-color f #8a8478
-color h #9d978a
+color i #c9b88a
+color f #e8d9a8
+color h #f6ecc4
 # Ruin flagstones (the island): dark, mid, light
-color l #4b4852
-color j #5d5a63
-color k #706d78
+color l #8a7fc0
+color j #b5abe0
+color k #d0c8f0
 # Hall flagstones (the corridor): dark, mid, light
-color o #5f5242
-color m #7a6a55
-color n #8c7b64
+color o #c99a58
+color m #f0c878
+color n #fadc9a
 # The world's edge
-color q #2a2630
-color t #38333f
+color q #3a2c5a
+color t #4f3f78
 # Hedge: dark, mid, light
 color u #2f6b2c
 color v #3f8a37

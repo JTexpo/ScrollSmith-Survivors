@@ -26,22 +26,25 @@ func _ready() -> void:
 	var base_art := Node2D.new()
 	base_art.name = &"BaseArt"
 	add_child(base_art)
-	_add_patch(base_art, border_rect, map_data.border_style)
-	_add_patch(base_art, map_data.bounds(), map_data.floor_style)
+	_add_patch(base_art, border_rect, map_data.border_style, false)
+	_add_patch(base_art, map_data.bounds(), map_data.floor_style, false)
 	var zones := Node2D.new()
 	zones.name = &"Zones"
 	add_child(zones)
+	var tints := {}
 	for zone in map_data.zones:
 		if zone != null:
 			var floor_rect := _make_rect(zone.area, zone.floor_color)
 			floor_rect.name = StringName("Zone_%s" % zone.display_name)
 			zones.add_child(floor_rect)
+			tints[zone] = floor_rect
 	var zone_art := Node2D.new()
 	zone_art.name = &"ZoneArt"
 	add_child(zone_art)
 	for zone in map_data.zones:
-		if zone != null:
-			_add_patch(zone_art, zone.area, zone.floor_style)
+		if zone != null and _add_patch(zone_art, zone.area, zone.floor_style, true):
+			# The art has a ragged edge, so a hard-edged flat tint under it must not show through the gaps.
+			(tints[zone] as ColorRect).visible = false
 	var decor := MapDecorLayer.new()
 	decor.name = &"Decor"
 	add_child(decor)
@@ -92,15 +95,17 @@ func player_start() -> Vector2:
 	return map_data.player_start if map_data != null else Vector2.ZERO
 
 
-## A tiled floor over `rect` when `style` has art, nothing otherwise.
-func _add_patch(parent: Node, rect: Rect2, style: StringName) -> void:
+## A tiled floor over `rect` when `style` has art (true), nothing otherwise (false). A soft patch has a ragged edge,
+## seeded from its rectangle so the same map always looks the same.
+func _add_patch(parent: Node, rect: Rect2, style: StringName, soft: bool) -> bool:
 	var set_data := WorldArt.floor_set(style)
 	if set_data == null:
-		return
+		return false
 	var patch := FloorPatch.new()
 	patch.name = StringName("Patch_%s" % style)
 	parent.add_child(patch)
-	patch.setup(rect, set_data)
+	patch.setup(rect, set_data, soft, hash([rect.position, rect.size]))
+	return true
 
 
 func _add_rect(node_name: StringName, rect: Rect2, color: Color) -> void:

@@ -1,21 +1,21 @@
-# A path floor tile: full-bleed, repeats every 16 px.
+# A path floor tile: simple, bright and full-bleed, repeats every 16 px.
 tile
 size 16 16
 anim idle 0 0 1 loop
 frame
 iiiiiiiiiiiiiiii
 ihhfffffihhfffff
-ihffffffihfffffi
+ihffffffihffffff
 ifffffffifffffff
-iffffffhifffffff
-ififffffifffffff
-iffffffiifffffff
-ifffifffifffffff
+ifffffffifffffff
+ifffffffifffffff
+ifffffffifffffff
+ifffffffifffffff
 iiiiiiiiiiiiiiii
-fiffihhfffffihhf
+ffffihhfffffihhf
 ffffihffffffihff
 ffffifffffffifff
 ffffifffffffifff
 ffffifffffffifff
 ffffifffffffifff
-ffffifffifffiffh
+ffffifffffffifff

@@ -1,4 +1,4 @@
-# A border floor tile: full-bleed, repeats every 16 px.
+# A border floor tile: simple, bright and full-bleed, repeats every 16 px.
 tile
 size 16 16
 anim idle 0 0 1 loop
