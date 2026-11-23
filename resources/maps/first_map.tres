@@ -1,9 +1,10 @@
-[gd_resource type="Resource" script_class="MapData" load_steps=8 format=3]
+[gd_resource type="Resource" script_class="MapData" load_steps=36 format=3]
 
 [ext_resource type="Script" path="res://resources/maps/map_data.gd" id="1"]
 [ext_resource type="Script" path="res://resources/maps/map_placement.gd" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/interactables/lectern.tscn" id="3"]
 [ext_resource type="Resource" path="res://resources/spawning/default_spawn_config.tres" id="4"]
+[ext_resource type="Script" path="res://resources/maps/map_obstacle.gd" id="5"]
 
 [sub_resource type="Resource" id="west"]
 script = ExtResource("2")
@@ -20,6 +21,168 @@ script = ExtResource("2")
 scene = ExtResource("3")
 position = Vector2(960, 900)
 
+[sub_resource type="Resource" id="o01"]
+script = ExtResource("5")
+kind = 1
+position = Vector2(545, 410)
+radius = 22
+
+[sub_resource type="Resource" id="o02"]
+script = ExtResource("5")
+kind = 1
+position = Vector2(580, 430)
+radius = 20
+
+[sub_resource type="Resource" id="o03"]
+script = ExtResource("5")
+kind = 1
+position = Vector2(560, 447)
+radius = 18
+
+[sub_resource type="Resource" id="o04"]
+script = ExtResource("5")
+kind = 1
+position = Vector2(1345, 410)
+radius = 22
+
+[sub_resource type="Resource" id="o05"]
+script = ExtResource("5")
+kind = 1
+position = Vector2(1380, 432)
+radius = 20
+
+[sub_resource type="Resource" id="o06"]
+script = ExtResource("5")
+kind = 1
+position = Vector2(1362, 449)
+radius = 18
+
+[sub_resource type="Resource" id="o07"]
+script = ExtResource("5")
+kind = 1
+position = Vector2(690, 750)
+radius = 24
+
+[sub_resource type="Resource" id="o08"]
+script = ExtResource("5")
+kind = 1
+position = Vector2(727, 772)
+radius = 20
+
+[sub_resource type="Resource" id="o09"]
+script = ExtResource("5")
+kind = 1
+position = Vector2(706, 792)
+radius = 18
+
+[sub_resource type="Resource" id="o10"]
+script = ExtResource("5")
+kind = 1
+position = Vector2(1220, 770)
+radius = 22
+
+[sub_resource type="Resource" id="o11"]
+script = ExtResource("5")
+kind = 1
+position = Vector2(1257, 792)
+radius = 20
+
+[sub_resource type="Resource" id="o12"]
+script = ExtResource("5")
+kind = 1
+position = Vector2(1238, 810)
+radius = 18
+
+[sub_resource type="Resource" id="o13"]
+script = ExtResource("5")
+kind = 1
+position = Vector2(410, 490)
+radius = 22
+
+[sub_resource type="Resource" id="o14"]
+script = ExtResource("5")
+kind = 1
+position = Vector2(445, 512)
+radius = 20
+
+[sub_resource type="Resource" id="o15"]
+script = ExtResource("5")
+kind = 1
+position = Vector2(427, 530)
+radius = 18
+
+[sub_resource type="Resource" id="o16"]
+script = ExtResource("5")
+kind = 0
+position = Vector2(900, 180)
+size = Vector2(280, 16)
+
+[sub_resource type="Resource" id="o17"]
+script = ExtResource("5")
+kind = 0
+position = Vector2(900, 260)
+size = Vector2(280, 16)
+
+[sub_resource type="Resource" id="o18"]
+script = ExtResource("5")
+kind = 0
+position = Vector2(200, 740)
+size = Vector2(16, 280)
+
+[sub_resource type="Resource" id="o19"]
+script = ExtResource("5")
+kind = 0
+position = Vector2(280, 740)
+size = Vector2(16, 280)
+
+[sub_resource type="Resource" id="o20"]
+script = ExtResource("5")
+kind = 0
+position = Vector2(1620, 644)
+size = Vector2(280, 16)
+
+[sub_resource type="Resource" id="o21"]
+script = ExtResource("5")
+kind = 0
+position = Vector2(1620, 724)
+size = Vector2(280, 16)
+
+[sub_resource type="Resource" id="o22"]
+script = ExtResource("5")
+kind = 0
+position = Vector2(1210, 170)
+size = Vector2(16, 96)
+
+[sub_resource type="Resource" id="o23"]
+script = ExtResource("5")
+kind = 0
+position = Vector2(1290, 170)
+size = Vector2(16, 96)
+
+[sub_resource type="Resource" id="o24"]
+script = ExtResource("5")
+kind = 0
+position = Vector2(1250, 114)
+size = Vector2(96, 16)
+
+[sub_resource type="Resource" id="o25"]
+script = ExtResource("5")
+kind = 0
+position = Vector2(380, 230)
+size = Vector2(16, 120)
+
+[sub_resource type="Resource" id="o26"]
+script = ExtResource("5")
+kind = 0
+position = Vector2(1500, 290)
+size = Vector2(16, 120)
+
+[sub_resource type="Resource" id="o27"]
+script = ExtResource("5")
+kind = 0
+position = Vector2(960, 830)
+size = Vector2(160, 16)
+
 [resource]
 script = ExtResource("1")
 id = &"first_map"
@@ -30,6 +193,7 @@ border_color = Color(0.08, 0.1, 0.09, 1)
 player_start = Vector2(960, 540)
 spawn_config = ExtResource("4")
 placements = Array[ExtResource("2")]([SubResource("west"), SubResource("east"), SubResource("south")])
+obstacles = Array[ExtResource("5")]([SubResource("o01"), SubResource("o02"), SubResource("o03"), SubResource("o04"), SubResource("o05"), SubResource("o06"), SubResource("o07"), SubResource("o08"), SubResource("o09"), SubResource("o10"), SubResource("o11"), SubResource("o12"), SubResource("o13"), SubResource("o14"), SubResource("o15"), SubResource("o16"), SubResource("o17"), SubResource("o18"), SubResource("o19"), SubResource("o20"), SubResource("o21"), SubResource("o22"), SubResource("o23"), SubResource("o24"), SubResource("o25"), SubResource("o26"), SubResource("o27")])
 decoration_count = 160
 decoration_seed = 12
 decoration_colors = PackedColorArray(0.2, 0.26, 0.2, 1, 0.14, 0.18, 0.15, 1, 0.24, 0.3, 0.22, 1)

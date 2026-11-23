@@ -28,6 +28,8 @@ var _brain: EnemyBrain
 
 var _bounds: Rect2 = Rect2(0, 0, 960, 540)
 var _dead: bool = false
+## The map's obstacles, found once at `_ready`. Null means there are none, and the enemy moves as before.
+var _obstacle_map: ObstacleMap
 
 @onready var _health: HealthComponent = $HealthComponent
 @onready var _hurtbox: HurtboxComponent = $HurtboxComponent
@@ -39,6 +41,7 @@ var _dead: bool = false
 
 func _ready() -> void:
 	add_to_group(&"enemies")
+	_obstacle_map = get_tree().get_first_node_in_group(&"obstacle_map") as ObstacleMap
 	_hurtbox.hit_received.connect(_on_hit_received)
 	_health.died.connect(_on_died)
 	if data != null:
@@ -52,8 +55,10 @@ func _physics_process(delta: float) -> void:
 	if _brain == null:
 		_brain = EnemyBrain.for_data(data)
 	var velocity := _brain.step(self, delta) + _knockback.update(delta)
-	position += velocity * delta
-	position = position.clamp(_bounds.position, _bounds.end)
+	var next := position + velocity * delta
+	if _obstacle_map != null:
+		next = _obstacle_map.resolve_move(position, next)
+	position = next.clamp(_bounds.position, _bounds.end)
 
 
 ## `arena_bounds` is in the parent's coordinate space.
@@ -72,6 +77,11 @@ func setup(enemy_data: EnemyData, arena_bounds: Rect2, rng: RandomNumberGenerato
 ## The player this enemy is after, or null when there is none (or the player is dead).
 func target_player() -> Node2D:
 	return get_tree().get_first_node_in_group(&"player") as Node2D
+
+
+## True when nothing solid stands between this enemy and `target` (always true when the world has no obstacles).
+func has_clear_line_to(target: Node2D) -> bool:
+	return _obstacle_map == null or not _obstacle_map.blocks_segment(global_position, target.global_position)
 
 
 ## How much its difficulty scale and elite status multiply damage it deals other than by touching
@@ -151,7 +161,16 @@ func direction_to_target() -> Vector2:
 	var to_target := (target.global_position + target_offset * spread) - global_position
 	if to_target.length() < 1.0:
 		return Vector2.ZERO
-	return to_target.normalized()
+	var straight := to_target.normalized()
+	if _obstacle_map == null:
+		return straight
+	var field := _obstacle_map.direction_from(position)
+	if field == Vector2.ZERO:
+		return straight
+	# Follow the field, keeping the sideways nudge the horde-spreading offset gives.
+	var plain := (target.global_position - global_position).normalized()
+	var routed := (field + (straight - plain)).normalized()
+	return routed if routed != Vector2.ZERO else straight
 
 
 func _apply_data() -> void:

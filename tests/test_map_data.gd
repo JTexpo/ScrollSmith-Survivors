@@ -72,3 +72,37 @@ func test_first_map_places_three_lecterns_at_least_700_apart() -> void:
 	for i in spots.size():
 		for j in range(i + 1, spots.size()):
 			assert_gte(spots[i].distance_to(spots[j]), 700.0)
+
+
+func _rect_at(position: Vector2, size: Vector2) -> MapObstacle:
+	var obstacle := MapObstacle.new()
+	obstacle.kind = MapObstacle.Kind.RECT
+	obstacle.position = position
+	obstacle.size = size
+	return obstacle
+
+
+func test_problems_name_an_invalid_or_outside_obstacle() -> void:
+	var map := _map()
+	var circle := MapObstacle.new()
+	circle.kind = MapObstacle.Kind.CIRCLE
+	circle.position = Vector2(395, 50)
+	circle.radius = 20.0
+	map.obstacles = [_rect_at(Vector2(50, 50), Vector2(0, 10)), circle] as Array[MapObstacle]
+	assert_eq(map.problems().size(), 2)
+
+
+func test_problems_name_an_obstacle_on_or_near_the_start_or_a_placement() -> void:
+	var map := _map()
+	map.placements = [_placement(load(LECTERN), Vector2(50, 50))] as Array[MapPlacement]
+	map.obstacles = [
+		_rect_at(Vector2(200, 150), Vector2(20, 20)),
+		_rect_at(Vector2(60, 50), Vector2(4, 4)),
+	] as Array[MapObstacle]
+	assert_eq(map.problems().size(), 2)
+
+
+func test_a_clear_obstacle_is_fine() -> void:
+	var map := _map()
+	map.obstacles = [_rect_at(Vector2(300, 80), Vector2(40, 20))] as Array[MapObstacle]
+	assert_true(map.problems().is_empty())

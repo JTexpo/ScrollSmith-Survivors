@@ -663,7 +663,7 @@ A variety of enemies and at least one fully functional boss encounter.
 
 - [x] Create the first playable map (12a).
 - [x] Implement environmental boundaries (12a).
-- [ ] Implement environmental obstacles.
+- [x] Implement environmental obstacles (12b).
 - [ ] Implement treasure chests.
 - [x] Implement Arcane Lectern placement (12a).
 - [ ] Implement Health Shrines.
@@ -685,6 +685,8 @@ A complete playable environment with points of interest that encourage explorati
 - The map supports the intended survival gameplay.
 
 **Built note (12a):** the map is data (`MapData`, with `MapPlacement`s) and a `GameMap` scene builds the floor, boundary walls, decorations and placed scenes from it. The first map is 1920×1080 (four screens by four, user decision) with three Lecterns spread far apart, and `Main` hands its bounds to the spawner and camera. Decorations are a seeded scatter and F7 shows a debug overlay of the bounds and placements. Nothing blocks movement except the outer wall yet, so a bigger map alone makes wide circling easier until 12b. Balance has not been tested in play.
+
+**Built note (12b):** obstacles are data (`MapObstacle` rectangles and circles in `MapData`) that block movement and enemy projectiles but never the player's spells (user decision, Missile blocking rejected). Enemies, the boss and enemy shots find them through an `ObstacleMap`, and enemies route around them with a flow field: a coarse grid swept outward from the player, rebuilt a few hundred cells a frame as the player moves, so nobody gets stuck behind a wall or in a dead end. The first map has 27 obstacles: five pillar clusters for small loops, three corridor pairs, a U-shaped dead end, a short wall by each Lectern and an open centre. F7 also shows the blocked cells and the field. Balance and the layout have not been tested in play.
 
 ---
 

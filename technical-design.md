@@ -149,6 +149,10 @@ wizard-survivor/
 │   ├── world/
 │   │   ├── game_map.gd
 │   │   ├── map_decor.gd
+│   │   ├── obstacle_grid.gd
+│   │   ├── flow_field.gd
+│   │   ├── obstacle_map.gd
+│   │   ├── obstacle_layer.gd
 │   │   └── map_debug_overlay.gd
 │   │
 │   └── utilities/
@@ -160,6 +164,7 @@ wizard-survivor/
 │   ├── maps/
 │   │   ├── map_data.gd
 │   │   ├── map_placement.gd
+│   │   ├── map_obstacle.gd
 │   │   └── first_map.tres
 │   ├── equipment/
 │   └── potions/

@@ -29,3 +29,24 @@ func test_it_is_hidden_until_toggled() -> void:
 func test_it_has_a_marker_per_placement_and_one_for_the_start() -> void:
 	var overlay := _map_node().get_node("Debug") as MapDebugOverlay
 	assert_eq(overlay.marker_count(), 2)
+
+
+func test_the_overlay_still_toggles_with_obstacles_present() -> void:
+	var map := MapData.new()
+	map.id = &"test"
+	map.size = Vector2(400, 300)
+	map.player_start = Vector2(200, 150)
+	var rect := MapObstacle.new()
+	rect.kind = MapObstacle.Kind.RECT
+	rect.position = Vector2(60, 60)
+	rect.size = Vector2(30, 30)
+	map.obstacles = [rect] as Array[MapObstacle]
+	var node := (load("res://scenes/world/game_map.tscn") as PackedScene).instantiate() as GameMap
+	node.map_data = map
+	add_child_autofree(node)
+	var overlay := node.get_node("Debug") as MapDebugOverlay
+	node.toggle_debug()
+	assert_true(overlay.visible)
+	await wait_frames(2)
+	node.toggle_debug()
+	assert_false(overlay.visible)

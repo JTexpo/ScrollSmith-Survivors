@@ -428,3 +428,30 @@ Review fixes (Sprint 12a whole-branch review: 0 Critical, 2 Important fixed, 5 m
 - The spawn ring fails to find a spot about 10% of the time at a map corner, so its attempts went from 8 to 64 (found by the corner test, before the review).
 
 Deferred minors: a placed scene whose root is not a `Node2D` crashes the build; a map with no data builds a world where nothing spawns, with no warning; `MapData` counts the far edge as outside while the spawner counts it as inside; `decoration_count` has no upper limit; the F7 overlay draws under the player and enemies.
+
+## 2026-11-22: Sprint 12b (obstacles and a flow field)
+
+Decisions (user): obstacles block movement (the player's and every enemy's) and enemy projectiles, and every player spell passes over them (the Missile-only blocking was considered and rejected). Enemies route with a flow field. The layout wants an open centre with smaller loops than before, plus narrow paths.
+
+Rulings:
+- `FlowField` uses the 5x5 chamfer (16 moves, costs 10, 14 and 22). The plain 8-move chamfer gave up to 18 degrees of open-ground error. The 16-move version is within 5.5 degrees.
+- A tie between two routes (or a blend that points into a blocked cell) uses the single best neighbour. Found by the U-shaped dead-end test, where the pulls on the symmetry axis cancelled and enemies walked at the wall face for ever.
+- A synchronous sweep of the 8,160-cell first map took 239 ms. After packed arrays and a padded layout it takes 37 ms, and the sweep is now incremental: 400 cells (about 1.8 ms) per physics frame, 19 frames, double-buffered. The field lags the player by about 0.3 s.
+- A spawned enemy is pushed out of an obstacle on its first step (the plan said in `setup`, which runs before the enemy has a position).
+- `MapData.problems()` covers shapes only. Reachability is `ObstacleGrid.reachability_problems`, because `problems()` calling the grid would be a circular dependency. `GameMap` reports both.
+- Directions are cached per cell until a new field is swapped in, and `blocks_segment` has a quick all-cells-free shortcut for short segments (checked against testing every shape on 600 seeded segments).
+- Corridor walls are 80 px apart centre to centre and off the 16 px grid, because with an 8 px clearance a 48 px corridor can quantize to a single free cell (a new layout test rejects any gap narrower than two cells).
+
+Stress with `--drops` (300 enemies, five minutes in, windowed, medians of three, 0.05 s interval): 380 fps without obstacles, about 275 with `--obstacles` (about 28% lower; p99 frame about 7.5 ms against about 4 ms). The plan asked for within about 15%, so this is a miss, accepted: it is about 0.9 ms a frame for 300 enemies (about 3 us each), and the workloads differ because enemies take longer routes and clump behind pillars. Everything is far above 60 fps. Without obstacles the numbers match Sprint 12a (the stress scene is unchanged by default).
+
+Verified: a real window run with F7 (the player stopped 6 px short of an obstacle's face; six enemies started north of the U-shaped dead end, went round it into the dead end and reached the player, none ever inside a blocked cell; a screenshot of the overlay), a whole-map screenshot with the overlay, smoke and MCP runs clean. The real save was not used.
+
+Left open on purpose:
+- The layout and the 0.3 s field lag have not been tested in play. Tuning the layout is the user's call.
+- Tanks, elites and the boss are bigger than the grid's 8 px clearance assumes, so they can overlap a wall slightly in a corridor (cosmetic).
+- Not checked on a phone or a controller, and the field's per-frame cost on the web build is unmeasured.
+
+Review fixes (Sprint 12b whole-branch review: 0 Critical, 1 Important fixed, 7 minors deferred):
+- A Ranged enemy decided to hold or back away by straight-line distance, so with a wall between it and the player it stood still while every shot hit the wall (the parking exploit, for one archetype). It now goes round the wall for a line of sight, and fires only when the line is clear (`Enemy.has_clear_line_to`).
+
+Deferred minors: the first field is built for the Player's scene position (the map's top-left) before `Main` moves the Player to the start, so the first half second of enemies walk toward the wrong spot, plus a 37 ms load sweep; the field is read with parent-local `position` while the grid and target use global positions (equal today, wrong if `GameMap` or the spawn root is ever offset); passing a different grid to `begin_rebuild` leaves the old field readable at the old size; a boss Charge that is blocked at once still opens its vulnerability window, so keeping a pillar between you and the boss gives free windows (follows the ruling, a play-test question); the field's cost on the web build is unmeasured; a Swarmer cluster pushed out of a wall stacks on one point; nothing tests "pickups never land unreachable" or "each Lectern has two routes".
