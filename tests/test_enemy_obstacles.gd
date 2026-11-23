@@ -1,0 +1,132 @@
+extends GutTest
+
+const DELTA := 1.0 / 60.0
+
+var _root: Node2D
+var _player: Node2D
+var _composer: EnemyComposer
+var _rng: RandomNumberGenerator
+
+
+func before_each() -> void:
+	_root = Node2D.new()
+	add_child_autofree(_root)
+	_player = Node2D.new()
+	_root.add_child(_player)
+	_player.add_to_group(&"player")
+	_composer = EnemyComposer.new()
+	_rng = RandomNumberGenerator.new()
+	_rng.seed = 4
+
+
+func _rect(position: Vector2, size: Vector2) -> MapObstacle:
+	var obstacle := MapObstacle.new()
+	obstacle.kind = MapObstacle.Kind.RECT
+	obstacle.position = position
+	obstacle.size = size
+	return obstacle
+
+
+func _map(size: Vector2, obstacles: Array[MapObstacle]) -> ObstacleMap:
+	var data := MapData.new()
+	data.id = &"test"
+	data.size = size
+	data.player_start = Vector2(8, 8)
+	data.obstacles = obstacles
+	var node := ObstacleMap.new()
+	node.cells_per_frame = 100000
+	_root.add_child(node)
+	node.setup(data)
+	return node
+
+
+func _enemy(archetype: StringName, at: Vector2) -> Enemy:
+	var data := _composer.compose(
+		load("res://resources/enemies/archetypes/%s.tres" % archetype) as EnemyArchetype,
+		load("res://resources/enemies/elements/none.tres") as EnemyElement,
+	)
+	var enemy := (load("res://scenes/enemies/base_enemy.tscn") as PackedScene).instantiate() as Enemy
+	enemy.setup(data, Rect2(0, 0, 2000, 2000), _rng)
+	_root.add_child(enemy)
+	enemy.position = at
+	enemy.target_offset = Vector2.ZERO
+	enemy.speed = 200.0
+	enemy.set_physics_process(false)
+	return enemy
+
+
+## Steps the enemy and returns true when it ends within 20 px of the player without ever standing in a blocked cell.
+func _chases(enemy: Enemy, map: ObstacleMap, steps: int) -> bool:
+	for step in steps:
+		enemy._physics_process(DELTA)
+		if map.is_blocked(enemy.position):
+			return false
+		if enemy.position.distance_to(_player.position) <= 20.0:
+			return true
+	return false
+
+
+func test_without_an_obstacle_map_the_direction_is_the_old_one() -> void:
+	_player.position = Vector2(300, 100)
+	var enemy := _enemy(&"standard", Vector2(100, 100))
+	assert_eq(enemy.direction_to_target(), Vector2.RIGHT)
+
+
+func test_in_open_ground_the_direction_is_close_to_the_old_one() -> void:
+	_player.position = Vector2(400, 300)
+	_map(Vector2(640, 480), [_rect(Vector2(600, 440), Vector2(20, 20))] as Array[MapObstacle])
+	var enemy := _enemy(&"standard", Vector2(100, 120))
+	var straight := (_player.position - enemy.position).normalized()
+	assert_lt(absf(rad_to_deg(enemy.direction_to_target().angle_to(straight))), 15.0)
+
+
+func test_an_enemy_goes_around_a_wall_to_reach_the_player() -> void:
+	var map := _map(Vector2(640, 320), [_rect(Vector2(320, 112), Vector2(16, 224))] as Array[MapObstacle])
+	_player.position = Vector2(560, 60)
+	map._physics_process(0.5)
+	var enemy := _enemy(&"standard", Vector2(80, 60))
+	assert_true(_chases(enemy, map, 900))
+
+
+func test_an_enemy_outside_a_u_shaped_dead_end_reaches_a_player_inside_it() -> void:
+	var map := _map(Vector2(640, 480), [
+		_rect(Vector2(320, 160), Vector2(192, 16)),
+		_rect(Vector2(232, 240), Vector2(16, 192)),
+		_rect(Vector2(408, 240), Vector2(16, 192)),
+	] as Array[MapObstacle])
+	_player.position = Vector2(320, 260)
+	map._physics_process(0.5)
+	var enemy := _enemy(&"standard", Vector2(320, 60))
+	assert_true(_chases(enemy, map, 1500))
+
+
+func test_knockback_into_a_wall_never_ends_inside_an_obstacle() -> void:
+	var map := _map(Vector2(640, 320), [_rect(Vector2(320, 112), Vector2(16, 224))] as Array[MapObstacle])
+	_player.position = Vector2(560, 60)
+	map._physics_process(0.5)
+	var enemy := _enemy(&"standard", Vector2(270, 100))
+	(enemy.get_node("KnockbackComponent") as KnockbackComponent).apply_impulse(Vector2.RIGHT, 400.0)
+	for step in 90:
+		enemy._physics_process(DELTA)
+		assert_false(map.is_blocked(enemy.position), "step %d at %s" % [step, enemy.position])
+
+
+func test_a_retreating_ranged_enemy_stops_at_a_wall() -> void:
+	var map := _map(Vector2(640, 320), [_rect(Vector2(320, 112), Vector2(16, 224))] as Array[MapObstacle])
+	_player.position = Vector2(230, 100)
+	map._physics_process(0.5)
+	var enemy := _enemy(&"ranged", Vector2(270, 100))
+	for step in 180:
+		enemy._physics_process(DELTA)
+		assert_false(map.is_blocked(enemy.position), "step %d at %s" % [step, enemy.position])
+	assert_lt(enemy.position.x, 312.0, "it stopped short of the wall's face")
+
+
+func test_an_enemy_standing_in_an_obstacle_is_moved_out_on_its_first_step() -> void:
+	var map := _map(Vector2(640, 320), [_rect(Vector2(320, 112), Vector2(16, 224))] as Array[MapObstacle])
+	_player.position = Vector2(560, 60)
+	map._physics_process(0.5)
+	var enemy := _enemy(&"standard", Vector2(320, 100))
+	assert_true(map.is_blocked(enemy.position))
+	enemy._physics_process(DELTA)
+	assert_false(map.is_blocked(enemy.position))
