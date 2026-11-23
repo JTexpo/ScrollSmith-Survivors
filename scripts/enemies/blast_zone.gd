@@ -50,6 +50,7 @@ static func place(
 	parent.add_child(zone)
 	zone.global_position = world_position
 	zone._build_marks()
+	EnemyAttackEvents.bus.blast_warned.emit(world_position, zone_radius)
 	return zone
 
 
@@ -183,3 +184,4 @@ func _detonate() -> void:
 	if player != null and player.global_position.distance_to(global_position) <= radius:
 		player.hurtbox.receive_hit(damage, global_position)
 	detonated.emit()
+	EnemyAttackEvents.bus.blast_detonated.emit(global_position)

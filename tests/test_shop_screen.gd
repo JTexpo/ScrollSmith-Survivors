@@ -331,3 +331,21 @@ func test_item_and_potion_buttons_are_at_least_22_px_tall() -> void:
 
 func test_the_detail_area_leaves_room_for_the_close_button() -> void:
 	assert_lte(ShopScreen.DETAIL_LEFT + ShopScreen.DETAIL_WIDTH, 392.0, "the detail text ends before the Close button")
+
+
+func test_the_shop_says_what_it_did_and_emits_refused_on_a_failed_buy() -> void:
+	_profile.add_gold(500)
+	_screen.open(_profile, _catalog)
+	watch_signals(_screen)
+	_screen.buy(&"robe_ember")
+	assert_eq(_screen.last_action, &"buy")
+	assert_signal_emit_count(_screen, "changed", 1)
+	_screen.unequip(EquipmentData.Slot.ROBE)
+	assert_eq(_screen.last_action, &"unequip")
+	_screen.equip(&"robe_ember")
+	assert_eq(_screen.last_action, &"equip")
+	var broke := PlayerProfile.new()
+	_screen.close()
+	_screen.open(broke, _catalog)
+	_screen.buy(&"staff_elder")
+	assert_signal_emitted_with_parameters(_screen, "refused", [ShopSystem.REASON_BROKE])

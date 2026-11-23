@@ -150,3 +150,12 @@ func test_a_shot_draws_above_the_players_effect_sprites() -> void:
 	assert_eq(shot.z_index, WarningMark.ATTACK_Z)
 	effect.queue_free()
 
+
+func test_enemy_attack_events_fire_for_a_shot() -> void:
+	var shots := []
+	var on_shot := func(at: Vector2) -> void: shots.append(at)
+	EnemyAttackEvents.bus.shot_fired.connect(on_shot)
+	EnemyProjectile.fire(_root, _scene, Vector2(10, 20), Vector2.RIGHT, 100.0, 5.0, 100.0)
+	assert_eq(shots.size(), 1)
+	assert_eq(shots[0], Vector2(10, 20))
+	EnemyAttackEvents.bus.shot_fired.disconnect(on_shot)

@@ -252,3 +252,18 @@ func test_the_warning_and_the_burst_draw_above_the_players_effect_sprites() -> v
 	for effect in _effects():
 		assert_eq(effect.z_index, WarningMark.ATTACK_Z, "the blast's burst is an enemy attack too")
 
+
+func test_enemy_attack_events_fire_for_a_blast_zone_warning_and_detonation() -> void:
+	var warned := []
+	var boomed := []
+	var on_warn := func(at: Vector2, radius: float) -> void: warned.append([at, radius])
+	var on_boom := func(at: Vector2) -> void: boomed.append(at)
+	EnemyAttackEvents.bus.blast_warned.connect(on_warn)
+	EnemyAttackEvents.bus.blast_detonated.connect(on_boom)
+	var zone := BlastZone.place(_root, load("res://scenes/enemies/blast_zone.tscn") as PackedScene, Vector2(50, 60), 40.0, 5.0, 0.1)
+	assert_eq(warned.size(), 1)
+	assert_eq(warned[0][1], 40.0)
+	await wait_seconds(0.4)
+	assert_eq(boomed.size(), 1)
+	EnemyAttackEvents.bus.blast_warned.disconnect(on_warn)
+	EnemyAttackEvents.bus.blast_detonated.disconnect(on_boom)

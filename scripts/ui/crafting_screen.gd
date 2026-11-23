@@ -8,6 +8,9 @@ extends CanvasLayer
 ## (bridged, because mouse emulation is off).
 
 signal closed
+## A craft worked (the screen then closes) or was refused (its reason stays on screen).
+signal crafted
+signal refused(reason: String)
 
 const SLOT_SIZE := Vector2(88, 28)
 ## A row a thumb can hit (the old 15 px rows were too small on a phone).
@@ -159,8 +162,10 @@ func choose_slot(index: int) -> bool:
 ## Crafts and closes if it worked. Otherwise the reason stays on screen.
 func confirm() -> void:
 	if session.confirm().ok:
+		crafted.emit()
 		close()
 	else:
+		refused.emit(session.message())
 		_rebuild()
 
 

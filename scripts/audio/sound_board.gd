@@ -6,6 +6,9 @@ extends Node
 ## the game is paused. `VoiceLimiter` decides who gets a voice in a busy fight.
 
 signal mute_changed(muted: bool)
+## Every request to play a sound effect, before any of the rules that may silence it (locked, muted, paused, full voices). Tests and
+## the sound-test tool listen to it.
+signal requested(id: StringName)
 
 const VOICES := 12
 const BUS_SFX := &"Sfx"
@@ -16,6 +19,10 @@ const CROSSFADE := 1.0
 const PAUSED_MUSIC_DB := -9.0
 ## The volume a faded-out music player sits at.
 const SILENT_DB := -80.0
+## Seconds between two footsteps while the wizard walks.
+const STEP_INTERVAL := 0.32
+## What an enemy this big or bigger sounds like when it dies.
+const BIG_ENEMY_SCALE := 1.4
 
 ## Overridable for tests; null means the default catalog.
 @export var catalog: SoundCatalog
@@ -37,6 +44,11 @@ var _music_state: StringName = &"off"
 var _music_starts: int = 0
 var _duck_db: float = 0.0
 var _duck_rate: float = 0.0
+
+var _bound: bool = false
+var _player: Player
+var _last_element: int = SpellData.Element.FIRE
+var _step_left: float = 0.0
 
 
 func _ready() -> void:
@@ -71,6 +83,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	advance_music(delta)
+	_update_steps(delta)
 
 
 ## The first tap, click or key press unlocks sound (browsers require it) and starts the music. It never consumes the event.
@@ -125,6 +138,7 @@ func last_pitch_scale() -> float:
 
 ## Plays a sound effect. `pitch` multiplies the sound's own random wobble.
 func play(id: StringName, pitch: float = 1.0) -> void:
+	requested.emit(id)
 	if muted or not _unlocked:
 		return
 	var data := catalog.find(id)
@@ -248,6 +262,151 @@ func _set_music_stream_paused(value: bool) -> void:
 func _apply_bus_volume() -> void:
 	var paused_offset := PAUSED_MUSIC_DB if is_inside_tree() and get_tree().paused else 0.0
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(BUS_MUSIC), paused_offset + _duck_db)
+
+
+## Connects every game event to its sound, once. `main` is the Main node: the board only listens to signals that already exist
+## (plus the few small ones added for it) and never changes anything in the game.
+func bind(main: Node) -> void:
+	if _bound:
+		return
+	_bound = true
+	_player = main.get_node("Player") as Player
+	_player.loadout.cast_fired.connect(_on_cast.bind(_player.loadout))
+	_player.hurtbox.hit_received.connect(_on_player_hit)
+	_player.died.connect(_on_player_died)
+	_player.collector.collected.connect(func(_scroll: ScrollData) -> void: play(SoundId.PICKUP_SCROLL))
+	_player.collector.xp_collected.connect(func(_amount: int) -> void: play(SoundId.PICKUP_XP))
+	_player.collector.gold_collected.connect(func(_amount: int) -> void: play(SoundId.PICKUP_GOLD))
+	_player.belt.used.connect(func(_potion: PotionData) -> void: play(SoundId.POTION_DRINK))
+	_player.belt.refused.connect(func(_reason: String) -> void: play(SoundId.POTION_REFUSED))
+	_player.progress.leveled_up.connect(_on_level_up)
+	var spawner := main.get_node("EnemySpawner") as EnemySpawner
+	spawner.enemy_damaged.connect(_on_enemy_damaged)
+	spawner.enemy_died.connect(_on_enemy_died)
+	var director := main.get_node("RunDirector") as RunDirector
+	director.boss_spawned.connect(_on_boss_spawned)
+	director.boss_defeated.connect(_on_boss_defeated)
+	EnemyAttackEvents.bus.shot_fired.connect(func(_at: Vector2) -> void: play(SoundId.ENEMY_SHOT))
+	EnemyAttackEvents.bus.blast_warned.connect(func(_at: Vector2, _radius: float) -> void: play(SoundId.BLAST_WARN))
+	EnemyAttackEvents.bus.blast_detonated.connect(func(_at: Vector2) -> void: play(SoundId.BLAST_BOOM))
+	for lectern in main.get_tree().get_nodes_in_group(&"lecterns"):
+		if main.is_ancestor_of(lectern):
+			lectern.interacted.connect(func(_actor: Node) -> void: play(SoundId.LECTERN_OPEN))
+	main.point_effect_applied.connect(_on_point_effect)
+	(main.get_node("CraftingScreen") as CraftingScreen).crafted.connect(func() -> void: play(SoundId.CRAFT_CONFIRM))
+	(main.get_node("CraftingScreen") as CraftingScreen).refused.connect(func(_reason: String) -> void: play(SoundId.CRAFT_FAIL))
+	var shop := main.get_node("ShopScreen") as ShopScreen
+	shop.changed.connect(func() -> void: play(SoundId.SHOP_BUY if shop.last_action == &"buy" else SoundId.SHOP_EQUIP))
+	shop.refused.connect(func(_reason: String) -> void: play(SoundId.SHOP_FAIL))
+	var merchant := main.get_node("MerchantScreen") as MerchantScreen
+	merchant.changed.connect(func() -> void: play(SoundId.SHOP_BUY))
+	merchant.refused.connect(func(_reason: String) -> void: play(SoundId.SHOP_FAIL))
+	for button in main.find_children("*", "Button", true, false):
+		_wire_button(button as Button)
+	get_tree().node_added.connect(_on_node_added)
+
+
+func _on_cast(index: int, loadout: SpellLoadout) -> void:
+	var instance := loadout.slots[index]
+	if instance == null:
+		return
+	_last_element = instance.data.primary_element()
+	play(StringName("cast_" + _element_name(_last_element)))
+
+
+## A hit sounds like the element of the last cast (the hit signal does not carry the element). A strong hit adds a bright accent
+## and a resisted one a dull one.
+func _on_enemy_damaged(_position: Vector2, _amount: float, effect: int) -> void:
+	play(StringName("hit_" + _element_name(_last_element)))
+	if effect == ElementTable.Effect.VULNERABLE:
+		play(SoundId.HIT_STRONG)
+	elif effect == ElementTable.Effect.RESISTED:
+		play(SoundId.HIT_RESISTED)
+
+
+func _on_enemy_died(enemy: Enemy) -> void:
+	if enemy.is_elite:
+		play(SoundId.ENEMY_DIE_ELITE)
+	elif enemy.data != null and enemy.data.body_scale >= BIG_ENEMY_SCALE:
+		play(SoundId.ENEMY_DIE_BIG)
+	else:
+		play(SoundId.ENEMY_DIE)
+
+
+func _on_player_hit(_damage: float, _source: Vector2, _knockback: float, _effect: int) -> void:
+	play(SoundId.PLAYER_HURT)
+
+
+func _on_player_died() -> void:
+	play(SoundId.PLAYER_DIE)
+	duck(1.5, 10.0)
+
+
+func _on_level_up(_level: int, _reward: LevelReward) -> void:
+	play(SoundId.LEVEL_UP)
+	duck(1.0, 8.0)
+
+
+func _on_boss_spawned(boss: Boss, _number: int) -> void:
+	play(SoundId.BOSS_SPAWN)
+	set_boss_music(true)
+	boss.attack_started.connect(_on_boss_attack)
+
+
+func _on_boss_defeated(_number: int) -> void:
+	play(SoundId.BOSS_DIE)
+	set_boss_music(false)
+
+
+func _on_boss_attack(attack: BossAttack) -> void:
+	match attack.kind:
+		BossAttack.Kind.SLAM:
+			play(SoundId.BOSS_SLAM)
+		BossAttack.Kind.CHARGE:
+			play(SoundId.BOSS_CHARGE)
+		BossAttack.Kind.BURST:
+			play(SoundId.BOSS_BURST)
+
+
+func _on_point_effect(kind: int) -> void:
+	match kind:
+		PointOfInterestData.Kind.HEAL:
+			play(SoundId.SHRINE_HEAL)
+		PointOfInterestData.Kind.RESTORE_MANA:
+			play(SoundId.SHRINE_MANA)
+		PointOfInterestData.Kind.LOOT:
+			play(SoundId.CHEST_OPEN)
+		PointOfInterestData.Kind.MERCHANT:
+			play(SoundId.MERCHANT_OPEN)
+
+
+## A soft step every STEP_INTERVAL while the wizard walks and is alive.
+func _update_steps(delta: float) -> void:
+	if _player == null or _player.health.is_dead() or _player.velocity.length() <= Player.MOVE_ANIMATION_SPEED:
+		_step_left = 0.0
+		return
+	_step_left -= delta
+	if _step_left <= 0.0:
+		_step_left = STEP_INTERVAL
+		play(SoundId.STEP)
+
+
+func _on_node_added(node: Node) -> void:
+	if node is Button:
+		_wire_button(node as Button)
+
+
+func _wire_button(button: Button) -> void:
+	if button.has_meta(&"sound_wired"):
+		return
+	button.set_meta(&"sound_wired", true)
+	button.pressed.connect(func() -> void: play(SoundId.UI_BACK if button.theme_type_variation == &"ButtonRed" else SoundId.UI_CLICK))
+	button.focus_entered.connect(func() -> void: play(SoundId.UI_HOVER))
+
+
+func _element_name(element: int) -> String:
+	var found := String(ElementLooks.id_of(element))
+	return "fire" if found == "none" else found
 
 
 ## Stops every voice at once (a new run, a test).
