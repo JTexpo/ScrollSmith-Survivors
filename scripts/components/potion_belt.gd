@@ -2,7 +2,7 @@ class_name PotionBelt
 extends Node
 ## The player's potions during a run: drinks them through PotionSystem, keeps each type's cooldown and
 ## the short shared cooldown, and remembers which potion the controller has selected. The stock itself
-## lives in the PlayerProfile, so it persists. Cooldowns tick in _process, so they freeze while the
+## is the run's `RunPotions` (never saved, empty at the next run). Cooldowns tick in _process, so they freeze while the
 ## tree is paused, and the node only processes while one is running.
 
 ## Seconds after any drink before another potion can be drunk, so mashing cannot burn a stack.
@@ -17,7 +17,7 @@ signal changed
 var selected_index: int = 0
 
 var _player: Player
-var _profile: PlayerProfile
+var _potions: RunPotions
 var _catalog: PotionCatalog
 ## Potion id to seconds of cooldown left.
 var _cooldowns: Dictionary = {}
@@ -41,9 +41,9 @@ func _process(delta: float) -> void:
 	set_process(_shared > 0.0 or not _cooldowns.is_empty())
 
 
-func bind(player: Player, profile: PlayerProfile, catalog: PotionCatalog) -> void:
+func bind(player: Player, potions: RunPotions, catalog: PotionCatalog) -> void:
 	_player = player
-	_profile = profile
+	_potions = potions
 	_catalog = catalog
 	selected_index = 0
 
@@ -52,14 +52,14 @@ func bind(player: Player, profile: PlayerProfile, catalog: PotionCatalog) -> voi
 func use(id: StringName) -> PotionResult:
 	var result := PotionResult.new()
 	var potion := _catalog.find(id)
-	var reason := PotionSystem.refusal(potion, _player, _profile, cooldown_left(id), _shared)
+	var reason := PotionSystem.refusal(potion, _player, _potions, cooldown_left(id), _shared)
 	if reason.is_empty() and not PotionSystem.apply(potion, _player):
 		reason = PotionSystem.REASON_ACTIVE
 	if not reason.is_empty():
 		result.reason = reason
 		refused.emit(reason)
 		return result
-	_profile.use_potion(id)
+	_potions.use_potion(id)
 	_cooldowns[id] = potion.cooldown
 	_shared = SHARED_COOLDOWN
 	set_process(true)
@@ -85,7 +85,7 @@ func refresh() -> void:
 
 
 func count(id: StringName) -> int:
-	return _profile.potion_count(id) if _profile != null else 0
+	return _potions.potion_count(id) if _potions != null else 0
 
 
 func cooldown_left(id: StringName) -> float:

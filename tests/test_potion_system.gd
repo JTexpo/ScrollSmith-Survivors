@@ -2,7 +2,7 @@ extends GutTest
 
 var _root: Node2D
 var _player: Player
-var _profile: PlayerProfile
+var _profile: RunPotions
 var _catalog: PotionCatalog
 
 
@@ -11,7 +11,7 @@ func before_each() -> void:
 	add_child_autofree(_root)
 	_player = load("res://scenes/player/player.tscn").instantiate() as Player
 	_root.add_child(_player)
-	_profile = PlayerProfile.new()
+	_profile = RunPotions.new()
 	_catalog = PotionCatalog.default_catalog()
 
 

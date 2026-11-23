@@ -36,6 +36,11 @@ func use_potion(id: StringName) -> bool:
 	return true
 
 
+## A copy of the counts (id to how many), for tests and tools.
+func counts() -> Dictionary:
+	return _counts.duplicate()
+
+
 func is_empty() -> bool:
 	return _counts.is_empty()
 

@@ -407,33 +407,34 @@ func test_the_scroll_dropper_follows_the_players_luck() -> void:
 	assert_eq(dropper.luck, 0.0)
 
 
-func _save_with_potions(counts: Dictionary) -> void:
-	var profile := PlayerProfile.new()
-	for id in counts:
-		profile.add_potion(id, counts[id])
-	SaveGame.save_profile(profile, _path())
-
-
-func test_drinking_a_potion_is_saved_at_once() -> void:
-	_save_with_potions({&"potion_health": 2})
+## A new Main whose run already holds these potions (they are never saved, so they are added after it starts).
+func _stocked(counts: Dictionary) -> Main:
 	var main := _new_main(_path())
+	for id in counts:
+		main.run_potions.add_potion(id, counts[id])
+	_player(main).belt.refresh()
+	return main
+
+
+func test_drinking_a_potion_does_not_save() -> void:
+	var main := _stocked({&"potion_health": 2})
 	_player(main).health.take_damage(50.0)
+	var before := FileAccess.get_file_as_string(_path()) if FileAccess.file_exists(_path()) else ""
 	assert_true(_player(main).belt.use(&"potion_health").ok)
-	assert_eq(SaveGame.load_profile(_path()).potion_count(&"potion_health"), 1)
+	assert_eq(main.run_potions.potion_count(&"potion_health"), 1)
+	var after := FileAccess.get_file_as_string(_path()) if FileAccess.file_exists(_path()) else ""
+	assert_eq(after, before, "potions last one run: a drink writes nothing")
 
 
 func test_a_refused_drink_does_not_change_the_save() -> void:
-	_save_with_potions({&"potion_health": 2})
-	var main := _new_main(_path())
+	var main := _stocked({&"potion_health": 2})
 	var before := FileAccess.get_file_as_string(_path())
 	assert_false(_player(main).belt.use(&"potion_health").ok, "full health")
-	assert_eq(FileAccess.get_file_as_string(_path()), before)
-	assert_eq(SaveGame.load_profile(_path()).potion_count(&"potion_health"), 2)
+	assert_eq(main.run_potions.potion_count(&"potion_health"), 2)
 
 
-func test_a_new_run_has_fresh_cooldowns_and_no_effects_but_keeps_the_stock() -> void:
-	_save_with_potions({&"potion_health": 2, &"potion_speed": 2})
-	var first := _new_main(_path())
+func test_a_new_run_has_fresh_cooldowns_no_effects_and_no_potions() -> void:
+	var first := _stocked({&"potion_health": 2, &"potion_speed": 2})
 	_player(first).health.take_damage(50.0)
 	_player(first).belt.use(&"potion_health")
 	_player(first).belt._process(1.01)
@@ -444,13 +445,13 @@ func test_a_new_run_has_fresh_cooldowns_and_no_effects_but_keeps_the_stock() -> 
 	assert_eq(_player(second).belt.shared_left(), 0.0)
 	assert_false(_player(second).effects.is_active(&"potion_speed"))
 	assert_eq(_speed(second), 90.0)
-	assert_eq(_player(second).belt.count(&"potion_health"), 1)
-	assert_eq(_player(second).belt.count(&"potion_speed"), 1)
+	assert_eq(_player(second).belt.count(&"potion_health"), 0, "potions last one run")
+	assert_eq(_player(second).belt.count(&"potion_speed"), 0)
+	assert_true(second.run_potions.is_empty())
 
 
 func test_tapping_a_slot_drinks_that_potion() -> void:
-	_save_with_potions({&"potion_health": 2})
-	var main := _new_main(_path())
+	var main := _stocked({&"potion_health": 2})
 	_player(main).health.take_damage(50.0)
 	(main.get_node("Hud/PotionBar") as PotionBar).slot_pressed.emit(0)
 	assert_eq(_player(main).belt.count(&"potion_health"), 1)
@@ -458,8 +459,7 @@ func test_tapping_a_slot_drinks_that_potion() -> void:
 
 
 func test_a_refused_drink_shows_its_reason_in_the_toast() -> void:
-	_save_with_potions({&"potion_health": 2})
-	var main := _new_main(_path())
+	var main := _stocked({&"potion_health": 2})
 	(main.get_node("Hud/PotionBar") as PotionBar).slot_pressed.emit(0)
 	var toast := main.get_node("Hud/LevelToast") as LevelToast
 	assert_true(toast.is_showing())
@@ -474,30 +474,27 @@ func test_the_potion_bar_hides_on_death() -> void:
 	assert_false(bar.visible)
 
 
-func test_the_bar_shows_the_saved_stock() -> void:
-	_save_with_potions({&"potion_mana": 5})
-	var main := _new_main(_path())
+func test_the_bar_shows_the_runs_stock() -> void:
+	var main := _stocked({&"potion_mana": 3})
 	var bar := main.get_node("Hud/PotionBar") as PotionBar
-	assert_eq(bar.widgets[1].count, 5)
+	assert_eq(bar.widgets[1].count, 3)
 	assert_eq(bar.widgets[0].count, 0)
 
 
-func test_f8_gives_three_of_every_potion_and_saves() -> void:
-	_save_with_potions({&"potion_health": 1})
-	var main := _new_main(_path())
+func test_f8_gives_three_of_every_potion_without_saving() -> void:
+	var main := _stocked({&"potion_health": 1})
 	var event := InputEventAction.new()
 	event.action = &"debug_give_potions"
 	event.pressed = true
 	main._unhandled_input(event)
 	for potion in PotionCatalog.default_catalog().potions:
-		var expected := 4 if potion.id == &"potion_health" else 3
-		assert_eq(SaveGame.load_profile(_path()).potion_count(potion.id), expected, str(potion.id))
-	assert_eq((main.get_node("Hud/PotionBar") as PotionBar).widgets[0].count, 4)
+		assert_eq(main.run_potions.potion_count(potion.id), 3, str(potion.id))
+	assert_eq((main.get_node("Hud/PotionBar") as PotionBar).widgets[0].count, 3)
+	assert_eq(SaveGame.load_profile(_path()).gold, 0, "nothing about potions is saved")
 
 
 func test_a_potion_tap_does_not_cast_a_spell() -> void:
-	_save_with_potions({&"potion_health": 1})
-	var main := _new_main(_path())
+	var main := _stocked({&"potion_health": 1})
 	var bar := main.get_node("Hud/PotionBar") as PotionBar
 	var mana := _player(main).loadout.slots[0].current_mana
 	var touch := InputEventScreenTouch.new()
@@ -508,42 +505,10 @@ func test_a_potion_tap_does_not_cast_a_spell() -> void:
 	assert_false(_player(main).aim.is_firing)
 
 
-func test_a_potion_bought_in_the_death_screen_shop_is_saved_at_once() -> void:
-	var profile := PlayerProfile.new()
-	profile.add_gold(100)
-	SaveGame.save_profile(profile, _path())
-	var main := _new_main(_path())
-	_die(main)
-	(main.get_node("DeathScreen") as DeathScreen).input_delay_msec = 0
-	(main.get_node("DeathScreen/ShopButton") as Button).pressed.emit()
-	var shop := main.get_node("ShopScreen") as ShopScreen
-	shop.input_guard_msec = 0
-	shop.buy_potion(&"potion_health")
-	var saved := SaveGame.load_profile(_path())
-	assert_eq(saved.potion_count(&"potion_health"), 1)
-	assert_eq(saved.gold, 60)
-
-
-func test_next_run_has_the_bought_potion_in_the_bar() -> void:
-	var profile := PlayerProfile.new()
-	profile.add_gold(100)
-	SaveGame.save_profile(profile, _path())
-	var first := _new_main(_path())
-	_die(first)
-	(first.get_node("DeathScreen") as DeathScreen).input_delay_msec = 0
-	(first.get_node("DeathScreen/ShopButton") as Button).pressed.emit()
-	var shop := first.get_node("ShopScreen") as ShopScreen
-	shop.input_guard_msec = 0
-	shop.buy_potion(&"potion_health")
-	first.free()
-	var second := _new_main(_path())
-	assert_eq(_player(second).belt.count(&"potion_health"), 1)
-	assert_eq((second.get_node("Hud/PotionBar") as PotionBar).widgets[0].count, 1)
 
 
 func test_a_potion_slot_press_blocks_casting_until_the_cast_input_is_released() -> void:
-	_save_with_potions({&"potion_health": 1})
-	var main := _new_main(_path())
+	var main := _stocked({&"potion_health": 1})
 	(main.get_node("Hud/PotionBar") as PotionBar).slot_pressed.emit(0)
 	assert_true(_player(main)._cast_blocked, "a click on a slot must not also fire a spell")
 
@@ -620,3 +585,20 @@ func test_the_death_summary_shows_time_survived() -> void:
 func test_the_hud_has_a_run_clock() -> void:
 	var main := _new_main("")
 	assert_not_null(main.get_node("Hud/RunClockLabel") as RunClockLabel)
+
+
+func test_old_save_potions_are_cashed_in_once_and_never_written_again() -> void:
+	var file := FileAccess.open(_path(), FileAccess.WRITE)
+	file.store_string(JSON.stringify({"version": SaveGame.VERSION, "total_xp": 0, "gold": 10, "potions": {"potion_health": 2, "potion_speed": 1}}))
+	file.close()
+	var main := _new_main(_path())
+	var catalog := PotionCatalog.default_catalog()
+	var expected := 10 + 2 * catalog.find(&"potion_health").price + catalog.find(&"potion_speed").price
+	assert_eq(main.profile.gold, expected)
+	assert_true(main.run_potions.is_empty(), "the run starts with none")
+	var saved := FileAccess.get_file_as_string(_path())
+	assert_false(saved.contains("potions"), "the rewritten save has no potions")
+	assert_eq(SaveGame.load_profile(_path()).gold, expected)
+	main.free()
+	var again := _new_main(_path())
+	assert_eq(again.profile.gold, expected, "a second start cashes in nothing more")

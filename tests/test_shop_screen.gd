@@ -168,98 +168,12 @@ func test_the_close_button_works_inside_the_input_guard() -> void:
 	assert_false(_screen.is_open())
 
 
-func test_open_lists_the_six_potions() -> void:
+func test_the_shop_has_no_potions_row() -> void:
 	_screen.open(_profile, _catalog)
-	assert_eq(_screen.potion_button_count(), 6)
 	assert_eq(_screen.item_button_count(), 15, "the equipment list is unchanged")
-	assert_string_contains(_screen.potion_button_text(&"potion_health"), "Health")
-	assert_string_contains(_screen.potion_button_text(&"potion_health"), "40g")
-	assert_string_contains(_screen.potion_button_text(&"potion_health"), "x0")
-
-
-func test_buy_potion_through_the_screen_spends_gold_adds_one_and_emits_changed() -> void:
-	_profile.add_gold(100)
-	_screen.open(_profile, _catalog)
-	watch_signals(_screen)
-	_screen.buy_potion(&"potion_health")
-	assert_eq(_profile.gold, 60)
-	assert_eq(_profile.potion_count(&"potion_health"), 1)
-	assert_signal_emit_count(_screen, "changed", 1)
-	assert_eq(_screen.gold_text(), "Gold 60")
-	assert_string_contains(_screen.message_text(), "Health")
-
-
-func test_failed_potion_buy_shows_the_reason_and_emits_nothing() -> void:
-	_profile.add_gold(39)
-	_screen.open(_profile, _catalog)
-	watch_signals(_screen)
-	_screen.buy_potion(&"potion_health")
-	assert_eq(_screen.message_text(), ShopSystem.REASON_BROKE)
-	assert_signal_not_emitted(_screen, "changed")
-	assert_eq(_profile.potion_count(&"potion_health"), 0)
-	assert_eq(_profile.gold, 39)
-
-
-func test_potion_labels_show_the_count_and_update() -> void:
-	_profile.add_gold(500)
-	_screen.open(_profile, _catalog)
-	_screen.buy_potion(&"potion_speed")
-	_screen.buy_potion(&"potion_speed")
-	assert_string_contains(_screen.potion_button_text(&"potion_speed"), "x2")
-	assert_string_contains(_screen.potion_button_text(&"potion_luck"), "x0")
-
-
-func test_buying_a_potion_does_not_change_equipment() -> void:
-	_profile.add_gold(500)
-	_screen.open(_profile, _catalog)
-	_screen.buy(&"robe_ember")
-	var equipped := _profile.equipped.duplicate()
-	_screen.buy_potion(&"potion_mana")
-	assert_eq(_profile.equipped, equipped)
-	assert_eq(_profile.owned, [&"robe_ember"] as Array[StringName])
-
-
-func test_potion_presses_inside_the_input_guard_do_nothing() -> void:
-	_profile.add_gold(500)
-	_screen.input_guard_msec = 300
-	_screen.open(_profile, _catalog)
-	watch_signals(_screen)
-	_screen._on_potion_pressed(&"potion_health")
-	assert_eq(_profile.potion_count(&"potion_health"), 0)
-	assert_eq(_profile.gold, 500)
-	assert_signal_not_emitted(_screen, "changed")
-	_screen.input_guard_msec = 0
-	_screen._on_potion_pressed(&"potion_health")
-	assert_eq(_profile.potion_count(&"potion_health"), 1)
-
-
-func test_potion_buy_stops_at_99() -> void:
-	_profile.add_gold(100000)
-	_profile.add_potion(&"potion_health", 98)
-	_screen.open(_profile, _catalog)
-	_screen.buy_potion(&"potion_health")
-	assert_eq(_profile.potion_count(&"potion_health"), 99)
-	var gold := _profile.gold
-	_screen.buy_potion(&"potion_health")
-	assert_eq(_profile.potion_count(&"potion_health"), 99)
-	assert_eq(_profile.gold, gold)
-	assert_eq(_screen.message_text(), ShopSystem.REASON_FULL)
-
-
-func test_a_custom_potion_catalog_can_be_passed() -> void:
-	var small := PotionCatalog.new()
-	small.potions = [PotionCatalog.default_catalog().potions[0]] as Array[PotionData]
-	_screen.open(_profile, _catalog, small)
-	assert_eq(_screen.potion_button_count(), 1)
-
-
-func test_reopening_shows_the_current_potion_counts() -> void:
-	_profile.add_gold(200)
-	_screen.open(_profile, _catalog)
-	_screen.buy_potion(&"potion_damage")
-	_screen.close()
-	_screen.open(_profile, _catalog)
-	assert_string_contains(_screen.potion_button_text(&"potion_damage"), "x1")
+	assert_null(_screen.find_child("PotionGrid", true, false), "potions are sold only by the in-run merchant")
+	for button in _screen.find_children("*", "Button", true, false):
+		assert_false((button as Button).text.contains("Potion") or (button as Button).text.contains(" x"), (button as Button).text)
 
 
 func test_the_screen_sits_on_a_window_panel() -> void:
@@ -268,7 +182,7 @@ func test_the_screen_sits_on_a_window_panel() -> void:
 	assert_not_null(_screen.find_child("Backdrop", true, false))
 
 
-func test_the_close_button_is_red_and_potion_buy_buttons_are_green() -> void:
+func test_the_close_button_is_the_one_red_button_and_nothing_is_green() -> void:
 	_screen.open(_profile, _catalog)
 	var red := 0
 	var green := 0
@@ -280,7 +194,7 @@ func test_the_close_button_is_red_and_potion_buy_buttons_are_green() -> void:
 				red += 1
 				assert_eq((button as Button).text, "Close")
 	assert_eq(red, 1, "Close is the one red button: red means stop")
-	assert_eq(green, _screen.potion_button_count(), "buying is green: green means go")
+	assert_eq(green, 0, "the shop sells equipment, which is a plain cream button")
 
 
 func test_the_equipped_item_is_a_yellow_button_and_others_are_cream() -> void:
@@ -297,19 +211,15 @@ func _line_width(text: String) -> float:
 	return UiFont.plain().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, UiFont.SIZE).x
 
 
-func test_every_item_and_potion_button_text_fits_without_clipping() -> void:
+func test_every_item_button_text_fits_without_clipping() -> void:
 	_profile.add_gold(1000000)
-	_profile.add_potion(&"potion_invulnerability", 99)
 	_screen.open(_profile, _catalog)
 	var limit := ShopScreen.BUTTON_SIZE.x - 8.0
 	for pass_number in 2:
 		for item in _catalog.items:
 			assert_lte(_line_width(_screen.button_text(item.id)), limit, _screen.button_text(item.id))
-		for potion in PotionCatalog.default_catalog().potions:
-			assert_lte(_line_width(_screen.potion_button_text(potion.id)), limit, _screen.potion_button_text(potion.id))
 		for item in _catalog.items:
 			_screen.buy(item.id)
-		_screen.buy_potion(&"potion_invulnerability")
 
 
 func test_the_longest_descriptions_wrap_inside_the_detail_area() -> void:
@@ -321,7 +231,7 @@ func test_the_longest_descriptions_wrap_inside_the_detail_area() -> void:
 	assert_lte(lines, 3, "the detail label is three lines tall")
 
 
-func test_item_and_potion_buttons_are_at_least_22_px_tall() -> void:
+func test_item_buttons_are_at_least_22_px_tall() -> void:
 	_screen.open(_profile, _catalog)
 	assert_gte(ShopScreen.BUTTON_SIZE.y, 22.0)
 	for button in _screen.find_children("*", "Button", true, false):

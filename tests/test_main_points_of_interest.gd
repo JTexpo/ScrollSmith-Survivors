@@ -145,8 +145,8 @@ func test_the_merchant_opens_its_screen_and_a_purchase_is_saved() -> void:
 	screen.activate(&"potion_health")
 	var price := ShopSystem.potion_price(PotionCatalog.default_catalog().find(&"potion_health"), merchant.data.price_multiplier)
 	var reloaded := SaveGame.load_profile(path)
-	assert_eq(reloaded.potion_count(&"potion_health"), 1, "the sale was written to the save at once")
-	assert_eq(reloaded.gold, 1000 - price)
+	assert_eq(reloaded.gold, 1000 - price, "the Gold spent was written to the save at once")
+	assert_eq(_main.run_potions.potion_count(&"potion_health"), 1, "the potion is held for this run only")
 	assert_eq(_player.belt.count(&"potion_health"), 1, "and the potion belt shows it")
 	screen.close()
 

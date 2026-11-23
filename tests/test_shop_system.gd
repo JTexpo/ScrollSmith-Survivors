@@ -4,15 +4,19 @@ const S := StatBonuses.Stat
 
 var _catalog: EquipmentCatalog
 var _profile: PlayerProfile
+var _stock: RunPotions
 
 
 func before_each() -> void:
 	_catalog = EquipmentCatalog.default_catalog()
 	_profile = PlayerProfile.new()
+	_stock = RunPotions.new()
 
 
 func _snapshot() -> Dictionary:
-	return _profile.to_dict().duplicate(true)
+	var state := _profile.to_dict().duplicate(true)
+	state["stock"] = _stock.counts()
+	return state
 
 
 func test_buy_with_exactly_enough_gold_succeeds() -> void:
@@ -177,35 +181,35 @@ func _potions() -> PotionCatalog:
 
 func test_buy_potion_spends_gold_and_adds_one() -> void:
 	_profile.add_gold(100)
-	var result := ShopSystem.buy_potion(_profile, _potions(), &"potion_health")
+	var result := ShopSystem.buy_potion(_profile, _stock, _potions(), &"potion_health")
 	assert_true(result.ok)
 	assert_eq(result.reason, "")
 	assert_eq(result.potion.id, &"potion_health")
 	assert_null(result.item)
 	assert_eq(_profile.gold, 60)
-	assert_eq(_profile.potion_count(&"potion_health"), 1)
+	assert_eq(_stock.potion_count(&"potion_health"), 1)
 
 
 func test_buy_potion_with_exactly_enough_gold_succeeds() -> void:
 	_profile.add_gold(40)
-	assert_true(ShopSystem.buy_potion(_profile, _potions(), &"potion_health").ok)
+	assert_true(ShopSystem.buy_potion(_profile, _stock, _potions(), &"potion_health").ok)
 	assert_eq(_profile.gold, 0)
 
 
 func test_buy_potion_with_one_gold_too_few_fails_and_changes_nothing() -> void:
 	_profile.add_gold(39)
 	var before := _snapshot()
-	var result := ShopSystem.buy_potion(_profile, _potions(), &"potion_health")
+	var result := ShopSystem.buy_potion(_profile, _stock, _potions(), &"potion_health")
 	assert_false(result.ok)
 	assert_eq(result.reason, ShopSystem.REASON_BROKE)
 	assert_eq(_snapshot(), before)
 
 
-func test_buy_potion_at_99_fails_and_changes_nothing() -> void:
+func test_buy_potion_at_the_cap_of_three_fails_and_changes_nothing() -> void:
 	_profile.add_gold(10000)
-	_profile.add_potion(&"potion_speed", 99)
+	_stock.add_potion(&"potion_speed", 3)
 	var before := _snapshot()
-	var result := ShopSystem.buy_potion(_profile, _potions(), &"potion_speed")
+	var result := ShopSystem.buy_potion(_profile, _stock, _potions(), &"potion_speed")
 	assert_false(result.ok)
 	assert_eq(result.reason, ShopSystem.REASON_FULL)
 	assert_eq(_snapshot(), before)
@@ -215,7 +219,7 @@ func test_buy_an_unknown_potion_fails_and_changes_nothing() -> void:
 	_profile.add_gold(500)
 	var before := _snapshot()
 	for id in [&"nothing", &"", &"robe_ember"]:
-		var result := ShopSystem.buy_potion(_profile, _potions(), id)
+		var result := ShopSystem.buy_potion(_profile, _stock, _potions(), id)
 		assert_false(result.ok)
 		assert_eq(result.reason, ShopSystem.REASON_UNKNOWN)
 		assert_null(result.potion)
@@ -227,7 +231,7 @@ func test_buying_a_potion_does_not_touch_equipment() -> void:
 	ShopSystem.buy(_profile, _catalog, &"robe_ember")
 	var equipped := _profile.equipped.duplicate()
 	var owned := _profile.owned.duplicate()
-	ShopSystem.buy_potion(_profile, _potions(), &"potion_mana")
+	ShopSystem.buy_potion(_profile, _stock, _potions(), &"potion_mana")
 	assert_eq(_profile.equipped, equipped)
 	assert_eq(_profile.owned, owned)
 
@@ -235,8 +239,8 @@ func test_buying_a_potion_does_not_touch_equipment() -> void:
 func test_buying_several_potions_stacks() -> void:
 	_profile.add_gold(200)
 	for i in 3:
-		ShopSystem.buy_potion(_profile, _potions(), &"potion_speed")
-	assert_eq(_profile.potion_count(&"potion_speed"), 3)
+		ShopSystem.buy_potion(_profile, _stock, _potions(), &"potion_speed")
+	assert_eq(_stock.potion_count(&"potion_speed"), 3)
 	assert_eq(_profile.gold, 110)
 
 
@@ -274,16 +278,16 @@ func test_a_multiplied_price_is_rounded_up() -> void:
 
 func test_buy_potion_with_a_multiplier_spends_the_multiplied_price_and_grants_one() -> void:
 	_profile.add_gold(40)
-	var result := ShopSystem.buy_potion(_profile, _priced_catalog(10), &"priced", 1.5)
+	var result := ShopSystem.buy_potion(_profile, _stock, _priced_catalog(10), &"priced", 1.5)
 	assert_true(result.ok)
 	assert_eq(_profile.gold, 25)
-	assert_eq(_profile.potion_count(&"priced"), 1)
+	assert_eq(_stock.potion_count(&"priced"), 1)
 
 
 func test_a_multiplied_purchase_refuses_when_the_gold_is_below_the_multiplied_price_and_changes_nothing() -> void:
 	_profile.add_gold(14)
 	var before := _snapshot()
-	var result := ShopSystem.buy_potion(_profile, _priced_catalog(10), &"priced", 1.5)
+	var result := ShopSystem.buy_potion(_profile, _stock, _priced_catalog(10), &"priced", 1.5)
 	assert_false(result.ok)
 	assert_eq(result.reason, ShopSystem.REASON_BROKE)
 	assert_eq(_snapshot(), before)
@@ -294,9 +298,9 @@ func test_a_multiplied_purchase_refuses_when_the_gold_is_below_the_multiplied_pr
 
 func test_a_full_potion_stack_refuses_without_taking_gold_at_any_multiplier() -> void:
 	_profile.add_gold(500)
-	_profile.add_potion(&"priced", PlayerProfile.MAX_POTIONS)
+	_stock.add_potion(&"priced", RunPotions.MAX_POTIONS)
 	var before := _snapshot()
-	var result := ShopSystem.buy_potion(_profile, _priced_catalog(10), &"priced", 1.5)
+	var result := ShopSystem.buy_potion(_profile, _stock, _priced_catalog(10), &"priced", 1.5)
 	assert_false(result.ok)
 	assert_eq(result.reason, ShopSystem.REASON_FULL)
 	assert_eq(_snapshot(), before)
@@ -304,6 +308,6 @@ func test_a_full_potion_stack_refuses_without_taking_gold_at_any_multiplier() ->
 
 func test_the_default_multiplier_is_the_old_price() -> void:
 	_profile.add_gold(10)
-	var result := ShopSystem.buy_potion(_profile, _priced_catalog(10), &"priced")
+	var result := ShopSystem.buy_potion(_profile, _stock, _priced_catalog(10), &"priced")
 	assert_true(result.ok)
 	assert_eq(_profile.gold, 0)

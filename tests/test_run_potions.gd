@@ -62,3 +62,12 @@ func test_clear_empties_everything() -> void:
 	stock.add_potion(MANA, 1)
 	stock.clear()
 	assert_true(stock.is_empty())
+
+
+func test_counts_is_a_copy() -> void:
+	var stock := RunPotions.new()
+	stock.add_potion(HEAL, 2)
+	var counts := stock.counts()
+	assert_eq(counts, {HEAL: 2})
+	counts[HEAL] = 99
+	assert_eq(stock.potion_count(HEAL), 2)

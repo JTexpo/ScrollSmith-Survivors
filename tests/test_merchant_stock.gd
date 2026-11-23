@@ -72,3 +72,14 @@ func test_two_stocks_never_share_state() -> void:
 	assert_eq(second.count(&"a"), 2)
 	first.tick(50.0, 300.0)
 	assert_eq(second.restock_left(), 0.0)
+
+
+func test_seconds_to_restock_counts_the_whole_time_before_the_first_tick_and_zero_when_full() -> void:
+	var stock := _stock(2)
+	assert_eq(stock.seconds_to_restock(300.0), 0.0, "full stock needs no timer")
+	stock.take(&"a")
+	assert_eq(stock.seconds_to_restock(300.0), 300.0, "the timer starts on the next tick, so the whole time is left")
+	stock.tick(100.0, 300.0)
+	assert_almost_eq(stock.seconds_to_restock(300.0), 200.0, 0.01)
+	stock.tick(200.0, 300.0)
+	assert_eq(stock.seconds_to_restock(300.0), 0.0)

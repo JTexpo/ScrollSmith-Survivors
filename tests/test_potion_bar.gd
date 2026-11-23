@@ -2,7 +2,7 @@ extends GutTest
 
 var _root: Node2D
 var _player: Player
-var _profile: PlayerProfile
+var _profile: RunPotions
 var _catalog: PotionCatalog
 var _bar: PotionBar
 
@@ -12,7 +12,7 @@ func before_each() -> void:
 	add_child_autofree(_root)
 	_player = load("res://scenes/player/player.tscn").instantiate() as Player
 	_root.add_child(_player)
-	_profile = PlayerProfile.new()
+	_profile = RunPotions.new()
 	_catalog = PotionCatalog.default_catalog()
 	_player.belt.bind(_player, _profile, _catalog)
 	_bar = load("res://scenes/ui/potion_bar.tscn").instantiate() as PotionBar
@@ -31,9 +31,9 @@ func test_six_widgets_in_catalog_order_with_key_hints() -> void:
 
 func test_counts_follow_the_profile() -> void:
 	assert_true(_bar.widgets[0].dimmed)
-	_profile.add_potion(&"potion_health", 4)
+	_profile.add_potion(&"potion_health", 3)
 	_player.belt.refresh()
-	assert_eq(_bar.widgets[0].count, 4)
+	assert_eq(_bar.widgets[0].count, 3)
 	assert_false(_bar.widgets[0].dimmed)
 	assert_true(_bar.widgets[1].dimmed)
 

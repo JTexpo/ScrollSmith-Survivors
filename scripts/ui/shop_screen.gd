@@ -28,11 +28,9 @@ var _open: bool = false
 var _opened_at_msec: int = 0
 var _profile: PlayerProfile
 var _catalog: EquipmentCatalog
-var _potion_catalog: PotionCatalog
 var _message: String = ""
 
 var _buttons: Dictionary = {}
-var _potion_buttons: Dictionary = {}
 var _gold_label: Label
 var _detail_label: Label
 var _message_label: Label
@@ -65,13 +63,11 @@ func handle_input(event: InputEvent) -> bool:
 	return true
 
 
-## `potion_catalog` is the potions on sale (the default catalog when it is null).
-func open(profile: PlayerProfile, catalog: EquipmentCatalog, potion_catalog: PotionCatalog = null) -> void:
+func open(profile: PlayerProfile, catalog: EquipmentCatalog) -> void:
 	if _open:
 		return
 	_profile = profile
 	_catalog = catalog
-	_potion_catalog = potion_catalog if potion_catalog != null else PotionCatalog.default_catalog()
 	_message = ""
 	_open = true
 	_opened_at_msec = Time.get_ticks_msec()
@@ -95,14 +91,6 @@ func is_open() -> bool:
 
 func item_button_count() -> int:
 	return _buttons.size()
-
-
-func potion_button_count() -> int:
-	return _potion_buttons.size()
-
-
-func potion_button_text(id: StringName) -> String:
-	return (_potion_buttons[id] as Button).text
 
 
 ## The theme variation of an item's button: yellow for the worn one, the plain cream button otherwise.
@@ -154,13 +142,6 @@ func unequip(slot: int) -> void:
 		_finish(true, "", "Took off %s." % (worn.display_name if worn != null else "it"))
 
 
-## Buys one potion (it is not drunk: the stock is carried into the run).
-func buy_potion(id: StringName) -> void:
-	last_action = &"buy"
-	var result := ShopSystem.buy_potion(_profile, _potion_catalog, id)
-	_finish(result.ok, result.reason, "Bought %s." % (result.potion.display_name if result.potion != null else ""))
-
-
 func _finish(ok: bool, reason: String, success_message: String) -> void:
 	_message = success_message if ok else reason
 	_refresh()
@@ -190,15 +171,6 @@ func _build() -> void:
 		column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		column.add_theme_constant_override("separation", 1)
 		content.add_child(column)
-	content.add_child(_label("Potions", Vector2(8, 171), Vector2(152, 10), &"Heading"))
-	var grid := GridContainer.new()
-	grid.name = "PotionGrid"
-	grid.columns = 3
-	grid.position = Vector2(8, 182)
-	grid.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	grid.add_theme_constant_override("h_separation", 4)
-	grid.add_theme_constant_override("v_separation", 1)
-	content.add_child(grid)
 	_detail_label = _label("", Vector2(DETAIL_LEFT, 230), Vector2(DETAIL_WIDTH, 30))
 	content.add_child(_detail_label)
 	_message_label = _label("", Vector2(60, 3), Vector2(300, 12), &"Muted")
@@ -226,19 +198,6 @@ func _fill() -> void:
 			button.mouse_entered.connect(_show_detail.bind(item))
 			column.add_child(button)
 			_buttons[item.id] = button
-	_potion_buttons.clear()
-	var grid := find_child("PotionGrid", true, false) as GridContainer
-	for child in grid.get_children():
-		grid.remove_child(child)
-		child.queue_free()
-	for potion in _potion_catalog.potions:
-		var button := _button("", Vector2.ZERO, BUTTON_SIZE, &"ButtonGreen")
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.pressed.connect(_on_potion_pressed.bind(potion.id))
-		button.focus_entered.connect(_show_potion_detail.bind(potion))
-		button.mouse_entered.connect(_show_potion_detail.bind(potion))
-		grid.add_child(button)
-		_potion_buttons[potion.id] = button
 
 
 func _refresh() -> void:
@@ -253,9 +212,6 @@ func _refresh() -> void:
 			button.text = "%s (owned)" % item.display_name
 		else:
 			button.text = "%s  %dg" % [item.display_name, item.price]
-	for id in _potion_buttons:
-		var potion := _potion_catalog.find(id)
-		(_potion_buttons[id] as Button).text = "%s %dg x%d" % [potion.display_name.trim_suffix(" Potion"), potion.price, _profile.potion_count(id)]
 	_gold_label.text = gold_text()
 	_message_label.text = _message
 
@@ -265,17 +221,6 @@ func _on_item_pressed(id: StringName) -> void:
 		return
 	_show_detail(_catalog.find(id))
 	activate(id)
-
-
-func _on_potion_pressed(id: StringName) -> void:
-	if Time.get_ticks_msec() - _opened_at_msec < input_guard_msec:
-		return
-	_show_potion_detail(_potion_catalog.find(id))
-	buy_potion(id)
-
-
-func _show_potion_detail(potion: PotionData) -> void:
-	_detail_label.text = "%s  (%d Gold)\n%s" % [potion.display_name, potion.price, potion.description]
 
 
 func _show_detail(item: EquipmentData) -> void:

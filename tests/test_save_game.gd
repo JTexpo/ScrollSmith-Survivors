@@ -142,13 +142,13 @@ func test_a_save_with_a_bad_gold_field_is_kept_as_bak() -> void:
 	assert_true(FileAccess.file_exists(_path() + ".bak"))
 
 
-func test_potions_survive_save_and_load() -> void:
+func test_potions_are_not_written_to_the_save() -> void:
 	var profile := PlayerProfile.new()
 	profile.add_gold(10)
-	profile.add_potion(&"potion_mana", 7)
+	profile.legacy_potions[&"potion_mana"] = 7
 	assert_true(SaveGame.save_profile(profile, _path()))
 	var loaded := SaveGame.load_profile(_path())
-	assert_eq(loaded.potion_count(&"potion_mana"), 7)
+	assert_true(loaded.legacy_potions.is_empty())
 	assert_eq(loaded.gold, 10)
 
 

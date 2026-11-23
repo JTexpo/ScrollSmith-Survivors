@@ -332,7 +332,7 @@ func _potion_event(action: StringName) -> InputEventAction:
 
 
 func _stocked_belt() -> PotionBelt:
-	var profile := PlayerProfile.new()
+	var profile := RunPotions.new()
 	for potion in PotionCatalog.default_catalog().potions:
 		profile.add_potion(potion.id, 3)
 	_player.belt.bind(_player, profile, PotionCatalog.default_catalog())
