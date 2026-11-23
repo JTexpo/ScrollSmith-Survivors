@@ -11,6 +11,7 @@ func before_each() -> void:
 
 func after_each() -> void:
 	_board.set_muted(false)
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Music"), 0.0)
 	AudioServer.set_bus_mute(0, false)
 	get_tree().paused = false
 	SoundLibrary.reset_warnings()
@@ -136,4 +137,141 @@ func test_stop_all_frees_every_voice() -> void:
 	assert_gt(_board.voices_in_use(), 0)
 	_board.stop_all()
 	assert_eq(_board.voices_in_use(), 0)
+
+
+func _key() -> InputEventKey:
+	var event := InputEventKey.new()
+	event.pressed = true
+	event.keycode = KEY_A
+	return event
+
+
+func _touch() -> InputEventScreenTouch:
+	var event := InputEventScreenTouch.new()
+	event.pressed = true
+	return event
+
+
+func _click() -> InputEventMouseButton:
+	var event := InputEventMouseButton.new()
+	event.pressed = true
+	event.button_index = MOUSE_BUTTON_LEFT
+	return event
+
+
+func test_music_does_not_start_before_the_first_input() -> void:
+	_board.start_music()
+	assert_eq(_board.music_state(), &"off")
+	assert_eq(_board.music_starts(), 0)
+
+
+func test_the_first_key_touch_or_click_unlocks_and_starts_the_run_loop() -> void:
+	for event in [_key(), _touch(), _click()]:
+		var board := _make()
+		board._input(event)
+		assert_true(board.is_unlocked(), str(event))
+		assert_eq(board.music_state(), &"run", str(event))
+
+
+func test_releasing_a_key_or_moving_the_mouse_does_not_unlock() -> void:
+	var release := InputEventKey.new()
+	release.pressed = false
+	_board._input(release)
+	_board._input(InputEventMouseMotion.new())
+	assert_false(_board.is_unlocked())
+
+
+func test_a_second_input_does_not_restart_the_music() -> void:
+	_board._input(_key())
+	_board._input(_key())
+	_board._input(_click())
+	assert_eq(_board.music_starts(), 1)
+
+
+func test_boss_music_fades_in_and_out_and_the_run_loop_returns() -> void:
+	_board._input(_key())
+	var run_db := _board.music_target_db(&"run")
+	_board.set_boss_music(true)
+	assert_eq(_board.music_state(), &"boss")
+	_board.advance_music(SoundBoard.CROSSFADE + 0.1)
+	assert_almost_eq(_board.music_volume_db(&"boss"), _board.music_target_db(&"boss"), 0.01)
+	assert_lt(_board.music_volume_db(&"run"), run_db - 30.0, "the run loop is faded under the boss loop")
+	_board.set_boss_music(false)
+	assert_eq(_board.music_state(), &"run")
+	_board.advance_music(SoundBoard.CROSSFADE + 0.1)
+	assert_almost_eq(_board.music_volume_db(&"run"), run_db, 0.01)
+	assert_lt(_board.music_volume_db(&"boss"), -40.0)
+	assert_false(_board.music_playing(&"boss"), "the boss loop is stopped once faded out, so the next boss starts it from the top")
+	assert_true(_board.music_playing(&"run"))
+
+
+func test_boss_music_twice_in_a_row_does_not_restart_it() -> void:
+	_board._input(_key())
+	_board.set_boss_music(true)
+	_board.set_boss_music(true)
+	assert_eq(_board.music_starts(), 2, "one start for the run loop and one for the boss loop")
+
+
+func test_the_run_loop_keeps_playing_under_the_boss_loop_so_it_does_not_restart() -> void:
+	_board._input(_key())
+	_board.set_boss_music(true)
+	assert_true(_board.music_playing(&"run"))
+	_board.set_boss_music(false)
+	assert_eq(_board.music_starts(), 2, "the run loop was not started again")
+
+
+func test_pausing_lowers_the_music_and_unpausing_restores_it_without_restarting_it() -> void:
+	_board._input(_key())
+	_board.advance_music(0.1)
+	assert_almost_eq(_board.music_bus_db(), 0.0, 0.01)
+	get_tree().paused = true
+	_board.advance_music(0.1)
+	assert_almost_eq(_board.music_bus_db(), SoundBoard.PAUSED_MUSIC_DB, 0.01)
+	get_tree().paused = false
+	_board.advance_music(0.1)
+	assert_almost_eq(_board.music_bus_db(), 0.0, 0.01)
+	assert_eq(_board.music_starts(), 1, "no restart")
+	assert_true(_board.music_playing(&"run"))
+
+
+func test_muting_while_music_plays_and_unmuting_resumes_it() -> void:
+	_board._input(_key())
+	_board.set_muted(true)
+	assert_eq(_board.music_state(), &"run")
+	assert_true(_board.music_playing(&"run"), "the music runs silently, so it is where it should be on unmute")
+	_board.set_muted(false)
+	assert_eq(_board.music_starts(), 1)
+	assert_true(_board.music_playing(&"run"))
+
+
+func test_duck_lowers_then_restores_the_music() -> void:
+	_board._input(_key())
+	_board.duck(1.0, 12.0)
+	assert_almost_eq(_board.music_bus_db(), -12.0, 0.01)
+	_board.advance_music(0.5)
+	assert_between(_board.music_bus_db(), -12.0, 0.0)
+	_board.advance_music(0.6)
+	assert_almost_eq(_board.music_bus_db(), 0.0, 0.01)
+
+
+func test_losing_focus_pauses_the_music_and_gaining_it_resumes() -> void:
+	_board._input(_key())
+	_board._notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
+	assert_true(_board.music_stream_paused())
+	_board._notification(NOTIFICATION_APPLICATION_FOCUS_IN)
+	assert_false(_board.music_stream_paused())
+	_board._notification(NOTIFICATION_WM_WINDOW_FOCUS_OUT)
+	assert_true(_board.music_stream_paused())
+	_board._notification(NOTIFICATION_WM_WINDOW_FOCUS_IN)
+	assert_false(_board.music_stream_paused())
+
+
+func test_a_missing_music_stream_is_skipped_and_reported_once() -> void:
+	var nothing := SoundCatalog.new()
+	var board := _make(nothing)
+	board._input(_key())
+	board.start_music()
+	assert_eq(board.music_state(), &"off")
+	assert_true(SoundLibrary.has_warned(SoundId.MUSIC_RUN))
+	assert_eq(SoundLibrary.warnings_issued, 1)
 
