@@ -36,6 +36,7 @@ var _players: Array[AudioStreamPlayer] = []
 var _streams: Dictionary = {}
 var _unlocked: bool = false
 var _dropped: int = 0
+var _started: int = 0
 var _last_pitch: float = 1.0
 
 var _music: Dictionary = {}
@@ -132,6 +133,11 @@ func calls_dropped() -> int:
 	return _dropped
 
 
+## How many sounds really got a voice (for tests and the stress scene).
+func plays_started() -> int:
+	return _started
+
+
 func last_pitch_scale() -> float:
 	return _last_pitch
 
@@ -164,6 +170,7 @@ func play(id: StringName, pitch: float = 1.0) -> void:
 	_last_pitch = pitch * pow(2.0, rng.randf_range(-data.wobble, data.wobble) / 12.0)
 	player.pitch_scale = _last_pitch
 	player.play()
+	_started += 1
 	_limiter.started(index, data, now)
 
 
