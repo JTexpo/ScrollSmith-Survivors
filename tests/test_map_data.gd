@@ -106,3 +106,58 @@ func test_a_clear_obstacle_is_fine() -> void:
 	var map := _map()
 	map.obstacles = [_rect_at(Vector2(300, 80), Vector2(40, 20))] as Array[MapObstacle]
 	assert_true(map.problems().is_empty())
+
+
+func _maze_at(area: Rect2) -> MapMaze:
+	var maze := MapMaze.new()
+	maze.area = area
+	maze.cell_size = 80.0
+	maze.wall_thickness = 16.0
+	maze.seed = 4
+	return maze
+
+
+func _zone(area: Rect2) -> MapZone:
+	var zone := MapZone.new()
+	zone.area = area
+	zone.display_name = "Test"
+	zone.floor_color = Color(0.2, 0.3, 0.2)
+	return zone
+
+
+func test_solid_shapes_are_the_obstacles_then_every_maze() -> void:
+	var map := _map()
+	var authored := _rect_at(Vector2(350, 280), Vector2(20, 10))
+	var maze := _maze_at(Rect2(40, 30, 320, 240))
+	map.obstacles = [authored] as Array[MapObstacle]
+	map.mazes = [maze] as Array[MapMaze]
+	var shapes := map.solid_shapes()
+	var walls := maze.shapes()
+	assert_eq(shapes.size(), 1 + walls.size())
+	assert_same(shapes[0], authored)
+	for i in walls.size():
+		assert_eq(shapes[1 + i].position, walls[i].position)
+		assert_eq(shapes[1 + i].size, walls[i].size)
+
+
+func test_a_maze_wall_on_the_player_start_is_reported() -> void:
+	var map := _map()
+	map.player_start = Vector2(40, 150)
+	map.mazes = [_maze_at(Rect2(40, 30, 320, 240))] as Array[MapMaze]
+	assert_gt(map.problems().size(), 0)
+
+
+func test_problems_name_a_bad_maze_and_a_bad_zone() -> void:
+	var map := _map()
+	map.mazes = [_maze_at(Rect2(350, 250, 320, 240))] as Array[MapMaze]
+	map.zones = [_zone(Rect2(10, 10, 0, 50))] as Array[MapZone]
+	var found := map.problems()
+	assert_eq(found.size(), 2, str(found))
+
+
+func test_a_valid_maze_and_zone_are_fine() -> void:
+	var map := _map()
+	map.player_start = Vector2(160, 150)
+	map.mazes = [_maze_at(Rect2(40, 30, 320, 240))] as Array[MapMaze]
+	map.zones = [_zone(Rect2(0, 0, 200, 150))] as Array[MapZone]
+	assert_true(map.problems().is_empty(), str(map.problems()))
