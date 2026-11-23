@@ -56,6 +56,11 @@ func advance(delta: float) -> void:
 		set_process(false)
 
 
+## How much shake is left, 0 to 1 (for the effects-test scene's readout).
+func trauma() -> float:
+	return _trauma.value()
+
+
 func shakes_made() -> int:
 	return _shakes
 

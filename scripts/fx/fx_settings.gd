@@ -42,6 +42,17 @@ static func reduce_motion() -> void:
 	hurt_feedback = false
 
 
+## One switch by its key (a name in `SWITCH_KEYS`); false for an unknown key.
+static func get_switch(key: String) -> bool:
+	return to_dict().get(key, false) == true
+
+
+## Sets one switch by its key; an unknown key changes nothing.
+static func set_switch(key: String, on: bool) -> void:
+	if key in SWITCH_KEYS:
+		apply({key: on})
+
+
 ## All the settings as plain data, for a settings screen to save.
 static func to_dict() -> Dictionary:
 	return {

@@ -122,3 +122,13 @@ func test_turning_the_heart_beat_off_keeps_the_heart_still() -> void:
 	FxSettings.heart_beat = true
 	bar.beat()
 	assert_ne(bar.heart_texture(), normal)
+
+
+func test_a_switch_can_be_read_and_set_by_its_key() -> void:
+	for key in FxSettings.SWITCH_KEYS:
+		FxSettings.set_switch(key, false)
+		assert_false(FxSettings.get_switch(key), "%s is off" % key)
+		FxSettings.set_switch(key, true)
+		assert_true(FxSettings.get_switch(key), "%s is on" % key)
+	FxSettings.set_switch("no_such_switch", false)
+	assert_false(FxSettings.get_switch("no_such_switch"), "an unknown key is just false")
