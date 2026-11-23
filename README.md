@@ -452,7 +452,7 @@ Potions are consumable items that provide temporary benefits during an adventure
 
 Unlike Robes, Staffs, Wands, and Hats, potions are consumed when used.
 
-Potions are bought one at a time in the death-screen shop. You carry everything you own into every run (up to 99 of each type), and unused potions are kept when you die. A potion bar shows each type with how many you have, its cooldown and, while a timed effect runs, how long is left. Drinking saves at once, so quitting can't refund a potion.
+Potions last one run. They are sold only by the merchant you find in the world (at 1.5 times the price, two of each at a time, restocking a few minutes after the first sale, with a timer on the merchant), you can hold at most 3 of each type, and any you did not drink are gone when the run ends. A potion bar shows each type with how many you have, its cooldown and, while a timed effect runs, how long is left.
 
 | Potion | Price | Effect | Cooldown |
 |---|---|---|---|

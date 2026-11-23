@@ -1,6 +1,6 @@
 # Sprint 14b Design: Balance
 
-**Status:** Approved, in progress.
+**Status:** Built (Sprint 14b).
 
 Sprint 14 is three parts: **14a** the world pass (done), **14b** balance (this doc), **14c** optimization. Scope comes from the user's play-test notes after Sprint 13, `CLAUDE.md` and the numbers in the data files. Decisions below were agreed with the user in conversation, except where marked "my call".
 
