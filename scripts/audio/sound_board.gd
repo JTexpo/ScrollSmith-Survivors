@@ -40,6 +40,8 @@ var _unlocked: bool = false
 var _dropped: int = 0
 var _started: int = 0
 var _last_pitch: float = 1.0
+var _last_volume_offset: float = 0.0
+var _impact_config: ImpactConfig
 
 var _music: Dictionary = {}
 var _music_levels: Dictionary = {&"run": -14.0, &"boss": -14.0}
@@ -171,8 +173,12 @@ func last_pitch_scale() -> float:
 	return _last_pitch
 
 
-## Plays a sound effect. `pitch` multiplies the sound's own random wobble.
-func play(id: StringName, pitch: float = 1.0) -> void:
+func last_volume_offset_db() -> float:
+	return _last_volume_offset
+
+
+## Plays a sound effect. `pitch` multiplies the sound's own random wobble and `volume_offset_db` adds to its volume.
+func play(id: StringName, pitch: float = 1.0, volume_offset_db: float = 0.0) -> void:
 	requested.emit(id)
 	if muted or not _unlocked:
 		return
@@ -196,7 +202,8 @@ func play(id: StringName, pitch: float = 1.0) -> void:
 	var player := _players[index]
 	player.stop()
 	player.stream = _streams[id]
-	player.volume_db = data.volume_db
+	player.volume_db = data.volume_db + volume_offset_db
+	_last_volume_offset = volume_offset_db
 	_last_pitch = pitch * pow(2.0, rng.randf_range(-data.wobble, data.wobble) / 12.0)
 	player.pitch_scale = _last_pitch
 	player.play()
@@ -319,6 +326,7 @@ func bind(main: Node) -> void:
 	_player.progress.leveled_up.connect(_on_level_up)
 	var spawner := main.get_node("EnemySpawner") as EnemySpawner
 	spawner.enemy_damaged.connect(_on_enemy_damaged)
+	bind_impacts()
 	spawner.enemy_died.connect(_on_enemy_died)
 	var director := main.get_node("RunDirector") as RunDirector
 	director.boss_spawned.connect(_on_boss_spawned)
@@ -351,14 +359,27 @@ func _on_cast(index: int, loadout: SpellLoadout) -> void:
 	play(StringName("cast_" + _element_name(_last_element)))
 
 
-## A hit sounds like the element of the last cast (the hit signal does not carry the element). A strong hit adds a bright accent
-## and a resisted one a dull one.
+## A strong hit adds a bright accent and a resisted one a dull one. The base hit sound itself comes from the spell's own hit event
+## (`_on_impact`), which knows the hit's element and weight.
 func _on_enemy_damaged(_position: Vector2, _amount: float, effect: int) -> void:
-	play(StringName("hit_" + _element_name(_last_element)))
 	if effect == ElementTable.Effect.VULNERABLE:
 		play(SoundId.HIT_STRONG)
 	elif effect == ElementTable.Effect.RESISTED:
 		play(SoundId.HIT_RESISTED)
+
+
+## Listens for spell hits (called by `bind`; tests call it directly).
+func bind_impacts() -> void:
+	if not ImpactEvents.bus.hit.is_connected(_on_impact):
+		ImpactEvents.bus.hit.connect(_on_impact)
+
+
+## The hit sound of the hit's own element, lower and louder the heavier the spell.
+func _on_impact(_position: Vector2, weight: float, element_id: StringName) -> void:
+	if _impact_config == null:
+		_impact_config = ImpactConfig.default_config()
+	var element := element_id if element_id in [&"fire", &"thunder", &"land", &"sea"] else &"fire"
+	play(StringName("hit_" + String(element)), 1.0 - _impact_config.sound_pitch_drop * weight, _impact_config.sound_volume_up_db * weight)
 
 
 func _on_enemy_died(enemy: Enemy) -> void:

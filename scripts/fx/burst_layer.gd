@@ -28,20 +28,20 @@ func _process(delta: float) -> void:
 
 
 ## `style` is sparks, dust, stars or sparkle (anything else is ignored); each particle takes one of `colors` at random.
-func burst(position: Vector2, style: StringName, colors: Array[Color], count: int) -> void:
+func burst(at: Vector2, style: StringName, colors: Array[Color], count: int) -> void:
 	if colors.is_empty() or count <= 0:
 		return
 	for i in count:
 		var color := colors[_rng.randi() % colors.size()]
 		match style:
 			&"sparks":
-				_pool.emit(position, _spread(40.0, 110.0), _rng.randf_range(0.18, 0.35), color, _rng.randi_range(1, 2), 120.0, ParticlePool.SQUARE)
+				_pool.emit(at, _spread(40.0, 110.0), _rng.randf_range(0.18, 0.35), color, _rng.randi_range(1, 2), 120.0, ParticlePool.SQUARE)
 			&"dust":
-				_pool.emit(position, _spread(10.0, 35.0), _rng.randf_range(0.3, 0.5), color, _rng.randi_range(2, 3), -20.0, ParticlePool.SQUARE)
+				_pool.emit(at, _spread(10.0, 35.0), _rng.randf_range(0.3, 0.5), color, _rng.randi_range(2, 3), -20.0, ParticlePool.SQUARE)
 			&"stars":
-				_pool.emit(position, Vector2(_rng.randf_range(-15.0, 15.0), -_rng.randf_range(15.0, 40.0)), _rng.randf_range(0.4, 0.7), color, _rng.randi_range(1, 2), 0.0, ParticlePool.TWINKLE)
+				_pool.emit(at, Vector2(_rng.randf_range(-15.0, 15.0), -_rng.randf_range(15.0, 40.0)), _rng.randf_range(0.4, 0.7), color, _rng.randi_range(1, 2), 0.0, ParticlePool.TWINKLE)
 			&"sparkle":
-				_pool.emit(position + _spread(0.0, 4.0), _spread(0.0, 5.0), _rng.randf_range(0.25, 0.5), color, 1, 0.0, ParticlePool.TWINKLE)
+				_pool.emit(at + _spread(0.0, 4.0), _spread(0.0, 5.0), _rng.randf_range(0.25, 0.5), color, 1, 0.0, ParticlePool.TWINKLE)
 			_:
 				return
 	set_process(true)

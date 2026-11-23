@@ -65,3 +65,9 @@ func test_impact_events_announce_a_hit() -> void:
 	ImpactEvents.bus.hit.emit(Vector2(1, 2), 0.5, &"fire")
 	ImpactEvents.bus.hit.disconnect(listen)
 	assert_eq(heard, [[Vector2(1, 2), 0.5, &"fire"]])
+
+
+func test_a_damage_multiplier_makes_a_hit_heavier() -> void:
+	var spell := _spell(0.5, 10.0)
+	assert_gt(ImpactWeight.of(spell, null, 3.0), ImpactWeight.of(spell, null, 1.0), "a double-damage roll or a robe's bonus is a harder hit")
+	assert_eq(ImpactWeight.of(spell, null, 1.0), ImpactWeight.of(spell))

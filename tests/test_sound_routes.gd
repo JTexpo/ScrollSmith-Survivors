@@ -55,12 +55,14 @@ func test_a_cast_plays_the_cast_sound_of_the_spells_element() -> void:
 		assert_true(_heard.has(id), "%s for %s" % [id, SPELLS[id]])
 
 
-func test_a_hit_sounds_like_the_element_of_the_last_cast() -> void:
-	_player.loadout.equip(0, load(SPELLS[&"cast_thunder"]) as SpellData)
-	_player.loadout.cast_fired.emit(0)
-	_heard.clear()
-	_spawner.enemy_damaged.emit(Vector2.ZERO, 5.0, ElementTable.Effect.NEUTRAL)
+func test_a_spell_hit_sounds_like_its_own_element() -> void:
+	ImpactEvents.bus.hit.emit(Vector2.ZERO, 0.4, &"thunder")
 	assert_eq(_heard, [&"hit_thunder"] as Array[StringName])
+
+
+func test_a_damaged_enemy_alone_adds_no_base_hit_sound() -> void:
+	_spawner.enemy_damaged.emit(Vector2.ZERO, 5.0, ElementTable.Effect.NEUTRAL)
+	assert_eq(_heard.size(), 0, "the base hit sound comes from the spell's own hit event, so it has the right element and weight")
 
 
 func test_a_vulnerable_hit_adds_the_strong_accent() -> void:
