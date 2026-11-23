@@ -48,7 +48,10 @@ func after_each() -> void:
 		for file in DirAccess.get_files_at(absolute):
 			DirAccess.remove_absolute("%s/%s" % [absolute, file])
 		DirAccess.remove_absolute(absolute)
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(_dir))
+	var top := ProjectSettings.globalize_path(_dir)
+	for file in DirAccess.get_files_at(top):
+		DirAccess.remove_absolute("%s/%s" % [top, file])
+	DirAccess.remove_absolute(top)
 
 
 func _palette() -> ArtPalette:
