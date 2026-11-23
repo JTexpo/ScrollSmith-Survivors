@@ -80,3 +80,4 @@ The map is 1920 by 1080, the start is (960, 540). The two mazes are north-west (
 - The north Lectern is at (1024, 144) and the merchant yard at (1210, 384) with its gate on the west side, for the same reason (lanes under 48 px). Chest and west Lectern moved by 8 px and 6 px onto cell corners.
 - Four old hedge walls were removed (not two tree circles): (200, 740), (280, 740), (990, 180) and (990, 260).
 - The grove is two clumps of three trees, not five single trees.
+- Review fixes (after merging): rings are seven trees of radius 18 at 40 degree steps (the six-tree rings left 13 px slits the 12 px player could walk through); the east room gained a cap at y 340 (its north side was a second way in); the west Lectern is at (176, 688) and the chest ring opens east; the guard test now needs exactly one opening and a ray length of 170 px.

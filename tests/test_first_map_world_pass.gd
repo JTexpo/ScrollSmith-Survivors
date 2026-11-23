@@ -4,6 +4,8 @@ extends GutTest
 
 const SCENE_DIR := "res://scenes/interactables/"
 const RAYS := 16
+## The player is a 12 px box, so a gap it could slip through is anything 12 px or wider; rays are grown by half of that.
+const PLAYER_HALF_WIDTH := 6.0
 
 var _map: MapData
 var _shapes: Array[MapObstacle]
@@ -32,7 +34,7 @@ func _points() -> Array[Vector2]:
 func _ray_blocked(point: Vector2, index: int, length: float) -> bool:
 	var target := point + Vector2.from_angle(TAU * index / RAYS) * length
 	for shape in _shapes:
-		if shape.blocks_segment(point, target, _map.body_clearance):
+		if shape.blocks_segment(point, target, PLAYER_HALF_WIDTH):
 			return true
 	return false
 
@@ -83,12 +85,53 @@ func test_the_lecterns_are_spread_and_away_from_the_start() -> void:
 			assert_gte(lecterns[i].distance_to(lecterns[j]), 700.0)
 
 
+## The free rays as runs round the circle (a closed guard with one opening has exactly one run).
+func _free_runs(point: Vector2, length: float) -> Array[int]:
+	var free: Array[bool] = []
+	for i in RAYS:
+		free.append(not _ray_blocked(point, i, length))
+	var start := -1
+	for i in RAYS:
+		if not free[i] and free[(i + 1) % RAYS]:
+			start = (i + 1) % RAYS
+			break
+	var runs: Array[int] = []
+	if start < 0:
+		return runs
+	var run := 0
+	for k in RAYS:
+		if free[(start + k) % RAYS]:
+			run += 1
+		elif run > 0:
+			runs.append(run)
+			run = 0
+	if run > 0:
+		runs.append(run)
+	return runs
+
+
 func test_each_new_guard_is_closed_on_all_but_one_side() -> void:
 	for spot in _guarded():
-		var blocked := _rays_blocked(spot, 120.0)
-		assert_gte(blocked, 10, "%s is not enclosed (%d of %d rays blocked)" % [spot, blocked, RAYS])
-		assert_lte(blocked, 15, "%s has no opening (%d of %d rays blocked)" % [spot, blocked, RAYS])
+		var runs := _free_runs(spot, 170.0)
+		assert_eq(runs.size(), 1, "%s should have exactly one opening, runs %s" % [spot, str(runs)])
+		if runs.size() == 1:
+			assert_lte(runs[0], 5, "the opening at %s is too wide (%d rays)" % [spot, runs[0]])
 		assert_true(_opens_to_open_ground(spot), "the opening at %s does not lead to open ground" % spot)
+
+
+func test_no_gap_between_ring_trees_lets_the_player_through() -> void:
+	for spot in _positions("treasure_chest") + _positions("lectern"):
+		var ring: Array[MapObstacle] = []
+		for shape in _shapes:
+			if shape.material == &"tree" and shape.kind == MapObstacle.Kind.CIRCLE and absf(shape.position.distance_to(spot) - 62.0) < 1.0:
+				ring.append(shape)
+		if ring.size() < 5:
+			continue
+		for i in ring.size():
+			for j in range(i + 1, ring.size()):
+				var between := ring[i].position.distance_to(ring[j].position)
+				if between < 62.0 * 1.2:
+					assert_lt(between - ring[i].radius - ring[j].radius, 12.0, "trees at %s and %s leave a slit the player fits through" % [ring[i].position, ring[j].position])
 
 
 func test_the_map_is_still_valid_and_reachable() -> void:
