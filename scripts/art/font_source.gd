@@ -1,6 +1,6 @@
 class_name FontSource
 extends RefCounted
-## One pixel font read from a `.font` text file: `ascent <n>` and `descent <n>` (rows above and below the baseline), then
+## One pixel font read from a `.pixelfont` text file: `ascent <n>` and `descent <n>` (rows above and below the baseline), then
 ## one block per character, `glyph <code> <advance>` followed by `ascent + descent` rows of `#` (ink) and `.` (clear), all
 ## the same width. `<advance>` is the pen step to the next character, so it holds the 1 px gap between letters. A line that
 ## starts with `# ` (a hash and a space) is a comment; a row never has a space, so a row of one `#` is still a row.

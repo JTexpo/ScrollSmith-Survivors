@@ -15,7 +15,7 @@ func after_each() -> void:
 
 
 func _source() -> FontSource:
-	return FontSource.parse(FileAccess.get_file_as_string("res://art/fonts/ui.font"))
+	return FontSource.parse(FileAccess.get_file_as_string("res://art/fonts/ui.pixelfont"))
 
 
 func test_the_font_source_has_no_errors() -> void:

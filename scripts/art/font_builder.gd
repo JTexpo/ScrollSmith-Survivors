@@ -48,7 +48,7 @@ static func fnt_text(source: FontSource, png_name: String, outlined: bool) -> St
 	return "\n".join(lines) + "\n"
 
 
-## Builds every `.font` in `source_dir` into `out_dir` as `<name>_plain` and `<name>_outlined` (a `.png` and a `.fnt`).
+## Builds every `.pixelfont` in `source_dir` into `out_dir` as `<name>_plain` and `<name>_outlined` (a `.png` and a `.fnt`).
 ## Returns the problems found.
 static func build_all(source_dir: String, out_dir: String) -> PackedStringArray:
 	files_written = 0
@@ -56,7 +56,7 @@ static func build_all(source_dir: String, out_dir: String) -> PackedStringArray:
 	var files := Array(DirAccess.get_files_at(source_dir))
 	files.sort()
 	for file in files:
-		if not String(file).ends_with(".font"):
+		if not String(file).ends_with(".pixelfont"):
 			continue
 		var path := "%s/%s" % [source_dir, file]
 		var source := FontSource.parse(FileAccess.get_file_as_string(path))

@@ -202,7 +202,7 @@ func test_each_committed_set_equals_what_the_tool_writes() -> void:
 
 
 func test_each_committed_font_equals_what_the_tool_builds() -> void:
-	var source := FontSource.parse(FileAccess.get_file_as_string("res://art/fonts/ui.font"))
+	var source := FontSource.parse(FileAccess.get_file_as_string("res://art/fonts/ui.pixelfont"))
 	assert_eq(source.errors.size(), 0, str(source.errors))
 	for outlined in [false, true]:
 		var build := "outlined" if outlined else "plain"

@@ -1,5 +1,5 @@
 extends SceneTree
-## The art tool. Reads `art/palette.txt`, every `art/sprites/*.sprite` and every `art/fonts/*.font` and writes the sheets,
+## The art tool. Reads `art/palette.txt`, every `art/sprites/*.sprite` and every `art/fonts/*.pixelfont` and writes the sheets,
 ## sprite sets and font sheets into `assets/`. Run it, then import:
 ##   godot --headless -s tools/art/art_builder.gd
 ##   godot --headless --import
