@@ -201,6 +201,21 @@ func test_each_committed_set_equals_what_the_tool_writes() -> void:
 			assert_eq(FileAccess.get_file_as_string(set_path), ArtBuilder.set_text(png_path, source), "%s has stale animation data: run the art tool" % set_path)
 
 
+func test_each_committed_font_equals_what_the_tool_builds() -> void:
+	var source := FontSource.parse(FileAccess.get_file_as_string("res://art/fonts/ui.font"))
+	assert_eq(source.errors.size(), 0, str(source.errors))
+	for outlined in [false, true]:
+		var build := "outlined" if outlined else "plain"
+		var png_path := "res://assets/fonts/ui_%s.png" % build
+		var fnt_path := "res://assets/fonts/ui_%s.fnt" % build
+		assert_true(_load_png(png_path).get_data() == FontBuilder.build_sheet(source, outlined).get_data(), "%s is stale: run the art tool" % png_path)
+		assert_eq(FileAccess.get_file_as_string(fnt_path), FontBuilder.fnt_text(source, "ui_%s.png" % build, outlined), "%s is stale: run the art tool" % fnt_path)
+
+
+func test_the_font_outline_is_the_palette_outline_color() -> void:
+	assert_eq(FontBuilder.OUTLINE_COLOR, _palette().colors["K"])
+
+
 func test_no_output_belongs_to_nothing() -> void:
 	var wanted := _wanted_files()
 	for file in DirAccess.get_files_at(OUT_DIR):
