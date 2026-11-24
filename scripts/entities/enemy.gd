@@ -12,6 +12,9 @@ signal damaged(position: Vector2, amount: float, effect: int)
 var speed: float = 0.0
 var target_offset: Vector2 = Vector2.ZERO
 ## An elite is tougher, bigger and worth more (see EliteModifier).
+## The map's enemy art set (`enemy_<set>_<type>` is tried before `enemy_<type>`); set by the spawner before `setup`. Empty means none.
+var art_set: StringName = &""
+
 var is_elite: bool = false
 ## False for an enemy that dies by its own blast (an Exploder): no XP, Gold or drops.
 var gives_rewards: bool = true
@@ -212,14 +215,27 @@ func _scaled_reward(base: int) -> int:
 ## when there is no art (hand-made data). The sprite is kept 1:1 whatever the node's scale, which sizes the hit shapes.
 func _apply_look() -> void:
 	_body.fallback_color = data.color
-	var key := "%s|%s" % [data.archetype_id, data.element_id]
+	var variant: StringName = data.element_id if data.element_id != &"" else &"none"
+	var sprite := look_sprite()
+	var key := "%s|%s" % [sprite, variant]
 	if key != _look_key:
 		_look_key = key
 		if data.archetype_id != &"":
-			_body.set_look(StringName("enemy_%s" % data.archetype_id), data.element_id if data.element_id != &"" else &"none")
+			_body.set_look(sprite, variant)
 	if _body.has_art():
 		_body.counter_scale(scale)
 		_body.play(&"move")
+
+
+## The sprite this enemy is drawn with: its map's art set version (`enemy_<set>_<type>`) when the set is named and that sprite exists, else
+## the plain `enemy_<type>`. A missing sprite therefore never replaces the old look.
+func look_sprite() -> StringName:
+	var plain := StringName("enemy_%s" % data.archetype_id)
+	if art_set == &"" or data.archetype_id == &"":
+		return plain
+	var variant: StringName = data.element_id if data.element_id != &"" else &"none"
+	var themed := StringName("enemy_%s_%s" % [art_set, data.archetype_id])
+	return themed if SpriteLibrary.find(themed, variant) != null else plain
 
 
 ## Plays a state animation (an attack, a fuse, a pulse), and goes back to walking after `seconds` (0 keeps it until

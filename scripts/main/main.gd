@@ -53,7 +53,7 @@ var catalog: EquipmentCatalog
 var potion_catalog: PotionCatalog
 ## The potions held this run (never saved, empty at every run start).
 var run_potions: RunPotions
-## The tally of this run (enemies, bosses, scrolls, crafts, potions, XP, Gold, level), never saved.
+## The tally of this run (enemies, bosses, scrolls, crafts, potions, XP, Gold), never saved.
 var run_stats: RunStats
 
 var _rng := RandomNumberGenerator.new()
@@ -160,6 +160,8 @@ func _apply_map() -> void:
 	_spawner.arena_bounds = area
 	if _map.map_data != null and _map.map_data.spawn_config != null:
 		_spawner.config = _map.map_data.spawn_config
+	if _map.map_data != null:
+		_spawner.enemy_art_set = _map.map_data.enemy_art_set
 	_player.global_position = _map.player_start()
 	_camera.limit_left = int(area.position.x)
 	_camera.limit_top = int(area.position.y)
@@ -342,21 +344,25 @@ func _rolled_notice(run_buffs: RunBuffs, reward_level: int) -> String:
 	return "%s gains %s" % [spell_name, scroll.display_name if scroll != null else "a buff"]
 
 
+## The id of the map this run is on (empty when the scene has no map data); bests are kept per map.
+func map_id() -> StringName:
+	return _map.map_data.id if _map.map_data != null else &""
+
+
 func _on_shop_requested() -> void:
 	_shop_screen.open(profile, catalog)
 
 
 func _on_player_died() -> void:
 	run_stats.freeze()
-	# XP, Gold and level come from the run's progress (it also counts XP that did not come from a gem, such as the debug key), then the
+	# XP and Gold come from the run's progress (it also counts XP that did not come from a gem, such as the debug key), then the
 	# bests are compared and saved, and the card only announces a record that really was written.
 	run_stats.xp = _player.progress.run_xp
 	run_stats.gold = _player.progress.run_gold
-	run_stats.level = _player.progress.level()
 	var seconds := RunClock.seconds()
-	var flags := RunRecords.update(profile, run_stats.enemies, run_stats.level, seconds)
+	var flags := RunRecords.update(profile, map_id(), run_stats.enemies, seconds)
 	var saved := _saver.save_now()
-	_death_screen.set_recap(RunRecap.rows(run_stats, seconds, profile, flags, saved))
+	_death_screen.set_recap(RunRecap.rows(run_stats, seconds, profile, flags, saved, map_id()))
 
 
 ## Opening needs nothing else open: the inventory pauses the game, and closing it later would unpause whatever screen it opened behind.

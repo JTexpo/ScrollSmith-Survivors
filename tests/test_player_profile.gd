@@ -276,29 +276,45 @@ func test_a_wrongly_typed_muted_field_is_ignored_not_fatal() -> void:
 	assert_false(restored.muted)
 
 
-func test_bests_round_trip_through_a_dictionary() -> void:
+func test_bests_round_trip_per_map() -> void:
 	var profile := PlayerProfile.new()
-	profile.best_seconds = 301
-	profile.best_enemies = 120
-	profile.best_level = 9
+	profile.set_best(&"forest", 301, 120)
+	profile.set_best(&"maze", 45, 9)
 	var parsed = JSON.parse_string(JSON.stringify(profile.to_dict()))
 	var restored := PlayerProfile.from_dict(parsed)
 	assert_not_null(restored)
-	assert_eq(restored.best_seconds, 301)
-	assert_eq(restored.best_enemies, 120)
-	assert_eq(restored.best_level, 9)
+	assert_eq(restored.best_seconds(&"forest"), 301)
+	assert_eq(restored.best_enemies(&"forest"), 120)
+	assert_eq(restored.best_seconds(&"maze"), 45)
+	assert_eq(restored.best_enemies(&"maze"), 9)
 
 
 func test_a_profile_with_no_bests_writes_no_bests_field() -> void:
 	assert_false(PlayerProfile.new().to_dict().has("bests"), "an old reader and an old save are unaffected")
+	var profile := PlayerProfile.new()
+	profile.set_best(&"forest", 0, 0)
+	assert_false(profile.to_dict().has("bests"), "all zeros are not written")
 
 
 func test_an_old_save_without_bests_loads_with_zero_bests() -> void:
 	var profile := PlayerProfile.from_dict({"version": SaveGame.VERSION, "total_xp": 8})
 	assert_not_null(profile)
-	assert_eq(profile.best_seconds, 0)
-	assert_eq(profile.best_enemies, 0)
-	assert_eq(profile.best_level, 0)
+	assert_eq(profile.best_seconds(&"first_map"), 0)
+	assert_eq(profile.best_enemies(&"first_map"), 0)
+
+
+func test_an_old_flat_bests_save_loads_as_the_ruins() -> void:
+	var profile := PlayerProfile.from_dict({"version": SaveGame.VERSION, "total_xp": 0, "bests": {"seconds": 90, "enemies": 12, "level": 7}})
+	assert_not_null(profile)
+	assert_eq(profile.best_seconds(&"first_map"), 90)
+	assert_eq(profile.best_enemies(&"first_map"), 12)
+	assert_eq(profile.best_seconds(&"forest"), 0, "only the ruins inherit the old records")
+	var written: Dictionary = profile.to_dict()["bests"]
+	assert_eq(written, {"first_map": {"seconds": 90, "enemies": 12}}, "written in the new shape, with no level")
+
+
+func test_a_bad_old_level_is_still_a_bad_save() -> void:
+	assert_null(PlayerProfile.from_dict({"version": SaveGame.VERSION, "total_xp": 0, "bests": {"seconds": 5, "level": 2.5}}))
 
 
 func test_a_bad_bests_value_is_a_bad_save() -> void:
@@ -309,6 +325,10 @@ func test_a_bad_bests_value_is_a_bad_save() -> void:
 		"string": {"bests": {"seconds": "9"}},
 		"negative": {"bests": {"enemies": -1}},
 		"fractional": {"bests": {"level": 2.5}},
+		"entry not a dictionary": {"bests": {"forest": 5}},
+		"entry string": {"bests": {"forest": {"seconds": "9"}}},
+		"entry negative": {"bests": {"forest": {"enemies": -1}}},
+		"entry fractional": {"bests": {"forest": {"seconds": 1.5}}},
 	}
 	for name in cases:
 		var data := base.duplicate()
@@ -316,9 +336,15 @@ func test_a_bad_bests_value_is_a_bad_save() -> void:
 		assert_null(PlayerProfile.from_dict(data), name)
 
 
-func test_a_partial_bests_dictionary_defaults_the_missing_keys() -> void:
-	var profile := PlayerProfile.from_dict({"version": SaveGame.VERSION, "total_xp": 0, "bests": {"enemies": 12}})
+func test_a_partial_map_entry_defaults_the_missing_keys() -> void:
+	var profile := PlayerProfile.from_dict({"version": SaveGame.VERSION, "total_xp": 0, "bests": {"maze": {"enemies": 12}}})
 	assert_not_null(profile)
-	assert_eq(profile.best_enemies, 12)
-	assert_eq(profile.best_seconds, 0)
-	assert_eq(profile.best_level, 0)
+	assert_eq(profile.best_enemies(&"maze"), 12)
+	assert_eq(profile.best_seconds(&"maze"), 0)
+
+
+func test_an_unknown_map_has_zero_bests() -> void:
+	var profile := PlayerProfile.new()
+	assert_eq(profile.best_seconds(&"nowhere"), 0)
+	assert_eq(profile.best_enemies(&"nowhere"), 0)
+

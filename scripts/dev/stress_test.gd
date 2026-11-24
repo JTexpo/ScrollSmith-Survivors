@@ -4,7 +4,7 @@ extends Node2D
 ## attacker fires, and reports frame time. Not part of the player-facing game.
 ##
 ## Run: godot --path . res://scenes/world/stress_test.tscn -- --enemies=300 --seconds=10
-## Options: --area=<missile|cone|zone|line|wave> --drops --boss --obstacles --sound --fx --minutes=M --copies=N --interval=SECONDS
+## Options: --area=<missile|cone|zone|line|wave> --drops --boss --obstacles --map=<forest|first_map|maze> --sound --fx --minutes=M --copies=N --interval=SECONDS
 ## The clock starts at --minutes (default 5), so by default every archetype is unlocked and elites are in the mix.
 
 const WARMUP_FRAMES := 30
@@ -40,6 +40,8 @@ const AREA_SPELLS := {
 @export var fx: bool = false
 ## --obstacles: uses the first map (its walls, obstacles and flow field) instead of the plain test arena.
 @export var obstacles: bool = false
+## --map=ID: uses that catalog map (and so implies --obstacles). An unknown id is reported and the first map kept.
+@export var map_id: String = ""
 ## --copies=N makes the stress spell fire N copies per cast (Duplicate Area), as a ring.
 @export var copies: int = 1
 ## --interval=S overrides the stress spell's cast interval (seconds), to measure at a real one.
@@ -73,7 +75,7 @@ var _fx_particles_max: int = 0
 func _ready() -> void:
 	_read_command_line()
 	if obstacles:
-		_use_first_map()
+		_use_map()
 	_rng.randomize()
 	_spawner.set_process(false)
 	_spawner.elapsed_override = minutes * 60.0
@@ -193,13 +195,31 @@ func _refill() -> void:
 			break
 
 
-## Swaps the test arena for the first map, and sets the spawner, camera and player start from it as Main does.
-func _use_first_map() -> void:
+## The catalog map with that id, and a problem line when there is none (the first map is then the answer). An empty id is no problem.
+static func map_for_id(id: String) -> Dictionary:
+	var ruins := load("res://resources/maps/first_map.tres") as MapData
+	if id.is_empty():
+		return {"map": ruins, "problem": ""}
+	var catalog := MapCatalog.default_catalog()
+	var entry := catalog.find(StringName(id))
+	if entry != null:
+		return {"map": entry.map, "problem": ""}
+	var ids := ", ".join(catalog.ids())
+	return {"map": ruins, "problem": "Unknown --map=%s (use %s)" % [id, ids]}
+
+
+## Swaps the test arena for the chosen map (the first one by default), and sets the spawner, camera and player start from it as Main does.
+func _use_map() -> void:
 	var arena := get_node_or_null("TestArena")
 	if arena != null:
 		remove_child(arena)
 		arena.queue_free()
 	var map := (load("res://scenes/world/game_map.tscn") as PackedScene).instantiate() as GameMap
+	var chosen := map_for_id(map_id)
+	if not String(chosen["problem"]).is_empty():
+		push_error(chosen["problem"])
+	map.map_data = chosen["map"]
+	_spawner.enemy_art_set = map.map_data.enemy_art_set
 	# The player is placed first, so the map's field is built for where the player really stands.
 	_player.global_position = map.player_start()
 	add_child(map)
@@ -224,6 +244,9 @@ func _read_command_line() -> void:
 		elif argument == "--boss":
 			boss = true
 		elif argument == "--obstacles":
+			obstacles = true
+		elif argument.begins_with("--map="):
+			map_id = argument.get_slice("=", 1)
 			obstacles = true
 		elif argument == "--fx":
 			fx = true

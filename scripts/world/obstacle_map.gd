@@ -29,6 +29,8 @@ var rebuild_count: int = 0
 var data: MapData
 ## Every solid shape of the map, taken once at `setup` (a maze adds dozens, so it is not rebuilt per segment).
 var shapes: Array[MapObstacle] = []
+## The box of each shape in `shapes` (same order), so a test can skip the shapes whose box cannot touch the segment it is asked about.
+var _boxes: Array[Rect2] = []
 var grid: ObstacleGrid
 var field := FlowField.new()
 
@@ -45,6 +47,9 @@ func setup(map: MapData) -> void:
 	data = map
 	grid = ObstacleGrid.build(map)
 	shapes = map.solid_shapes()
+	_boxes.clear()
+	for shape in shapes:
+		_boxes.append(shape.bounds())
 	var player := _player()
 	if player != null:
 		field.rebuild(grid, player.global_position)
@@ -93,8 +98,9 @@ func line_clear(from: Vector2, to: Vector2) -> bool:
 			break
 	if all_free:
 		return true
-	for shape in shapes:
-		if shape.blocks_segment(from, to, data.body_radius):
+	var box := _segment_box(from, to, data.body_radius)
+	for i in shapes.size():
+		if _boxes[i].intersects(box, true) and shapes[i].blocks_segment(from, to, data.body_radius):
 			return false
 	return true
 
@@ -109,8 +115,9 @@ func is_blocked(point: Vector2) -> bool:
 func overlaps_wall(point: Vector2) -> bool:
 	if grid == null or data == null or not grid.is_blocked(point):
 		return false
-	for shape in shapes:
-		if shape.contains(point, data.body_radius):
+	var box := _segment_box(point, point, data.body_radius)
+	for i in shapes.size():
+		if _boxes[i].intersects(box, true) and shapes[i].contains(point, data.body_radius):
 			return true
 	return false
 
@@ -121,10 +128,17 @@ func blocks_segment(from: Vector2, to: Vector2) -> bool:
 		return false
 	if grid != null and _cells_under_are_free(from, to):
 		return false
-	for obstacle in shapes:
-		if obstacle != null and obstacle.blocks_segment(from, to):
+	var box := _segment_box(from, to, 0.0)
+	for i in shapes.size():
+		if shapes[i] != null and _boxes[i].intersects(box, true) and shapes[i].blocks_segment(from, to):
 			return true
 	return false
+
+
+## The box of the segment grown by `grow` and a pixel, so a shape whose own box misses it cannot touch the segment (a shape test with `grow`
+## reaches at most `grow` beyond the shape's box). Skipping those shapes never changes an answer.
+func _segment_box(from: Vector2, to: Vector2, grow: float) -> Rect2:
+	return Rect2(from, Vector2.ZERO).expand(to).grow(grow + 1.0)
 
 
 ## `point` itself when free, otherwise the centre of the nearest free cell.

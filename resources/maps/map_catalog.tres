@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="MapCatalog" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://resources/maps/map_catalog.gd" id="1"]
+[ext_resource type="Script" path="res://resources/maps/map_entry.gd" id="2"]
+[ext_resource type="Resource" path="res://resources/maps/forest_map.tres" id="3"]
+[ext_resource type="Resource" path="res://resources/maps/first_map.tres" id="4"]
+[ext_resource type="Resource" path="res://resources/maps/maze_map.tres" id="5"]
+
+[sub_resource type="Resource" id="entry_forest"]
+script = ExtResource("2")
+map = ExtResource("3")
+scene_path = "res://scenes/main/main_forest.tscn"
+
+[sub_resource type="Resource" id="entry_ruins"]
+script = ExtResource("2")
+map = ExtResource("4")
+scene_path = "res://scenes/main/main.tscn"
+
+[sub_resource type="Resource" id="entry_maze"]
+script = ExtResource("2")
+map = ExtResource("5")
+scene_path = "res://scenes/main/main_maze.tscn"
+
+[resource]
+script = ExtResource("1")
+entries = Array[ExtResource("2")]([SubResource("entry_forest"), SubResource("entry_ruins"), SubResource("entry_maze")])

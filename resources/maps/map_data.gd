@@ -6,6 +6,10 @@ const OBSTACLE_CLEARANCE := 24.0
 
 @export var id: StringName
 @export var display_name: String = ""
+## One short line of theme, shown on the map's card.
+@export var description: String = ""
+## Names the set of enemy sprites this map uses (`enemy_<set>_<type>`); empty, or a set with no sprite, keeps `enemy_<type>`.
+@export var enemy_art_set: StringName = &""
 @export var size: Vector2 = Vector2(1920, 1080)
 @export var floor_color: Color = Color(0.16, 0.2, 0.17, 1)
 @export var border_color: Color = Color(0.08, 0.1, 0.09, 1)

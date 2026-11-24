@@ -68,6 +68,22 @@ func center_room_center() -> Vector2:
 	return area.position + Vector2(column, row) * cell_size
 
 
+## The world positions of the centres of every cell with exactly one opening, row by row (after the extra openings, the cleared
+## centre, the entrances and any half turn). The places to put things a player has to go into and come back out of.
+func dead_end_cells() -> Array[Vector2]:
+	var found: Array[Vector2] = []
+	if columns() < MIN_CELLS or rows() < MIN_CELLS:
+		return found
+	var layout := _generate()
+	for y in layout.rows:
+		for x in layout.columns:
+			var walls := layout.vertical[x * layout.rows + y] + layout.vertical[(x + 1) * layout.rows + y]
+			walls += layout.horizontal[y * layout.columns + x] + layout.horizontal[(y + 1) * layout.columns + x]
+			if walls == 3:
+				found.append(area.position + (Vector2(x, y) + Vector2(0.5, 0.5)) * cell_size)
+	return found
+
+
 func columns() -> int:
 	return floori(area.size.x / cell_size) if cell_size > 0.0 else 0
 

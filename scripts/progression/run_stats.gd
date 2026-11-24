@@ -1,7 +1,6 @@
 class_name RunStats
 extends RefCounted
-## The tally of one run: enemies and bosses defeated, scrolls collected, spells crafted, potions drunk, XP and Gold earned and the highest
-## level reached. It only LISTENS to announcements the game already makes (it never calls into gameplay), is created by `Main` at each run
+## The tally of one run: enemies and bosses defeated, scrolls collected, spells crafted, potions drunk, XP and Gold earned. It only LISTENS to announcements the game already makes (it never calls into gameplay), is created by `Main` at each run
 ## start and is never saved; `freeze` stops it at death. An enemy counts as defeated only when it gives rewards (an Exploder that blasted
 ## itself was not defeated by the player), and a boss counts as a boss and not also as an enemy.
 
@@ -12,13 +11,12 @@ var crafts: int = 0
 var potions: int = 0
 var xp: int = 0
 var gold: int = 0
-var level: int = 1
 
 var _frozen: bool = false
 var _bound: bool = false
 
 
-func bind(spawner: EnemySpawner, director: RunDirector, collector: PickupCollector, crafting: CraftingScreen, belt: PotionBelt, progress: RunProgress) -> void:
+func bind(spawner: EnemySpawner, director: RunDirector, collector: PickupCollector, crafting: CraftingScreen, belt: PotionBelt, _progress: RunProgress) -> void:
 	if _bound:
 		return
 	_bound = true
@@ -29,7 +27,6 @@ func bind(spawner: EnemySpawner, director: RunDirector, collector: PickupCollect
 	collector.gold_collected.connect(_on_gold)
 	crafting.crafted.connect(_on_crafted)
 	belt.used.connect(_on_potion_used)
-	progress.leveled_up.connect(_on_leveled_up)
 
 
 ## Stops counting (the player died).
@@ -74,8 +71,3 @@ func _on_crafted() -> void:
 func _on_potion_used(_potion: PotionData) -> void:
 	if not _frozen:
 		potions += 1
-
-
-func _on_leveled_up(new_level: int, _reward: LevelReward) -> void:
-	if not _frozen:
-		level = maxi(level, new_level)

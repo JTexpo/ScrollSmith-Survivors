@@ -1,5 +1,9 @@
 # Release checklist (the parked Sprint 15c)
 
+## Blocking the next publish
+- [ ] **Web build has no sound** (see the first item under "Open items" in `future-roadmap.md`). Find the cause in a real browser and fix it, then check on desktop Chrome and Firefox and a phone before publishing.
+- [ ] The published address is now `https://jtexpo.github.io/ScrollSmith-Survivors/` (the repository was renamed); update the address in `CLAUDE.md` ("Web build and GitHub Pages") and anywhere else it is written.
+
 ## Still to do from the Sprint 15 list
 - [ ] Create the game icon.
 - [ ] Create promotional screenshots.

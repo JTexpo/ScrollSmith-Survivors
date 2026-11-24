@@ -54,3 +54,29 @@ func test_fullscreen_defaults_off_and_round_trips() -> void:
 	assert_true(GameSettings.fullscreen)
 	GameSettings.apply({"fullscreen": "yes"})
 	assert_true(GameSettings.fullscreen, "a mistyped value is ignored")
+
+
+func test_last_map_defaults_to_the_forest() -> void:
+	assert_eq(GameSettings.last_map, &"forest")
+
+
+func test_default_map_matches_the_catalog() -> void:
+	assert_eq(GameSettings.DEFAULT_MAP, MapCatalog.default_catalog().default_id())
+
+
+func test_reset_restores_the_default_map() -> void:
+	GameSettings.last_map = &"maze"
+	GameSettings.reset()
+	assert_eq(GameSettings.last_map, GameSettings.DEFAULT_MAP)
+
+
+func test_apply_play_reads_the_map_and_ignores_bad_values() -> void:
+	GameSettings.apply_play({"last_map": "maze"})
+	assert_eq(GameSettings.last_map, &"maze")
+	GameSettings.apply_play({"last_map": 5})
+	assert_eq(GameSettings.last_map, &"maze", "a wrongly typed value is ignored")
+	GameSettings.apply_play({"last_map": ""})
+	assert_eq(GameSettings.last_map, &"maze", "an empty value is ignored")
+	GameSettings.apply_play({})
+	assert_eq(GameSettings.last_map, &"maze")
+	assert_eq(GameSettings.play_dict(), {"last_map": "maze"})

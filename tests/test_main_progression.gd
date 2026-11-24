@@ -714,7 +714,6 @@ func test_a_new_run_starts_with_an_empty_tally() -> void:
 	first.free()
 	var second := _new_main("")
 	assert_eq(second.run_stats.scrolls, 0)
-	assert_eq(second.run_stats.level, 1)
 
 
 func test_the_tally_is_frozen_when_the_player_dies() -> void:
@@ -736,8 +735,7 @@ func test_dying_updates_and_saves_the_bests_and_shows_the_recap() -> void:
 		(spawner.spawn_at(Vector2(300 + i * 40, 300), 1).get_node("HealthComponent") as HealthComponent).take_damage(1.0e9)
 	_die(main)
 	var saved := SaveGame.load_profile(_path())
-	assert_eq(saved.best_enemies, 3, "the bests were written at death")
-	assert_gte(saved.best_level, 1)
+	assert_eq(saved.best_enemies(main.map_id()), 3, "the bests were written at death")
 	assert_string_contains(_recap(main), "Enemies defeated: 3")
 	assert_false(_recap(main).contains("New best!"), "a first run shows its best without the mark")
 	assert_string_contains(_recap(main), "best 3")
@@ -745,9 +743,7 @@ func test_dying_updates_and_saves_the_bests_and_shows_the_recap() -> void:
 
 func test_a_second_better_run_shows_new_best_for_the_beaten_stats() -> void:
 	var profile := PlayerProfile.new()
-	profile.best_enemies = 1
-	profile.best_seconds = 9999
-	profile.best_level = 1
+	profile.set_best(&"first_map", 9999, 1)
 	SaveGame.save_profile(profile, _path())
 	var main := _new_main(_path())
 	var spawner := main.get_node("EnemySpawner") as EnemySpawner
@@ -756,12 +752,12 @@ func test_a_second_better_run_shows_new_best_for_the_beaten_stats() -> void:
 	_die(main)
 	assert_string_contains(_recap(main), "Enemies defeated: 2  New best!")
 	assert_false(_recap(main).contains("Time survived: 0:00  New best!"), "a short run does not beat 9999 s")
-	assert_eq(SaveGame.load_profile(_path()).best_enemies, 2)
+	assert_eq(SaveGame.load_profile(_path()).best_enemies(&"first_map"), 2)
 
 
 func test_a_failed_save_shows_no_new_best_mark() -> void:
 	var profile := PlayerProfile.new()
-	profile.best_enemies = 1
+	profile.set_best(&"first_map", 0, 1)
 	SaveGame.save_profile(profile, _path())
 	var main := _new_main(_path())
 	var spawner := main.get_node("EnemySpawner") as EnemySpawner
@@ -773,8 +769,24 @@ func test_a_failed_save_shows_no_new_best_mark() -> void:
 	assert_string_contains(_recap(main), "Enemies defeated: 2")
 
 
-func test_the_recap_level_is_the_level_reached_not_the_levels_gained() -> void:
+func test_the_recap_has_no_level_row_at_any_level() -> void:
 	_save_at_level(5)
 	var main := _new_main(_path())
 	_die(main)
-	assert_string_contains(_recap(main), "Level reached: 5")
+	assert_false(_recap(main).contains("Level"))
+
+
+func test_dying_records_the_best_on_this_map_only() -> void:
+	var main := _new_main(_path())
+	var spawner := main.get_node("EnemySpawner") as EnemySpawner
+	(spawner.spawn_at(Vector2(300, 300), 1).get_node("HealthComponent") as HealthComponent).take_damage(1.0e9)
+	_die(main)
+	var saved := SaveGame.load_profile(_path())
+	assert_eq(main.map_id(), &"first_map")
+	assert_eq(saved.best_enemies(&"first_map"), 1)
+	assert_eq(saved.best_enemies(&"forest"), 0)
+
+
+func test_there_is_no_level_in_the_tally() -> void:
+	var names: Array = RunStats.new().get_property_list().map(func(p: Dictionary) -> String: return p["name"])
+	assert_false(names.has("level"))

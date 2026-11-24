@@ -4,6 +4,8 @@ const ROOT := "res://.godot/save_tests"
 
 var _dir: String
 var _home: HomeScreen
+## The scene paths the home screen asked to load (it never really changes scene in a test: that would replace the runner's tree).
+var _requested: Array[String] = []
 
 
 func before_each() -> void:
@@ -33,9 +35,12 @@ func _start(gold: int = 0) -> HomeScreen:
 		profile.add_gold(gold)
 		SaveGame.save_profile(profile, _save_path())
 	_home = (load("res://scenes/home/home.tscn") as PackedScene).instantiate() as HomeScreen
+	_requested.clear()
+	_home.scene_changer = func(path: String) -> Error:
+		_requested.append(path)
+		return OK
 	_home.save_path = _save_path()
 	_home.settings_path = "%s/settings.json" % _dir
-	_home.run_scene_path = "res://this_scene_does_not_exist.tscn"
 	add_child_autofree(_home)
 	_home.confirm_dialog().input_guard_msec = 0
 	_home.shop_screen().input_guard_msec = 0
@@ -64,10 +69,90 @@ func test_it_builds_its_buttons_in_order_and_the_tutorial_is_live() -> void:
 	assert_false(_button("Play").disabled)
 
 
-func test_play_requests_the_run_scene_and_does_not_create_it_before() -> void:
+func _missing_entry() -> MapEntry:
+	var entry := MapEntry.new()
+	entry.map = (load("res://resources/maps/maze_map.tres") as MapData)
+	entry.scene_path = "res://this_scene_does_not_exist.tscn"
+	return entry
+
+
+func test_play_opens_the_map_select_and_changes_no_scene() -> void:
 	_start()
 	assert_null(get_tree().root.find_child("Main", true, false), "no run scene while the home screen is open")
-	assert_eq(_home.play(), ERR_FILE_NOT_FOUND, "the (missing) run scene path was requested")
+	_button("Play").pressed.emit()
+	assert_true(_home.map_select_screen().is_open())
+	assert_null(get_tree().root.find_child("Main", true, false))
+
+
+func test_play_map_remembers_the_map_and_saves_settings() -> void:
+	_start()
+	var entry := MapCatalog.default_catalog().find(&"maze")
+	var result := _home.play_map(entry)
+	assert_eq(result, OK)
+	assert_eq(_requested, [entry.scene_path] as Array[String], "it asked for the entry's own run scene")
+	assert_eq(GameSettings.last_map, &"maze")
+	GameSettings.reset()
+	SettingsStore.load_file("%s/settings.json" % _dir)
+	assert_eq(GameSettings.last_map, &"maze", "saved to the settings file")
+
+
+func test_play_map_with_a_missing_scene_returns_an_error_and_keeps_everything() -> void:
+	_start()
+	_home.open_map_select()
+	var before := GameSettings.last_map
+	assert_eq(_home.play_map(_missing_entry()), ERR_FILE_NOT_FOUND)
+	assert_eq(GameSettings.last_map, before, "a failed start does not remember the map")
+	assert_true(_home.map_select_screen().is_open(), "the screen stays so the player can pick again")
+	assert_true(_requested.is_empty(), "no scene change was requested")
+
+
+func test_choosing_a_card_on_the_screen_starts_that_map() -> void:
+	_start()
+	_home.open_map_select()
+	_home.map_select_screen().input_guard_msec = 0
+	watch_signals(_home.map_select_screen())
+	_home.map_select_screen().choose(0)
+	assert_signal_emit_count(_home.map_select_screen(), "map_chosen", 1)
+	assert_eq(_requested, [MapCatalog.default_catalog().entries[0].scene_path] as Array[String])
+
+
+func test_input_is_not_bridged_to_the_home_buttons_while_the_select_is_open() -> void:
+	_start()
+	_home.open_map_select()
+	var touch := InputEventScreenTouch.new()
+	touch.pressed = true
+	touch.position = Vector2(240, 120)
+	assert_false(_home.handle_input(touch), "the open map select takes its own touches")
+
+
+func test_closing_the_select_refocuses_play() -> void:
+	_start()
+	_button("Shop").grab_focus()
+	_home.open_map_select()
+	_home.map_select_screen().close()
+	assert_true(_button("Play").has_focus())
+
+
+func test_the_map_select_focuses_the_last_played_map() -> void:
+	_start()
+	GameSettings.last_map = &"first_map"
+	_home.open_map_select()
+	assert_eq(_home.map_select_screen().focused_index(), 1)
+
+
+func test_shop_settings_tutorial_and_new_game_still_open() -> void:
+	_start(10)
+	_button("Shop").pressed.emit()
+	assert_true(_home.shop_screen().is_open())
+	_home.shop_screen().close()
+	_button("Settings").pressed.emit()
+	assert_true(_home.settings_screen().is_open())
+	_home.settings_screen().close()
+	_button("Tutorial").pressed.emit()
+	assert_true(_home.tutorial_screen().is_open())
+	_home.tutorial_screen().close()
+	_button("New game").pressed.emit()
+	assert_true(_home.confirm_dialog().is_open())
 
 
 func test_the_home_screen_never_holds_the_run_scene_in_its_tree() -> void:

@@ -1,0 +1,97 @@
+[gd_resource type="Resource" script_class="MapData" load_steps=24 format=3]
+
+[ext_resource type="Script" path="res://resources/maps/map_data.gd" id="1"]
+[ext_resource type="Script" path="res://resources/maps/map_placement.gd" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/lectern.tscn" id="3"]
+[ext_resource type="Resource" path="res://resources/spawning/default_spawn_config.tres" id="4"]
+[ext_resource type="Script" path="res://resources/maps/map_maze.gd" id="6"]
+[ext_resource type="Script" path="res://resources/maps/maze_entrance.gd" id="7"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/health_shrine.tscn" id="p1"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/mana_shrine.tscn" id="p2"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/treasure_chest.tscn" id="p3"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/rare_scroll_spot.tscn" id="p4"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/merchant.tscn" id="p5"]
+
+[sub_resource type="Resource" id="lectern_0"]
+script = ExtResource("2")
+scene = ExtResource("3")
+position = Vector2(120, 100)
+
+[sub_resource type="Resource" id="lectern_1"]
+script = ExtResource("2")
+scene = ExtResource("3")
+position = Vector2(1800, 100)
+
+[sub_resource type="Resource" id="lectern_2"]
+script = ExtResource("2")
+scene = ExtResource("3")
+position = Vector2(1720, 820)
+
+[sub_resource type="Resource" id="chest"]
+script = ExtResource("2")
+scene = ExtResource("p3")
+position = Vector2(120, 900)
+
+[sub_resource type="Resource" id="merchant"]
+script = ExtResource("2")
+scene = ExtResource("p5")
+position = Vector2(600, 980)
+
+[sub_resource type="Resource" id="rare_0"]
+script = ExtResource("2")
+scene = ExtResource("p4")
+position = Vector2(1160, 980)
+
+[sub_resource type="Resource" id="rare_1"]
+script = ExtResource("2")
+scene = ExtResource("p4")
+position = Vector2(1320, 100)
+
+[sub_resource type="Resource" id="mana"]
+script = ExtResource("2")
+scene = ExtResource("p2")
+position = Vector2(840, 100)
+
+[sub_resource type="Resource" id="health"]
+script = ExtResource("2")
+scene = ExtResource("p1")
+position = Vector2(520, 500)
+
+[sub_resource type="Resource" id="ent_n"]
+script = ExtResource("7")
+cell = Vector2i(3, 0)
+side = 0
+
+[sub_resource type="Resource" id="ent_s"]
+script = ExtResource("7")
+cell = Vector2i(18, 11)
+side = 2
+
+[sub_resource type="Resource" id="maze"]
+script = ExtResource("6")
+material = &"stone"
+area = Rect2(80, 60, 1760, 960)
+entrances = Array[ExtResource("7")]([SubResource("ent_n"), SubResource("ent_s")])
+cell_size = 80.0
+wall_thickness = 16.0
+maze_seed = 10
+extra_openings = 10
+clear_center = true
+rotated = false
+
+[resource]
+script = ExtResource("1")
+id = &"maze"
+display_name = "The Maze"
+description = "A minotaur's maze. Do not get cornered."
+enemy_art_set = &"maze"
+size = Vector2(1920, 1080)
+floor_color = Color(0.12, 0.17, 0.2, 1)
+border_color = Color(0.08, 0.1, 0.09, 1)
+floor_style = &"ruin"
+border_style = &"border"
+player_start = Vector2(960, 540)
+spawn_config = ExtResource("4")
+placements = Array[ExtResource("2")]([SubResource("lectern_0"), SubResource("lectern_1"), SubResource("lectern_2"), SubResource("chest"), SubResource("merchant"), SubResource("rare_0"), SubResource("rare_1"), SubResource("mana"), SubResource("health")])
+mazes = Array[ExtResource("6")]([SubResource("maze")])
+decoration_count = 0

@@ -94,3 +94,18 @@ func test_a_deaths_drops_fan_out_xp_to_the_left_and_gold_to_the_right() -> void:
 	assert_eq(absf(xp.drop_offset.x), absf(gold.drop_offset.x))
 	assert_gte(absf(xp.drop_offset.x), 6.0, "far enough apart that a 12 px scroll does not cover them")
 
+
+
+func test_apply_map_hands_the_art_set_to_the_spawner() -> void:
+	var data := (load("res://resources/maps/first_map.tres") as MapData).duplicate() as MapData
+	data.enemy_art_set = &"forest"
+	assert_eq((_new_main(data).get_node("EnemySpawner") as EnemySpawner).enemy_art_set, &"forest")
+	assert_eq((_new_main().get_node("EnemySpawner") as EnemySpawner).enemy_art_set, &"ruins", "the ruins name their set")
+
+
+func test_every_spawned_enemy_gets_the_spawners_art_set() -> void:
+	var data := (load("res://resources/maps/first_map.tres") as MapData).duplicate() as MapData
+	data.enemy_art_set = &"maze"
+	var main := _new_main(data)
+	var spawner := main.get_node("EnemySpawner") as EnemySpawner
+	assert_eq(spawner.spawn_at(Vector2(300, 300), 1).art_set, &"maze")

@@ -1,6 +1,6 @@
 class_name HomeScreen
 extends Control
-## The home screen, the first thing the game shows: Play, Shop, Tutorial, Settings and New game. It
+## The home screen, the first thing the game shows: Play (which opens the map select), Shop, Tutorial, Settings and New game. It
 ## loads the progress save itself and owns the Shop and New game flows, so none of that needs a run. The run scene is not created until
 ## Play loads it (through SceneSwitcher), so no run, buff pick or crowd exists behind this screen. Touches are handled here because
 ## mouse emulation from touch is off.
@@ -13,8 +13,9 @@ const SURE_QUESTION := "This cannot be undone. Start over from level 1?"
 
 var save_path: String = SaveGame.DEFAULT_PATH
 var settings_path: String = SettingsStore.DEFAULT_PATH
-var run_scene_path: String = Scenes.RUN
 var profile: PlayerProfile
+## How a scene is loaded: `func(path: String) -> Error`. Empty uses `SceneSwitcher`. A test sets it so it never really changes scene.
+var scene_changer: Callable = Callable()
 
 var _buttons: Dictionary = {}
 var _message: Label
@@ -24,6 +25,7 @@ var _step: int = 0
 @onready var _settings: SettingsScreen = $SettingsScreen
 @onready var _confirm: ConfirmDialog = $ConfirmDialog
 @onready var _tutorial: TutorialScreen = $TutorialScreen
+@onready var _map_select: MapSelectScreen = $MapSelectScreen
 
 
 func _ready() -> void:
@@ -36,6 +38,8 @@ func _ready() -> void:
 	_settings.settings_path = settings_path
 	_settings.closed.connect(_focus_play)
 	_tutorial.closed.connect(_focus_play)
+	_map_select.closed.connect(_focus_play)
+	_map_select.map_chosen.connect(play_map)
 	_confirm.confirmed.connect(_on_confirmed)
 	_confirm.cancelled.connect(_on_cancelled)
 	_focus_play()
@@ -50,15 +54,27 @@ func _input(event: InputEvent) -> void:
 
 ## Turns a touch into the left mouse press or release the buttons expect, unless a screen on top is open (it bridges its own).
 func handle_input(event: InputEvent) -> bool:
-	if not event is InputEventScreenTouch or _shop.is_open() or _settings.is_open() or _confirm.is_open() or _tutorial.is_open():
+	if not event is InputEventScreenTouch or _shop.is_open() or _settings.is_open() or _confirm.is_open() or _tutorial.is_open() or _map_select.is_open():
 		return false
 	get_viewport().push_input(TouchBridge.to_mouse_button(event), true)
 	return true
 
 
-## Starts a run: loads the run scene. The error is returned so a missing scene is visible.
-func play() -> Error:
-	return SceneSwitcher.change_to(get_tree(), run_scene_path)
+## Opens the map select (the Play button). It focuses the map played last.
+func open_map_select() -> void:
+	_map_select.open(profile, MapCatalog.default_catalog(), GameSettings.last_map)
+
+
+## Starts a run on the chosen map: remembers it (saved in the settings file) and loads the entry's run scene. The error is returned so a
+## missing scene is visible, and a failed start remembers and changes nothing. The home screen never names a scene: the catalog does.
+func play_map(entry: MapEntry) -> Error:
+	if entry == null or entry.map == null or entry.scene_path.is_empty() or not ResourceLoader.exists(entry.scene_path):
+		return ERR_FILE_NOT_FOUND
+	GameSettings.last_map = entry.map.id
+	SettingsStore.save_file(settings_path)
+	if scene_changer.is_valid():
+		return scene_changer.call(entry.scene_path)
+	return SceneSwitcher.change_to(get_tree(), entry.scene_path)
 
 
 func open_shop() -> void:
@@ -67,6 +83,10 @@ func open_shop() -> void:
 
 func open_tutorial() -> void:
 	_tutorial.open()
+
+
+func map_select_screen() -> MapSelectScreen:
+	return _map_select
 
 
 func tutorial_screen() -> TutorialScreen:
@@ -160,7 +180,7 @@ func _build() -> void:
 		add_child(button)
 		_buttons[entry[0]] = button
 		index += 1
-	(_buttons["Play"] as Button).pressed.connect(play)
+	(_buttons["Play"] as Button).pressed.connect(open_map_select)
 	(_buttons["Shop"] as Button).pressed.connect(open_shop)
 	(_buttons["Settings"] as Button).pressed.connect(open_settings)
 	(_buttons["New game"] as Button).pressed.connect(new_game)

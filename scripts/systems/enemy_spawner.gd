@@ -17,6 +17,8 @@ const SUMMON_RADIUS := 40.0
 
 @export var config: SpawnConfig
 @export var arena_bounds: Rect2 = Rect2(0, 0, 960, 540)
+## The map's enemy art set, handed to every enemy before it is set up (`Main._apply_map` sets it from the map).
+var enemy_art_set: StringName = &""
 @export var view_size: Vector2 = Vector2(480, 270)
 
 var rng := RandomNumberGenerator.new()
@@ -219,6 +221,7 @@ func _on_boss_died(dead: Boss, number: int) -> void:
 
 func _spawn_enemy(data: EnemyData, position: Vector2) -> Enemy:
 	var enemy := config.enemy_scene.instantiate() as Enemy
+	enemy.art_set = enemy_art_set
 	enemy.setup(data, arena_bounds, rng)
 	var root := spawn_root if spawn_root != null else get_parent()
 	root.add_child(enemy)

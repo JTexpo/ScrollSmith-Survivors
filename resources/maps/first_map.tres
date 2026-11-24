@@ -564,7 +564,9 @@ radius = 18
 [resource]
 script = ExtResource("1")
 id = &"first_map"
-display_name = "The Lectern Grounds"
+display_name = "The Ruins"
+description = "Walls, rooms and a hidden stronghold."
+enemy_art_set = &"ruins"
 size = Vector2(1920, 1080)
 floor_color = Color(0.16, 0.2, 0.17, 1)
 border_color = Color(0.08, 0.1, 0.09, 1)
