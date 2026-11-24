@@ -602,3 +602,17 @@ func test_old_save_potions_are_cashed_in_once_and_never_written_again() -> void:
 	main.free()
 	var again := _new_main(_path())
 	assert_eq(again.profile.gold, expected, "a second start cashes in nothing more")
+
+
+func test_cashing_in_old_potions_shows_a_toast_once() -> void:
+	var file := FileAccess.open(_path(), FileAccess.WRITE)
+	file.store_string(JSON.stringify({"version": SaveGame.VERSION, "total_xp": 0, "potions": {"potion_health": 2}}))
+	file.close()
+	var main := _new_main(_path())
+	var gold := PotionCatalog.default_catalog().find(&"potion_health").price * 2
+	var toast := main.get_node("Hud/LevelToast") as LevelToast
+	assert_true(toast.is_showing())
+	assert_string_contains(toast.text, "sold for %d Gold" % gold)
+	main.free()
+	var again := _new_main(_path())
+	assert_false((again.get_node("Hud/LevelToast") as LevelToast).is_showing(), "nothing to cash in the second time")

@@ -161,3 +161,27 @@ func test_the_burst_announces_the_weight_of_its_own_smaller_hit() -> void:
 	assert_eq(heard.size(), 1)
 	assert_almost_eq(heard[0], ImpactWeight.of(spell, null, 0.5), 0.0001, "the burst's hit is half a Missile hit")
 	assert_lt(heard[0], ImpactWeight.of(spell, null, 1.0))
+
+
+func test_a_burst_is_not_added_when_the_parent_is_freed_first() -> void:
+	var parent := Node2D.new()
+	add_child(parent)
+	var spell := _fire()
+	var missile := spell.area_data.scene.instantiate() as MissileArea
+	parent.add_child(missile)
+	missile.launch(spell, Vector2.ZERO, Vector2.RIGHT, Vector2(1000, 0))
+	var orphans_before := Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT)
+	missile._physics_process(spell.effective_range() / spell.projectile_speed + 0.05)
+	parent.free()
+	await wait_physics_frames(2)
+	assert_eq(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT), orphans_before, "the unused burst was freed, not left as an orphan")
+
+
+func test_burst_spawned_fires_with_the_burst_already_in_the_tree() -> void:
+	var spell := _fire()
+	var missile := _missile(spell)
+	var seen: Array[bool] = []
+	missile.burst_spawned.connect(func(burst: MissileBurst) -> void: seen.append(burst.is_inside_tree() and burst.get_node_or_null("Hitbox") != null))
+	missile._physics_process(spell.effective_range() / spell.projectile_speed + 0.05)
+	await wait_physics_frames(2)
+	assert_eq(seen, [true])

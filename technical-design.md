@@ -650,10 +650,10 @@ Permanent progression should be independent of temporary run state.
 The profile is one JSON file, `user://save.json`, written to a temporary file and renamed over the old one:
 
 ```json
-{"version": 1, "total_xp": 5321, "gold": 113, "owned": ["robe_tide", "staff_elder"], "equipped": {"0": "robe_tide", "1": "staff_elder"}, "potions": {"potion_health": 3, "potion_luck": 1}}
+{"version": 1, "total_xp": 5321, "gold": 113, "owned": ["robe_tide", "staff_elder"], "equipped": {"0": "robe_tide", "1": "staff_elder"}}
 ```
 
-`version` is checked on load. The level is computed from `total_xp` and never stored. `gold`, `owned` and `equipped` are optional and default to 0, empty and empty, so an older file loads (an old `buff_picks` field is ignored, because starting-spell buffs are picked or re-rolled every run and never saved). `equipped` maps a slot (0 Robe, 1 Weapon, 2 Headwear) to an item id, and an entry whose item is not owned is dropped on load. `total_xp` and `gold` must be whole numbers from 0 to 2^53. A file that cannot be used is renamed to `save.json.bak` and a fresh profile starts. `potions` is also optional (potion id to a whole count from 1 to 99, zero counts are not written, and a count that is not a whole number from 0 to 99 makes the file unusable).
+`version` is checked on load. The level is computed from `total_xp` and never stored. `gold`, `owned` and `equipped` are optional and default to 0, empty and empty, so an older file loads (an old `buff_picks` field is ignored, because starting-spell buffs are picked or re-rolled every run and never saved). `equipped` maps a slot (0 Robe, 1 Weapon, 2 Headwear) to an item id, and an entry whose item is not owned is dropped on load. `total_xp` and `gold` must be whole numbers from 0 to 2^53. A file that cannot be used is renamed to `save.json.bak` and a fresh profile starts. Potions are no longer saved (Sprint 14b: they last one run, in an in-memory `RunPotions`). A `potions` field in an old file is read once into `PlayerProfile.legacy_potions` (a count that is not a whole number from 0 to 99 makes the file unusable), cashed in for Gold at run start, and not written back.
 
 The exact persistence rules should follow the game design document.
 

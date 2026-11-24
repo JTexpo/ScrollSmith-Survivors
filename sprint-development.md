@@ -581,7 +581,7 @@ A functional between-run shop and equipment progression system.
 - [x] Implement Invulnerability Potions.
 - [x] Implement Luck Potions.
 - [x] Implement potion purchasing.
-- [x] Implement potion inventory. (The saved stock in the profile, carried into every run, up to 99 of each.)
+- [x] Implement potion inventory. (Sprint 10 saved a stock carried into every run; since Sprint 14b potions last one run, at most 3 of each, in an in-memory `RunPotions`.)
 - [x] Implement potion usage.
 - [x] Implement potion duration.
 - [x] Implement potion cooldowns or usage restrictions. (A cooldown per type, a 1 s shared cooldown, and refusals that keep the potion.)

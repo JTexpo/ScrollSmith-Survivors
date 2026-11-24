@@ -158,7 +158,9 @@ func _begin_progression() -> void:
 	potion_catalog = PotionCatalog.default_catalog()
 	profile = SaveGame.load_profile(save_path) if not save_path.is_empty() else PlayerProfile.new()
 	if not profile.legacy_potions.is_empty():
-		ShopSystem.cash_in_legacy_potions(profile, potion_catalog)
+		var cashed := ShopSystem.cash_in_legacy_potions(profile, potion_catalog)
+		if cashed > 0:
+			_level_toast.show_message("Your old potions were sold for %d Gold." % cashed)
 		if not save_path.is_empty():
 			SaveGame.save_profile(profile, save_path)
 	var progress := _player.progress

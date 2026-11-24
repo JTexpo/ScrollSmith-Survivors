@@ -206,3 +206,11 @@ func test_the_prompt_and_the_used_signal_are_unchanged_with_art() -> void:
 func test_the_prompt_uses_the_outlined_hud_label() -> void:
 	var prompt := _point("point_of_interest").get_node("Prompt") as Label
 	assert_eq(prompt.theme_type_variation, &"HudLabel")
+
+
+func test_the_prompt_fits_its_label_even_with_a_timer() -> void:
+	var point := _point("merchant")
+	var label := point.get_node("Prompt") as Label
+	var width := label.offset_right - label.offset_left
+	for text in ["Merchant (E) 5:00", "Treasure Chest 5:00", "Rare Scroll Spot 5:00"]:
+		assert_lte(UiFont.plain().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, UiFont.SIZE).x, width - 4.0, text)
