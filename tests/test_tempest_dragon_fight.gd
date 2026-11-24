@@ -27,8 +27,8 @@ func _hit(boss: Boss, damage: float) -> void:
 	(boss.get_node("HurtboxComponent") as HurtboxComponent).receive_hit(damage, Vector2.ZERO)
 
 
-func test_the_director_spawns_the_dragon_on_the_forest_and_the_titan_elsewhere() -> void:
-	var expected := {&"forest": &"tempest_dragon", &"first_map": &"ember_titan", &"maze": &"ember_titan"}
+func test_the_director_spawns_each_maps_own_boss() -> void:
+	var expected := {&"forest": &"tempest_dragon", &"first_map": &"ember_titan", &"maze": &"dire_minotaur"}
 	for id in SCENES:
 		var main := _new_main(SCENES[id])
 		await wait_process_frames(2)

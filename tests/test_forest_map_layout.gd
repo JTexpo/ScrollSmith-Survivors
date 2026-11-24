@@ -131,4 +131,6 @@ func test_the_forest_lists_the_dragon_as_its_boss() -> void:
 	assert_eq(_map.bosses.size(), 1)
 	assert_eq(_map.bosses[0].id, &"tempest_dragon")
 	assert_true((load("res://resources/maps/first_map.tres") as MapData).bosses.is_empty(), "the ruins keep the shared roster")
-	assert_true((load("res://resources/maps/maze_map.tres") as MapData).bosses.is_empty(), "the maze keeps the shared roster")
+	var maze_bosses := (load("res://resources/maps/maze_map.tres") as MapData).bosses
+	assert_eq(maze_bosses.size(), 1, "the maze names its own boss")
+	assert_ne(maze_bosses[0].id, _map.bosses[0].id)
