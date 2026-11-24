@@ -73,7 +73,8 @@ func _on_hit_landed(_target: HurtboxComponent) -> void:
 
 
 ## Ends the Missile once: a small burst where it stopped (when its AreaData has one), then it is gone. The burst is added a moment
-## later because a hit lands inside a physics callback.
+## later because a hit lands inside a physics callback, by a static function that holds only weak references, so a parent or a
+## Missile freed in the meantime cannot break it (an unused burst is freed, never left as an orphan).
 func _end() -> void:
 	if _ended:
 		return
@@ -82,11 +83,18 @@ func _end() -> void:
 	if data != null and data.burst_radius > 0.0:
 		var burst := BURST_SCENE.instantiate() as MissileBurst
 		burst.damage_scale = damage_scale
-		var parent := get_parent()
-		var spell := _spell
-		var at := global_position
-		(func() -> void:
-			parent.add_child(burst)
-			burst.launch(spell, at, Vector2.ZERO, at)).call_deferred()
-		burst_spawned.emit(burst)
+		MissileArea._spawn_burst.bind(weakref(get_parent()), burst, _spell, global_position, weakref(self)).call_deferred()
 	queue_free()
+
+
+## Adds the burst to its parent and launches it, then announces it (so a listener gets a burst that is already in the tree).
+static func _spawn_burst(parent_ref: WeakRef, burst: MissileBurst, spell: SpellData, at: Vector2, emitter_ref: WeakRef) -> void:
+	var parent := parent_ref.get_ref() as Node
+	if parent == null or not parent.is_inside_tree():
+		burst.free()
+		return
+	parent.add_child(burst)
+	burst.launch(spell, at, Vector2.ZERO, at)
+	var emitter := emitter_ref.get_ref() as MissileArea
+	if emitter != null:
+		emitter.burst_spawned.emit(burst)

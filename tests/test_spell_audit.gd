@@ -89,3 +89,15 @@ func test_the_median_row_is_not_flagged() -> void:
 	for value in [90.0, 100.0, 110.0]:
 		rows.append({"id": str(value), "per_pool_8": value})
 	assert_eq(SpellAudit.flagged(rows).size(), 0)
+
+
+func test_a_missing_scroll_is_skipped_not_a_crash() -> void:
+	var rows := SpellAudit.rows(["fire", "no_such_base"], {"missile": "missile", "no_such_area": "no_such_area"}, ["no_such_buff"], {"start_missing": "res://resources/spells/missing.tres"})
+	var ids: Array = rows.map(func(row: Dictionary) -> String: return str(row["id"]))
+	assert_eq(ids, ["fire_missile"], "only the one pair that exists")
+
+
+func test_the_normal_option_is_found_by_its_label() -> void:
+	var option := SpellAudit.normal_option()
+	assert_not_null(option)
+	assert_eq(option.label, "Normal")

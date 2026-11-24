@@ -1,6 +1,6 @@
 class_name FxSettings
 extends RefCounted
-## Every screen effect has a switch here, and nothing else decides whether it shows. They are all on by default. A later settings
+## Every screen effect has a switch here, and nothing else decides whether it shows. The effects are all on by default (the performance overlay is off). A later settings
 ## screen only has to set these values and save `to_dict()` (and `apply` it at start): no effect code needs to change. The two
 ## scales run from 0 (off) to 1 (the designed strength); a value above 1 is never used, so the comfort maximums cannot be exceeded.
 
@@ -18,9 +18,12 @@ static var hurt_feedback: bool = true
 static var hit_indicators: bool = true
 ## A spell slot's mana fill pulsing red when the spell is nearly out of mana.
 static var low_mana_pulse: bool = true
+## The performance overlay (frames per second, enemies, nodes). Unlike every effect it starts OFF: it is a tester tool, opened with F3 or a
+## long press on the mute button.
+static var perf_overlay: bool = false
 
 const SCALE_KEYS := ["shake_scale", "flash_scale"]
-const SWITCH_KEYS := ["particles", "low_health_frame", "heart_beat", "hurt_feedback", "hit_indicators", "low_mana_pulse"]
+const SWITCH_KEYS := ["particles", "low_health_frame", "heart_beat", "hurt_feedback", "hit_indicators", "low_mana_pulse", "perf_overlay"]
 
 
 static func reset() -> void:
@@ -32,6 +35,7 @@ static func reset() -> void:
 	hurt_feedback = true
 	hit_indicators = true
 	low_mana_pulse = true
+	perf_overlay = false
 
 
 ## A comfort preset: no shake, no flashes and no jitter. The low-health frame, the heart and the hit arcs stay, because they tell the
@@ -64,6 +68,7 @@ static func to_dict() -> Dictionary:
 		"hurt_feedback": hurt_feedback,
 		"hit_indicators": hit_indicators,
 		"low_mana_pulse": low_mana_pulse,
+		"perf_overlay": perf_overlay,
 	}
 
 
@@ -91,3 +96,5 @@ static func apply(data: Dictionary) -> void:
 					hit_indicators = data[key]
 				"low_mana_pulse":
 					low_mana_pulse = data[key]
+				"perf_overlay":
+					perf_overlay = data[key]

@@ -29,6 +29,7 @@ signal point_effect_applied(kind: int)
 @onready var _pick_screen: BuffPickScreen = $BuffPickScreen
 @onready var _xp_bar: XpBar = $Hud/XpBar
 @onready var _level_toast: LevelToast = $Hud/LevelToast
+@onready var _perf_overlay: PerfOverlay = $PerfOverlay
 @onready var _gold_counter: GoldCounter = $Hud/GoldCounter
 @onready var _shop_screen: ShopScreen = $ShopScreen
 @onready var _merchant_screen: MerchantScreen = $MerchantScreen
@@ -99,8 +100,12 @@ func _ready() -> void:
 	_begin_progression()
 	_board.bind(self)
 	_fx.bind(self)
+	_perf_overlay.bind(_spawner)
+	_perf_overlay.sync()
 	_board.mute_changed.connect(_mute_button.set_muted)
 	_mute_button.pressed.connect(_on_mute_button_pressed)
+	_mute_button.long_pressed.connect(_on_mute_button_long_pressed)
+	_mute_button.hold_started.connect(_player.require_cast_release)
 	_player.died.connect(_mute_button.hide)
 	if profile.muted:
 		_board.set_muted(true)
@@ -114,6 +119,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	# DEBUG: shows the map's bounds and placements. Delete when no longer needed.
 	elif event.is_action_pressed(&"debug_toggle_map"):
 		_map.toggle_debug()
+	# Tester tool: the performance overlay (F3, or a long press on the mute button).
+	elif event.is_action_pressed(&"debug_perf_overlay"):
+		toggle_perf_overlay()
 	# DEBUG: refills every spell's mana. Delete once potions exist.
 	elif event.is_action_pressed(&"debug_restore_mana"):
 		_player.loadout.restore_all_mana()
@@ -158,7 +166,9 @@ func _begin_progression() -> void:
 	potion_catalog = PotionCatalog.default_catalog()
 	profile = SaveGame.load_profile(save_path) if not save_path.is_empty() else PlayerProfile.new()
 	if not profile.legacy_potions.is_empty():
-		ShopSystem.cash_in_legacy_potions(profile, potion_catalog)
+		var cashed := ShopSystem.cash_in_legacy_potions(profile, potion_catalog)
+		if cashed > 0:
+			_level_toast.show_message("Your old potions were sold for %d Gold." % cashed)
 		if not save_path.is_empty():
 			SaveGame.save_profile(profile, save_path)
 	var progress := _player.progress
@@ -264,6 +274,18 @@ func _on_mute_changed(value: bool) -> void:
 ## A click on the button must not also fire a spell, so casting waits for the click to be released.
 func _on_mute_button_pressed() -> void:
 	_board.set_muted(not _board.muted)
+	_player.require_cast_release()
+
+
+## Flips the performance overlay's switch and shows or hides it.
+func toggle_perf_overlay() -> void:
+	FxSettings.set_switch("perf_overlay", not FxSettings.perf_overlay)
+	_perf_overlay.sync()
+
+
+## A long press on the mute button opens or closes the performance overlay (and never mutes); like a tap it must not also fire a spell.
+func _on_mute_button_long_pressed() -> void:
+	toggle_perf_overlay()
 	_player.require_cast_release()
 
 

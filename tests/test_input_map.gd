@@ -8,7 +8,7 @@ const ACTIONS: Array[StringName] = [
 	&"spell_prev", &"spell_next", &"debug_restore_mana",
 	&"toggle_inventory", &"debug_give_scrolls", &"debug_give_xp",
 	&"potion_1", &"potion_2", &"potion_3", &"potion_4", &"potion_5", &"potion_6",
-	&"potion_prev", &"potion_next", &"potion_use", &"debug_give_potions", &"debug_toggle_map", &"mute",
+	&"potion_prev", &"potion_next", &"potion_use", &"debug_give_potions", &"debug_toggle_map", &"mute", &"debug_perf_overlay",
 ]
 const MOVE_ACTIONS: Array[StringName] = [&"move_up", &"move_down", &"move_left", &"move_right"]
 
@@ -135,3 +135,11 @@ func test_the_mute_action_is_the_m_key_and_takes_no_controller_button() -> void:
 			found = true
 	assert_true(found)
 
+
+
+func test_debug_perf_overlay_is_f3() -> void:
+	var found := false
+	for event in InputMap.action_get_events(&"debug_perf_overlay"):
+		if event is InputEventKey and event.physical_keycode == KEY_F3:
+			found = true
+	assert_true(found)

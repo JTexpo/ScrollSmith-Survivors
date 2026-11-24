@@ -74,26 +74,51 @@ static func row_for(id: String, spell: SpellData) -> Dictionary:
 
 
 ## Every Base and Area pair at Normal range, every buff on Fire Missile (Additional Base on Fire and Sea), and the starting spells.
-static func rows() -> Array[Dictionary]:
-	var normal := CraftingRules.default_rules().range_options[1] as RangeOption
+## Anything that is missing (a renamed or removed scroll or spell) is skipped, not a crash. The lists are parameters so a test can
+## prove that.
+static func rows(bases_list: Array = BASES, areas: Dictionary = AREAS, buffs: Array = BUFFS, starting: Dictionary = STARTING) -> Array[Dictionary]:
+	var normal := normal_option()
 	var result: Array[Dictionary] = []
-	for base in BASES:
-		var base_scroll := load("res://resources/scrolls/base/%s.tres" % base) as ScrollData
-		for area in AREAS:
-			var area_scroll := load("res://resources/scrolls/area/%s.tres" % AREAS[area]) as ScrollData
-			var spell := SpellBuilder.build([base_scroll], area_scroll, normal)
-			result.append(row_for("%s_%s" % [base, area], spell))
-	var fire := load("res://resources/scrolls/base/fire.tres") as ScrollData
-	var sea := load("res://resources/scrolls/base/sea.tres") as ScrollData
-	var missile := load("res://resources/scrolls/area/missile.tres") as ScrollData
-	for buff in BUFFS:
-		var buff_scroll := load("res://resources/scrolls/buff/%s.tres" % buff) as ScrollData
-		var bases: Array = [fire, sea] if buff == "additional_base" else [fire]
-		var spell := SpellBuilder.build(bases, missile, normal, [buff_scroll])
-		result.append(row_for("fire_missile+%s" % buff, spell))
-	for id in STARTING:
-		result.append(row_for(id, load(STARTING[id]) as SpellData))
+	if normal == null:
+		return result
+	for base in bases_list:
+		var base_scroll := _scroll("base", base)
+		if base_scroll == null:
+			continue
+		for area in areas:
+			var area_scroll := _scroll("area", areas[area])
+			if area_scroll == null:
+				continue
+			result.append(row_for("%s_%s" % [base, area], SpellBuilder.build([base_scroll], area_scroll, normal)))
+	var fire := _scroll("base", "fire")
+	var sea := _scroll("base", "sea")
+	var missile := _scroll("area", "missile")
+	if fire != null and sea != null and missile != null:
+		for buff in buffs:
+			var buff_scroll := _scroll("buff", buff)
+			if buff_scroll == null:
+				continue
+			var bases: Array = [fire, sea] if buff == "additional_base" else [fire]
+			result.append(row_for("fire_missile+%s" % buff, SpellBuilder.build(bases, missile, normal, [buff_scroll])))
+	for id in starting:
+		if ResourceLoader.exists(starting[id]):
+			var spell := load(starting[id]) as SpellData
+			if spell != null:
+				result.append(row_for(id, spell))
 	return result
+
+
+## The crafting range option labelled "Normal" (not whatever happens to be second).
+static func normal_option() -> RangeOption:
+	for option in CraftingRules.default_rules().range_options:
+		if option.label == "Normal":
+			return option
+	return null
+
+
+static func _scroll(folder: String, name: String) -> ScrollData:
+	var path := "res://resources/scrolls/%s/%s.tres" % [folder, name]
+	return load(path) as ScrollData if ResourceLoader.exists(path) else null
 
 
 ## Rows whose 8-target damage per pool is more than `factor` times the median, or less than the median divided by `factor`.
