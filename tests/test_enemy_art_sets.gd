@@ -76,8 +76,8 @@ func test_the_look_cache_notices_a_changed_art_set() -> void:
 	assert_true(body.has_art(), "after the set changes the look is looked up again")
 
 
-func test_the_ruins_enemies_look_exactly_as_before() -> void:
-	for archetype in ARCHETYPES:
+func test_the_ruins_enemies_look_exactly_as_before_for_the_four_that_keep_their_sprites() -> void:
+	for archetype in [&"swarmer", &"tank", &"exploder", &"support"]:
 		var plain := _enemy(archetype, &"")
 		var ruins := _enemy(archetype, &"ruins")
 		assert_eq(ruins.look_sprite(), plain.look_sprite(), String(archetype))

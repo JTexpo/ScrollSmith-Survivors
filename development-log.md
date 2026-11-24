@@ -716,3 +716,13 @@ Found on the way: the ent first read as a mushroom and the rat as a dark blob on
 Measured (battery and Low Power Mode, so only ratios mean anything): stress with `--boss` on the forest (the Dragon; the first measurement spawned the Titan because the stress scene did not take the map's roster, found in review and fixed) 29, 40 and 36 fps against the ruins' Titan at 37, 33 and 30. Boss-fight bot (starting spell, three seeds, died every time): survived 43 to 57 s against the Dragon (boss left at 36 to 65% health) and 27 to 30 s against the Titan (53 to 55%), so the Dragon is the gentler fight.
 
 Open: the web build has no sound (fix before the next publish); the Dragon's numbers are starting values for the user to tune; the maze still shows the ruins' and forest's enemies until 16d.
+
+## 2026-11-24: Sprint 16c (the ruins' art refresh)
+
+Decisions (user): option A, add only the three ruins sprites and rename nothing (the renaming moves to 16d). My calls: same sizes and animations as the sprites beside them, a masked bandit, a toothy mimic chest and a floating elemental spirit, no code change.
+
+What was built: `enemy_ruins_standard` (bandit), `enemy_ruins_chaser` (mimic), `enemy_ruins_ranged` (elemental), `test_ruins_art`, and `test_art_set_is_only_a_look`.
+
+Found on the way: the first bandit looked like the cultist (redrawn with a bandana, mask and dagger); **the user noticed the mimic did not animate**, because its two move frames were identical (my generator bug), so a test now requires every new animation to change between its frames (at least 8 differing pixels).
+
+Open: the web build has no sound (fix before the next publish); 16d renames every sprite into its set; the maze still shows the other maps' enemies until then.
