@@ -30,6 +30,13 @@ func _ready() -> void:
 	_home_button.visible = false
 	_shop_button.pressed.connect(_request_shop)
 	_home_button.pressed.connect(_request_home)
+	# Both buttons are direct children of the layer, so Godot finds no neighbour between them: say so, for keyboard and controller.
+	_shop_button.focus_neighbor_right = _shop_button.get_path_to(_home_button)
+	_home_button.focus_neighbor_left = _home_button.get_path_to(_shop_button)
+	_shop_button.focus_next = _shop_button.get_path_to(_home_button)
+	_home_button.focus_previous = _home_button.get_path_to(_shop_button)
+	_home_button.focus_next = _home_button.get_path_to(_shop_button)
+	_shop_button.focus_previous = _shop_button.get_path_to(_home_button)
 
 
 ## Listens in _input, which runs before any control sees the event. _unhandled_input would never hear

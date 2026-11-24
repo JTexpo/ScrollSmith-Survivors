@@ -285,3 +285,12 @@ func test_a_tap_elsewhere_still_restarts() -> void:
 	_screen.handle_event(touch)
 	assert_signal_emit_count(_screen, "restart_requested", 1)
 	assert_signal_not_emitted(_screen, "home_requested")
+
+
+func test_focus_moves_between_shop_and_home_by_keyboard_and_controller() -> void:
+	_screen.show_death()
+	var shop := _screen.get_node("ShopButton") as Button
+	var home := _screen.get_node("HomeButton") as Button
+	assert_eq(shop.find_valid_focus_neighbor(SIDE_RIGHT), home)
+	assert_eq(home.find_valid_focus_neighbor(SIDE_LEFT), shop)
+	assert_eq(shop.find_next_valid_focus(), home)

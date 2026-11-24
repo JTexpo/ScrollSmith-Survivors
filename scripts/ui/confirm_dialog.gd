@@ -56,6 +56,13 @@ func _ready() -> void:
 	_confirm.custom_minimum_size = BUTTON_SIZE
 	_confirm.pressed.connect(_confirm_now)
 	add_child(_confirm)
+	# The two buttons are direct children of the layer, so Godot finds no neighbour between them: say so, for keyboard and controller.
+	_cancel.focus_neighbor_right = _cancel.get_path_to(_confirm)
+	_confirm.focus_neighbor_left = _confirm.get_path_to(_cancel)
+	_cancel.focus_next = _cancel.get_path_to(_confirm)
+	_confirm.focus_previous = _confirm.get_path_to(_cancel)
+	_confirm.focus_next = _confirm.get_path_to(_cancel)
+	_cancel.focus_previous = _cancel.get_path_to(_confirm)
 
 
 func _input(event: InputEvent) -> void:

@@ -111,3 +111,13 @@ func test_it_works_while_the_tree_is_paused() -> void:
 	watch_signals(_dialog)
 	_dialog._input(_action(&"ui_cancel"))
 	assert_signal_emit_count(_dialog, "cancelled", 1)
+
+
+func test_focus_moves_between_cancel_and_confirm_by_keyboard_and_controller() -> void:
+	_dialog.ask("Erase?", "Everything goes.", "Erase")
+	var cancel := _button("Cancel")
+	var confirm := _button("Erase")
+	assert_eq(cancel.find_valid_focus_neighbor(SIDE_RIGHT), confirm, "right from Cancel reaches the confirm button")
+	assert_eq(confirm.find_valid_focus_neighbor(SIDE_LEFT), cancel, "and left comes back")
+	assert_eq(cancel.find_next_valid_focus(), confirm, "Tab walks to the confirm button")
+	assert_eq(confirm.find_prev_valid_focus(), cancel)

@@ -650,3 +650,48 @@ func test_pressing_the_mute_button_blocks_casting_for_the_whole_hold() -> void:
 	assert_false(_player(main)._cast_blocked)
 	button.hold_started.emit()
 	assert_true(_player(main)._cast_blocked, "a held click on the button must not fire spells while it is held")
+
+
+func test_quitting_to_home_saves_the_xp_and_gold_just_collected() -> void:
+	var main := _new_main(_path())
+	_player(main).progress.add_gold(40)
+	_player(main).progress.add_xp(25)
+	var menu := main.get_node("PauseMenu") as PauseMenu
+	menu.home_scene_path = "res://this_scene_does_not_exist.tscn"
+	menu.confirm_dialog().input_guard_msec = 0
+	menu.request_quit()
+	menu.confirm_dialog().confirmed.emit()
+	var saved := SaveGame.load_profile(_path())
+	assert_eq(saved.gold, 40, "the dialog promises Gold is saved")
+	assert_eq(saved.total_xp, 25)
+
+
+func test_going_home_from_the_death_screen_saves_what_was_collected() -> void:
+	var main := _new_main(_path())
+	_player(main).progress.add_gold(15)
+	var death := main.get_node("DeathScreen") as DeathScreen
+	death.home_scene_path = "res://this_scene_does_not_exist.tscn"
+	death.input_delay_msec = 0
+	_player(main).health.take_damage(1.0e9)
+	(death.get_node("HomeButton") as Button).pressed.emit()
+	assert_eq(SaveGame.load_profile(_path()).gold, 15)
+
+
+func test_the_inventory_button_cannot_open_the_inventory_over_another_screen_or_the_pause_menu() -> void:
+	var main := _new_main("")
+	var panel := main.get_node("Hud/InventoryPanel") as InventoryPanel
+	var button := main.get_node("Hud/InventoryButton") as InventoryButton
+	var shop := main.get_node("ShopScreen") as ShopScreen
+	shop.open(main.profile, EquipmentCatalog.default_catalog())
+	button.pressed.emit()
+	assert_false(panel.is_open(), "the shop is open: the inventory must not open (and later unpause) behind it")
+	shop.close()
+	var menu := main.get_node("PauseMenu") as PauseMenu
+	menu.open()
+	button.pressed.emit()
+	assert_false(panel.is_open(), "the pause menu is open")
+	menu.close()
+	button.pressed.emit()
+	assert_true(panel.is_open(), "with nothing else open it opens")
+	button.pressed.emit()
+	assert_false(panel.is_open(), "and the same button closes it")

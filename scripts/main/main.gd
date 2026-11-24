@@ -112,6 +112,9 @@ func _ready() -> void:
 	_mute_button.pressed.connect(_on_mute_button_pressed)
 	_pause_menu.available = _pause_menu_available
 	_pause_button.pressed.connect(_on_pause_button_pressed)
+	# The confirmation says XP and Gold are already saved, so leaving must make that true (the saver only writes every 10 s).
+	_pause_menu.quit_requested.connect(_saver.save_now)
+	_death_screen.home_requested.connect(_saver.save_now)
 	_player.died.connect(_pause_button.hide)
 	_mute_button.long_pressed.connect(_on_mute_button_long_pressed)
 	_mute_button.hold_started.connect(_player.require_cast_release)
@@ -344,8 +347,12 @@ func _on_player_died() -> void:
 	_saver.save_now()
 
 
+## Opening needs nothing else open: the inventory pauses the game, and closing it later would unpause whatever screen it opened behind.
+## Closing is always allowed.
 func _toggle_inventory() -> void:
 	if _player.health.is_dead():
+		return
+	if not _inventory_panel.is_open() and (not _pause_menu_available() or _pause_menu.is_open()):
 		return
 	_inventory_panel.toggle()
 
