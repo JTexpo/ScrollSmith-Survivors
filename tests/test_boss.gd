@@ -42,6 +42,12 @@ func _attack(kind: BossAttack.Kind, telegraph: float = 1.0) -> BossAttack:
 		K.SUMMON:
 			attack.count = 4
 			attack.summon_archetype = load("res://resources/enemies/archetypes/swarmer.tres") as EnemyArchetype
+		K.LIGHTNING:
+			attack.count = 5
+			attack.spread = 70.0
+			attack.radius = 28.0
+			attack.damage = 22.0
+			attack.recover_time = 0.3
 	return attack
 
 
@@ -392,3 +398,135 @@ func test_every_control_in_the_boss_ignores_the_mouse() -> void:
 	var boss := _boss(_data([_attack(K.SLAM)] as Array[BossAttack]))
 	for child in boss.find_children("*", "Control", true, false):
 		assert_eq((child as Control).mouse_filter, Control.MOUSE_FILTER_IGNORE, str(child.name))
+
+
+func test_a_lightning_attack_places_count_zones_with_the_attacks_numbers_and_the_first_on_the_player() -> void:
+	var boss := _boss(_data([_attack(K.LIGHTNING, 1.0)] as Array[BossAttack]))
+	_step(boss, 0.5)
+	assert_eq(boss.state, Boss.State.TELEGRAPH)
+	var zones := _zones()
+	assert_eq(zones.size(), 5)
+	assert_eq(boss.lightning_zones().size(), 5)
+	var on_player := 0
+	for zone in zones:
+		zone.set_process(false)
+		assert_eq(zone.radius, 28.0)
+		assert_eq(zone.damage, 22.0)
+		assert_eq(zone.fuse_time, 1.0)
+		if zone.global_position == Vector2(400, 300):
+			on_player += 1
+		assert_lte(zone.global_position.distance_to(Vector2(400, 300)), 70.0 + 0.001)
+	assert_eq(on_player, 1, "exactly one strike lands on the player's spot")
+
+
+func test_lightning_zones_are_harmless_until_their_fuse_ends() -> void:
+	var boss := _boss(_data([_attack(K.LIGHTNING, 1.0)] as Array[BossAttack]))
+	_step(boss, 0.5)
+	for zone in _zones():
+		zone.set_process(false)
+	for zone in _zones():
+		zone._process(0.5)
+	assert_eq(_player.health.current_health, 1.0e9, "nothing happens before the fuse ends")
+	for zone in _zones():
+		zone._process(0.6)
+	assert_lt(_player.health.current_health, 1.0e9, "the strike on the player's spot hurt")
+
+
+func test_lightning_zones_stay_where_they_were_placed_and_do_not_follow() -> void:
+	var boss := _boss(_data([_attack(K.LIGHTNING, 1.0)] as Array[BossAttack]))
+	_step(boss, 0.5)
+	var before: Array[Vector2] = []
+	for zone in _zones():
+		zone.set_process(false)
+		before.append(zone.global_position)
+	_player.global_position = Vector2(800, 100)
+	_step(boss, 0.3)
+	var after: Array[Vector2] = []
+	for zone in _zones():
+		after.append(zone.global_position)
+	assert_eq(after, before)
+
+
+func test_every_lightning_zone_is_inside_the_arena() -> void:
+	_player.global_position = Vector2(5, 5)
+	for seed_value in 12:
+		_rng.seed = seed_value
+		var boss := _boss(_data([_attack(K.LIGHTNING, 1.0)] as Array[BossAttack]), Vector2(500, 300))
+		_step(boss, 0.5)
+		for zone in _zones():
+			zone.set_process(false)
+			assert_true(BOUNDS.grow(0.001).has_point(zone.global_position), "%s is inside the arena" % zone.global_position)
+		boss.free()
+		for zone in _zones():
+			zone.free()
+
+
+func test_a_lightning_attack_ends_in_recover_and_the_next_attack_follows() -> void:
+	var boss := _boss(_data([_attack(K.LIGHTNING, 1.0), _attack(K.SLAM, 1.0)] as Array[BossAttack]))
+	_step(boss, 0.5)
+	assert_eq(boss.state, Boss.State.TELEGRAPH)
+	for zone in _zones():
+		zone.set_process(false)
+	_step(boss, 1.0)
+	assert_eq(boss.state, Boss.State.RECOVER)
+	_step(boss, 0.4)
+	assert_eq(boss.state, Boss.State.IDLE)
+	_step(boss, 0.6)
+	assert_eq(boss.state, Boss.State.TELEGRAPH, "the next attack (the slam) began")
+
+
+func test_a_boss_that_dies_cancels_every_pending_lightning_zone() -> void:
+	var boss := _boss(_data([_attack(K.LIGHTNING, 1.0)] as Array[BossAttack]))
+	_step(boss, 0.5)
+	var zones := _zones()
+	for zone in zones:
+		zone.set_process(false)
+	_hit(boss, 100000.0)
+	for zone in zones:
+		assert_true(zone.is_queued_for_deletion(), "a pending strike is cancelled")
+	assert_eq(boss.lightning_zones().size(), 0)
+
+
+func test_lightning_respects_the_blast_zone_cap() -> void:
+	for i in 38:
+		BlastZone.place(_root, preload("res://scenes/enemies/blast_zone.tscn"), Vector2(50 + i * 4, 50), 10.0, 1.0, 30.0)
+	var attack := _attack(K.LIGHTNING, 1.0)
+	attack.count = 7
+	var big := _boss(_data([attack] as Array[BossAttack]))
+	_step(big, 0.5)
+	assert_lte(_zones().size(), BlastZone.MAX_ALIVE, "the group never exceeds the cap")
+
+
+func test_lightning_scales_damage_by_the_boss_number() -> void:
+	var curve := DifficultyCurve.default_curve()
+	var boss := _boss(_data([_attack(K.LIGHTNING, 1.0)] as Array[BossAttack]), Vector2(100, 300), 3, curve)
+	_step(boss, 0.5)
+	var expected := 22.0 * curve.boss_damage_scale(3)
+	for zone in _zones():
+		assert_almost_eq(zone.damage, expected, 0.001)
+
+
+func test_lightning_zones_freeze_while_paused() -> void:
+	var boss := _boss(_data([_attack(K.LIGHTNING, 1.0)] as Array[BossAttack]))
+	_step(boss, 0.5)
+	for zone in _zones():
+		assert_ne(zone.process_mode, Node.PROCESS_MODE_ALWAYS, "a strike's fuse is counted in a pausable _process")
+
+
+func test_a_boss_can_use_lightning_in_every_phase() -> void:
+	var first := BossPhase.new()
+	first.health_threshold = 1.0
+	first.attacks = [_attack(K.LIGHTNING, 0.6)] as Array[BossAttack]
+	first.attack_interval = 0.3
+	var second := BossPhase.new()
+	second.health_threshold = 0.5
+	second.attacks = [_attack(K.LIGHTNING, 0.6)] as Array[BossAttack]
+	second.attack_interval = 0.3
+	var data := _data([] as Array[BossAttack])
+	data.phases = [first, second] as Array[BossPhase]
+	var boss := _boss(data)
+	_step(boss, 3.0)
+	_hit(boss, 600.0)
+	_step(boss, 3.0)
+	assert_eq(boss.phase, 1)
+	assert_gt(_zones().size(), 0)

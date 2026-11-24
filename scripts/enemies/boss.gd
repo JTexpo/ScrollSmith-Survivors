@@ -43,6 +43,8 @@ var _act_left: float = 0.0
 var _recover_left: float = 0.0
 var _dash_direction: Vector2 = Vector2.RIGHT
 var _zone: BlastZone
+## The strikes of the current lightning attack.
+var _zones: Array[BlastZone] = []
 var _vulnerability_bonus: float = 0.0
 var _dead: bool = false
 ## The warning marks along a Charge's dash line while it winds up (none without art, then the old line is drawn).
@@ -180,6 +182,8 @@ func _begin_attack(player: Node2D) -> void:
 	match _attack.kind:
 		BossAttack.Kind.SLAM:
 			_zone = BlastZone.place(get_parent(), BLAST_SCENE, player.global_position, _attack.radius, _attack.damage * _damage_scale, _attack.telegraph_time)
+		BossAttack.Kind.LIGHTNING:
+			_place_strikes(player.global_position)
 		BossAttack.Kind.CHARGE:
 			var to_player := player.global_position - global_position
 			_dash_direction = to_player.normalized() if to_player.length() > 0.0 else Vector2.RIGHT
@@ -200,6 +204,10 @@ func _start_action() -> void:
 			_hitbox.damage = _attack.damage * _damage_scale
 			_show(&"attack")
 			queue_redraw()
+		BossAttack.Kind.LIGHTNING:
+			# The strikes detonate by themselves at the end of the same warning, like a slam's zone.
+			_show(&"attack")
+			_finish_attack()
 		BossAttack.Kind.BURST:
 			_show(&"attack")
 			_fire_burst()
@@ -237,6 +245,23 @@ func _fire_burst() -> void:
 		)
 
 
+## Marks the strikes of a lightning attack: one `BlastZone` per point of `LightningPlan`, all with the attack's warning.
+func _place_strikes(target: Vector2) -> void:
+	_zones.clear()
+	var rng := _rng if _rng != null else RandomNumberGenerator.new()
+	for point in LightningPlan.points(target, _attack.count, _attack.spread, _attack.radius, _bounds, rng):
+		_zones.append(BlastZone.place(get_parent(), BLAST_SCENE, point, _attack.radius, _attack.damage * _damage_scale, _attack.telegraph_time))
+
+
+## The strikes of the current lightning attack that are still waiting to land.
+func lightning_zones() -> Array[BlastZone]:
+	var waiting: Array[BlastZone] = []
+	for zone in _zones:
+		if is_instance_valid(zone) and not zone.is_detonated() and not zone.is_queued_for_deletion():
+			waiting.append(zone)
+	return waiting
+
+
 func _finish_attack() -> void:
 	state = State.RECOVER
 	_recover_left = _attack.recover_time
@@ -244,7 +269,7 @@ func _finish_attack() -> void:
 	vulnerable = _vulnerability_bonus > 0.0
 	_body.fallback_color = data.color.lightened(0.5) if vulnerable else data.color
 	# A burst keeps its attack pose until that animation ends (see _on_body_animation_done).
-	if vulnerable or _attack.kind != BossAttack.Kind.BURST:
+	if vulnerable or (_attack.kind != BossAttack.Kind.BURST and _attack.kind != BossAttack.Kind.LIGHTNING):
 		_show_rest()
 	queue_redraw()
 
@@ -329,6 +354,8 @@ func _on_died() -> void:
 	_clear_charge_marks()
 	if is_instance_valid(_zone) and not _zone.is_detonated():
 		_zone.cancel()
+	for zone in lightning_zones():
+		zone.cancel()
 	_hurtbox.set_deferred("monitorable", false)
 	_hitbox.set_deferred("monitorable", false)
 	set_physics_process(false)
