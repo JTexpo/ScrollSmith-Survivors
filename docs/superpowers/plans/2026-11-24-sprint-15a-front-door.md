@@ -1,0 +1,123 @@
+# Sprint 15a: The Front Door Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** A home screen (Play, Shop, Tutorial dimmed, Settings, New game), a Settings screen that saves, a pause menu with a HUD pause button, the inventory pausing the game, a Home button on the death screen, and a New game that erases progress after two confirmations.
+
+**Architecture:** `home.tscn` is the project's start scene; the run scene is only created when Play loads it through `SceneSwitcher`. Settings (`GameSettings` volumes plus the existing static `FxSettings`) are saved by `SettingsStore` in `user://settings.json`, separate from the progress save, and announced through a static `SettingsEvents` so `SoundBoard` applies volumes live. One reusable `ConfirmDialog` serves New game (twice) and Quit to home. `SettingsScreen` is shared by the home screen and the pause menu.
+
+**Tech Stack:** Godot 4.7 GDScript, GUT, the game theme and `UiKit`.
+
+**Spec:** `sprint-15a-design.md`
+
+## Global Constraints
+
+- Commands run with the venv active (`source venv/bin/activate`); never bare `python3`; scripted edits use `venv/bin/python`; Edit tool first. Full suite: `godot --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests -gexit`; one file: add `-gselect=<file>` (one file only). After adding a `class_name`, run `godot --headless --import`.
+- No new autoload (`test_audio_guards` and `test_fx_guards` fail on one). Settings are static classes plus the static announcement emitter, like `FxSettings` and `EnemyAttackEvents`.
+- **Touch rule (CLAUDE.md):** mouse emulation from touch is off, so every new screen handles its own touches (`TouchBridge.to_mouse_button` pushed with `get_viewport().push_input(..., true)` while open, as `ShopScreen` does) and every new tap-only control handles `InputEventScreenTouch` itself. A headless test cannot show a swallowed tap, so every new screen is also checked in a real window with `Input.parse_input_event` touches in window coordinates (game position times `root.get_final_transform()`).
+- **Pause rule:** anything that must work while the tree is paused has `process_mode = Always` (the pause menu, the settings screen, the confirm dialog, the inventory panel and button, the pause button). Opening and closing go through `GamePause.set_paused` (it also freezes `GameTime`); every exit (resume, quit to home, restart, death) unpauses first so the static `GameTime` is never left frozen.
+- Tests never touch the real save or settings: `SaveGame` and `SettingsStore` take paths, tests use a folder inside `res://.godot/save_tests/` that they create and remove; every test that builds `main.tscn` sets `save_path = ""` and the pick screen's `pause_tree = false`. Static `GameSettings` and `FxSettings` are reset in `before_each` and `after_each` of every test that changes them.
+- UI uses theme variations and `UiKit`, ASCII text only, a main action at least `UiKit.ACTION_SIZE` (72 by 28), other touch targets at least 22 px tall (`tests/test_ui_look.gd` fails on a font override or non-ASCII text).
+- No gameplay, balance or run-start change; a run launched directly (stress scene, tests) still works and applies saved settings itself.
+
+## Review Focus
+
+- **New game:** the first Yes only advances; Cancel, a tap outside, Esc and the controller's back button at either step change nothing; the second Yes renames the save to `save.json.bak` (replacing an older `.bak`), keeps settings, and a stray tap or a held button cannot confirm both steps at once (an input guard after each dialog opens).
+- **Pause:** the tree is unpaused and `GameTime` unfrozen after Resume, Quit to home, restart and death; `pause` opens the menu only when alive and nothing else is open; the pause menu cannot open over the crafting screen, shop, merchant, pick screen or inventory, and the inventory closes on `I`, `pause`, Esc and its button while paused; music and sound state is not left wrong.
+- **Home screen:** the run scene (and its buff picks, crowd and timers) is not created until Play; the saved profile loads once; Shop purchases are saved at once; a failed purchase saves nothing.
+- **Settings:** a volume or switch change applies at once and survives a restart; a bad or missing file gives defaults and the bad one is kept as `.bak`; unknown or mistyped values are ignored; volumes are clamped 0 to 1 and 0 is silent; the performance overlay switch changes the overlay immediately.
+- **Touch:** sliders, toggles and every button on the home screen, Settings, confirm dialogs, the pause menu and the death screen's Home button work by touch and by mouse in a real window (not only headless), and a tap on Home never restarts the run.
+
+---
+
+### Task 1: Settings data, the store, announcements and `SaveGame.erase`
+
+**Files:**
+- Create: `scripts/settings/game_settings.gd`, `scripts/settings/settings_events.gd`, `scripts/settings/settings_store.gd`, `tests/test_game_settings.gd`, `tests/test_settings_store.gd`
+- Modify: `scripts/progression/save_game.gd`, `tests/test_save_game.gd`
+
+**Interfaces:**
+- Produces: `GameSettings` (`RefCounted`, static): `music_volume: float = 0.8`, `sfx_volume: float = 0.8`, `reset()`, `to_dict() -> Dictionary` (`{"music": .., "sfx": ..}`), `apply(data: Dictionary)` (ignores unknown keys and wrongly typed values, clamps 0 to 1); `SettingsEvents` (`RefCounted`): `signal changed`, `static var bus := SettingsEvents.new()`, `static func announce() -> void`; `SettingsStore` (`RefCounted`, static): `const VERSION := 1`, `const DEFAULT_PATH := "user://settings.json"`, `load_file(path: String = DEFAULT_PATH) -> void` (resets to defaults, then applies the file if it parses; an unusable file is renamed `path + ".bak"`), `save_file(path: String = DEFAULT_PATH) -> bool` (temporary file then rename, like `SaveGame`), `apply_saved(path: String = DEFAULT_PATH) -> void` (`load_file` then `SettingsEvents.announce()`); the file is `{"version": 1, "audio": GameSettings.to_dict(), "fx": FxSettings.to_dict()}`; `SaveGame.erase(path: String) -> bool` renames an existing save to `path + ".bak"` (replacing an older backup) and returns true; a missing file returns true and creates nothing.
+
+- [ ] **Step 1: Write the failing tests:** `test_game_settings`: `test_defaults_are_point_eight`, `test_apply_clamps_to_zero_and_one`, `test_apply_ignores_unknown_keys_and_wrong_types`, `test_to_dict_round_trips`, `test_reset_restores_defaults`; `test_settings_store` (temp folder): `test_a_missing_file_gives_defaults`, `test_save_then_load_round_trips_volumes_and_every_fx_switch_including_the_overlay`, `test_a_bad_file_is_kept_as_bak_and_defaults_are_used`, `test_unknown_and_mistyped_values_are_ignored`, `test_a_wrong_version_is_treated_as_bad`, `test_apply_saved_announces_once` (`SettingsEvents.bus.changed` emitted once), `test_the_save_is_atomic_no_tmp_file_is_left`; `test_save_game`: `test_erase_renames_the_save_to_bak`, `test_erase_replaces_an_older_bak`, `test_erase_of_a_missing_file_is_fine_and_creates_nothing`. Run. Expected: FAIL.
+- [ ] **Step 2: Implement** the classes and `SaveGame.erase`; run `godot --headless --import`, the three files, then the whole suite. Expected: PASS.
+- [ ] **Step 3: Commit** `feat: saved settings and SaveGame.erase`.
+
+---
+
+### Task 2: The sound board applies the volumes
+
+**Files:**
+- Modify: `scripts/audio/sound_board.gd`, `tests/test_sound_board.gd`
+
+**Interfaces:**
+- Consumes: `GameSettings`, `SettingsEvents`. Produces: `SoundBoard.apply_settings()` sets the Sfx bus to `linear_to_db(GameSettings.sfx_volume)` (silent at 0) and the Music bus to `linear_to_db(GameSettings.music_volume)` plus the existing paused offset and duck; the board calls it in `_ready` and when `SettingsEvents.bus.changed` fires.
+
+- [ ] **Step 1: Write the failing tests** in `test_sound_board.gd`: `test_the_music_volume_setting_moves_the_music_bus`, `test_the_effects_volume_setting_moves_the_sfx_bus`, `test_zero_volume_is_silent_on_both_buses` (at most -60 dB), `test_the_paused_offset_and_the_duck_still_apply_on_top`, `test_a_settings_announcement_applies_without_a_restart`. Reset `GameSettings` and the buses after each. Run. Expected: FAIL.
+- [ ] **Step 2: Implement** (`_apply_bus_volume` adds the linear-to-dB of the music volume; a new `_apply_sfx_volume`); keep all existing board tests green (default 0.8 changes a bus by -1.94 dB, so any test that pins an exact bus dB is updated to include `linear_to_db(0.8)`, ledgered). `test_audio_guards` must stay green (only `scripts/audio` touches the audio server).
+- [ ] **Step 3: Run** the board tests, `test_audio_guards`, `test_sound_routes` and the whole suite. Expected: PASS.
+- [ ] **Step 4: Commit** `feat: the sound board applies the music and effects volumes`.
+
+---
+
+### Task 3: `ConfirmDialog`, `SettingsScreen`, the Controls and Credits pages
+
+**Files:**
+- Create: `scripts/ui/confirm_dialog.gd`, `scenes/ui/confirm_dialog.tscn`, `scripts/ui/settings_screen.gd`, `scenes/ui/settings_screen.tscn`, `scripts/ui/controls_text.gd`, `tests/test_confirm_dialog.gd`, `tests/test_settings_screen.gd`, `tests/test_controls_text.gd`
+
+**Interfaces:**
+- Produces: `ConfirmDialog` (`CanvasLayer`, process mode Always): `signal confirmed`, `signal cancelled`; `ask(title: String, message: String, confirm_label: String, cancel_label: String = "Cancel") -> void` (shows it, focuses Cancel first, pauses nothing itself); `is_open() -> bool`; `var input_guard_msec: int = 300` (presses inside it are ignored for that long after `ask`, so a held button cannot confirm); Esc, `ui_cancel` and a tap or click outside the card emit `cancelled`; buttons are at least `UiKit.ACTION_SIZE`, Cancel red and Confirm green (green means go, red means stop); `SettingsScreen` (`CanvasLayer`, process mode Always): `signal closed`; `var settings_path: String = SettingsStore.DEFAULT_PATH`; `open() -> void`, `close() -> void`, `is_open() -> bool`, `show_page(page: StringName) -> void` (`&"main"`, `&"controls"`, `&"credits"`), `page() -> StringName`; test-friendly setters `set_music(value: float)`, `set_sfx(value: float)`, `set_switch(key: String, on: bool)`, `set_scale(key: String, value: float)`, `reduce_motion() -> void`, each of which sets the static value, calls `SettingsEvents.announce()` and `SettingsStore.save_file(settings_path)`; the sliders and toggles call these; the overlay switch also needs the running overlay to follow, so `set_switch("perf_overlay", ..)` announces and a `PerfOverlay` in the tree re-syncs on `SettingsEvents.bus.changed`; `ControlsText.lines() -> Array[String]` lists the gameplay actions (move, aim, cast, interact, spell slots, inventory, potions, pause, mute) with their keys read from `InputMap` (`InputEvent.as_text()`), joined with the touch controls described in text.
+- Consumes: Task 1 and `GameSettings`, `FxSettings.SWITCH_KEYS`, `FxSettings.SCALE_KEYS`, `TouchBridge`, `UiKit`.
+
+- [ ] **Step 1: Write the failing tests:** `test_confirm_dialog`: `test_ask_shows_and_focuses_cancel`, `test_confirm_emits_confirmed_once`, `test_cancel_button_escape_and_a_tap_outside_all_cancel`, `test_a_press_inside_the_input_guard_does_nothing`, `test_buttons_meet_the_touch_size_and_colours` (Confirm `ButtonGreen`, Cancel `ButtonRed`), `test_it_works_while_the_tree_is_paused` (process mode Always, press while `get_tree().paused`); `test_settings_screen` (temp settings path): `test_open_and_close_toggle_visibility_and_emit_closed`, `test_set_music_applies_announces_and_saves` (the static volume changes, `SettingsEvents` fired, the file on disk has it), `test_set_switch_flips_the_fx_switch_and_saves`, `test_the_overlay_switch_shows_the_overlay_immediately` (a `PerfOverlay` in the tree becomes visible), `test_set_scale_clamps_and_saves`, `test_reduce_motion_sets_the_comfort_values`, `test_pages_switch_between_main_controls_and_credits`, `test_every_switch_key_has_a_toggle_and_each_slider_exists`, `test_toggles_and_buttons_are_at_least_22_px_tall`, `test_a_touch_on_a_toggle_acts_like_a_click` (the bridged press and release on a toggle's centre flips it), `test_it_works_while_the_tree_is_paused`; `test_controls_text`: `test_every_listed_action_exists_in_the_input_map`, `test_lines_show_the_keys_from_the_input_map` (the line for `interact` contains the key text of its event), `test_lines_are_ascii_and_mention_touch`. Run. Expected: FAIL.
+- [ ] **Step 2: Implement** the three classes and their scenes (sliders are `HSlider` with the theme, one row per volume and per scale; toggles are `Button` with `toggle_mode` showing "name on/off", as `FxTest` does; pages are built with `UiKit.label`; Credits lines: the game's name, "Made with Godot 4 and GUT", and two `Made by` lines left as the user's placeholders `(your name here)` kept in one constant `CreditsText.LINES` so the user edits one place). Make `PerfOverlay` listen to `SettingsEvents.bus.changed` and call `sync()` (a small change in `perf_overlay.gd`, with its test).
+- [ ] **Step 3: Run** `godot --headless --import`, the new test files, `test_perf_overlay`, `test_ui_look` and the whole suite. Expected: PASS.
+- [ ] **Step 4: Commit** `feat: the settings screen, the confirm dialog and the controls page`.
+
+---
+
+### Task 4: The pause menu, the pause button and the inventory pause
+
+**Files:**
+- Create: `scripts/ui/pause_menu.gd`, `scenes/ui/pause_menu.tscn`, `scripts/ui/pause_button.gd`, `scenes/ui/pause_button.tscn`, `tests/test_pause_menu.gd`, `tests/test_pause_button.gd`
+- Modify: `scenes/main/main.tscn`, `scripts/main/main.gd`, `scripts/ui/inventory_panel.gd`, `scripts/ui/inventory_button.gd`, `tests/test_inventory_panel.gd`, `tests/test_main.gd`
+
+**Interfaces:**
+- Produces: `PauseMenu` (`CanvasLayer`, process mode Always, node in `main.tscn`, layer above the HUD): `signal resumed`, `signal quit_requested`; `open() -> void` (pauses through `GamePause.set_paused(tree, true)`, shows Resume, Settings, Quit to home), `close() -> void` (unpauses), `is_open() -> bool`; Resume closes; Settings opens the shared `SettingsScreen` (an instance owned by the pause menu) and returns to the menu when it closes; Quit to home asks a `ConfirmDialog` ("Quit to the home screen? This run's potions, scrolls and spells will be lost. Your XP and Gold are already saved.") and on confirm unpauses and calls `SceneSwitcher.change_to(tree, HOME_SCENE)` where `const HOME_SCENE := "res://scenes/home/home.tscn"` lives on a small constants holder `Scenes` (`scripts/utilities/scenes.gd`, `HOME`, `RUN`); it opens on `pause` (key, controller Start) only when `available.call()` is true; `var available: Callable` is set by `Main` to "the player is alive and the crafting, shop, merchant, pick screens and the inventory are closed"; while open it closes on `pause` or `ui_cancel` unless its settings or confirm dialog is open (those close first). `PauseButton` (`Control`, at least 32 by 32, beside the mute button, handles touch and left click like `MuteButton` but fires `pressed` on press and has no hold): hidden on death; `Main` connects `pressed` to `_player.require_cast_release` then `PauseMenu.open`. `InventoryPanel` and `InventoryButton` get `process_mode = Always`; `InventoryPanel.set_open(value)` also calls `GamePause.set_paused`, and while open the panel closes on `toggle_inventory`, `pause` and `ui_cancel` (Main's own handlers do not run while paused); death still closes it.
+- Consumes: Task 3 (`SettingsScreen`, `ConfirmDialog`), `GamePause`, `SceneSwitcher`.
+
+- [ ] **Step 1: Write the failing tests:** `test_pause_menu`: `test_open_pauses_the_tree_and_freezes_game_time`, `test_resume_unpauses_and_unfreezes`, `test_pause_key_opens_only_when_available` (alive and nothing open; refuses when dead, with the crafting screen, shop, merchant, pick screen or inventory open), `test_pause_or_cancel_closes_it_when_nothing_inside_is_open`, `test_settings_opens_and_closing_it_returns_to_the_menu`, `test_quit_asks_first_and_cancel_changes_nothing`, `test_quit_unpauses_then_changes_to_the_home_scene` (use a scene-path override so the test does not really change scene: `var home_scene_path` defaulting to `Scenes.HOME`, set to a missing path to assert the error and that the tree was unpaused), `test_buttons_meet_the_touch_size_and_it_works_while_paused`; `test_pause_button`: `test_a_touch_and_a_left_click_inside_emit_pressed_once`, `test_outside_presses_are_ignored`, `test_a_hidden_button_ignores_touches`, `test_it_is_at_least_32_by_32`; `test_inventory_panel`: `test_opening_pauses_and_closing_resumes`, `test_toggle_pause_and_cancel_close_it_while_paused`, `test_death_closes_it_and_unpauses`; `test_main`: `test_the_pause_menu_and_button_exist_and_the_button_hides_on_death`, `test_pausing_stops_the_run_clock_and_resuming_continues_it`. Run. Expected: FAIL.
+- [ ] **Step 2: Implement** the classes, scenes, the `Scenes` constants, the `main.tscn` nodes (the pause button beside the mute button at the top right, clear of the potion bar) and `Main` wiring (`pause_menu.available`, the button, the cast block). `Main` also applies saved settings at the start of `_ready` (`SettingsStore.apply_saved()`), so a direct launch behaves the same.
+- [ ] **Step 3: Run** `godot --headless --import`, the new files, `test_main`, `test_main_progression`, `test_inventory_panel`, `test_world_input` and the whole suite. Expected: PASS (update any test that assumed the inventory does not pause, ledgered).
+- [ ] **Step 4: Commit** `feat: the pause menu, a pause button and the inventory pause`.
+
+---
+
+### Task 5: The home screen, New game, the start scene and the death screen's Home button
+
+**Files:**
+- Create: `scripts/home/home_screen.gd`, `scenes/home/home.tscn`, `tests/test_home_screen.gd`
+- Modify: `project.godot` (`run/main_scene`), `scripts/ui/death_screen.gd`, `scenes/ui/death_screen.tscn`, `tests/test_death_screen.gd`, `tests/test_smoke.gd` (and any test that reads the main scene)
+
+**Interfaces:**
+- Produces: `HomeScreen` (`Control`, scene `res://scenes/home/home.tscn`, the project's start scene): the sky backdrop (`UiKit.BACKDROP_COLOR`), the game's name as a `Heading`, the idle wizard (`BodyView`, existing `player` sprite), and a column of buttons Play, Shop, Tutorial (dimmed, text "Tutorial (soon)", does nothing), Settings, New game, each at least `UiKit.ACTION_SIZE`; `var save_path: String = SaveGame.DEFAULT_PATH`, `var settings_path: String = SettingsStore.DEFAULT_PATH`, `var run_scene_path: String = Scenes.RUN`; `profile: PlayerProfile`; `play() -> Error` (`SceneSwitcher.change_to(get_tree(), run_scene_path)`), `open_shop() -> void` (the reused `ShopScreen`, `changed` saves the profile at once), `open_settings() -> void`, `new_game() -> void` (asks the `ConfirmDialog` twice: step 1 "Erase all progress? Your XP, Gold and equipment will be erased. Settings are kept." with confirm label "Erase"; step 2 "This cannot be undone. Start over from level 1?" with "Yes, start over"; only the second confirm calls `SaveGame.erase(save_path)` and reloads a fresh `profile`, then shows "Starting over." in a message line); it applies saved settings on `_ready` (`SettingsStore.apply_saved(settings_path)`), takes touch for its buttons (the project's touch rule), and keyboard or controller focus starts on Play. `DeathScreen` gains `signal home_requested`, a `HomeButton` (96 by 32, beside Shop, cream) handled by `handle_event` exactly like the Shop button (a tap on it goes home and never restarts; ignored inside the input delay and while the shop is open), and `go_home() -> Error` (`SceneSwitcher.change_to(get_tree(), home_scene_path)` with `var home_scene_path := Scenes.HOME`).
+- Consumes: Tasks 1, 3 and 4 (`Scenes`, `SettingsScreen`, `ConfirmDialog`), `ShopScreen`, `SaveGame`.
+
+- [ ] **Step 1: Write the failing tests:** `test_home_screen` (temp save and settings paths, `run_scene_path` set to a missing path so Play does not really change scene): `test_it_builds_its_buttons_in_order_and_the_tutorial_is_dimmed`, `test_play_requests_the_run_scene_and_does_not_create_it_before`, `test_the_run_scene_is_not_in_the_tree_while_the_home_screen_is_open`, `test_the_saved_profile_loads_once`, `test_shop_opens_and_a_purchase_is_saved_at_once`, `test_a_failed_purchase_saves_nothing`, `test_settings_opens_and_closes_back_to_the_buttons`, `test_new_game_first_yes_only_advances`, `test_new_game_cancel_at_either_step_changes_nothing`, `test_new_game_second_yes_erases_to_bak_and_keeps_settings`, `test_new_game_with_no_save_is_fine`, `test_a_held_button_cannot_confirm_both_steps` (the second dialog's input guard), `test_a_fresh_profile_after_new_game_is_level_one_with_nothing`, `test_buttons_meet_the_touch_size`, `test_focus_starts_on_play_and_accept_presses_it`, `test_a_touch_on_each_button_acts_like_a_click`; `test_death_screen`: `test_home_button_tap_goes_home_and_never_restarts`, `test_home_button_is_ignored_inside_the_input_delay_and_while_the_shop_is_open`, `test_restart_still_works_with_a_tap_elsewhere`; `test_smoke`: the project's start scene is the home screen and it loads without errors. Run. Expected: FAIL.
+- [ ] **Step 2: Implement** the home screen and scene, the death screen's Home button (a node under `death_screen.tscn` next to `ShopButton`, offsets shifted so both fit), the `project.godot` main scene change, and `Main` unchanged apart from Task 4. Update `tests/test_smoke.gd` and anything that read `application/run/main_scene` as the run scene.
+- [ ] **Step 3: Run** `godot --headless --import`, the new and changed files, `test_main`, `test_death_screen` and the whole suite plus `godot --headless --quit-after 60` (now starts on the home screen). Expected: PASS.
+- [ ] **Step 4: Commit** `feat: the home screen, New game and the death screen's Home button`.
+
+---
+
+### Task 6: Guards, real-window checks and docs
+
+**Files:**
+- Create: `tests/test_front_door_guards.gd`
+- Modify: `CLAUDE.md` (a "Front door (Sprint 15a)" section, the Project State line, the Sprint 5 inventory line, the death-screen line), `README.md` (a player-facing paragraph), `sprint-development.md` (15a ticks and a Built note), `development-log.md`, `sprint-15a-design.md` (Status: Built, revisions), `technical-design.md` (settings file)
+
+- [ ] **Step 1: Write `tests/test_front_door_guards.gd`** (RED if anything missed it): `test_the_project_has_no_autoload`, `test_no_script_outside_the_front_door_references_the_settings_screen_or_store` (allowed: `scripts/settings/`, `scripts/ui/settings_screen.gd`, `scripts/ui/pause_menu.gd`, `scripts/home/`, `scripts/main/main.gd`, `scripts/audio/sound_board.gd`, `scripts/ui/perf_overlay.gd`), `test_the_home_screen_never_instantiates_the_run_scene_itself` (no `load` or `preload` of `main.tscn` in `home_screen.gd`; it only passes the path to `SceneSwitcher`), `test_every_new_screen_handles_touch` (each of `HomeScreen`, `SettingsScreen`, `ConfirmDialog`, `PauseMenu`, `PauseButton` defines a touch path: `_input` or `handle_input`/`handle_touch` that mentions `InputEventScreenTouch` or `TouchBridge`), `test_every_screen_that_must_work_paused_is_always`. Run. Expected: PASS or fix what it finds.
+- [ ] **Step 2: Real window** (a scratchpad script as in earlier sprints: `save_path` and `settings_path` in a throwaway folder, `await process_frame` first, `--resolution 960x540`, `Input.parse_input_event` in window coordinates): screenshots of the home screen, Settings (main, controls and credits pages), both New game confirmations, the pause menu, the pause button and the death screen with Home; by TOUCH and by MOUSE: press Play (the run scene appears), move a volume slider and flip a toggle and see the saved file change, run New game through both steps against a throwaway save (the `.bak` appears and settings stay), pause and resume (the run clock and `GameTime` freeze then continue), open and close the inventory (pauses and resumes) and tap Home on the death screen (goes home, does not restart). Read the screenshots; report what was seen and what was not checked (a real phone).
+- [ ] **Step 3: Update the docs.** State plainly: no phone was tested; the Tutorial button is dimmed until 15b; the inventory now pauses (a deliberate reversal); New game keeps one `.bak`.
+- [ ] **Step 4: Run the whole suite and `godot --headless --quit-after 60`.** Expected: PASS, no new warnings. Run the soak tool once (`godot --headless --fixed-fps 60 -s scripts/dev/soak_test.gd -- --rounds=6 --frames=300 --warmup=2`): expected `SOAK PASS` (the run scene is unchanged).
+- [ ] **Step 5: Commit** `docs: Sprint 15a complete`.
