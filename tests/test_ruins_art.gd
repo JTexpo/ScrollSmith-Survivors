@@ -76,14 +76,11 @@ func test_an_enemy_in_the_ruins_set_uses_the_new_sprite_for_three_archetypes() -
 		assert_true((enemy.get_node("Body") as BodyView).has_art(), "%s is drawn with art, never a square" % type)
 
 
-func test_the_forest_and_maze_still_resolve_the_old_sprites_for_these_three() -> void:
+func test_the_forest_still_resolves_the_old_sprites_for_these_three() -> void:
 	for type in NEW_TYPES:
 		assert_eq(_enemy(type, &"forest").look_sprite(), StringName("enemy_%s" % type), "forest %s" % type)
-		assert_eq(_enemy(type, &"maze").look_sprite(), StringName("enemy_%s" % type), "maze %s" % type)
 	for type in FOREST_SPRITES:
 		assert_eq(_enemy(type, &"forest").look_sprite(), StringName("enemy_forest_%s" % type), "the forest's own %s" % type)
-	for type in ALL_TYPES:
-		assert_eq(_enemy(type, &"maze").look_sprite(), StringName("enemy_%s" % type), "maze %s" % type)
 
 
 func test_an_unknown_or_empty_set_is_unchanged() -> void:

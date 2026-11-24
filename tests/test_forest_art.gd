@@ -1,6 +1,6 @@
 extends GutTest
 ## Sprint 16b: the forest's own enemy sprites (rats, ent, creepers, shaman). The goblin, wolves and kobolds keep showing through the
-## `enemy_<type>` fallback; the maze is unchanged (the ruins' own sprites are in `test_ruins_art`).
+## `enemy_<type>` fallback; the empty set is unchanged (the ruins' and maze's own sprites are in `test_ruins_art` and `test_maze_art`).
 
 const BOUNDS := Rect2(0, 0, 960, 540)
 const NEW_TYPES: Array[StringName] = [&"swarmer", &"tank", &"exploder", &"support"]
@@ -72,8 +72,8 @@ func test_an_enemy_in_the_forest_set_uses_the_new_sprite_for_four_archetypes() -
 		assert_true((enemy.get_node("Body") as BodyView).has_art(), "%s is drawn with art, never a square" % type)
 
 
-func test_the_maze_and_empty_sets_are_unchanged() -> void:
-	for art_set in [&"maze", &""]:
+func test_the_empty_set_is_unchanged() -> void:
+	for art_set in [&""]:
 		for type in ALL_TYPES:
 			assert_eq(_enemy(type, art_set).look_sprite(), StringName("enemy_%s" % type), "%s %s" % [art_set, type])
 

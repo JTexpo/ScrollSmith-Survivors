@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="SpriteSetData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://resources/art/sprite_set_data.gd" id="1"]
+[ext_resource type="Script" path="res://resources/art/sprite_animation_data.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/enemy_maze_standard_silhouette.png" id="3"]
+
+[sub_resource type="Resource" id="anim_0"]
+script = ExtResource("2")
+name = &"move"
+first_frame = 0
+last_frame = 1
+fps = 6.0
+loop = true
+
+[sub_resource type="Resource" id="anim_1"]
+script = ExtResource("2")
+name = &"death"
+first_frame = 2
+last_frame = 3
+fps = 12.0
+loop = false
+
+[resource]
+script = ExtResource("1")
+sheet = ExtResource("3")
+frame_size = Vector2i(14, 14)
+animations = Array[ExtResource("2")]([SubResource("anim_0"), SubResource("anim_1")])
