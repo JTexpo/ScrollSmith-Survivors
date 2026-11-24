@@ -530,3 +530,175 @@ func test_a_boss_can_use_lightning_in_every_phase() -> void:
 	_step(boss, 3.0)
 	assert_eq(boss.phase, 1)
 	assert_gt(_zones().size(), 0)
+
+
+## A charge that chains: `repeats` extra dashes, each warned for `warning` seconds (the first for `telegraph`).
+func _chain(repeats: int, telegraph: float = 0.8, warning: float = 0.6) -> BossAttack:
+	var attack := _attack(K.CHARGE, telegraph)
+	attack.repeats = repeats
+	attack.chain_warning = warning
+	return attack
+
+
+## Steps until the state is `wanted`, up to `limit` seconds; true when it got there.
+func _until(boss: Boss, wanted: Boss.State, limit: float = 5.0) -> bool:
+	for i in roundi(limit / STEP):
+		if boss.state == wanted:
+			return true
+		boss._physics_process(STEP)
+	return boss.state == wanted
+
+
+func test_a_chained_charge_dashes_repeats_plus_one_times() -> void:
+	var boss := _boss(_data([_chain(2)] as Array[BossAttack]))
+	var dashes := 0
+	var was_acting := false
+	for i in roundi(6.0 / STEP):
+		boss._physics_process(STEP)
+		var acting := boss.state == Boss.State.ACT
+		if acting and not was_acting:
+			dashes += 1
+		was_acting = acting
+		if boss.state == Boss.State.RECOVER:
+			break
+	assert_eq(dashes, 3, "repeats 2 means three dashes")
+	assert_eq(boss.state, Boss.State.RECOVER)
+
+
+func test_each_chained_dash_is_warned_and_shows_the_dash_marks() -> void:
+	var boss := _boss(_data([_chain(1)] as Array[BossAttack]))
+	assert_true(_until(boss, Boss.State.ACT))
+	assert_true(_until(boss, Boss.State.TELEGRAPH), "after the first dash it warns again")
+	assert_gt(boss.charge_marks().size(), 0, "with the dash-line marks")
+	var at := boss.global_position
+	_step(boss, 0.5)
+	assert_eq(boss.state, Boss.State.TELEGRAPH, "the chain warning is 0.6 s")
+	assert_eq(boss.global_position, at, "it does not move while it warns")
+	_step(boss, 0.15)
+	assert_eq(boss.state, Boss.State.ACT)
+
+
+func test_each_chained_dash_re_aims_at_the_players_new_position() -> void:
+	var boss := _boss(_data([_chain(1)] as Array[BossAttack]))
+	assert_true(_until(boss, Boss.State.ACT))
+	# The player moves during the first dash; the next dash is aimed when its own warning begins, at the spot they are on then.
+	_player.global_position = Vector2(256, 100)
+	assert_true(_until(boss, Boss.State.TELEGRAPH))
+	var start := boss.global_position
+	assert_true(_until(boss, Boss.State.ACT))
+	_step(boss, 0.6)
+	assert_lt(absf(boss.global_position.x - start.x), 120.0, "the second dash did not continue along the first line")
+	assert_lt(boss.global_position.y, start.y - 60.0, "it turned toward the player's new spot")
+
+
+func test_contact_damage_applies_only_during_a_dash_in_a_chain() -> void:
+	var boss := _boss(_data([_chain(1)] as Array[BossAttack]))
+	assert_eq(_hitbox(boss).damage, 5.0)
+	assert_true(_until(boss, Boss.State.ACT))
+	assert_eq(_hitbox(boss).damage, 25.0, "the first dash hits hard")
+	assert_true(_until(boss, Boss.State.TELEGRAPH))
+	assert_eq(_hitbox(boss).damage, 5.0, "only contact damage while it warns between dashes")
+	assert_true(_until(boss, Boss.State.ACT))
+	assert_eq(_hitbox(boss).damage, 25.0, "the second dash hits hard")
+	assert_true(_until(boss, Boss.State.RECOVER))
+	assert_eq(_hitbox(boss).damage, 5.0)
+
+
+func test_the_vulnerability_window_starts_after_the_last_dash_only() -> void:
+	var boss := _boss(_data([_chain(1)] as Array[BossAttack]))
+	assert_true(_until(boss, Boss.State.ACT))
+	assert_true(_until(boss, Boss.State.TELEGRAPH))
+	assert_false(boss.vulnerable, "not open between dashes")
+	assert_true(_until(boss, Boss.State.ACT))
+	assert_false(boss.vulnerable)
+	assert_true(_until(boss, Boss.State.RECOVER))
+	assert_true(boss.vulnerable, "open after the last dash")
+	_step(boss, 1.9)
+	assert_true(boss.vulnerable)
+	_step(boss, 0.2)
+	assert_false(boss.vulnerable, "for recover_time")
+
+
+func test_a_wall_ends_the_chain_at_once_and_opens_the_boss() -> void:
+	var data := MapData.new()
+	data.id = &"wall_test"
+	data.size = Vector2(960, 540)
+	data.player_start = Vector2(8, 8)
+	var wall := MapObstacle.new()
+	wall.kind = MapObstacle.Kind.RECT
+	wall.position = Vector2(190, 300)
+	wall.size = Vector2(16, 200)
+	data.obstacles = [wall] as Array[MapObstacle]
+	var map := ObstacleMap.new()
+	map.cells_per_frame = 100000
+	_root.add_child(map)
+	map.setup(data)
+	var boss := _boss(_data([_chain(2)] as Array[BossAttack]))
+	# Count the dashes: with repeats 2 a chain would make three; the wall must stop it after the first, at once.
+	var dashes := 0
+	var was_acting := false
+	var steps_to_recover := 0
+	for i in roundi(6.0 / STEP):
+		boss._physics_process(STEP)
+		var acting := boss.state == Boss.State.ACT
+		if acting and not was_acting:
+			dashes += 1
+		was_acting = acting
+		if boss.state == Boss.State.RECOVER:
+			break
+		steps_to_recover += 1
+	assert_eq(boss.state, Boss.State.RECOVER, "it ended up open")
+	assert_true(boss.vulnerable, "the crash opens it")
+	assert_eq(dashes, 1, "only the first dash ran: the wall ended the chain")
+	assert_lt(boss.global_position.x, 190.0, "it stopped short of the wall")
+	# Without the rule it would warn again (0.6 s) and dash twice more, taking far longer than the first dash alone.
+	assert_lt(steps_to_recover * STEP, 2.5, "it went from the first warning to open in about one dash, not three")
+
+
+func test_attack_started_is_emitted_once_per_chained_attack() -> void:
+	var boss := _boss(_data([_chain(2)] as Array[BossAttack]))
+	var started := []
+	boss.attack_started.connect(func(a: BossAttack) -> void: started.append(a))
+	assert_true(_until(boss, Boss.State.RECOVER))
+	assert_eq(started.size(), 1)
+
+
+func test_a_boss_killed_mid_chain_clears_its_marks_and_stops() -> void:
+	var boss := _boss(_data([_chain(2)] as Array[BossAttack]))
+	assert_true(_until(boss, Boss.State.ACT))
+	assert_true(_until(boss, Boss.State.TELEGRAPH))
+	assert_gt(boss.charge_marks().size(), 0)
+	_hit(boss, 100000.0)
+	assert_eq(boss.charge_marks().size(), 0, "the warning marks are gone")
+	var state := boss.state
+	var at := boss.global_position
+	_step(boss, 2.0)
+	assert_eq(boss.state, state, "a dead boss goes no further")
+	assert_eq(boss.global_position, at)
+
+
+func test_a_charge_with_no_repeats_is_exactly_the_old_charge() -> void:
+	var boss := _boss(_data([_chain(0)] as Array[BossAttack]))
+	_step(boss, 0.5)
+	assert_eq(boss.state, Boss.State.TELEGRAPH)
+	_step(boss, 0.8)
+	assert_eq(boss.state, Boss.State.ACT)
+	_step(boss, 0.6)
+	assert_eq(boss.state, Boss.State.RECOVER, "no second warning")
+	assert_true(boss.vulnerable)
+	assert_almost_eq(boss.global_position.x, 100.0 + 156.0, 0.01)
+
+
+func test_a_paused_game_freezes_the_chain() -> void:
+	var boss := _boss(_data([_chain(2)] as Array[BossAttack]))
+	boss.set_physics_process(true)
+	get_tree().paused = true
+	var state := boss.state
+	var at := boss.global_position
+	# Real time passes (the timer keeps running while paused) but the boss must not take a step: its idle countdown alone is 0.5 s.
+	await get_tree().create_timer(0.9, true, false, true).timeout
+	assert_eq(boss.state, state, "a paused boss does not begin its attack")
+	assert_eq(boss.global_position, at)
+	get_tree().paused = false
+	await get_tree().create_timer(0.9, false, true, false).timeout
+	assert_ne(boss.state, state, "and it carries on once the game resumes")

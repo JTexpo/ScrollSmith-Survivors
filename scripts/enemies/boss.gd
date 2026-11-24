@@ -43,6 +43,8 @@ var _act_left: float = 0.0
 var _recover_left: float = 0.0
 var _dash_direction: Vector2 = Vector2.RIGHT
 var _zone: BlastZone
+## Dashes still to make after the one in progress (a chained charge).
+var _dashes_left: int = 0
 ## The strikes of the current lightning attack.
 var _zones: Array[BlastZone] = []
 var _vulnerability_bonus: float = 0.0
@@ -185,8 +187,8 @@ func _begin_attack(player: Node2D) -> void:
 		BossAttack.Kind.LIGHTNING:
 			_place_strikes(player.global_position)
 		BossAttack.Kind.CHARGE:
-			var to_player := player.global_position - global_position
-			_dash_direction = to_player.normalized() if to_player.length() > 0.0 else Vector2.RIGHT
+			_dashes_left = _attack.dash_count() - 1
+			_aim_dash(player)
 			_show_charge_marks()
 		_:
 			_body.fallback_color = data.color.lightened(0.3)
@@ -226,7 +228,34 @@ func _dash(delta: float) -> void:
 	# An obstacle in the way ends the dash at once. The recovery and the vulnerability window still follow.
 	if blocked or _act_left <= EPSILON:
 		_hitbox.damage = data.contact_damage * _damage_scale
+		# A dash that ran its time with dashes left chains into the next one; a wall ends the whole chain (the boss crashes and is open).
+		if not blocked and _dashes_left > 0:
+			_chain_next()
+			return
+		_dashes_left = 0
 		_finish_attack()
+
+
+## Points the dash at the player's spot now (the old direction when the player is exactly on the boss).
+func _aim_dash(player: Node2D) -> void:
+	var to_player := player.global_position - global_position
+	if to_player.length() > 0.0:
+		_dash_direction = to_player.normalized()
+	elif _dash_direction == Vector2.ZERO:
+		_dash_direction = Vector2.RIGHT
+
+
+## Between two dashes of a chain: warn again (with the dash-line marks) and re-aim at where the player is now.
+func _chain_next() -> void:
+	_dashes_left -= 1
+	var player := target_player()
+	if player != null:
+		_aim_dash(player)
+	state = State.TELEGRAPH
+	_telegraph_left = _attack.chain_warning
+	_show_charge_marks()
+	_show(&"telegraph")
+	queue_redraw()
 
 
 func _fire_burst() -> void:

@@ -726,3 +726,17 @@ What was built: `enemy_ruins_standard` (bandit), `enemy_ruins_chaser` (mimic), `
 Found on the way: the first bandit looked like the cultist (redrawn with a bandana, mask and dagger); **the user noticed the mimic did not animate**, because its two move frames were identical (my generator bug), so a test now requires every new animation to change between its frames (at least 8 differing pixels).
 
 Open: the web build has no sound (fix before the next publish); 16d renames every sprite into its set; the maze still shows the other maps' enemies until then.
+
+## 2026-11-24: Sprint 16d (the maze's art and the Dire Minotaur)
+
+Decisions (user): option B for the boss, charges that chain (`repeats`). My calls: no renaming of the plain sprites (dropped from the 16c note: the empty art set and the safety net rely on them), a walled chain ends at once, always-avoidable chain warnings, the Titan's weight with its own pattern, no new sound or world art.
+
+What was built: `BossAttack.repeats`, `chain_warning` and `dash_count()`, the `Boss` chain, `dire_minotaur.tres` and the maze's roster, seven maze enemy sprites, the Minotaur's sprite, `test_maze_art`, `test_animation_frames` (an audit of every two-frame animation), and `test_dire_minotaur_fight`.
+
+User feedback during the build (all handled): the Minotaur's right shoulder looked strange (an axe that grew out of it), then the user wanted a complete redraw (done as an escaped prisoner with shackles, no axe), then the empty corners beside its shoulders were filled with trapezius, spiked pads and shading; the troll looked awkward (redone); the zombie was hard to tell (redone with a face, ribs and raised arms).
+
+Found: the animation audit found no static animation in any older sprite; every chain of the Minotaur in the maze was cut by a wall (9 of 9); the Minotaur crosses the maze in 169 simulated seconds without getting stuck.
+
+Measured (battery and Low Power Mode, so ratios only): stress with `--boss --map=maze` at or above the ruins' rate in every interleaved pair (51, 134 and 125 against 44, 101 and 27 fps). Boss-fight bot (starting spell, died every time): 30 to 55 s against the Minotaur, 43 to 57 s against the Dragon, 27 to 30 s against the Titan.
+
+Open: the web build has no sound (fix before the next publish); the Minotaur's numbers are starting values for the user to tune; next on the wishlist are achievements (Sprint 17) and a livelier home screen and tutorial (Sprint 18).

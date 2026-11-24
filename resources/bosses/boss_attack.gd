@@ -22,6 +22,10 @@ enum Kind { SLAM, CHARGE, BURST, SUMMON, LIGHTNING }
 @export var recover_time: float = 0.3
 ## CHARGE: while recovering the boss takes this fraction more damage (0.5 is +50%).
 @export var vulnerability_bonus: float = 0.0
+## CHARGE: extra dashes after the first (a stampede). Each is warned for `chain_warning` and re-aimed at the player; a wall ends the chain.
+@export var repeats: int = 0
+## CHARGE: seconds of warning before each chained dash (the first dash uses `telegraph_time`).
+@export var chain_warning: float = 0.6
 ## BURST: the projectiles' speed and range.
 @export var projectile_speed: float = 100.0
 @export var projectile_range: float = 260.0
@@ -37,3 +41,8 @@ enum Kind { SLAM, CHARGE, BURST, SUMMON, LIGHTNING }
 ## player who runs straight away can always leave every strike before it lands; the Dragon's data keeps this above zero.
 func escape_margin(player_speed: float) -> float:
 	return player_speed * telegraph_time - (spread + radius)
+
+
+## CHARGE: how many dashes the attack makes in a row (one, plus `repeats`).
+func dash_count() -> int:
+	return 1 + maxi(repeats, 0)

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="MapData" load_steps=24 format=3]
+[gd_resource type="Resource" script_class="MapData" load_steps=26 format=3]
 
 [ext_resource type="Script" path="res://resources/maps/map_data.gd" id="1"]
 [ext_resource type="Script" path="res://resources/maps/map_placement.gd" id="2"]
@@ -11,6 +11,8 @@
 [ext_resource type="PackedScene" path="res://scenes/interactables/treasure_chest.tscn" id="p3"]
 [ext_resource type="PackedScene" path="res://scenes/interactables/rare_scroll_spot.tscn" id="p4"]
 [ext_resource type="PackedScene" path="res://scenes/interactables/merchant.tscn" id="p5"]
+[ext_resource type="Resource" path="res://resources/bosses/dire_minotaur.tres" id="boss1"]
+[ext_resource type="Script" path="res://resources/bosses/boss_data.gd" id="bd"]
 
 [sub_resource type="Resource" id="lectern_0"]
 script = ExtResource("2")
@@ -94,4 +96,5 @@ player_start = Vector2(960, 540)
 spawn_config = ExtResource("4")
 placements = Array[ExtResource("2")]([SubResource("lectern_0"), SubResource("lectern_1"), SubResource("lectern_2"), SubResource("chest"), SubResource("merchant"), SubResource("rare_0"), SubResource("rare_1"), SubResource("mana"), SubResource("health")])
 mazes = Array[ExtResource("6")]([SubResource("maze")])
+bosses = Array[ExtResource("bd")]([ExtResource("boss1")])
 decoration_count = 0
