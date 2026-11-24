@@ -35,6 +35,7 @@ var _pages: Dictionary = {}
 var _sliders: Dictionary = {}
 var _value_labels: Dictionary = {}
 var _toggles: Dictionary = {}
+var _fullscreen_button: Button
 
 
 func _ready() -> void:
@@ -113,6 +114,16 @@ func toggle_button(key: String) -> Button:
 	return _toggles.get(key) as Button
 
 
+func fullscreen_button() -> Button:
+	return _fullscreen_button
+
+
+## Flips full screen (inside the tap or click that pressed it, as a browser requires), remembers the choice and saves it.
+func toggle_fullscreen() -> void:
+	GameSettings.fullscreen = ScreenMode.toggle()
+	_changed()
+
+
 func switch_count() -> int:
 	return _toggles.size()
 
@@ -161,6 +172,8 @@ func _refresh() -> void:
 		var button := _toggles[key] as Button
 		button.set_pressed_no_signal(on)
 		button.text = "%s: %s" % [SWITCH_NAMES.get(key, key), "on" if on else "off"]
+	if _fullscreen_button != null:
+		_fullscreen_button.text = "Full screen: %s" % ("on" if ScreenMode.is_fullscreen() else "off")
 
 
 func _set_slider(key: String, value: float) -> void:
@@ -221,6 +234,12 @@ func _build() -> void:
 		main.add_child(toggle)
 		_toggles[key] = toggle
 		index += 1
+	_fullscreen_button = UiKit.button("", &"")
+	_fullscreen_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_fullscreen_button.position = Vector2(ROW_X + 236.0, 124.0 + 3.0 * 24.0)
+	_fullscreen_button.custom_minimum_size = TOGGLE_SIZE
+	_fullscreen_button.pressed.connect(toggle_fullscreen)
+	main.add_child(_fullscreen_button)
 	_add_button(main, "Reduce motion", Vector2(8, 236), Vector2(112, 28)).pressed.connect(reduce_motion)
 	_add_button(main, "Controls", Vector2(128, 236), Vector2(80, 28)).pressed.connect(show_page.bind(&"controls"))
 	_add_button(main, "Credits", Vector2(216, 236), Vector2(80, 28)).pressed.connect(show_page.bind(&"credits"))

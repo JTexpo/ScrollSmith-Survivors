@@ -42,3 +42,15 @@ func test_reset_restores_defaults() -> void:
 	GameSettings.music_volume = 0.1
 	GameSettings.reset()
 	assert_eq(GameSettings.music_volume, 0.8)
+
+
+func test_fullscreen_defaults_off_and_round_trips() -> void:
+	assert_false(GameSettings.fullscreen)
+	GameSettings.fullscreen = true
+	var saved := GameSettings.to_dict()
+	assert_true(saved["fullscreen"])
+	GameSettings.reset()
+	GameSettings.apply(saved)
+	assert_true(GameSettings.fullscreen)
+	GameSettings.apply({"fullscreen": "yes"})
+	assert_true(GameSettings.fullscreen, "a mistyped value is ignored")

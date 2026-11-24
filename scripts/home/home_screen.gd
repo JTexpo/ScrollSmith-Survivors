@@ -27,6 +27,7 @@ var _step: int = 0
 
 func _ready() -> void:
 	SettingsStore.apply_saved(settings_path)
+	ScreenMode.apply_saved()
 	profile = SaveGame.load_profile(save_path)
 	_build()
 	_shop.changed.connect(_save_profile)
@@ -103,6 +104,11 @@ func _on_cancelled() -> void:
 	_focus_play()
 
 
+func _toggle_fullscreen() -> void:
+	GameSettings.fullscreen = ScreenMode.toggle()
+	SettingsStore.save_file(settings_path)
+
+
 func _save_profile() -> void:
 	SaveGame.save_profile(profile, save_path)
 
@@ -147,3 +153,10 @@ func _build() -> void:
 	(_buttons["Settings"] as Button).pressed.connect(open_settings)
 	(_buttons["New game"] as Button).pressed.connect(new_game)
 	(_buttons["Tutorial (soon)"] as Button).disabled = true
+	# A phone player taps this to fill the screen (a browser allows full screen only from a tap).
+	var fullscreen := UiKit.button("Full screen")
+	fullscreen.position = Vector2(480.0 - 92.0, 8.0)
+	fullscreen.custom_minimum_size = Vector2(84, 28)
+	fullscreen.pressed.connect(_toggle_fullscreen)
+	add_child(fullscreen)
+	_buttons["Full screen"] = fullscreen

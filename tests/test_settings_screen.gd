@@ -165,3 +165,26 @@ func test_opening_shows_the_current_values() -> void:
 	_screen.open()
 	assert_almost_eq(_screen.slider("music").value, 0.3, 0.001)
 	assert_false(_screen.toggle_button("particles").button_pressed, "an off switch shows as off")
+
+
+func test_the_fullscreen_toggle_applies_the_window_saves_and_follows_the_window() -> void:
+	var calls: Array[bool] = []
+	var old_setter := ScreenMode.setter
+	var old_getter := ScreenMode.getter
+	var state := [false]
+	ScreenMode.setter = func(on: bool) -> void:
+		calls.append(on)
+		state[0] = on
+	ScreenMode.getter = func() -> bool: return state[0]
+	_screen.open()
+	var toggle := _screen.fullscreen_button()
+	assert_not_null(toggle)
+	assert_gte(toggle.custom_minimum_size.y, 22.0)
+	assert_string_contains(toggle.text, "off")
+	toggle.pressed.emit()
+	assert_eq(calls, [true])
+	assert_true(GameSettings.fullscreen)
+	assert_true(_saved()["audio"]["fullscreen"], "it is saved")
+	assert_string_contains(toggle.text, "on")
+	ScreenMode.setter = old_setter
+	ScreenMode.getter = old_getter

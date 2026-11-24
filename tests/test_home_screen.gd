@@ -210,3 +210,24 @@ func test_applying_saved_settings_on_start() -> void:
 	_start()
 	assert_almost_eq(GameSettings.music_volume, 0.6, 0.0001)
 	assert_almost_eq(GameSettings.sfx_volume, 0.2, 0.0001)
+
+
+func test_the_full_screen_button_toggles_the_window_and_saves() -> void:
+	var calls: Array[bool] = []
+	var old_setter := ScreenMode.setter
+	var old_getter := ScreenMode.getter
+	var state := [false]
+	ScreenMode.setter = func(on: bool) -> void:
+		calls.append(on)
+		state[0] = on
+	ScreenMode.getter = func() -> bool: return state[0]
+	_start()
+	var button := _button("Full screen")
+	assert_not_null(button)
+	assert_gte(button.custom_minimum_size.y, UiKit.ACTION_SIZE.y)
+	button.pressed.emit()
+	assert_eq(calls, [true])
+	assert_true(GameSettings.fullscreen)
+	assert_true(FileAccess.file_exists("%s/settings.json" % _dir), "the choice is saved")
+	ScreenMode.setter = old_setter
+	ScreenMode.getter = old_getter
