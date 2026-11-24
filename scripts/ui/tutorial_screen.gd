@@ -12,6 +12,8 @@ const LINES_Y := 100.0
 const BUTTON_SIZE := Vector2(80, 28)
 
 var _open: bool = false
+## -1, 0 or 1: which way the left stick is held (a push sends many motion events but is one page turn).
+var _stick: int = 0
 var _index: int = 0
 var _pages: Array[TutorialPage] = []
 var _title: Label
@@ -67,7 +69,11 @@ func _input(event: InputEvent) -> void:
 		return
 	# Taken first: a bridged tap on Close or Done takes this screen out of view before we return.
 	var viewport := get_viewport()
-	if event.is_action_pressed(&"ui_cancel") or event.is_action_pressed(&"pause"):
+	if event is InputEventJoypadMotion:
+		# A stick reports "pressed" on every motion past its deadzone, so one push would skip several pages (and close on the last).
+		if _stick_turn(event):
+			viewport.set_input_as_handled()
+	elif event.is_action_pressed(&"ui_cancel") or event.is_action_pressed(&"pause"):
 		close()
 		viewport.set_input_as_handled()
 	elif event.is_action_pressed(&"ui_right"):
@@ -78,6 +84,25 @@ func _input(event: InputEvent) -> void:
 		viewport.set_input_as_handled()
 	elif handle_input(event):
 		viewport.set_input_as_handled()
+
+
+## Pages once per push of the left stick: right is Next, left is Back, and it pages again only after the stick has gone back to neutral.
+func _stick_turn(event: InputEventJoypadMotion) -> bool:
+	if event.axis != JOY_AXIS_LEFT_X:
+		return false
+	var direction := 0
+	if event.axis_value > 0.5:
+		direction = 1
+	elif event.axis_value < -0.5:
+		direction = -1
+	var turned := direction != 0 and _stick == 0
+	_stick = direction
+	if turned:
+		if direction > 0:
+			next()
+		else:
+			back()
+	return turned
 
 
 ## Turns a touch into the left mouse press or release the buttons expect. False while closed.
@@ -91,6 +116,7 @@ func handle_input(event: InputEvent) -> bool:
 func open() -> void:
 	_open = true
 	_index = 0
+	_stick = 0
 	visible = true
 	_show_page()
 	_next.grab_focus()

@@ -132,3 +132,40 @@ func test_it_works_while_the_tree_is_paused() -> void:
 	_screen.open()
 	_screen._input(_action(&"ui_cancel"))
 	assert_false(_screen.is_open())
+
+
+func _stick(value: float) -> InputEventJoypadMotion:
+	var event := InputEventJoypadMotion.new()
+	event.axis = JOY_AXIS_LEFT_X
+	event.axis_value = value
+	return event
+
+
+func test_one_push_of_the_stick_turns_one_page_not_several() -> void:
+	_screen.open()
+	for value in [0.6, 0.8, 1.0, 1.0]:
+		_screen._input(_stick(value))
+	assert_eq(_screen.page_index(), 1, "a push of the stick sends several motion events but is one page")
+	assert_true(_screen.is_open())
+
+
+func test_the_stick_pages_again_after_it_returns_to_neutral_and_the_other_way_goes_back() -> void:
+	_screen.open()
+	_screen._input(_stick(1.0))
+	_screen._input(_stick(0.0))
+	_screen._input(_stick(1.0))
+	assert_eq(_screen.page_index(), 2)
+	_screen._input(_stick(0.0))
+	_screen._input(_stick(-1.0))
+	assert_eq(_screen.page_index(), 1, "left goes back one page")
+
+
+func test_pushing_the_stick_right_on_the_last_page_does_not_close_it_by_accident_more_than_once() -> void:
+	_screen.open()
+	for i in 3:
+		_screen._input(_stick(1.0))
+		_screen._input(_stick(0.0))
+	assert_eq(_screen.page_index(), 3)
+	_screen._input(_stick(1.0))
+	_screen._input(_stick(1.0))
+	assert_false(_screen.is_open(), "one deliberate push on the last page is Done")

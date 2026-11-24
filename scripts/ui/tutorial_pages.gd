@@ -8,6 +8,8 @@ static func pages() -> Array[TutorialPage]:
 	var move := ControlsText.keys_for([&"move_up", &"move_left", &"move_down", &"move_right"])
 	var cast := ControlsText.key_for(&"cast")
 	var interact := ControlsText.key_for(&"interact")
+	# The merchant's real stock and the real carry limit, so this page cannot drift from the game data.
+	var stock := (load("res://resources/points_of_interest/merchant.tres") as PointOfInterestData).stock_per_potion
 	return [
 		TutorialPage.make("Survive!", [
 			"Stay alive as long as you can while enemies close in.",
@@ -25,7 +27,7 @@ static func pages() -> Array[TutorialPage]:
 			"Buffs are optional, but every one costs more mana.",
 		], [&"scroll_base", &"scroll_area", &"scroll_buff", &"lectern"]),
 		TutorialPage.make("Potions and the shop", [
-			"Merchants sell potions for Gold: 3 of each, for one run.",
+			"Merchants sell potions: %d of each, hold up to %d, for one run." % [stock, RunPotions.MAX_POTIONS],
 			"Drink them with Z X C V B N, or tap a slot.",
 			"Spend Gold on equipment in the Shop on the home screen.",
 		], [&"icon_potion", &"poi_merchant", &"icon_coin"]),

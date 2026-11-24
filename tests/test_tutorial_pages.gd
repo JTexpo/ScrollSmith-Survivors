@@ -47,3 +47,12 @@ func _all_lines() -> Array[String]:
 	for page in TutorialPages.pages():
 		lines.append_array(page.lines)
 	return lines
+
+
+func test_the_merchant_numbers_come_from_the_game_data() -> void:
+	var stock := (load("res://resources/points_of_interest/merchant.tres") as PointOfInterestData).stock_per_potion
+	var potions_page := TutorialPages.pages()[3]
+	var text := "\n".join(potions_page.lines)
+	assert_string_contains(text, "%d of each" % stock)
+	assert_string_contains(text, "up to %d" % RunPotions.MAX_POTIONS)
+	assert_string_contains(text.to_lower(), "one run")
