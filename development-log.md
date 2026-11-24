@@ -630,3 +630,17 @@ What was built: `AreaData` burst fields, `MissileBurst`, the Missile and Cone nu
 Audit (a model: tight group, cone 6, line 3, wave 5, zone every tick): the four Zones do 12000 to 15000 damage per pool and 430 to 670 per second against 8 enemies, 5x to 6x the median (about 2500) and 5x to 10x the dps of Missile, Cone, Line and Wave (40 to 105). The starting Sea Cone and Fire Missile top the pool column only because their pools are 10x a crafted spell's. The crafted Missile with its burst sits near the median. No number was changed.
 
 Left open: the user decides whether Zones need a change; all burst, cone and potion numbers are starting values; the merchant screen shows the restock time as of opening (the world is paused).
+
+## 2026-11-24: Sprint 14c (optimization, soak and a testing pass)
+
+Decisions (user): the sketch as proposed: a performance overlay testers can open on a phone, a soak test, a testing pass over the Sprint 14 list adding tests only for gaps, optimization only where measured, and the cheap deferred minors. The overlay opens with F3 or a long press on the mute button.
+
+What was built: `PerfOverlay` and `FxSettings.perf_overlay`, hold detection on `MuteButton`, `SoakRun`/`SoakDriver`/`soak_test.gd`, `tests/test_combinations.gd`, and the minors (safe burst spawn, `SpellAudit` robustness, a wider prompt label, the old-potions toast, stale docs).
+
+Soak (12 rounds of 600 frames at a fixed 60 fps): nodes 620 every round at rest, orphans 0, objects 3765 rising to a plateau near 3807, static memory 46.3 MB to 47.5 MB then flat. No leak. The first harness sampled during play and failed a healthy game, so it now samples at rest and restarts every round.
+
+Coverage table (Sprint 14 test list against existing tests): every item was already covered except: every Base and Area pair casting and spending its cost, every buff at its stack limit and all together, five slots keeping separate mana, every equipment combination adding up, a save round-tripping every field and a restarted run starting clean. All the new tests passed at once.
+
+Performance: with the machine at full speed the 300-enemy scene runs at about 90 to 115 fps (`--obstacles --drops`, `--boss --fx` and `--area=missile` alike, p99 frame time 21 to 38 ms). But the laptop was on battery in Low Power Mode and the same scene swung between about 100 fps and 9 to 45 fps from one run to the next, so no before and after comparison was possible and **no optimization was made**. A slower CPU may make the frame rate collapse rather than fall gradually (a physics tick over 16.7 ms makes the engine run extra ticks); that is unverified. No phone was measured.
+
+Left open: first phone and browser numbers (testers with the overlay); whether the game should degrade gracefully on a slow device (a real design call: fewer enemies, or a cap on physics catch-up); crowd separation (no screenshot judged unreadable); the Zone balance.

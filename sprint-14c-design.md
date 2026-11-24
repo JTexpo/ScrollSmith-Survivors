@@ -1,6 +1,6 @@
 # Sprint 14c Design: Optimization, soak and a testing pass
 
-**Status:** Proposed, awaiting approval.
+**Status:** Built (Sprint 14c).
 
 Sprint 14 is three parts: **14a** the world pass and **14b** balance (done), **14c** optimization (this doc). Scope comes from the Sprint 14 list in `sprint-development.md`, the open items in `development-log.md` and the user's answers in conversation. Decisions below were agreed with the user in conversation, except where marked "my call".
 
@@ -65,3 +65,9 @@ The game runs at about 93 to 102 fps on the development desktop with 300 enemies
 - **Minor-fix tests:** the burst spawns safely when its parent is freed first and `burst_spawned` fires with the burst in the tree; `SpellAudit.rows()` skips a missing scroll; the merchant prompt fits its label; the cash-in toast shows once.
 - **Real window:** a screenshot of the overlay on desktop; touch and mouse long-press checked in a real window (not only headless, per the project's touch rule). A real phone cannot be run from here, so the first phone numbers come from the user's testers, and I say so.
 - `godot --headless --import` after adding a `class_name`, then the full suite and a smoke run.
+
+## 6. Revisions during the build
+
+- The mute button acts on release (a tap) so a hold can be told from a tap; `handle_release` accepts a release anywhere.
+- The soak driver samples at rest and restarts after every round (sampling during play, or restarting every third round, confused load with leaks); the test-only leak is 5 nodes a frame.
+- No optimization was made: the measuring laptop was in Low Power Mode on battery and runs swung between about 100 and 10 to 45 fps, so no before and after number was trustworthy. The user's phone testers supply the first real numbers through the overlay.

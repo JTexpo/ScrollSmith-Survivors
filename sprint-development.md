@@ -790,6 +790,8 @@ Sprint 14 is split into three: **14a** the world pass (built), **14b** balance, 
 
 **Built note (14b):** the Missile bursts where it ends (a small area hit of 18 px for half its damage, so it matters in a crowd without taking the Zone's role) and casts every 0.6 s; the Cone reaches 94 px at Normal (Short is what Normal used to be) and casts every 0.8 s; potions last one run (an in-memory `RunPotions`, at most 3 of each type, sold only by the merchant, which now shows a restock timer on its prompt and its screen, and the death-screen shop no longer sells them; old saves' potions are cashed in for Gold once); and a spell audit tool (`scripts/dev/spell_audit.gd`) reports damage per mana pool for every Base, Area and buff against groups of 1 and 8. The audit found the four Zones about 5x the median in a crowd; nothing was changed because the user decides. All starting values are the user's to tune by play.
 
+**Built note (14c):** the game can measure itself and a long run is proven flat. A performance overlay (frames per second, frame time, enemies, nodes) is toggled by F3 or by a 1 s long press on the mute button (a tap still mutes, now on release); it is off by default and reads engine counters only. A soak test (`scripts/dev/soak_test.gd`, `SoakRun`, `SoakDriver`) plays rounds of the whole game (crowd, every Area, pickups, level-ups, potions, a boss, a death and a restart) and samples node, object, orphan and memory counts at rest after each: 12 rounds gave exactly 620 nodes every round, 0 orphans and memory flat after warm-up, so no leak was found; a short version runs in the suite and a deliberate leak fails it. The Sprint 14 test list was checked against the existing tests and the gaps got `tests/test_combinations.gd` (all passed, no bug). The deferred minors from 13d to 14b are fixed. **No optimization was made:** on the development laptop the full 300-enemy scene runs at about 90 to 115 fps when the machine is at full speed, but the machine was on battery with Low Power Mode and the same scene swung between about 100 fps and about 10 to 45 fps from run to run, which made before and after numbers meaningless; that swing also suggests the game loses frame rate sharply, not gradually, on a slower CPU. No phone was measured: the first phone numbers must come from testers using the overlay.
+
 ### Tasks
 
 #### Gameplay Balancing
@@ -812,16 +814,16 @@ Sprint 14 is split into three: **14a** the world pass (built), **14b** balance, 
 
 #### Testing
 
-- [ ] Test all Base and Area combinations.
-- [ ] Test all Buff combinations.
-- [ ] Test multiple equipped spells.
-- [ ] Test depleted mana scenarios.
-- [ ] Test equipment combinations.
-- [ ] Test potion interactions.
-- [ ] Test level progression.
-- [ ] Test player death.
-- [ ] Test run completion.
-- [ ] Test save/load functionality.
+- [x] Test all Base and Area combinations.
+- [x] Test all Buff combinations.
+- [x] Test multiple equipped spells.
+- [x] Test depleted mana scenarios.
+- [x] Test equipment combinations.
+- [x] Test potion interactions.
+- [x] Test level progression.
+- [x] Test player death.
+- [x] Test run completion.
+- [x] Test save/load functionality.
 
 #### Optimization
 
@@ -831,7 +833,7 @@ Sprint 14 is split into three: **14a** the world pass (built), **14b** balance, 
 - [ ] Optimize particle effects.
 - [ ] Profile performance with large enemy counts (Sprint 1 desktop baseline: 60 fps target met at 300 and 500 enemies, see `development-log.md`; re-measure on phones/browsers).
 - [ ] Add crowd separation if enemy stacking hurts readability (enemies currently converge on the player).
-- [ ] Fix memory leaks.
+- [x] Fix memory leaks. (14c: the soak test found none.)
 - [ ] Fix known gameplay bugs.
 
 ### Deliverable
