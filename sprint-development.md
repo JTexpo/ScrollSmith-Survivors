@@ -926,7 +926,7 @@ A complete, playable release candidate.
 - **Naming:** enemy art is looked up as `enemy_<set>_<type>` (`forest`, `ruins`, `maze`) with a fallback to the current `enemy_<type>`. 16a renames the existing sprites into their sets, so no map ever shows a wrong or missing enemy.
 
 ### Decisions
-Confirmed by the user: the enemy columns above; **all three maps open from the start** (unlocking by boss belongs to the achievements sprint, 17); the **forest is about 2880 by 1620**, bounded, no walls, with spread-out points of interest; **one shared set of bests** across maps.
+Confirmed by the user: the enemy columns above; **all three maps open from the start** (unlocking by boss belongs to the achievements sprint, 17); **every map is 1920 by 1080, the same as the ruins** (the user: no need to expand; the forest is bounded with no walls and its points of interest spread as far apart as that allows); **one shared set of bests** across maps.
 
 Still to settle (the user's call, at 16a's brainstorming): the forest is "about finding a dragon" and the maze is a minotaur's maze, so should those bosses be **found** (waiting in a lair on the map that the player travels to, perhaps with a hint on the way) instead of arriving every 300 seconds like the Ember Titan does? That changes how a run is paced on those maps and is the main design question of 16a.
 
@@ -940,9 +940,9 @@ Still to settle (the user's call, at 16a's brainstorming): the forest is "about 
 - [ ] `MapData` names its enemy art set, a short description and its boss roster (the map's `spawn_config.bosses`), plus a `MapCatalog` resource listing the maps in order (forest, ruins, maze). The ruins keep the first map's data and id.
 - [ ] A per-map enemy art lookup (`enemy_<set>_<type>`, falling back to `enemy_<type>`); the existing sprites are renamed into their sets (goblin, wolf, kobold into `forest`; slime, armour, imp, cultist into `ruins`) so the ruins and forest still show today's art where the new sprites do not exist yet. The boss's sprite comes from its `BossData`. No enemy stats change.
 - [ ] A map select screen between the home screen's Play and the run (cards with the map's name, a theme line and its boss), by touch, mouse, keyboard and controller; the chosen map is passed to the run without an autoload.
-- [ ] The **forest** layout as data (about 2880 by 1620): player start, grass floor, groves and rocks as obstacles (few, so it stays open), points of interest and three Lecterns far apart and from the start, with whatever the boss-finding decision needs; layout tests.
+- [ ] The **forest** layout as data (1920 by 1080, like every map): player start, grass floor, groves and rocks as obstacles (few, so it stays open), points of interest and three Lecterns far apart and from the start, with whatever the boss-finding decision needs; layout tests.
 - [ ] The **maze** layout as data: one full `MapMaze` over the whole map (closed boundary, a cleared centre, extra openings for loops), points of interest in rooms and dead ends, three far-apart Lecterns; layout tests.
-- [ ] The stress scene takes `--map=<id>`; the spawner, flow field, draw chunks and soak test are checked on the larger maps; performance recorded.
+- [ ] The stress scene takes `--map=<id>`; the spawner, flow field, draw chunks and soak test are checked on every map (the open forest has far fewer walls but the same area, so spawning and the flow field behave differently); performance recorded.
 - [ ] Real-window screenshots of the select screen and both new layouts, by touch and mouse.
 
 ### Deliverable
@@ -952,7 +952,7 @@ Three maps selectable from Play, all playable.
 - Every map loads, is fully reachable and has no layout problems.
 - The ruins play exactly as before.
 - Missing enemy art never breaks a map.
-- Performance on the larger maps stays at or near the ruins'.
+- Performance on every map stays at or near the ruins'.
 
 ---
 
