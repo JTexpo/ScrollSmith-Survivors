@@ -1,6 +1,6 @@
 # Sprint 15b Design: Onboarding and run statistics
 
-**Status:** Proposed, awaiting approval.
+**Status:** Built (Sprint 15b).
 
 Sprint 15 is three parts: **15a** the front door (done), **15b** onboarding and run statistics (this doc), **15c** release preparation. Scope comes from the Sprint 15 list in `sprint-development.md`, `CLAUDE.md` and the user's answers in conversation. Decisions below were agreed with the user in conversation, except where marked "my call".
 
@@ -63,3 +63,9 @@ A new player lands on a home screen with a dimmed Tutorial button and, after dyi
 - **Tutorial tests:** four pages, each with a title, text that fits and sprites that exist; Back, Next and the page counter; keyboard and controller navigation (focus reaches Next and Back); the key names come from the Input Map; touch is bridged; it works from the home screen and closes back to it.
 - **Real window (touch rule):** screenshots of every tutorial page and the death card (with and without a new best, using a throwaway save), and by touch and mouse: open the Tutorial from the home screen, page forward and back, close; die and read the card, tap Home. Not checked on a phone.
 - `godot --headless --import` after adding a `class_name`, then the full suite, a smoke run and the soak tool once (the run scene gains a tally).
+
+## 6. Revisions during the build
+
+- The card's XP, Gold and level come from `RunProgress` at death (copied into the tally after it is frozen), not from the tally's own event counts.
+- `ProfileSaver.save_now` already returned a bool, so no saver change was needed.
+- The recap is one column of nine rows (label, value, best or mark) on a 400 by 186 card, with a separate hint line.

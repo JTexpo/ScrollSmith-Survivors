@@ -658,3 +658,17 @@ Found while building: the first short soak failed once in a full run (one stragg
 Checked in a real window by touch and mouse: every home button, Settings (toggle, slider, saved file), both New game questions (`.bak`, settings kept), Play, Esc and the HUD button, Resume, Settings inside the pause menu, the inventory pause from its key and button, and the death screen's Home. No phone.
 
 Left open: the Tutorial pages, the fuller game-over screen and statistics (15b); the icon, promo material, final playtesting and the release build (15c); key remapping, a map select, achievements; the home screen is plain (a small title and wizard), a look to tune; the exit leak warning from the home scene.
+
+## 2026-11-24: Sprint 15b (onboarding and run statistics)
+
+Decisions (user): a run tally that only listens (approach A), nine stats on the death card, three saved bests in the progress save with a "New best!" rule (not on a first run), and four tutorial pages with pictures reached only from the home screen's Tutorial button.
+
+What was built: `PlayerProfile` bests, `RunRecords`, `RunStats`, `RunRecap`, the new death card (`set_recap`), `TutorialPage`, `TutorialPages`, `TutorialScreen`, `ControlsText.key_for` and `keys_for`, the home screen's live Tutorial button, and guard tests (no gameplay script names the recap, records, tally or tutorial; the tally never calls into gameplay).
+
+Found while building: the card's XP, Gold and level must come from `RunProgress` (the tally's own event counts miss XP that did not come from a gem, and the tally's level only rose on level-ups, so a level-5 player who dies without levelling would have shown level 1); the first real-window run in a fresh process missed one tap on the Tutorial button (layout not settled after a fresh import), repeats were clean.
+
+Checked in a real window by touch and mouse: the Tutorial from the home screen (open, three Next taps, Back, Done, Close, focus back on Play) and the death card with a new best. Not on a phone.
+
+Left open: the tutorial pictures are small (one pixel size) and the card is plain; a guided first run was not built; the icon, promo material, final playtesting and the release build (15c); achievements, a map select and key remapping.
+
+Follow-up (reported by the user): returning to the home screen after quitting a run logged "Playback can only happen when a node is inside the scene tree" (sound_board.gd). The leaving board was still listening to `node_added`, wired the home screen's new buttons, and played when Play took focus. Fixed: `play` ignores a board outside the tree and `_exit_tree` stops the `node_added` listening (three tests, red first; Quit to home checked end to end).

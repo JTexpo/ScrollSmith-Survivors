@@ -93,3 +93,37 @@ func test_every_screen_that_must_work_paused_is_always() -> void:
 		var node := (load(path) as PackedScene).instantiate()
 		add_child_autofree(node)
 		assert_eq(node.process_mode, Node.PROCESS_MODE_ALWAYS, path)
+
+
+const STATS_ALLOWED := [
+	"res://scripts/ui/run_recap.gd",
+	"res://scripts/progression/run_records.gd",
+	"res://scripts/progression/run_stats.gd",
+	"res://scripts/ui/death_screen.gd",
+	"res://scripts/ui/tutorial_",
+	"res://scripts/main/main.gd",
+	"res://scripts/home/",
+]
+const STATS_WORDS := ["RunRecap", "RunRecords", "RunStats", "TutorialScreen", "TutorialPages"]
+
+
+func test_no_gameplay_script_references_the_recap_records_tally_or_tutorial() -> void:
+	var offenders: Array[String] = []
+	for path in _files("res://scripts", ".gd"):
+		var allowed := false
+		for prefix in STATS_ALLOWED:
+			if path.begins_with(prefix):
+				allowed = true
+		if allowed:
+			continue
+		var code := _code(path)
+		for word in STATS_WORDS:
+			if code.contains(word):
+				offenders.append("%s uses %s" % [path, word])
+	assert_eq(offenders, [] as Array[String], "gameplay announces, the tally and the screens listen")
+
+
+func test_run_stats_never_calls_into_gameplay() -> void:
+	var code := _code("res://scripts/progression/run_stats.gd")
+	for word in ["take_damage", "heal(", "add_xp", "add_gold", "spawn_", "queue_free", ".emit("]:
+		assert_false(code.contains(word), "the tally only listens: %s" % word)
