@@ -94,3 +94,27 @@ func test_the_save_is_atomic_no_tmp_file_is_left() -> void:
 	assert_true(SettingsStore.save_file(_path()))
 	assert_false(FileAccess.file_exists(_path() + ".tmp"))
 	assert_true(FileAccess.file_exists(_path()))
+
+
+func test_last_map_round_trips_through_the_file() -> void:
+	GameSettings.last_map = &"maze"
+	assert_true(SettingsStore.save_file(_path()))
+	GameSettings.reset()
+	SettingsStore.load_file(_path())
+	assert_eq(GameSettings.last_map, &"maze")
+
+
+func test_a_file_with_no_play_object_loads_the_default_map() -> void:
+	_write(JSON.stringify({"version": SettingsStore.VERSION, "audio": {"music": 0.5}}))
+	SettingsStore.load_file(_path())
+	assert_eq(GameSettings.last_map, GameSettings.DEFAULT_MAP)
+	assert_almost_eq(GameSettings.music_volume, 0.5, 0.0001, "an old settings file still loads its audio")
+
+
+func test_a_play_object_of_the_wrong_type_is_ignored() -> void:
+	_write(JSON.stringify({"version": SettingsStore.VERSION, "play": "maze"}))
+	SettingsStore.load_file(_path())
+	assert_eq(GameSettings.last_map, GameSettings.DEFAULT_MAP)
+	_write(JSON.stringify({"version": SettingsStore.VERSION, "play": {"last_map": 7}}))
+	SettingsStore.load_file(_path())
+	assert_eq(GameSettings.last_map, GameSettings.DEFAULT_MAP)

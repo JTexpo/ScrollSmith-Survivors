@@ -1,6 +1,6 @@
 class_name SettingsStore
 extends RefCounted
-## Saves and loads the settings (the volumes and every effect switch) as one versioned JSON file, `user://settings.json`, apart from the
+## Saves and loads the settings (the volumes, every effect switch and the last map played) as one versioned JSON file, `user://settings.json`, apart from the
 ## progress save: New game erases progress and keeps settings, and a bad settings file never touches progress. The path is a parameter so
 ## tests never touch the player's real file. A missing file means defaults; an unusable one is kept as `.bak` and defaults apply.
 
@@ -23,6 +23,8 @@ static func load_file(path: String = DEFAULT_PATH) -> void:
 		GameSettings.apply(parsed["audio"])
 	if parsed.get("fx") is Dictionary:
 		FxSettings.apply(parsed["fx"])
+	if parsed.get("play") is Dictionary:
+		GameSettings.apply_play(parsed["play"])
 
 
 ## Writes a temporary file and renames it over the old one. False on any failure, leaving the old file alone.
@@ -33,7 +35,7 @@ static func save_file(path: String = DEFAULT_PATH) -> bool:
 	var file := FileAccess.open(temp_path, FileAccess.WRITE)
 	if file == null:
 		return false
-	file.store_string(JSON.stringify({"version": VERSION, "audio": GameSettings.to_dict(), "fx": FxSettings.to_dict()}))
+	file.store_string(JSON.stringify({"version": VERSION, "audio": GameSettings.to_dict(), "fx": FxSettings.to_dict(), "play": GameSettings.play_dict()}))
 	file.close()
 	if DirAccess.rename_absolute(ProjectSettings.globalize_path(temp_path), ProjectSettings.globalize_path(path)) != OK:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(temp_path))
