@@ -1,6 +1,6 @@
 class_name DeathScreen
 extends CanvasLayer
-## The "You died" overlay: a dimmed world, a cream card with the run summary and a green Shop button. Restarting is
+## The "You died" overlay: a dimmed world, a cream card with the run recap, a green Shop button and a Home button. Restarting is
 ## the R key, a controller button or a tap anywhere else.
 
 signal restart_requested
@@ -18,14 +18,13 @@ var home_scene_path: String = Scenes.HOME
 var _shown_at_msec: int = 0
 var _shop_open: bool = false
 
-@onready var _summary: Label = $Summary
+@onready var _recap: Control = $Recap
 @onready var _shop_button: Button = $ShopButton
 @onready var _home_button: Button = $HomeButton
 
 
 func _ready() -> void:
 	visible = false
-	_summary.visible = false
 	_shop_button.visible = false
 	_home_button.visible = false
 	_shop_button.pressed.connect(_request_shop)
@@ -46,18 +45,50 @@ func _input(event: InputEvent) -> void:
 	handle_event(event)
 
 
-## Adds a line under "You died": the XP and Gold gained this run and the level reached.
-## `seconds` of 0 or more adds how long the run lasted.
-func set_run_summary(run_xp: int, level: int, run_gold: int = 0, seconds: float = -1.0) -> void:
-	_summary.text = "+%d XP, +%d Gold this run, level %d" % [run_xp, run_gold, level]
-	if seconds >= 0.0:
-		_summary.text += ", survived %s" % RunClockLabel.format(seconds)
-	_summary.visible = true
+const ROW_TOP := 38.0
+const ROW_STEP := 14.0
+const LABEL_X := 70.0
+const VALUE_X := 230.0
+const BEST_X := 292.0
+
+var _recap_rows: Array[Dictionary] = []
 
 
-## The summary line, or "" if none was set.
-func summary_text() -> String:
-	return _summary.text if _summary.visible else ""
+## Shows the run recap under "You died": one line per row (`RunRecap.rows`): its label, its value, and its best or "New best!".
+func set_recap(rows: Array[Dictionary]) -> void:
+	_recap_rows = rows
+	for child in _recap.get_children():
+		_recap.remove_child(child)
+		child.queue_free()
+	for i in rows.size():
+		var y := ROW_TOP + i * ROW_STEP
+		_add_label(rows[i]["label"], Vector2(LABEL_X, y), 150.0)
+		_add_label(rows[i]["value"], Vector2(VALUE_X, y), 56.0)
+		if rows[i]["new_best"]:
+			_add_label("New best!", Vector2(BEST_X, y), 110.0, &"Heading")
+		elif not String(rows[i]["best"]).is_empty():
+			_add_label(rows[i]["best"], Vector2(BEST_X, y), 110.0, &"Muted")
+
+
+## The recap as plain lines ("label: value  best X" or "label: value  New best!"), or "" when none was set.
+func recap_text() -> String:
+	var lines := PackedStringArray()
+	for row in _recap_rows:
+		var line := "%s: %s" % [row["label"], row["value"]]
+		if row["new_best"]:
+			line += "  New best!"
+		elif not String(row["best"]).is_empty():
+			line += "  %s" % row["best"]
+		lines.append(line)
+	return "\n".join(lines)
+
+
+func _add_label(text: String, at: Vector2, width: float, variation: StringName = &"") -> void:
+	var label := UiKit.label(text, variation)
+	label.position = at
+	label.size = Vector2(width, 12)
+	label.clip_text = true
+	_recap.add_child(label)
 
 
 func show_death() -> void:

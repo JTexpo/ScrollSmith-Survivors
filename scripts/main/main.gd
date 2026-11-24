@@ -348,8 +348,15 @@ func _on_shop_requested() -> void:
 
 func _on_player_died() -> void:
 	run_stats.freeze()
-	_death_screen.set_run_summary(_player.progress.run_xp, _player.progress.level(), _player.progress.run_gold, RunClock.seconds())
-	_saver.save_now()
+	# XP, Gold and level come from the run's progress (it also counts XP that did not come from a gem, such as the debug key), then the
+	# bests are compared and saved, and the card only announces a record that really was written.
+	run_stats.xp = _player.progress.run_xp
+	run_stats.gold = _player.progress.run_gold
+	run_stats.level = _player.progress.level()
+	var seconds := RunClock.seconds()
+	var flags := RunRecords.update(profile, run_stats.enemies, run_stats.level, seconds)
+	var saved := _saver.save_now()
+	_death_screen.set_recap(RunRecap.rows(run_stats, seconds, profile, flags, saved))
 
 
 ## Opening needs nothing else open: the inventory pauses the game, and closing it later would unpause whatever screen it opened behind.

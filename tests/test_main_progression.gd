@@ -105,13 +105,13 @@ func test_level_up_shows_the_toast() -> void:
 	assert_string_contains(toast.text, "Level 2!")
 
 
-func test_death_saves_the_profile_and_shows_the_summary() -> void:
+func test_death_saves_the_profile_and_shows_the_recap() -> void:
 	var main := _new_main(_path())
 	_player(main).progress.add_xp(20)
 	assert_false(FileAccess.file_exists(_path()), "20 XP is no level-up, so nothing is saved yet")
 	(_player(main).get_node("HurtboxComponent") as HurtboxComponent).receive_hit(1000.0, Vector2.ZERO)
 	assert_eq(SaveGame.load_profile(_path()).total_xp, 20)
-	assert_string_starts_with((main.get_node("DeathScreen") as DeathScreen).summary_text(), "+20 XP, +0 Gold this run, level 1")
+	assert_string_contains((main.get_node("DeathScreen") as DeathScreen).recap_text(), "XP earned: 20")
 
 
 func test_random_buff_reward_mid_run_changes_nothing_until_next_run() -> void:
@@ -239,7 +239,7 @@ func test_gold_survives_death_and_a_new_run() -> void:
 	var first := _new_main(_path())
 	_player(first).progress.add_gold(40)
 	(_player(first).get_node("HurtboxComponent") as HurtboxComponent).receive_hit(1000.0, Vector2.ZERO)
-	assert_string_starts_with((first.get_node("DeathScreen") as DeathScreen).summary_text(), "+0 XP, +40 Gold this run, level 1")
+	assert_string_contains((first.get_node("DeathScreen") as DeathScreen).recap_text(), "Gold earned: 40")
 	first.free()
 	var second := _new_main(_path())
 	assert_eq(second.profile.gold, 40)
@@ -576,10 +576,10 @@ func test_defeating_the_boss_hides_the_bar_and_shows_the_defeat_toast() -> void:
 	assert_string_contains((main.get_node("Hud/LevelToast") as LevelToast).text, "Boss defeated")
 
 
-func test_the_death_summary_shows_time_survived() -> void:
+func test_the_death_recap_shows_time_survived() -> void:
 	var main := _new_main("")
 	(_player(main).get_node("HurtboxComponent") as HurtboxComponent).receive_hit(1000.0, Vector2.ZERO)
-	assert_string_contains((main.get_node("DeathScreen") as DeathScreen).summary_text(), "survived 0:0")
+	assert_string_contains((main.get_node("DeathScreen") as DeathScreen).recap_text(), "Time survived: 0:0")
 
 
 func test_the_hud_has_a_run_clock() -> void:
@@ -723,3 +723,58 @@ func test_the_tally_is_frozen_when_the_player_dies() -> void:
 	assert_true(main.run_stats.is_frozen())
 	_player(main).collector.collected.emit(ScrollData.new())
 	assert_eq(main.run_stats.scrolls, 0, "nothing counts after death")
+
+
+func _recap(main: Main) -> String:
+	return (main.get_node("DeathScreen") as DeathScreen).recap_text()
+
+
+func test_dying_updates_and_saves_the_bests_and_shows_the_recap() -> void:
+	var main := _new_main(_path())
+	var spawner := main.get_node("EnemySpawner") as EnemySpawner
+	for i in 3:
+		(spawner.spawn_at(Vector2(300 + i * 40, 300), 1).get_node("HealthComponent") as HealthComponent).take_damage(1.0e9)
+	_die(main)
+	var saved := SaveGame.load_profile(_path())
+	assert_eq(saved.best_enemies, 3, "the bests were written at death")
+	assert_gte(saved.best_level, 1)
+	assert_string_contains(_recap(main), "Enemies defeated: 3")
+	assert_false(_recap(main).contains("New best!"), "a first run shows its best without the mark")
+	assert_string_contains(_recap(main), "best 3")
+
+
+func test_a_second_better_run_shows_new_best_for_the_beaten_stats() -> void:
+	var profile := PlayerProfile.new()
+	profile.best_enemies = 1
+	profile.best_seconds = 9999
+	profile.best_level = 1
+	SaveGame.save_profile(profile, _path())
+	var main := _new_main(_path())
+	var spawner := main.get_node("EnemySpawner") as EnemySpawner
+	for i in 2:
+		(spawner.spawn_at(Vector2(300 + i * 40, 300), 1).get_node("HealthComponent") as HealthComponent).take_damage(1.0e9)
+	_die(main)
+	assert_string_contains(_recap(main), "Enemies defeated: 2  New best!")
+	assert_false(_recap(main).contains("Time survived: 0:00  New best!"), "a short run does not beat 9999 s")
+	assert_eq(SaveGame.load_profile(_path()).best_enemies, 2)
+
+
+func test_a_failed_save_shows_no_new_best_mark() -> void:
+	var profile := PlayerProfile.new()
+	profile.best_enemies = 1
+	SaveGame.save_profile(profile, _path())
+	var main := _new_main(_path())
+	var spawner := main.get_node("EnemySpawner") as EnemySpawner
+	(spawner.spawn_at(Vector2(300, 300), 1).get_node("HealthComponent") as HealthComponent).take_damage(1.0e9)
+	(spawner.spawn_at(Vector2(340, 300), 1).get_node("HealthComponent") as HealthComponent).take_damage(1.0e9)
+	(main.get_node("ProfileSaver") as ProfileSaver).bind(main.profile, "res://.godot/save_tests/no_such_folder/save.json")
+	_die(main)
+	assert_false(_recap(main).contains("New best!"), "the record was not written, so it is not announced")
+	assert_string_contains(_recap(main), "Enemies defeated: 2")
+
+
+func test_the_recap_level_is_the_level_reached_not_the_levels_gained() -> void:
+	_save_at_level(5)
+	var main := _new_main(_path())
+	_die(main)
+	assert_string_contains(_recap(main), "Level reached: 5")
