@@ -1,5 +1,6 @@
 # An ent: a walking tree-stump with a leafy crown, branch arms and a grumpy face.
 size 24 24
+outline
 anim move 0 1 6 loop
 anim death 2 3 12 once
 frame

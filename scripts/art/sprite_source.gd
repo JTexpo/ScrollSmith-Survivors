@@ -3,7 +3,8 @@ extends RefCounted
 ## One sprite read from a `.sprite` text file: `size <w> <h>`, `anim <name> <first> <last> <fps> <loop|once>` lines, then
 ## each frame as the line `frame` followed by `h` rows of exactly `w` letters (`.` transparent, a palette letter, or a ramp
 ## slot 1 to 5). `#` starts a comment. A line `hand_drawn` says the sheets were drawn by hand: the tool then keeps them
-## and only writes the animation data and silhouette (the grid is a placeholder). A line `tile` marks a full-bleed
+## and only writes the animation data (the grid is a placeholder). A line `outline` asks for a white silhouette sheet, which only
+## a sprite that is drawn with an outline needs (the enemies); without it none is built. A line `tile` marks a full-bleed
 ## repeating tile (no transparent pixel, no 1 px margin, no silhouette), and `slice <left> <top> <right> <bottom>` gives a
 ## 9-slice margins in pixels, for walls (on a `tile`) and for panels and buttons (alone, so their corners may be transparent). Mistakes are collected in `errors`,
 ## never thrown.
@@ -15,6 +16,8 @@ var hand_drawn := false
 var variants: Array[StringName] = []
 ## True for a full-bleed repeating tile (a floor or a wall).
 var tile := false
+## True when the sprite needs a white silhouette sheet (for an outline). Ignored on a surface, which has none.
+var outline := false
 ## The 9-slice margins (left, top, right, bottom) of a tile, zero when it has none.
 var slice := Vector4i.ZERO
 var frame_size := Vector2i.ZERO
@@ -39,6 +42,8 @@ static func parse(text: String, palette: ArtPalette) -> SpriteSource:
 				source.variants.append(StringName(id))
 		elif line == "tile":
 			source.tile = true
+		elif line == "outline":
+			source.outline = true
 		elif line.begins_with("slice "):
 			source._read_slice(number, line)
 		elif line.begins_with("size "):

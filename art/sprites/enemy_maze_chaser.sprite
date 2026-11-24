@@ -1,5 +1,6 @@
 # A ghost: a wailing sheet-like spirit with hollow eyes and a wavy hem, quick and cold.
 size 12 12
+outline
 anim move 0 1 6 loop
 anim death 2 3 12 once
 frame

@@ -1,5 +1,6 @@
 # A rat: a quick brown scurrier with a long tail and a pink ear. Comes in clusters.
 size 10 10
+outline
 anim move 0 1 6 loop
 anim death 2 3 12 once
 frame

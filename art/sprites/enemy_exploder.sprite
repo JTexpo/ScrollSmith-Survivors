@@ -1,5 +1,6 @@
 # An imp: a winged little devil carrying a lit bomb.
 size 14 14
+outline
 anim move 0 1 6 loop
 anim death 2 3 12 once
 anim fuse 4 5 10 loop

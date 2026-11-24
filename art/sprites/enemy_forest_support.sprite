@@ -1,5 +1,6 @@
 # A shaman: a hooded forest healer with glowing eyes and a leaf-topped staff that bursts with life.
 size 14 14
+outline
 anim move 0 1 6 loop
 anim death 2 3 12 once
 anim pulse 4 5 12 once

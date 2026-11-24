@@ -1,5 +1,6 @@
 # A mimic: a treasure chest that bites, with an open toothy lid, a red tongue, metal bands and stubby legs.
 size 12 12
+outline
 anim move 0 1 6 loop
 anim death 2 3 12 once
 frame

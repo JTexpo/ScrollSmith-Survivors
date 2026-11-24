@@ -1,5 +1,6 @@
 # A wolf: lean, fanged and fast.
 size 12 12
+outline
 anim move 0 1 6 loop
 anim death 2 3 12 once
 frame

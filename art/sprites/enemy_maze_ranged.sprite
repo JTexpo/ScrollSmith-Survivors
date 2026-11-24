@@ -1,5 +1,6 @@
 # A skeleton archer: bare bones, hollow eyes and a wooden bow that draws and looses glowing arrows.
 size 14 14
+outline
 anim move 0 1 6 loop
 anim death 2 3 12 once
 anim attack 4 5 12 once

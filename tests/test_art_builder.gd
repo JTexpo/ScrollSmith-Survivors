@@ -112,8 +112,8 @@ func test_set_text_names_the_sheet_the_frame_size_and_every_animation() -> void:
 
 func test_build_all_writes_a_sheet_per_variant_a_silhouette_and_a_tres_for_each() -> void:
 	_write("palette.txt", PALETTE_TEXT)
-	_write("sources/ramped.sprite", RAMP_SPRITE)
-	_write("sources/plain.sprite", PLAIN_SPRITE)
+	_write("sources/ramped.sprite", "outline\n" + RAMP_SPRITE)
+	_write("sources/plain.sprite", "outline\n" + PLAIN_SPRITE)
 	var problems := ArtBuilder.build_all(_dir + "/sources", _dir + "/palette.txt", _dir + "/out")
 	assert_eq(problems.size(), 0, str(problems))
 	var files := Array(DirAccess.get_files_at(ProjectSettings.globalize_path(_dir + "/out")))
@@ -121,6 +121,27 @@ func test_build_all_writes_a_sheet_per_variant_a_silhouette_and_a_tres_for_each(
 		assert_true(files.has(expected), "missing %s" % expected)
 	assert_false(files.has("plain_fire.png"), "a sprite without ramps is built once")
 	assert_eq(ArtBuilder.files_written, 10)
+
+
+func test_a_source_without_an_outline_line_builds_no_silhouette() -> void:
+	_write("palette.txt", PALETTE_TEXT)
+	_write("sources/ramped.sprite", RAMP_SPRITE)
+	_write("sources/plain.sprite", PLAIN_SPRITE)
+	var problems := ArtBuilder.build_all(_dir + "/sources", _dir + "/palette.txt", _dir + "/out")
+	assert_eq(problems.size(), 0, str(problems))
+	var files := Array(DirAccess.get_files_at(ProjectSettings.globalize_path(_dir + "/out")))
+	for file in files:
+		assert_false(String(file).contains("silhouette"), "built %s without an outline line" % file)
+	assert_true(files.has("ramped_fire.png") and files.has("plain_base.png"), "the sheets are still built")
+	assert_eq(ArtBuilder.files_written, 6)
+
+
+func test_a_tile_with_an_outline_line_builds_no_silhouette() -> void:
+	_write("palette.txt", PALETTE_TEXT)
+	_write("sources/floor.sprite", "tile\noutline\nsize 2 2\nanim a 0 0 1 loop\nframe\nKW\nWK")
+	var problems := ArtBuilder.build_all(_dir + "/sources", _dir + "/palette.txt", _dir + "/out")
+	assert_eq(problems.size(), 0, str(problems))
+	assert_false(FileAccess.file_exists(_dir + "/out/floor_silhouette.png"))
 
 
 func test_a_bad_source_writes_nothing_and_reports() -> void:
@@ -225,7 +246,7 @@ func _drawn_sheet() -> Image:
 
 func test_a_hand_drawn_sprite_keeps_its_sheet_and_takes_its_silhouette_from_it() -> void:
 	_write("palette.txt", PALETTE_TEXT)
-	_write("sources/hero.sprite", HAND_SPRITE)
+	_write("sources/hero.sprite", "outline\n" + HAND_SPRITE)
 	var sheet := _drawn_sheet()
 	sheet.save_png(ProjectSettings.globalize_path(_dir + "/out/hero_base.png"))
 	var problems := ArtBuilder.build_all(_dir + "/sources", _dir + "/palette.txt", _dir + "/out")

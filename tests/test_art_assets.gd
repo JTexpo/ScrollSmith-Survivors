@@ -44,10 +44,10 @@ func _load_png(png_path: String) -> Image:
 	return image
 
 
-## The variants a source produces: every needed variant, plus the silhouette unless it is a tile.
+## The variants a source produces: every needed variant, plus the silhouette when it declares an outline (and is not a surface).
 func _variants_for(source: SpriteSource, palette: ArtPalette) -> Array[String]:
 	var variants: Array[String] = []
-	if not source.is_surface():
+	if source.outline and not source.is_surface():
 		variants.append("silhouette")
 	for variant in source.variants_needed(palette):
 		variants.append(String(variant))
@@ -154,7 +154,7 @@ func test_each_committed_png_equals_what_the_tool_builds() -> void:
 			var committed := _load_png(png_path)
 			assert_eq(committed.get_size(), built.get_size(), "%s size" % png_path)
 			assert_true(committed.get_data() == built.get_data(), "%s is stale: run the art tool" % png_path)
-		if source.is_surface():
+		if source.is_surface() or not source.outline:
 			continue
 		var silhouette_path := "%s/%s_silhouette.png" % [OUT_DIR, sprite_name]
 		assert_true(_load_png(silhouette_path).get_data() == ArtBuilder.build_silhouette(source).get_data(), "%s is stale" % silhouette_path)
@@ -196,7 +196,7 @@ func _check_hand_drawn(sprite_name: String, source: SpriteSource, palette: ArtPa
 	for variant in variants:
 		var png_path := "%s/%s_%s.png" % [OUT_DIR, sprite_name, variant]
 		assert_eq(_load_png(png_path).get_size(), Vector2i(source.frame_size.x * source.frames.size(), source.frame_size.y), "%s size" % png_path)
-	if source.is_surface():
+	if source.is_surface() or not source.outline:
 		return
 	var silhouette_path := "%s/%s_silhouette.png" % [OUT_DIR, sprite_name]
 	var expected := ArtBuilder.silhouette_of(_load_png("%s/%s_%s.png" % [OUT_DIR, sprite_name, variants[0]]), source.frame_size)
@@ -250,3 +250,44 @@ func test_no_output_belongs_to_nothing() -> void:
 		var file_name := String(file)
 		if file_name.ends_with(".png") or file_name.ends_with(".tres"):
 			assert_true(wanted.has(file_name), "%s has no source or variant any more: delete it, because the game would still load it" % file_name)
+
+
+func test_every_enemy_sprite_declares_an_outline() -> void:
+	var count := 0
+	for sprite_name in _names():
+		if sprite_name.begins_with("enemy_"):
+			count += 1
+			assert_true(_source(sprite_name).outline, "%s needs an `outline` line: an elite shows its silhouette" % sprite_name)
+	assert_eq(count, 21, "seven plain, four forest, three ruins and seven maze enemies")
+
+
+func test_only_sprites_that_declare_an_outline_have_a_silhouette_sheet() -> void:
+	for sprite_name in _names():
+		if _source(sprite_name).outline:
+			continue
+		for extension in ["png", "tres"]:
+			assert_false(FileAccess.file_exists("%s/%s_silhouette.%s" % [OUT_DIR, sprite_name, extension]), "%s has no outline line, so it gets no silhouette.%s" % [sprite_name, extension])
+
+
+func test_an_outline_sprite_builds_its_silhouette() -> void:
+	var folder := "res://.godot/art_tests/outline_%s" % str(randi())
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(folder + "/sources"))
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(folder + "/out"))
+	var handle := FileAccess.open(folder + "/sources/thing.sprite", FileAccess.WRITE)
+	handle.store_string("outline\nsize 3 3\nanim a 0 0 1 loop\nframe\n...\n.K.\n...\n")
+	handle.close()
+	var palette_handle := FileAccess.open(folder + "/palette.txt", FileAccess.WRITE)
+	palette_handle.store_string(FileAccess.get_file_as_string(PALETTE_PATH))
+	palette_handle.close()
+	var problems := ArtBuilder.build_all(folder + "/sources", folder + "/palette.txt", folder + "/out")
+	assert_eq(problems.size(), 0, str(problems))
+	assert_true(FileAccess.file_exists(folder + "/out/thing_silhouette.png"))
+	for sub in ["/sources", "/out"]:
+		var absolute := ProjectSettings.globalize_path(folder + sub)
+		for file in DirAccess.get_files_at(absolute):
+			DirAccess.remove_absolute("%s/%s" % [absolute, file])
+		DirAccess.remove_absolute(absolute)
+	var top := ProjectSettings.globalize_path(folder)
+	for file in DirAccess.get_files_at(top):
+		DirAccess.remove_absolute("%s/%s" % [top, file])
+	DirAccess.remove_absolute(top)
