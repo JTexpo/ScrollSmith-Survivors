@@ -38,6 +38,15 @@ static func save_profile(profile: PlayerProfile, path: String) -> bool:
 	return true
 
 
+## New game: moves the save aside as `.bak` (replacing an older backup) so nothing is deleted and a mistake can be undone by hand.
+## True when the save is gone afterwards, including when there was none.
+static func erase(path: String) -> bool:
+	if not FileAccess.file_exists(path):
+		return true
+	_keep_as_backup(path)
+	return not FileAccess.file_exists(path)
+
+
 static func _keep_as_backup(path: String) -> void:
 	var backup := ProjectSettings.globalize_path(path + ".bak")
 	if FileAccess.file_exists(path + ".bak"):

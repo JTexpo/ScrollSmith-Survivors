@@ -164,3 +164,29 @@ func test_muted_survives_a_save_and_load() -> void:
 	profile.muted = true
 	assert_true(SaveGame.save_profile(profile, _path()))
 	assert_true(SaveGame.load_profile(_path()).muted)
+
+
+func test_erase_renames_the_save_to_bak() -> void:
+	var profile := PlayerProfile.new()
+	profile.add_gold(5)
+	SaveGame.save_profile(profile, _path())
+	assert_true(SaveGame.erase(_path()))
+	assert_false(FileAccess.file_exists(_path()))
+	assert_true(FileAccess.file_exists(_path() + ".bak"))
+	assert_eq(SaveGame.load_profile(_path()).gold, 0, "a fresh profile starts")
+
+
+func test_erase_replaces_an_older_bak() -> void:
+	_write("old backup")
+	DirAccess.rename_absolute(ProjectSettings.globalize_path(_path()), ProjectSettings.globalize_path(_path() + ".bak"))
+	var profile := PlayerProfile.new()
+	profile.add_gold(7)
+	SaveGame.save_profile(profile, _path())
+	assert_true(SaveGame.erase(_path()))
+	assert_string_contains(_read(_path() + ".bak"), "7", "the newer save replaced the older backup")
+
+
+func test_erase_of_a_missing_file_is_fine_and_creates_nothing() -> void:
+	assert_true(SaveGame.erase(_path()))
+	assert_false(FileAccess.file_exists(_path() + ".bak"))
+	assert_false(FileAccess.file_exists(_path()))
