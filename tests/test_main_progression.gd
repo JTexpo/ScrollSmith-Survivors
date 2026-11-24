@@ -695,3 +695,31 @@ func test_the_inventory_button_cannot_open_the_inventory_over_another_screen_or_
 	assert_true(panel.is_open(), "with nothing else open it opens")
 	button.pressed.emit()
 	assert_false(panel.is_open(), "and the same button closes it")
+
+
+func test_a_run_has_a_tally_that_counts_a_real_kill_and_pickup() -> void:
+	var main := _new_main("")
+	assert_not_null(main.run_stats)
+	var spawner := main.get_node("EnemySpawner") as EnemySpawner
+	var enemy := spawner.spawn_at(Vector2(300, 300), 1)
+	(enemy.get_node("HealthComponent") as HealthComponent).take_damage(1.0e9)
+	assert_eq(main.run_stats.enemies, 1)
+	_player(main).collector.collected.emit(ScrollData.new())
+	assert_eq(main.run_stats.scrolls, 1)
+
+
+func test_a_new_run_starts_with_an_empty_tally() -> void:
+	var first := _new_main("")
+	_player(first).collector.collected.emit(ScrollData.new())
+	first.free()
+	var second := _new_main("")
+	assert_eq(second.run_stats.scrolls, 0)
+	assert_eq(second.run_stats.level, 1)
+
+
+func test_the_tally_is_frozen_when_the_player_dies() -> void:
+	var main := _new_main("")
+	_player(main).health.take_damage(1.0e9)
+	assert_true(main.run_stats.is_frozen())
+	_player(main).collector.collected.emit(ScrollData.new())
+	assert_eq(main.run_stats.scrolls, 0, "nothing counts after death")

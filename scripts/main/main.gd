@@ -53,6 +53,8 @@ var catalog: EquipmentCatalog
 var potion_catalog: PotionCatalog
 ## The potions held this run (never saved, empty at every run start).
 var run_potions: RunPotions
+## The tally of this run (enemies, bosses, scrolls, crafts, potions, XP, Gold, level), never saved.
+var run_stats: RunStats
 
 var _rng := RandomNumberGenerator.new()
 
@@ -187,6 +189,8 @@ func _begin_progression() -> void:
 	progress.bind(_player, profile, track)
 	run_potions = RunPotions.new()
 	_player.belt.bind(_player, run_potions, potion_catalog)
+	run_stats = RunStats.new()
+	run_stats.bind(_spawner, _director, _player.collector, _crafting_screen, _player.belt, progress)
 	_player.belt.refused.connect(_level_toast.show_message)
 	_potion_bar.bind(_player.belt, _player.effects, potion_catalog)
 	_potion_bar.slot_pressed.connect(_on_potion_slot_pressed)
@@ -343,6 +347,7 @@ func _on_shop_requested() -> void:
 
 
 func _on_player_died() -> void:
+	run_stats.freeze()
 	_death_screen.set_run_summary(_player.progress.run_xp, _player.progress.level(), _player.progress.run_gold, RunClock.seconds())
 	_saver.save_now()
 
