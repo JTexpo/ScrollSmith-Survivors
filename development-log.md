@@ -713,6 +713,6 @@ What was built: `MapData.bosses`, `EnemySpawner.boss_roster` and `bosses()`, `Bo
 
 Found on the way: the ent first read as a mushroom and the rat as a dark blob on the contact sheets, so both were redrawn; a few tests that assumed every shipped map shows the Ember Titan or that the forest set has no sprites were updated.
 
-Measured (battery and Low Power Mode, so only ratios mean anything): stress with `--boss` on the forest 36 to 38 fps against the ruins' 31 to 36. Boss-fight bot (starting spell, three seeds, died every time): survived 43 to 57 s against the Dragon (boss left at 36 to 65% health) and 27 to 30 s against the Titan (53 to 55%), so the Dragon is the gentler fight.
+Measured (battery and Low Power Mode, so only ratios mean anything): stress with `--boss` on the forest (the Dragon; the first measurement spawned the Titan because the stress scene did not take the map's roster, found in review and fixed) 29, 40 and 36 fps against the ruins' Titan at 37, 33 and 30. Boss-fight bot (starting spell, three seeds, died every time): survived 43 to 57 s against the Dragon (boss left at 36 to 65% health) and 27 to 30 s against the Titan (53 to 55%), so the Dragon is the gentler fight.
 
 Open: the web build has no sound (fix before the next publish); the Dragon's numbers are starting values for the user to tune; the maze still shows the ruins' and forest's enemies until 16d.
