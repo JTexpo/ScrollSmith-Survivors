@@ -1,6 +1,6 @@
 # Sprint 16a Design: The map select, the art sets and the new layouts
 
-**Status:** Proposed, awaiting approval.
+**Status:** Implemented (Sprint 16a). Deviations are in the ledger rulings and `CLAUDE.md`: the maze has two entrances and a map-level floor (no zone), the forest is trees only, a tap on a card starts that map directly, and `ObstacleMap` got a box prefilter after the maze measured slow.
 
 Sprint 16 is four parts (see `sprint-development.md`): **16a** the map select, the per-map art sets and the new layouts (this doc), **16b** the forest's art and the Tempest Dragon, **16c** the ruins' art refresh, **16d** the maze's art and the Dire Minotaur. Scope comes from the Sprint 16 plan, `CLAUDE.md` (World and maps, Obstacles, Map regions, Points of interest, World pass, Front door) and the user's answers in conversation. Decisions below were agreed with the user in conversation, except where marked "my call".
 

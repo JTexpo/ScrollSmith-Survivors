@@ -692,3 +692,15 @@ Correction (same day): the user clarified that difficulty is NOT per-map numbers
 Update: the user decided bests are kept per map (some maps are easier than others). Added to 16a: the saved `bests` becomes a dictionary by map id, an old flat `bests` loads as the ruins' (the only map so far), the death card shows the current map's bests. Still open from before: the death card's "Level reached" row (always the permanent level) and the lair question.
 
 Decisions (user): the bosses still arrive on the 300 second timer on every map, with no lair mechanic; and the death card drops the "Level reached" row (the level is permanent, so it would always show the player's level, e.g. 20), along with the saved best level. The Sprint 16 plan now has no open design question.
+
+## 2026-11-24: Sprint 16a (map select, art sets and the new layouts)
+
+Decisions (user): three maps open from the start (forest, ruins, maze), each 1920 by 1080, everything identical but the layout and the art; one small inherited scene per map (approach B); map cards with a schematic preview, the theme, the boss and the best on that map; Play remembers the last map (in the settings file); bests per map, the old flat bests loading as the ruins'; the death card loses "Level reached". My calls: no sprite renames (an art-set lookup with a fallback), the same points of interest on every map, the forest trees only (no rock art), the maze with two entrances and a map-level floor.
+
+What was built: `MapCatalog` and `MapEntry`, the forest and maze maps and scenes, `MapData.description` and `enemy_art_set`, `Enemy.look_sprite()`, `MapMaze.dead_end_cells()`, per-map bests and `RunRecap` with eight rows, `GameSettings.last_map`, `MapPreview`, `MapSelectScreen`, `HomeScreen.play_map` and `scene_changer`, the stress scene's `--map=`, and `tests/map_layout_checks.gd`.
+
+Found and fixed: (1) the maze map sealed its outer band (1041 unreachable free cells): two entrances; (2) my new home tests really changed scene and broke 16 later tests in the full run (each file passed alone): `HomeScreen.scene_changer`; (3) the map cards' theme lines did not wrap (found on a screenshot); (4) the maze ran about 40% slower than the ruins in the stress scene: a box prefilter in `ObstacleMap` (exact, tested, mutation-checked).
+
+Measured (battery and Low Power Mode, so only ratios mean anything): stress with 300 enemies, `--obstacles --drops`: before the prefilter forest 28 to 84, ruins 11 to 14, maze 7.6 fps; after, maze 43 to 52 against the ruins' 32 to 38 in the same batch. Order check (a kiting bot, 300 simulated seconds): survival forest 75 and 48 s, ruins 58 and 42 s, maze 43 and 38 s. Grid build and field sweep (ms): ruins 4.1 and 22, forest 1.0 and 34, maze 6.3 and 17.
+
+Open: the web build has no sound (logged in `docs/release-planning/`, fix before the next publish); re-measure the maze plugged in.

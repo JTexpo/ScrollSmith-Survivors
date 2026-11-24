@@ -923,7 +923,7 @@ A complete, playable release candidate.
 - **New for the forest (16b):** rats, ent, creepers, shaman and the Tempest Dragon.
 - **New for the ruins (16c):** bandit, mimic and elemental, replacing the goblin, wolf and kobold there.
 - **New for the maze (16d):** all seven (zombie, snakes, ghost, troll, skeletons, warforge, beholder) and the Dire Minotaur.
-- **Naming:** enemy art is looked up as `enemy_<set>_<type>` (`forest`, `ruins`, `maze`) with a fallback to the current `enemy_<type>`. 16a renames the existing sprites into their sets, so no map ever shows a wrong or missing enemy.
+- **Naming:** enemy art is looked up as `enemy_<set>_<type>` (`forest`, `ruins`, `maze`) with a fallback to the current `enemy_<type>`. (16a decision: no sprite is renamed; the fallback alone keeps every map showing today's art until 16b to 16d add the set sprites.)
 
 ### Decisions
 Confirmed by the user: the enemy columns above; **everything but the sprites is the same on every map, and the difficulty order (forest easiest, ruins medium, maze hardest) comes only from the layout**; **all three maps open from the start** (unlocking by boss belongs to the achievements sprint, 17); **every map is 1920 by 1080, the same as the ruins** (the user: no need to expand; the forest is bounded with no walls and its points of interest spread as far apart as that allows); **bests are kept per map** (the user: some maps are easier than others, so a longest survival or most enemies only means something against the same map).
@@ -933,6 +933,8 @@ Confirmed by the user: the enemy columns above; **everything but the sprites is 
 ---
 
 ## Sprint 16a: The map select, the art sets and the new layouts
+
+**Status:** done (see `sprint-16a-design.md`, `development-log.md` and `CLAUDE.md`, "Maps and the map select").
 
 **Goal:** Play chooses a map; a map says which enemy art set and boss roster it uses; the forest and the maze exist and are playable, with today's art and the Ember Titan until their art sprints.
 
