@@ -493,3 +493,29 @@ func test_spawn_boss_without_a_player_or_scene_returns_null() -> void:
 	var spawner := _boss_spawner()
 	spawner.config.boss_scene = null
 	assert_null(spawner.spawn_boss(spawner.config.bosses[0], 1))
+
+
+func _boss(id: StringName) -> BossData:
+	var data := (load("res://resources/bosses/ember_titan.tres") as BossData).duplicate() as BossData
+	data.id = id
+	return data
+
+
+func test_bosses_is_the_configs_roster_when_the_map_names_none() -> void:
+	var titan := load("res://resources/bosses/ember_titan.tres") as BossData
+	_spawner.config.bosses = [titan] as Array[BossData]
+	assert_eq(_spawner.bosses(), [titan] as Array[BossData])
+
+
+func test_bosses_is_the_maps_roster_when_it_names_some() -> void:
+	_spawner.config.bosses = [load("res://resources/bosses/ember_titan.tres") as BossData] as Array[BossData]
+	var own := _boss(&"own_boss")
+	_spawner.boss_roster = [own] as Array[BossData]
+	assert_eq(_spawner.bosses(), [own] as Array[BossData])
+
+
+func test_bosses_is_empty_with_no_config_and_no_roster() -> void:
+	_spawner.config = null
+	assert_true(_spawner.bosses().is_empty())
+	_spawner.boss_roster = [_boss(&"x")] as Array[BossData]
+	assert_eq(_spawner.bosses().size(), 1, "a roster still works without a config")

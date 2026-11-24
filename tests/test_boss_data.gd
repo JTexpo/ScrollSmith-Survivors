@@ -144,3 +144,19 @@ func test_boss_scroll_table_holds_only_rare_scrolls_and_always_drops() -> void:
 	rng.seed = 4
 	for i in 50:
 		assert_not_null(table.roll(rng))
+
+
+func test_lightning_is_a_new_attack_kind_after_summon() -> void:
+	assert_eq(int(K.LIGHTNING), int(K.SUMMON) + 1)
+
+
+func test_escape_margin_is_the_distance_run_minus_the_danger() -> void:
+	var attack := BossAttack.new()
+	attack.kind = K.LIGHTNING
+	attack.telegraph_time = 1.0
+	attack.spread = 60.0
+	attack.radius = 28.0
+	assert_almost_eq(attack.escape_margin(90.0), 2.0, 0.0001)
+	attack.telegraph_time = 0.5
+	assert_lt(attack.escape_margin(90.0), 0.0, "too short a warning is not escapable")
+	assert_eq(BossAttack.new().spread, 80.0, "the default spread")

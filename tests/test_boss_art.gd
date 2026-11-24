@@ -180,3 +180,55 @@ func test_the_charge_marks_draw_above_the_players_effect_sprites() -> void:
 		assert_eq(mark.z_index, WarningMark.ATTACK_Z)
 		assert_false(mark.z_as_relative)
 
+
+
+func _dragon(attack: BossAttack) -> Boss:
+	return _boss(_data(&"tempest_dragon", [attack] as Array[BossAttack]))
+
+
+func test_the_dragon_has_art_and_idles() -> void:
+	var boss := _dragon(_attack(K.LIGHTNING))
+	assert_true(_view(boss).has_art())
+	assert_eq(_view(boss).current_animation(), &"idle")
+
+
+func test_the_dragons_animations_exist_with_the_planned_frames() -> void:
+	var set_data := SpriteLibrary.find(&"boss_tempest_dragon")
+	assert_not_null(set_data)
+	assert_eq(set_data.frame_size, Vector2i(40, 32))
+	var frames := set_data.frames()
+	var planned := {&"idle": [2, 4.0, true], &"telegraph": [2, 8.0, true], &"attack": [2, 10.0, false], &"vulnerable": [2, 6.0, true]}
+	for animation in planned:
+		assert_true(frames.has_animation(animation), String(animation))
+		assert_eq(frames.get_frame_count(animation), planned[animation][0], "%s frames" % animation)
+		assert_eq(frames.get_animation_speed(animation), planned[animation][1], "%s fps" % animation)
+		assert_eq(frames.get_animation_loop(animation), planned[animation][2], "%s loop" % animation)
+
+
+func test_the_dragon_is_one_to_one_at_boss_scale_three() -> void:
+	var boss := _dragon(_attack(K.LIGHTNING))
+	assert_eq(boss.scale, Vector2.ONE * 3.0)
+	assert_almost_eq((_view(boss).get_node("Sprite") as Node2D).global_transform.get_scale().x, 1.0, 0.001)
+
+
+func test_a_lightning_warning_plays_telegraph_and_returns_to_idle() -> void:
+	var attack := _attack(K.LIGHTNING, 0.5)
+	attack.spread = 60.0
+	attack.recover_time = 0.3
+	var boss := _dragon(attack)
+	_step(boss, 0.5)
+	assert_eq(boss.state, Boss.State.TELEGRAPH)
+	assert_eq(_view(boss).current_animation(), &"telegraph")
+	_step(boss, 0.5)
+	assert_eq(boss.state, Boss.State.RECOVER)
+	assert_eq(_view(boss).current_animation(), &"attack", "the strike's pose plays once")
+	await wait_seconds(0.5)
+	assert_eq(_view(boss).current_animation(), &"idle", "and ends by itself")
+
+
+func test_the_palette_still_fits_the_limit() -> void:
+	var colours := {}
+	for line in FileAccess.get_file_as_string("res://art/palette.txt").split("\n"):
+		if line.begins_with("color "):
+			colours[line.get_slice(" ", 2)] = true
+	assert_lte(colours.size(), 64, "the world palette limit")

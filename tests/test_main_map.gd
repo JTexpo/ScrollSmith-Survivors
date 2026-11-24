@@ -109,3 +109,18 @@ func test_every_spawned_enemy_gets_the_spawners_art_set() -> void:
 	var main := _new_main(data)
 	var spawner := main.get_node("EnemySpawner") as EnemySpawner
 	assert_eq(spawner.spawn_at(Vector2(300, 300), 1).art_set, &"maze")
+
+
+func test_apply_map_hands_the_roster_to_the_spawner() -> void:
+	var data := (load("res://resources/maps/first_map.tres") as MapData).duplicate() as MapData
+	var own := (load("res://resources/bosses/ember_titan.tres") as BossData).duplicate() as BossData
+	own.id = &"own_boss"
+	data.bosses = [own] as Array[BossData]
+	assert_eq((_new_main(data).get_node("EnemySpawner") as EnemySpawner).boss_roster, [own] as Array[BossData])
+	assert_true((_new_main().get_node("EnemySpawner") as EnemySpawner).boss_roster.is_empty(), "the ruins name none")
+
+
+func test_the_ruins_still_use_the_config_roster() -> void:
+	var bosses := (_new_main().get_node("EnemySpawner") as EnemySpawner).bosses()
+	assert_eq(bosses.size(), 1)
+	assert_eq(bosses[0].id, &"ember_titan")

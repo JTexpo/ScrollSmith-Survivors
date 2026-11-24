@@ -30,7 +30,7 @@ const AREA_SPELLS := {
 @export var drops: bool = false
 ## --minutes=M sets the run clock the spawner sees (0 means only Standard enemies at base strength).
 @export var minutes: float = 5.0
-## --boss: spawns an Ember Titan next to the player at the start, so its warnings, shots and summons are measured.
+## --boss: spawns the map's first boss (the Ember Titan, or the Tempest Dragon with --map=forest) next to the player at the start, so its warnings, shots and summons are measured.
 @export var boss: bool = false
 ## --sound: adds a sound board that plays a cast, hit and death sound for every one in the fight (audible), to measure the cost of
 ## sound and to prove the voice caps hold at the stress rate. The STRESS line then also shows how many requests were dropped.
@@ -100,7 +100,7 @@ func _ready() -> void:
 		if not _spawn_one():
 			break
 	if boss:
-		var titan := _spawner.spawn_boss(_spawner.config.bosses[0], 1)
+		var titan := _spawner.spawn_boss(_spawner.bosses()[0], 1)
 		titan.global_position = _player.global_position + Vector2(110, -30)
 
 
@@ -220,6 +220,7 @@ func _use_map() -> void:
 		push_error(chosen["problem"])
 	map.map_data = chosen["map"]
 	_spawner.enemy_art_set = map.map_data.enemy_art_set
+	_spawner.boss_roster = map.map_data.bosses
 	# The player is placed first, so the map's field is built for where the player really stands.
 	_player.global_position = map.player_start()
 	add_child(map)

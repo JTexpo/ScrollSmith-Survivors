@@ -271,3 +271,48 @@ func test_no_boss_without_a_boss_roster_or_a_curve() -> void:
 	_spawner.config.difficulty = null
 	_director.tick(1000.0)
 	assert_eq(_director.boss_number, 0)
+
+
+func _other_boss(id: StringName) -> BossData:
+	var data := (load("res://resources/bosses/ember_titan.tres") as BossData).duplicate() as BossData
+	data.id = id
+	return data
+
+
+func test_the_director_spawns_from_the_spawners_roster_not_the_config() -> void:
+	_spawner.boss_roster = [_other_boss(&"map_boss")] as Array[BossData]
+	_director.tick(300.0)
+	assert_eq(_director.current_boss().data.id, &"map_boss")
+
+
+func test_a_roster_overrides_but_the_clock_and_interval_are_unchanged() -> void:
+	_spawner.boss_roster = [_other_boss(&"map_boss")] as Array[BossData]
+	_director.tick(299.9)
+	assert_null(_director.current_boss(), "still nothing before 300 s")
+	_director.tick(300.0)
+	assert_not_null(_director.current_boss())
+	_kill(_hold(_director.current_boss()))
+	_director.tick(599.0)
+	assert_null(_director.current_boss(), "the next one is 300 s after the previous spawned")
+	_director.tick(600.0)
+	assert_not_null(_director.current_boss())
+
+
+func test_an_empty_roster_and_empty_config_spawn_nothing() -> void:
+	_spawner.config.bosses = [] as Array[BossData]
+	_spawner.boss_roster = [] as Array[BossData]
+	_director.tick(300.0)
+	assert_null(_director.current_boss())
+	assert_eq(_director.boss_number, 0)
+
+
+func test_the_map_roster_cycles() -> void:
+	_spawner.boss_roster = [_other_boss(&"first"), _other_boss(&"second")] as Array[BossData]
+	_director.tick(300.0)
+	assert_eq(_director.current_boss().data.id, &"first")
+	_kill(_hold(_director.current_boss()))
+	_director.tick(600.0)
+	assert_eq(_director.current_boss().data.id, &"second")
+	_kill(_hold(_director.current_boss()))
+	_director.tick(900.0)
+	assert_eq(_director.current_boss().data.id, &"first")

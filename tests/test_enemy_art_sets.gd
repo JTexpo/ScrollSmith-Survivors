@@ -55,8 +55,8 @@ func test_an_empty_art_set_uses_the_archetype_sprite() -> void:
 
 func test_an_art_set_with_no_such_sprite_falls_back_to_the_archetype_sprite() -> void:
 	for archetype in ARCHETYPES:
-		var enemy := _enemy(archetype, &"forest")
-		assert_eq(enemy.look_sprite(), StringName("enemy_%s" % archetype), "no enemy_forest_%s exists yet" % archetype)
+		var enemy := _enemy(archetype, &"nowhere")
+		assert_eq(enemy.look_sprite(), StringName("enemy_%s" % archetype), "no enemy_nowhere_%s exists" % archetype)
 		assert_true((enemy.get_node("Body") as BodyView).has_art(), "still drawn with art, never a square")
 
 

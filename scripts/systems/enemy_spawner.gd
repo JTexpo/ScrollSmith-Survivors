@@ -19,6 +19,8 @@ const SUMMON_RADIUS := 40.0
 @export var arena_bounds: Rect2 = Rect2(0, 0, 960, 540)
 ## The map's enemy art set, handed to every enemy before it is set up (`Main._apply_map` sets it from the map).
 var enemy_art_set: StringName = &""
+## The map's own boss roster (`Main._apply_map` sets it from the map). Empty means the spawn config's.
+var boss_roster: Array[BossData] = []
 @export var view_size: Vector2 = Vector2(480, 270)
 
 var rng := RandomNumberGenerator.new()
@@ -175,6 +177,15 @@ func spawn_at(position: Vector2, cluster_limit: int = 0) -> Enemy:
 
 
 ## Spawns a boss just outside the view and returns it, or null without a player, a boss scene or data.
+## The bosses this run sends: the map's roster when it names any, else the spawn config's (empty when there is neither).
+func bosses() -> Array[BossData]:
+	if not boss_roster.is_empty():
+		return boss_roster
+	if config != null:
+		return config.bosses
+	return [] as Array[BossData]
+
+
 func spawn_boss(boss_data: BossData, number: int) -> Boss:
 	if config == null or config.boss_scene == null or boss_data == null:
 		return null
