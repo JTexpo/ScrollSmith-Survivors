@@ -64,11 +64,25 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -48.0
+offset_left = -102.0
 offset_top = -66.0
-offset_right = 48.0
+offset_right = -6.0
 offset_bottom = -34.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_type_variation = &"ButtonGreen"
 text = "Shop"
+
+[node name="HomeButton" type="Button" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = -66.0
+offset_right = 102.0
+offset_bottom = -34.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Home"

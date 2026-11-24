@@ -66,3 +66,19 @@ func test_take_reads_real_monitors() -> void:
 	for key in ["nodes", "objects", "static_mb"]:
 		assert_gt(float(sample[key]), 0.0, key)
 	assert_true(sample.has("orphans"))
+
+
+func test_a_looser_slope_limit_accepts_a_slow_climb_that_the_default_rejects() -> void:
+	var nodes := []
+	for i in 12:
+		nodes.append(1000.0 + i * 8.0)
+	assert_false(SoakRun.verdict(_samples(nodes), 2, 0.2)["ok"])
+	assert_true(SoakRun.verdict(_samples(nodes), 2, 0.2, 0.02)["ok"], "the short suite run uses a looser limit")
+
+
+func test_one_late_blip_does_not_trip_a_loose_limit_but_a_real_climb_still_does() -> void:
+	assert_true(SoakRun.verdict(_samples([757, 757, 757, 757, 757, 757, 757, 766]), 3, 0.5, 0.02)["ok"])
+	var climbing := []
+	for i in 8:
+		climbing.append(757.0 + i * 60.0)
+	assert_false(SoakRun.verdict(_samples(climbing), 3, 0.5, 0.02)["ok"])

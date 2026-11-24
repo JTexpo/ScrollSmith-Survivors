@@ -44,8 +44,9 @@ static func trend_slope(values: Array[float]) -> float:
 
 
 ## `{"ok": bool, "problems": PackedStringArray}`. After `warmup` rounds every count must stay within `band` of the first post-warm-up
-## value, orphans must not grow, and no count may climb steadily over the second half of the run.
-static func verdict(samples: Array[Dictionary], warmup: int, band: float = DEFAULT_BAND) -> Dictionary:
+## value, orphans must not grow, and no count may climb by more than `slope_limit` of its base per round over the second half of the run
+## (the short run in the suite passes a looser limit, because one late straggler in 4 samples looks like a climb).
+static func verdict(samples: Array[Dictionary], warmup: int, band: float = DEFAULT_BAND, slope_limit: float = SLOPE_LIMIT) -> Dictionary:
 	var problems := PackedStringArray()
 	if samples.size() < warmup + MIN_SAMPLES_AFTER_WARMUP:
 		problems.append("too few samples: %d (need %d)" % [samples.size(), warmup + MIN_SAMPLES_AFTER_WARMUP])
@@ -62,7 +63,7 @@ static func verdict(samples: Array[Dictionary], warmup: int, band: float = DEFAU
 				problems.append("%s left its band: %.1f against %.1f at round %d" % [key, value, start, int(sample["round"])])
 				break
 		var half := series.slice(series.size() / 2)
-		if start > 0.0 and trend_slope(half) / start > SLOPE_LIMIT:
+		if start > 0.0 and trend_slope(half) / start > slope_limit:
 			problems.append("%s keeps climbing (%.2f per round)" % [key, trend_slope(half)])
 	for sample in after:
 		if float(sample["orphans"]) > float(base["orphans"]) + ORPHAN_TOLERANCE:

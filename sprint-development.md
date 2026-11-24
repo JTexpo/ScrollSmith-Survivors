@@ -854,13 +854,17 @@ A balanced and stable version of the game that can support extended play session
 
 **Goal:** Prepare the game for its first public release.
 
+Sprint 15 is split into three: **15a** the front door (built), **15b** onboarding and run statistics, **15c** release preparation.
+
+**Built note (15a):** the game opens on a home screen (Play, Shop, Tutorial dimmed until 15b, Settings, New game, Full screen) that is its own scene, so no run exists until Play. Settings are saved in their own file (music and effects volume, every screen-effect switch, the performance overlay, full screen) with a Reduce motion preset and read-only Controls and Credits pages; the sound board follows the volumes live. New game asks twice and keeps one `.bak`. A pause menu (Esc, controller Start or a HUD button) offers Resume, Settings and Quit to home; the inventory now pauses the game; the death screen gained a Home button. Checked in a real window by touch and mouse; not on a phone.
+
 ### Tasks
 
-- [ ] Implement the main menu.
-- [ ] Implement settings.
-- [ ] Implement audio settings.
-- [ ] Implement control settings.
-- [ ] Implement pause menu.
+- [x] Implement the main menu. (15a: the home screen.)
+- [x] Implement settings. (15a: the Settings screen, saved in `user://settings.json`.)
+- [x] Implement audio settings. (15a: music and effects volume.)
+- [x] Implement control settings. (15a: a read-only Controls page; no key remapping.)
+- [x] Implement pause menu. (15a.)
 - [ ] Implement game-over screen.
 - [ ] Implement run statistics.
 - [ ] Implement persistent save data.

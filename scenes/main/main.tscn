@@ -1,6 +1,8 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/main/main.gd" id="0"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_button.tscn" id="pause_button"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="pause_menu"]
 [ext_resource type="PackedScene" path="res://scenes/ui/perf_overlay.tscn" id="perf_overlay"]
 [ext_resource type="PackedScene" path="res://scenes/world/game_map.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2"]
@@ -182,6 +184,16 @@ offset_right = -60.0
 offset_bottom = 40.0
 grow_horizontal = 0
 
+[node name="PauseButton" parent="Hud" instance=ExtResource("pause_button")]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -132.0
+offset_top = 8.0
+offset_right = -100.0
+offset_bottom = 40.0
+grow_horizontal = 0
+
 [node name="InventoryPanel" parent="Hud" instance=ExtResource("14")]
 anchors_preset = 8
 anchor_left = 0.5
@@ -207,3 +219,5 @@ script = ExtResource("fx_director")
 [node name="LowHealthWarning" parent="." instance=ExtResource("low_health")]
 
 [node name="PerfOverlay" parent="." instance=ExtResource("perf_overlay")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("pause_menu")]

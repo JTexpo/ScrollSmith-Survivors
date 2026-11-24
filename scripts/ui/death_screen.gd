@@ -7,23 +7,36 @@ signal restart_requested
 ## The player asked for the shop (the Shop button, a tap on it, or Enter or the controller's accept
 ## while it has focus). The screen then counts as "shop open" until `set_shop_open(false)`.
 signal shop_requested
+## The player asked for the home screen (the Home button or a tap on it). The run is left, not restarted.
+signal home_requested
 
 ## Ignore restart input for this long after dying, so a held button doesn't skip the screen.
 var input_delay_msec: int = 500
 var restart_scene_path: String = ""
+var home_scene_path: String = Scenes.HOME
 
 var _shown_at_msec: int = 0
 var _shop_open: bool = false
 
 @onready var _summary: Label = $Summary
 @onready var _shop_button: Button = $ShopButton
+@onready var _home_button: Button = $HomeButton
 
 
 func _ready() -> void:
 	visible = false
 	_summary.visible = false
 	_shop_button.visible = false
+	_home_button.visible = false
 	_shop_button.pressed.connect(_request_shop)
+	_home_button.pressed.connect(_request_home)
+	# Both buttons are direct children of the layer, so Godot finds no neighbour between them: say so, for keyboard and controller.
+	_shop_button.focus_neighbor_right = _shop_button.get_path_to(_home_button)
+	_home_button.focus_neighbor_left = _home_button.get_path_to(_shop_button)
+	_shop_button.focus_next = _shop_button.get_path_to(_home_button)
+	_home_button.focus_previous = _home_button.get_path_to(_shop_button)
+	_home_button.focus_next = _home_button.get_path_to(_shop_button)
+	_shop_button.focus_previous = _shop_button.get_path_to(_home_button)
 
 
 ## Listens in _input, which runs before any control sees the event. _unhandled_input would never hear
@@ -53,6 +66,7 @@ func show_death() -> void:
 	_shown_at_msec = Time.get_ticks_msec()
 	visible = true
 	_shop_button.visible = true
+	_home_button.visible = true
 	_shop_button.grab_focus()
 
 
@@ -74,6 +88,9 @@ func handle_event(event: InputEvent) -> void:
 		if touched and _shop_button.visible and _shop_button.get_global_rect().has_point(event.position):
 			_request_shop()
 			return
+		if touched and _home_button.visible and _home_button.get_global_rect().has_point(event.position):
+			_request_home()
+			return
 	if touched or event.is_action_pressed(&"restart"):
 		restart_requested.emit()
 		restart()
@@ -86,6 +103,19 @@ func _request_shop() -> void:
 		return
 	_shop_open = true
 	shop_requested.emit()
+
+
+## Same guards as the shop button: nothing before death, inside the input delay or while the shop is open. It leaves the run and goes to
+## the home screen; it is never a restart.
+func _request_home() -> void:
+	if not visible or _shop_open or Time.get_ticks_msec() - _shown_at_msec < input_delay_msec:
+		return
+	home_requested.emit()
+	go_home()
+
+
+func go_home() -> Error:
+	return SceneSwitcher.change_to(get_tree(), home_scene_path)
 
 
 func restart() -> Error:

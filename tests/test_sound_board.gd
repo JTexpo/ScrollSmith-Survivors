@@ -6,12 +6,17 @@ var _now: int = 0
 
 func before_each() -> void:
 	SoundLibrary.reset_warnings()
+	# The older tests pin exact bus levels, so they run at full volume; the volume settings have their own tests below.
+	GameSettings.music_volume = 1.0
+	GameSettings.sfx_volume = 1.0
 	_board = _make()
 
 
 func after_each() -> void:
 	_board.set_muted(false)
+	GameSettings.reset()
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Music"), 0.0)
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Sfx"), 0.0)
 	AudioServer.set_bus_mute(0, false)
 	get_tree().paused = false
 	SoundLibrary.reset_warnings()
@@ -361,3 +366,53 @@ func test_a_low_mana_slot_plays_the_blip_once() -> void:
 	_board.requested.connect(func(id: StringName) -> void: heard.append(id))
 	_board.on_mana_low(0)
 	assert_eq(heard, [&"mana_low"] as Array[StringName])
+
+
+func _sfx_bus_db() -> float:
+	return AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Sfx"))
+
+
+func test_the_music_volume_setting_moves_the_music_bus() -> void:
+	GameSettings.music_volume = 0.5
+	_board.apply_settings()
+	assert_almost_eq(_board.music_bus_db(), linear_to_db(0.5), 0.01)
+
+
+func test_the_effects_volume_setting_moves_the_sfx_bus() -> void:
+	GameSettings.sfx_volume = 0.25
+	_board.apply_settings()
+	assert_almost_eq(_sfx_bus_db(), linear_to_db(0.25), 0.01)
+
+
+func test_zero_volume_is_silent_on_both_buses() -> void:
+	GameSettings.music_volume = 0.0
+	GameSettings.sfx_volume = 0.0
+	_board.apply_settings()
+	assert_lte(_board.music_bus_db(), -60.0)
+	assert_lte(_sfx_bus_db(), -60.0)
+
+
+func test_the_paused_offset_and_the_duck_still_apply_on_top() -> void:
+	GameSettings.music_volume = 0.5
+	_board.apply_settings()
+	_board.duck(1.0, 6.0)
+	assert_almost_eq(_board.music_bus_db(), linear_to_db(0.5) - 6.0, 0.01)
+	get_tree().paused = true
+	_board.advance_music(0.0)
+	assert_almost_eq(_board.music_bus_db(), linear_to_db(0.5) - 6.0 + SoundBoard.PAUSED_MUSIC_DB, 0.01)
+
+
+func test_a_settings_announcement_applies_without_a_restart() -> void:
+	GameSettings.music_volume = 0.4
+	GameSettings.sfx_volume = 0.7
+	SettingsEvents.announce()
+	assert_almost_eq(_board.music_bus_db(), linear_to_db(0.4), 0.01)
+	assert_almost_eq(_sfx_bus_db(), linear_to_db(0.7), 0.01)
+
+
+func test_a_new_board_starts_at_the_saved_volumes() -> void:
+	GameSettings.music_volume = 0.3
+	GameSettings.sfx_volume = 0.3
+	var fresh := _make()
+	assert_not_null(fresh)
+	assert_almost_eq(_sfx_bus_db(), linear_to_db(0.3), 0.01)

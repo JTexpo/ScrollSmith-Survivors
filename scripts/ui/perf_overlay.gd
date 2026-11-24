@@ -30,6 +30,7 @@ func _ready() -> void:
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(_label)
 	sync()
+	SettingsEvents.bus.changed.connect(sync)
 
 
 func _process(delta: float) -> void:

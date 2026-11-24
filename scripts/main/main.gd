@@ -30,6 +30,8 @@ signal point_effect_applied(kind: int)
 @onready var _xp_bar: XpBar = $Hud/XpBar
 @onready var _level_toast: LevelToast = $Hud/LevelToast
 @onready var _perf_overlay: PerfOverlay = $PerfOverlay
+@onready var _pause_menu: PauseMenu = $PauseMenu
+@onready var _pause_button: PauseButton = $Hud/PauseButton
 @onready var _gold_counter: GoldCounter = $Hud/GoldCounter
 @onready var _shop_screen: ShopScreen = $ShopScreen
 @onready var _merchant_screen: MerchantScreen = $MerchantScreen
@@ -56,6 +58,10 @@ var _rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
+	# A run started straight from the editor or the web build (not through the home screen) still honours the saved settings. A test or
+	# tool that uses its own save path never reads the player's real settings.
+	if save_path == SaveGame.DEFAULT_PATH:
+		SettingsStore.apply_saved()
 	GameTime.reset()
 	RunClock.reset()
 	_apply_map()
@@ -104,6 +110,12 @@ func _ready() -> void:
 	_perf_overlay.sync()
 	_board.mute_changed.connect(_mute_button.set_muted)
 	_mute_button.pressed.connect(_on_mute_button_pressed)
+	_pause_menu.available = _pause_menu_available
+	_pause_button.pressed.connect(_on_pause_button_pressed)
+	# The confirmation says XP and Gold are already saved, so leaving must make that true (the saver only writes every 10 s).
+	_pause_menu.quit_requested.connect(_saver.save_now)
+	_death_screen.home_requested.connect(_saver.save_now)
+	_player.died.connect(_pause_button.hide)
 	_mute_button.long_pressed.connect(_on_mute_button_long_pressed)
 	_mute_button.hold_started.connect(_player.require_cast_release)
 	_player.died.connect(_mute_button.hide)
@@ -283,6 +295,18 @@ func toggle_perf_overlay() -> void:
 	_perf_overlay.sync()
 
 
+## The pause key opens the menu only while the player is alive and no other screen (or the inventory) has the game paused already.
+func _pause_menu_available() -> bool:
+	return not _player.health.is_dead() and not _crafting_screen.is_open() and not _shop_screen.is_open() and not _merchant_screen.is_open() \
+			and not _pick_screen.is_open() and not _inventory_panel.is_open()
+
+
+## A click on the pause button must not also fire a spell, so casting waits for the click to be released.
+func _on_pause_button_pressed() -> void:
+	_player.require_cast_release()
+	_pause_menu.open()
+
+
 ## A long press on the mute button opens or closes the performance overlay (and never mutes); like a tap it must not also fire a spell.
 func _on_mute_button_long_pressed() -> void:
 	toggle_perf_overlay()
@@ -323,8 +347,12 @@ func _on_player_died() -> void:
 	_saver.save_now()
 
 
+## Opening needs nothing else open: the inventory pauses the game, and closing it later would unpause whatever screen it opened behind.
+## Closing is always allowed.
 func _toggle_inventory() -> void:
 	if _player.health.is_dead():
+		return
+	if not _inventory_panel.is_open() and (not _pause_menu_available() or _pause_menu.is_open()):
 		return
 	_inventory_panel.toggle()
 

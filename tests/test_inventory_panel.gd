@@ -15,6 +15,11 @@ func _scroll(id: StringName, display: String, category: ScrollData.Category, rar
 	return scroll
 
 
+func after_each() -> void:
+	get_tree().paused = false
+	GameTime.unfreeze()
+
+
 func before_each() -> void:
 	_inventory = ScrollInventory.new()
 	add_child_autofree(_inventory)
@@ -87,3 +92,34 @@ func test_every_scroll_row_fits_the_panel_even_at_ninety_nine() -> void:
 		var width := UiFont.plain().get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, UiFont.SIZE).x
 		assert_lte(width + 12.0 + 10.0, InventoryPanel.SIZE.x, line)
 	assert_lte(float(_panel.entries().size()) * (UiFont.SIZE + 1.0) + 8.0, InventoryPanel.SIZE.y, "every row is inside the panel")
+
+
+func _action(name: StringName) -> InputEventAction:
+	var event := InputEventAction.new()
+	event.action = name
+	event.pressed = true
+	return event
+
+
+func test_opening_pauses_and_closing_resumes() -> void:
+	_panel.set_open(true)
+	assert_true(get_tree().paused)
+	assert_true(GameTime.is_frozen())
+	_panel.set_open(false)
+	assert_false(get_tree().paused)
+	assert_false(GameTime.is_frozen())
+
+
+func test_toggle_pause_and_cancel_close_it_while_paused() -> void:
+	assert_eq(_panel.process_mode, Node.PROCESS_MODE_ALWAYS)
+	for name in [&"toggle_inventory", &"pause", &"ui_cancel"]:
+		_panel.set_open(true)
+		_panel._unhandled_input(_action(name))
+		assert_false(_panel.is_open(), str(name))
+		assert_false(get_tree().paused, str(name))
+
+
+func test_a_closed_panel_ignores_those_keys() -> void:
+	_panel._unhandled_input(_action(&"pause"))
+	assert_false(_panel.is_open())
+	assert_false(get_tree().paused)

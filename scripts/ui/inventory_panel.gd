@@ -22,6 +22,7 @@ var _row_count: int = 0
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	custom_minimum_size = SIZE
 	size = SIZE
@@ -48,10 +49,21 @@ func toggle() -> void:
 	set_open(not visible)
 
 
+## Opening pauses the game (and closing resumes it), so the player can read the list without being hit. The panel keeps running while
+## paused so it can close itself; Main's own key handling does not run while the tree is paused.
 func set_open(value: bool) -> void:
+	if value == visible:
+		return
 	visible = value
 	if value:
 		_rebuild()
+	GamePause.set_paused(get_tree(), value)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if visible and (event.is_action_pressed(&"toggle_inventory") or event.is_action_pressed(&"pause") or event.is_action_pressed(&"ui_cancel")):
+		set_open(false)
+		get_viewport().set_input_as_handled()
 
 
 func is_open() -> bool:
