@@ -4,6 +4,8 @@ extends GutTest
 
 const K := BossAttack.Kind
 const PLAYER_SCENE := "res://scenes/player/player.tscn"
+## A player needs a moment to see a warning and react, so the margin must cover this much running time as well.
+const REACTION_SECONDS := 0.25
 
 var _dragon: BossData
 var _titan: BossData
@@ -78,6 +80,7 @@ func test_every_lightning_attack_can_be_outrun_at_the_players_base_speed() -> vo
 	for phase in _dragon.phases.size():
 		for attack in _attacks(phase, K.LIGHTNING):
 			assert_gt(attack.escape_margin(speed), 0.0, "phase %d: a player running straight away leaves every strike before it lands" % phase)
+			assert_gte(attack.escape_margin(speed), speed * REACTION_SECONDS, "phase %d: and still can after taking %.2f s to react" % [phase, REACTION_SECONDS])
 
 
 func test_the_summon_uses_swarmers() -> void:

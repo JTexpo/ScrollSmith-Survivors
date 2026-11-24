@@ -48,3 +48,20 @@ func test_an_unknown_map_id_is_reported_and_the_default_kept() -> void:
 	assert_string_contains(found["problem"], "nowhere")
 	assert_string_contains(found["problem"], "forest, first_map, maze", "the valid ids are listed")
 	assert_eq(StressTest.map_for_id("")["problem"], "", "no --map is not a problem")
+
+
+func test_the_stress_scene_sends_the_maps_own_boss() -> void:
+	var scene := load("res://scenes/world/stress_test.tscn").instantiate() as StressTest
+	scene.enemy_count = 5
+	scene.map_id = "forest"
+	scene.obstacles = true
+	scene.boss = true
+	add_child_autofree(scene)
+	await wait_physics_frames(3)
+	var found: Boss = null
+	for child in scene.get_children():
+		if child is Boss:
+			found = child
+	assert_not_null(found, "a boss was spawned")
+	if found != null:
+		assert_eq(found.data.id, &"tempest_dragon", "the forest's boss, not the shared roster's")

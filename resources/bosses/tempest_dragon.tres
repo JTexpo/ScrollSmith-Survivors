@@ -43,7 +43,7 @@ speed_multiplier = 1.0
 [sub_resource type="Resource" id="p2_lightning"]
 script = ExtResource("3")
 kind = 4
-telegraph_time = 1.2
+telegraph_time = 1.4
 radius = 28.0
 damage = 22.0
 recover_time = 0.6
@@ -86,7 +86,7 @@ speed_multiplier = 1.2
 [sub_resource type="Resource" id="p3_lightning"]
 script = ExtResource("3")
 kind = 4
-telegraph_time = 1.2
+telegraph_time = 1.4
 radius = 26.0
 damage = 22.0
 recover_time = 0.6
