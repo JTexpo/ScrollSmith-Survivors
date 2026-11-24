@@ -125,3 +125,10 @@ func test_no_gap_between_ring_trees_lets_the_player_through() -> void:
 				if between < 62.0 * 1.2:
 					assert_lt(between - ring[i].radius - ring[j].radius, 12.0, "trees at %s and %s leave a slit the player fits through" % [ring[i].position, ring[j].position])
 	assert_eq(rings, 5)
+
+
+func test_the_forest_lists_the_dragon_as_its_boss() -> void:
+	assert_eq(_map.bosses.size(), 1)
+	assert_eq(_map.bosses[0].id, &"tempest_dragon")
+	assert_true((load("res://resources/maps/first_map.tres") as MapData).bosses.is_empty(), "the ruins keep the shared roster")
+	assert_true((load("res://resources/maps/maze_map.tres") as MapData).bosses.is_empty(), "the maze keeps the shared roster")

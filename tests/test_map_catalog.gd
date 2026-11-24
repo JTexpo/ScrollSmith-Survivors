@@ -67,8 +67,6 @@ func test_every_map_validates_and_shares_the_default_spawn_config() -> void:
 
 
 func test_the_boss_name_comes_from_the_maps_roster_then_the_config() -> void:
-	for entry in _catalog.entries:
-		assert_eq(entry.boss_name(), "Ember Titan", "every shipped entry shows the Ember Titan until a map names its own boss")
 	assert_eq(MapEntry.new().boss_name(), "")
 	var entry := MapEntry.new()
 	entry.map = (load("res://resources/maps/first_map.tres") as MapData).duplicate() as MapData
@@ -96,3 +94,9 @@ func test_restart_reloads_the_same_scene() -> void:
 		assert_true(death.restart_scene_path.is_empty() or death.restart_scene_path == entry.scene_path)
 		# The screen falls back to the current scene's own file; the inherited scene's path is the entry's.
 		assert_eq(main.scene_file_path, entry.scene_path)
+
+
+func test_the_forest_names_the_dragon_and_the_others_keep_the_titan() -> void:
+	assert_eq(_catalog.find(&"forest").boss_name(), "Tempest Dragon")
+	assert_eq(_catalog.find(&"first_map").boss_name(), "Ember Titan")
+	assert_eq(_catalog.find(&"maze").boss_name(), "Ember Titan")
