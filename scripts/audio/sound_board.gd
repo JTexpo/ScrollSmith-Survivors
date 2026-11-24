@@ -64,6 +64,8 @@ func _ready() -> void:
 	if catalog == null:
 		catalog = SoundCatalog.default_catalog()
 	_setup_buses()
+	apply_settings()
+	SettingsEvents.bus.changed.connect(apply_settings)
 	for key in _music_levels:
 		var level := catalog.find(SoundId.MUSIC_RUN if key == &"run" else SoundId.MUSIC_BOSS)
 		if level != null:
@@ -305,7 +307,19 @@ func _set_music_stream_paused(value: bool) -> void:
 
 func _apply_bus_volume() -> void:
 	var paused_offset := PAUSED_MUSIC_DB if is_inside_tree() and get_tree().paused else 0.0
-	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(BUS_MUSIC), paused_offset + _duck_db)
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(BUS_MUSIC), _setting_db(GameSettings.music_volume) + paused_offset + _duck_db)
+
+
+## Sets both buses from the player's volume settings (the music bus keeps its paused offset and duck on top). Runs at start and
+## whenever `SettingsEvents` announces a change.
+func apply_settings() -> void:
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(BUS_SFX), _setting_db(GameSettings.sfx_volume))
+	_apply_bus_volume()
+
+
+## A 0 to 1 volume as decibels; 0 is silent.
+static func _setting_db(volume: float) -> float:
+	return SILENT_DB if volume <= 0.0 else maxf(linear_to_db(volume), SILENT_DB)
 
 
 ## Connects every game event to its sound, once. `main` is the Main node: the board only listens to signals that already exist
