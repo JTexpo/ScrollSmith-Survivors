@@ -1,6 +1,6 @@
 class_name MapDecorLayer
 extends Node2D
-## Draws every decoration, in chunks so the ones off screen cost nothing. TEMPORARY look.
+## Draws every decoration, in chunks so the ones off screen cost nothing.
 
 ## Side of one chunk, in pixels (a little more than a screen).
 const CHUNK_SIZE := 512.0

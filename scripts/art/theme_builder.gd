@@ -17,7 +17,6 @@ const PLUM_LIGHT := Color("6b5a8c")
 const CREAM := Color("fff6e8")
 const WHITE := Color("ffffff")
 const RED := Color("e0483c")
-const RED_DARK := Color("9e2a22")
 const YELLOW := Color("ffd24a")
 const HEADING_BLUE := Color("2a5aa0")
 
