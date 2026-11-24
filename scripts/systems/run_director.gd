@@ -42,7 +42,8 @@ func tick(seconds: float) -> void:
 	if spawner == null or spawner.config == null:
 		return
 	var config := spawner.config
-	if config.difficulty == null or config.bosses.is_empty() or config.boss_scene == null:
+	var roster := spawner.bosses()
+	if config.difficulty == null or roster.is_empty() or config.boss_scene == null:
 		return
 	if spawner.get_tree().get_first_node_in_group(&"player") == null:
 		return
@@ -51,7 +52,7 @@ func tick(seconds: float) -> void:
 	if current_boss() != null or seconds < _next_boss_at:
 		return
 	boss_number += 1
-	var data := config.bosses[(boss_number - 1) % config.bosses.size()]
+	var data := roster[(boss_number - 1) % roster.size()]
 	var boss := spawner.spawn_boss(data, boss_number)
 	if boss == null:
 		boss_number -= 1

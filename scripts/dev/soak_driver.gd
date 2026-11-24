@@ -85,8 +85,8 @@ func _play_round(round_number: int, frames: int) -> void:
 	player.progress.add_xp(400)
 	ShopSystem.buy_potion(_main.profile, _main.run_potions, _main.potion_catalog, &"potion_health")
 	var boss: Boss = null
-	if round_number == BOSS_ROUND and not spawner.config.bosses.is_empty():
-		boss = spawner.spawn_boss(spawner.config.bosses[0], 1)
+	if round_number == BOSS_ROUND and not spawner.bosses().is_empty():
+		boss = spawner.spawn_boss(spawner.bosses()[0], 1)
 	for frame in frames:
 		if frame % 10 == 0:
 			_top_up_crowd(player, spawner)

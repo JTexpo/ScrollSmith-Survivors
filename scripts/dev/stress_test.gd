@@ -100,7 +100,7 @@ func _ready() -> void:
 		if not _spawn_one():
 			break
 	if boss:
-		var titan := _spawner.spawn_boss(_spawner.config.bosses[0], 1)
+		var titan := _spawner.spawn_boss(_spawner.bosses()[0], 1)
 		titan.global_position = _player.global_position + Vector2(110, -30)
 
 

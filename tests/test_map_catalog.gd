@@ -66,10 +66,16 @@ func test_every_map_validates_and_shares_the_default_spawn_config() -> void:
 		assert_eq(entry.map.size, Vector2(1920, 1080))
 
 
-func test_the_boss_name_comes_from_the_maps_spawn_config() -> void:
+func test_the_boss_name_comes_from_the_maps_roster_then_the_config() -> void:
 	for entry in _catalog.entries:
-		assert_eq(entry.boss_name(), "Ember Titan", "every card shows the Ember Titan until the new bosses arrive")
+		assert_eq(entry.boss_name(), "Ember Titan", "every shipped entry shows the Ember Titan until a map names its own boss")
 	assert_eq(MapEntry.new().boss_name(), "")
+	var entry := MapEntry.new()
+	entry.map = (load("res://resources/maps/first_map.tres") as MapData).duplicate() as MapData
+	var own := (load("res://resources/bosses/ember_titan.tres") as BossData).duplicate() as BossData
+	own.display_name = "Roster Boss"
+	entry.map.bosses = [own] as Array[BossData]
+	assert_eq(entry.boss_name(), "Roster Boss", "a map's own roster wins over the spawn config's")
 
 
 func test_each_scene_builds_a_main_that_starts_a_run() -> void:

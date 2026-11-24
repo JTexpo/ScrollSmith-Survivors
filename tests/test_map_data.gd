@@ -195,3 +195,8 @@ func test_the_ruins_are_named_and_keep_their_id() -> void:
 	assert_false(ruins.description.is_empty())
 	for i in ruins.description.length():
 		assert_true(ruins.description.unicode_at(i) >= 32 and ruins.description.unicode_at(i) <= 126)
+
+
+func test_a_map_names_no_bosses_by_default() -> void:
+	assert_true(_map().bosses.is_empty())
+	assert_true((load("res://resources/maps/first_map.tres") as MapData).bosses.is_empty(), "the ruins keep the shared roster")

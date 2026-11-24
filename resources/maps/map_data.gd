@@ -8,6 +8,9 @@ const OBSTACLE_CLEARANCE := 24.0
 @export var display_name: String = ""
 ## One short line of theme, shown on the map's card.
 @export var description: String = ""
+## The bosses this map sends, in order (they cycle). Empty means the shared spawn config's roster. The spawn config itself stays one shared
+## resource, so everything else about the fight (timer, difficulty, rewards) is the same on every map.
+@export var bosses: Array[BossData] = []
 ## Names the set of enemy sprites this map uses (`enemy_<set>_<type>`); empty, or a set with no sprite, keeps `enemy_<type>`.
 @export var enemy_art_set: StringName = &""
 @export var size: Vector2 = Vector2(1920, 1080)

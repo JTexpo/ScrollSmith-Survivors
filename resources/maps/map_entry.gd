@@ -6,8 +6,13 @@ extends Resource
 @export_file("*.tscn") var scene_path: String = ""
 
 
-## The display name of the first boss of the map's spawn config, or an empty string when it has none.
+## The display name of the map's first boss (its own roster when it names any, else the spawn config's), or an empty string when it has none.
 func boss_name() -> String:
-	if map == null or map.spawn_config == null or map.spawn_config.bosses.is_empty() or map.spawn_config.bosses[0] == null:
+	if map == null:
 		return ""
-	return map.spawn_config.bosses[0].display_name
+	var roster: Array[BossData] = map.bosses
+	if roster.is_empty() and map.spawn_config != null:
+		roster = map.spawn_config.bosses
+	if roster.is_empty() or roster[0] == null:
+		return ""
+	return roster[0].display_name

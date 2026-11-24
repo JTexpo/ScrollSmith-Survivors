@@ -162,6 +162,7 @@ func _apply_map() -> void:
 		_spawner.config = _map.map_data.spawn_config
 	if _map.map_data != null:
 		_spawner.enemy_art_set = _map.map_data.enemy_art_set
+		_spawner.boss_roster = _map.map_data.bosses
 	_player.global_position = _map.player_start()
 	_camera.limit_left = int(area.position.x)
 	_camera.limit_top = int(area.position.y)
