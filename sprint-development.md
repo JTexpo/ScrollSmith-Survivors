@@ -893,6 +893,104 @@ A complete, playable release candidate.
 
 ---
 
+# Sprint 16: New Maps and Bosses
+
+**Status:** planned (the user's request of 2026-11-24). Split into three sprints so none is lost: **16a** the map select and both new layouts, **16b** the open field's art and the Tempest Dragon, **16c** the maze's art and the Dire Minotaur. Each leaves a playable build. Sprint 15c (release) is parked until the wishlist is done (see `docs/release-planning/`).
+
+**Goal:** Three maps to play (the existing ruined grounds, an open field and a full maze), each with its own look for the same enemies and its own boss.
+
+### The idea (the user's words, shortened)
+- **Open map**, like Vampire Survivors, with points of interest; its boss is the **Tempest Dragon** (Thunder).
+- **Complete maze** (the user liked the mazes in the first map), with points of interest; its boss is the **Dire Minotaur** (Land).
+- **Enemies are the same on every map** (the same seven types, elements and difficulty), only the sprites differ per map. The first map keeps its current enemies and the **Ember Titan**.
+
+### Proposed enemy sets (the user to confirm before 16b; the first map keeps the current art)
+| Type | Ruined grounds (current art) | Open field | Maze |
+|---|---|---|---|
+| Standard | goblin | bandit | zombie |
+| Swarmer | slime | rats | snakes |
+| Chaser | wolf | mimic | ghost |
+| Tank | animated armour | ent | troll |
+| Ranged | kobold | elemental | skeletons |
+| Exploder | imp (the "mephit") | creepers | warforge (a robot-like constructed enemy) |
+| Support | cultist | shaman | beholder |
+| Boss | Ember Titan (Fire) | Tempest Dragon (Thunder) | Dire Minotaur (Land) |
+
+### Decisions still to confirm
+- The enemy assignment above (is bandit, rats, mimic, ent, elemental, creepers and shaman right for the open field, and zombie, snakes, ghost, troll, skeletons, warforge and beholder for the maze?).
+- **Unlocking:** proposed: all three maps open from the start; unlocking a map by defeating a boss belongs to the achievements sprint (17).
+- The open field's size and feel (proposed: about 2880 by 1620, bounded, no walls, spread-out points of interest).
+- Whether each map keeps its own bests (proposed: no, one set of bests).
+
+---
+
+## Sprint 16a: Map select and the two new layouts
+
+**Goal:** Play chooses a map; a map says which enemy art set and boss roster it uses; the open field and the maze exist and are playable with the current art and the Ember Titan.
+
+### Tasks
+- [ ] `MapData` names its enemy art set (empty keeps the current art), a short description and its boss roster (the map's `spawn_config.bosses`), plus a `MapCatalog` resource listing the maps in order.
+- [ ] A per-map enemy art lookup: `enemy_<set>_<type>` with a fallback to the current `enemy_<type>`, so a missing sprite never breaks a map; the boss's sprite comes from its `BossData`. No enemy stats change.
+- [ ] A map select screen between the home screen's Play and the run (cards with the map's name, a short line and its boss), by touch, mouse, keyboard and controller; the chosen map is passed to the run without an autoload.
+- [ ] The **open field** layout as data: size, player start, grass floor, groves and rocks as obstacles (few, so it stays open), points of interest and three Lecterns placed far apart and from the start, layout tests (reachability, spacing, shape limits).
+- [ ] The **maze** layout as data: one full `MapMaze` over the whole map (closed boundary, a cleared centre, extra openings for loops), points of interest in rooms and dead ends, three far-apart Lecterns, layout tests.
+- [ ] The stress scene takes `--map=<id>`; the spawner, flow field, draw chunks and soak test are checked on the larger maps; performance recorded.
+- [ ] Real-window screenshots of the select screen and both layouts, by touch and mouse.
+
+### Deliverable
+Three maps selectable from Play, all playable, with the current art and the Ember Titan.
+
+### Completion Criteria
+- Every map loads, is fully reachable and has no layout problems.
+- The first map plays exactly as before.
+- Missing enemy art never breaks a map.
+- Performance on the larger maps stays at or near the first map's.
+
+---
+
+## Sprint 16b: The open field's art and the Tempest Dragon
+
+**Goal:** The open field looks like its own place, with its own enemy set and boss.
+
+### Tasks
+- [ ] Seven enemy sprites for the open field set (bandit, rats, mimic, ent, elemental, creepers, shaman) with the same animations as the current set (move, death and an attack, fuse or pulse per type) and element colourways, through the art pipeline and its stale-output tests.
+- [ ] The **Tempest Dragon**: boss art (idle, telegraph, attack, vulnerable), a Thunder `BossData` with its phases and attacks (built from the existing slam, charge, burst and summon kinds, tuned to feel different from the Ember Titan), its rewards, and its entry in the field's roster.
+- [ ] Open field world art as needed (floor patches, decorations, groves), in the game's bright cartoon look with one pixel size.
+- [ ] Sound: reuse the boss stinger and boss music unless the user wants new ones.
+- [ ] Tests for the sprite set lookup, the boss data and its fight (a phase test like the Ember Titan's); real-window screenshots of the enemy set and the boss; balance checked against the first map's difficulty.
+
+### Deliverable
+The open field with its own enemies and the Tempest Dragon.
+
+---
+
+## Sprint 16c: The maze's art and the Dire Minotaur
+
+**Goal:** The maze looks like a dungeon with its own enemy set and boss.
+
+### Tasks
+- [ ] Seven enemy sprites for the maze set (zombie, snakes, ghost, troll, skeletons, warforge, beholder), the same way as 16b.
+- [ ] The **Dire Minotaur**: boss art, a Land `BossData` (phases and attacks tuned for corridors: charges that matter in a maze), rewards and the maze's roster.
+- [ ] Maze world art as needed (a darker dungeon variant of the stone floor and walls, if wanted).
+- [ ] Tests, real-window screenshots, and a balance check for the maze's tight corridors (crowd behaviour, boss movement through the flow field).
+
+### Deliverable
+The maze with its own enemies and the Dire Minotaur.
+
+### Completion Criteria (16a to 16c together)
+- Three maps, each with its own enemy look and its own boss, and the same enemy stats everywhere.
+- The first map is unchanged.
+- No map-specific code branches on a map id.
+
+---
+
+## Planned after Sprint 16 (the user's wishlist; details in `docs/release-planning/future-roadmap.md`)
+- **Sprint 17: Achievements.** Defeating a boss rewards a starting spell (like the Sea Cone); an achievements store in the save and a screen on the home screen; possibly map unlocks.
+- **Sprint 18: A livelier home screen and tutorial** with more art.
+- **Sprint 15c (parked): release preparation** (`docs/release-planning/`).
+
+---
+
 # Development Milestones
 
 The sprints can be grouped into larger milestones to track overall progress.
@@ -905,7 +1003,8 @@ The sprints can be grouped into larger milestones to track overall progress.
 | Progression | 8–10 | XP, Gold, equipment, and consumables |
 | Content | 11–12 | Enemies, bosses, and world exploration |
 | Polish | 13–14 | Art, audio, balancing, and optimization |
-| Release | 15 | Release candidate |
+| Release | 15 | Release candidate (15c parked) |
+| New content | 16–18 | New maps and bosses, achievements, a livelier front door |
 
 # MVP: Minimum Viable Product
 
