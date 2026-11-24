@@ -13,6 +13,8 @@ var _label: Button
 
 
 func _ready() -> void:
+	# It must work while the inventory has paused the game, so the same button can close it.
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	custom_minimum_size = SIZE
 	size = SIZE

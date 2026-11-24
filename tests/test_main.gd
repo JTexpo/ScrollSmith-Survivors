@@ -306,3 +306,58 @@ func test_tapping_the_death_screen_restarts_through_the_real_input_pipeline() ->
 	Input.parse_input_event(touch)
 	await wait_process_frames(2)
 	assert_signal_emit_count(death_screen, "restart_requested", 1, "a tap on the death screen must restart")
+
+
+func test_the_pause_menu_and_button_exist_and_the_button_hides_on_death() -> void:
+	var main := _main()
+	assert_not_null(main.get_node_or_null("PauseMenu"))
+	var button := main.get_node("Hud/PauseButton") as PauseButton
+	assert_true(button.visible)
+	(main.get_node("Player") as Player).health.take_damage(1.0e9)
+	assert_false(button.visible, "a hidden button lets the restart tap through")
+
+
+func test_pausing_stops_the_run_clock_and_resuming_continues_it() -> void:
+	var main := _main()
+	var menu := main.get_node("PauseMenu") as PauseMenu
+	menu.open()
+	var frozen := RunClock.seconds()
+	await get_tree().create_timer(0.3, true, false, true).timeout
+	assert_almost_eq(RunClock.seconds(), frozen, 0.02, "the run clock stands still while paused")
+	menu.close()
+	await get_tree().create_timer(0.3).timeout
+	assert_gt(RunClock.seconds(), frozen + 0.2, "and continues afterwards")
+
+
+func test_the_pause_menu_is_available_only_while_alive_and_nothing_else_is_open() -> void:
+	var main := _main()
+	var menu := main.get_node("PauseMenu") as PauseMenu
+	assert_true(menu.available.call())
+	(main.get_node("Hud/InventoryPanel") as InventoryPanel).set_open(true)
+	assert_false(menu.available.call(), "the inventory is open")
+	(main.get_node("Hud/InventoryPanel") as InventoryPanel).set_open(false)
+	(main.get_node("Player") as Player).health.take_damage(1.0e9)
+	assert_false(menu.available.call(), "dead")
+
+
+func test_dying_with_the_inventory_open_closes_it_and_unpauses() -> void:
+	var main := _main()
+	var panel := main.get_node("Hud/InventoryPanel") as InventoryPanel
+	panel.set_open(true)
+	assert_true(get_tree().paused)
+	(main.get_node("Player") as Player).health.take_damage(1.0e9)
+	assert_false(panel.is_open())
+	assert_false(get_tree().paused)
+
+
+func after_each() -> void:
+	get_tree().paused = false
+	GameTime.unfreeze()
+
+
+func test_a_run_with_its_own_save_path_leaves_the_static_settings_alone() -> void:
+	GameSettings.music_volume = 0.123
+	var main := _new_main()
+	assert_not_null(main)
+	assert_almost_eq(GameSettings.music_volume, 0.123, 0.0001, "no real settings file was read")
+	GameSettings.reset()

@@ -30,6 +30,8 @@ signal point_effect_applied(kind: int)
 @onready var _xp_bar: XpBar = $Hud/XpBar
 @onready var _level_toast: LevelToast = $Hud/LevelToast
 @onready var _perf_overlay: PerfOverlay = $PerfOverlay
+@onready var _pause_menu: PauseMenu = $PauseMenu
+@onready var _pause_button: PauseButton = $Hud/PauseButton
 @onready var _gold_counter: GoldCounter = $Hud/GoldCounter
 @onready var _shop_screen: ShopScreen = $ShopScreen
 @onready var _merchant_screen: MerchantScreen = $MerchantScreen
@@ -56,6 +58,10 @@ var _rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
+	# A run started straight from the editor or the web build (not through the home screen) still honours the saved settings. A test or
+	# tool that uses its own save path never reads the player's real settings.
+	if save_path == SaveGame.DEFAULT_PATH:
+		SettingsStore.apply_saved()
 	GameTime.reset()
 	RunClock.reset()
 	_apply_map()
@@ -104,6 +110,9 @@ func _ready() -> void:
 	_perf_overlay.sync()
 	_board.mute_changed.connect(_mute_button.set_muted)
 	_mute_button.pressed.connect(_on_mute_button_pressed)
+	_pause_menu.available = _pause_menu_available
+	_pause_button.pressed.connect(_on_pause_button_pressed)
+	_player.died.connect(_pause_button.hide)
 	_mute_button.long_pressed.connect(_on_mute_button_long_pressed)
 	_mute_button.hold_started.connect(_player.require_cast_release)
 	_player.died.connect(_mute_button.hide)
@@ -281,6 +290,18 @@ func _on_mute_button_pressed() -> void:
 func toggle_perf_overlay() -> void:
 	FxSettings.set_switch("perf_overlay", not FxSettings.perf_overlay)
 	_perf_overlay.sync()
+
+
+## The pause key opens the menu only while the player is alive and no other screen (or the inventory) has the game paused already.
+func _pause_menu_available() -> bool:
+	return not _player.health.is_dead() and not _crafting_screen.is_open() and not _shop_screen.is_open() and not _merchant_screen.is_open() \
+			and not _pick_screen.is_open() and not _inventory_panel.is_open()
+
+
+## A click on the pause button must not also fire a spell, so casting waits for the click to be released.
+func _on_pause_button_pressed() -> void:
+	_player.require_cast_release()
+	_pause_menu.open()
 
 
 ## A long press on the mute button opens or closes the performance overlay (and never mutes); like a tap it must not also fire a spell.
