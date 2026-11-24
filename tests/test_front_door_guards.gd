@@ -19,11 +19,13 @@ const TOUCH_SCREENS := [
 	"res://scripts/ui/confirm_dialog.gd",
 	"res://scripts/ui/pause_menu.gd",
 	"res://scripts/ui/pause_button.gd",
+	"res://scripts/ui/tutorial_screen.gd",
 ]
 const ALWAYS_SCENES := [
 	"res://scenes/ui/pause_menu.tscn",
 	"res://scenes/ui/settings_screen.tscn",
 	"res://scenes/ui/confirm_dialog.tscn",
+	"res://scenes/ui/tutorial_screen.tscn",
 	"res://scenes/ui/inventory_panel.tscn",
 	"res://scenes/ui/inventory_button.tscn",
 ]

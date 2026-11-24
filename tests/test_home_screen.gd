@@ -49,9 +49,9 @@ func _button(text: String) -> Button:
 	return null
 
 
-func test_it_builds_its_buttons_in_order_and_the_tutorial_is_dimmed() -> void:
+func test_it_builds_its_buttons_in_order_and_the_tutorial_is_live() -> void:
 	_start()
-	var labels := ["Play", "Shop", "Tutorial (soon)", "Settings", "New game"]
+	var labels := ["Play", "Shop", "Tutorial", "Settings", "New game"]
 	var last_y := -1.0
 	for text in labels:
 		var button := _button(text)
@@ -60,7 +60,7 @@ func test_it_builds_its_buttons_in_order_and_the_tutorial_is_dimmed() -> void:
 		last_y = button.position.y
 		assert_gte(button.custom_minimum_size.x, UiKit.ACTION_SIZE.x, text)
 		assert_gte(button.custom_minimum_size.y, UiKit.ACTION_SIZE.y, text)
-	assert_true(_button("Tutorial (soon)").disabled)
+	assert_false(_button("Tutorial").disabled, "the Tutorial pages exist now")
 	assert_false(_button("Play").disabled)
 
 
@@ -231,3 +231,21 @@ func test_the_full_screen_button_toggles_the_window_and_saves() -> void:
 	assert_true(FileAccess.file_exists("%s/settings.json" % _dir), "the choice is saved")
 	ScreenMode.setter = old_setter
 	ScreenMode.getter = old_getter
+
+
+func test_the_tutorial_button_opens_the_tutorial_and_closing_returns_to_play() -> void:
+	_start()
+	_button("Tutorial").pressed.emit()
+	assert_true(_home.tutorial_screen().is_open())
+	_home.tutorial_screen().close()
+	assert_false(_home.tutorial_screen().is_open())
+	assert_true(_button("Play").has_focus())
+
+
+func test_a_touch_while_the_tutorial_is_open_is_left_to_it() -> void:
+	_start()
+	_button("Tutorial").pressed.emit()
+	var touch := InputEventScreenTouch.new()
+	touch.pressed = true
+	touch.position = Vector2(240, 120)
+	assert_false(_home.handle_input(touch), "the open Tutorial bridges its own touches")

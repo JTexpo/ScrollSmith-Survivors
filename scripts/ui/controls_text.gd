@@ -25,6 +25,32 @@ const TOUCH_LINES: Array[String] = [
 ]
 
 
+## The first key of an action as text (a keyboard key if it has one, else a mouse or pad button), or "" for an unknown action.
+static func key_for(action: StringName) -> String:
+	if not InputMap.has_action(action):
+		return ""
+	var fallback := ""
+	for event in InputMap.action_get_events(action):
+		var text := _event_text(event)
+		if text.is_empty():
+			continue
+		if event is InputEventKey:
+			return text
+		if fallback.is_empty():
+			fallback = text
+	return fallback
+
+
+## The keys of several actions joined with spaces ("W A S D").
+static func keys_for(actions: Array) -> String:
+	var keys: Array[String] = []
+	for action in actions:
+		var text := key_for(action)
+		if not text.is_empty():
+			keys.append(text)
+	return " ".join(keys)
+
+
 static func lines() -> Array[String]:
 	var found: Array[String] = []
 	for entry in ENTRIES:
