@@ -16,7 +16,6 @@
 [ext_resource type="Script" path="res://scripts/ui/damage_numbers.gd" id="10"]
 [ext_resource type="Script" path="res://scripts/systems/scroll_dropper.gd" id="11"]
 [ext_resource type="PackedScene" path="res://scenes/scrolls/scroll_pickup.tscn" id="12"]
-[ext_resource type="Script" path="res://resources/scrolls/scroll_data.gd" id="19"]
 [ext_resource type="PackedScene" path="res://scenes/ui/scroll_toast.tscn" id="13"]
 [ext_resource type="PackedScene" path="res://scenes/ui/inventory_panel.tscn" id="14"]
 [ext_resource type="PackedScene" path="res://scenes/ui/inventory_button.tscn" id="15"]
@@ -36,21 +35,6 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/potion_bar.tscn" id="59"]
 [ext_resource type="PackedScene" path="res://scenes/ui/boss_bar.tscn" id="61"]
 [ext_resource type="PackedScene" path="res://scenes/ui/run_clock_label.tscn" id="62"]
-[ext_resource type="Resource" path="res://resources/scrolls/base/fire.tres" id="20"]
-[ext_resource type="Resource" path="res://resources/scrolls/base/thunder.tres" id="21"]
-[ext_resource type="Resource" path="res://resources/scrolls/base/land.tres" id="22"]
-[ext_resource type="Resource" path="res://resources/scrolls/base/sea.tres" id="23"]
-[ext_resource type="Resource" path="res://resources/scrolls/area/line.tres" id="24"]
-[ext_resource type="Resource" path="res://resources/scrolls/area/cone.tres" id="25"]
-[ext_resource type="Resource" path="res://resources/scrolls/area/area.tres" id="26"]
-[ext_resource type="Resource" path="res://resources/scrolls/area/missile.tres" id="27"]
-[ext_resource type="Resource" path="res://resources/scrolls/area/wave.tres" id="28"]
-[ext_resource type="Resource" path="res://resources/scrolls/buff/max_mana.tres" id="29"]
-[ext_resource type="Resource" path="res://resources/scrolls/buff/damage.tres" id="30"]
-[ext_resource type="Resource" path="res://resources/scrolls/buff/double_vulnerability.tres" id="31"]
-[ext_resource type="Resource" path="res://resources/scrolls/buff/ignore_resistance.tres" id="32"]
-[ext_resource type="Resource" path="res://resources/scrolls/buff/duplicate_area.tres" id="33"]
-[ext_resource type="Resource" path="res://resources/scrolls/buff/additional_base.tres" id="34"]
 [ext_resource type="PackedScene" path="res://scenes/audio/sound_board.tscn" id="sound_board"]
 [ext_resource type="PackedScene" path="res://scenes/ui/mute_button.tscn" id="mute_button"]
 [ext_resource type="Script" path="res://scripts/fx/fx_director.gd" id="fx_director"]
@@ -58,7 +42,6 @@
 
 [node name="Main" type="Node2D"]
 script = ExtResource("0")
-debug_scrolls = Array[ExtResource("19")]([ExtResource("20"), ExtResource("21"), ExtResource("22"), ExtResource("23"), ExtResource("24"), ExtResource("25"), ExtResource("26"), ExtResource("27"), ExtResource("28"), ExtResource("29"), ExtResource("30"), ExtResource("31"), ExtResource("32"), ExtResource("33"), ExtResource("34")])
 
 [node name="GameMap" parent="." instance=ExtResource("1")]
 

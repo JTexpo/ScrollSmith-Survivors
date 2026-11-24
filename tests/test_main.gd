@@ -37,17 +37,6 @@ func test_spell_bar_is_bound_and_slot_presses_select() -> void:
 	assert_eq(player.loadout.selected_index, 1)
 
 
-func test_debug_key_refills_drained_mana() -> void:
-	var main := _new_main()
-	var player := main.get_node("Player") as Player
-	player.loadout.selected().current_mana = 0.0
-	var event := InputEventAction.new()
-	event.action = &"debug_restore_mana"
-	event.pressed = true
-	main._unhandled_input(event)
-	assert_eq(player.loadout.selected().current_mana, player.loadout.selected().data.max_mana)
-
-
 func test_dead_player_cannot_change_spell_by_tapping_the_bar() -> void:
 	var main := _new_main()
 	var player := main.get_node("Player") as Player
@@ -142,16 +131,6 @@ func test_the_button_toggles_the_panel() -> void:
 	assert_true(panel.is_open())
 
 
-func test_debug_key_gives_three_of_every_scroll() -> void:
-	var main := _main()
-	var player := main.get_node("Player") as Player
-	main._unhandled_input(_action(&"debug_give_scrolls"))
-	assert_eq(main.debug_scrolls.size(), 15)
-	assert_eq(player.inventory.total_count(), 45)
-	for scroll in main.debug_scrolls:
-		assert_eq(player.inventory.count(scroll), 3)
-
-
 func test_player_death_closes_the_panel() -> void:
 	var main := _main()
 	var panel := main.get_node("Hud/InventoryPanel") as InventoryPanel
@@ -199,6 +178,15 @@ func test_interact_button_follows_the_interaction_target() -> void:
 	assert_false(button.visible)
 
 
+## Hands the player `amount` of every scroll (the 15 scrolls in `resources/scrolls`), so a test can craft without grinding.
+func _give_every_scroll(player: Player, amount: int) -> void:
+	for category in ["base", "area", "buff"]:
+		var folder := "res://resources/scrolls/%s" % category
+		for file in DirAccess.get_files_at(folder):
+			if file.ends_with(".tres"):
+				player.inventory.add(load("%s/%s" % [folder, file]) as ScrollData, amount)
+
+
 func _open_main() -> Array:
 	var main := _new_main()
 	var screen := main.get_node("CraftingScreen") as CraftingScreen
@@ -244,10 +232,7 @@ func test_full_craft_through_main() -> void:
 	var main := parts[0] as Main
 	var screen := parts[1] as CraftingScreen
 	var player := parts[3] as Player
-	var event := InputEventAction.new()
-	event.action = &"debug_give_scrolls"
-	event.pressed = true
-	main._unhandled_input(event)
+	_give_every_scroll(player, 3)
 	(parts[2] as Lectern).interact(player)
 	var thunder := load("res://resources/scrolls/base/thunder.tres") as ScrollData
 	screen.choose_base(thunder)
@@ -265,10 +250,7 @@ func test_full_buffed_craft_through_main() -> void:
 	var main := parts[0] as Main
 	var screen := parts[1] as CraftingScreen
 	var player := parts[3] as Player
-	var event := InputEventAction.new()
-	event.action = &"debug_give_scrolls"
-	event.pressed = true
-	main._unhandled_input(event)
+	_give_every_scroll(player, 3)
 	(parts[2] as Lectern).interact(player)
 	var damage := load("res://resources/scrolls/buff/damage.tres") as ScrollData
 	screen.choose_base(load("res://resources/scrolls/base/thunder.tres") as ScrollData)

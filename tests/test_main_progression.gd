@@ -196,12 +196,9 @@ func test_empty_save_path_never_creates_a_file() -> void:
 	assert_eq(DirAccess.get_files_at(ProjectSettings.globalize_path(_dir)).size(), 0)
 
 
-func test_f12_gives_100_xp() -> void:
+func test_xp_added_to_the_run_is_added_to_the_profile_and_can_level_up() -> void:
 	var main := _new_main("")
-	var event := InputEventAction.new()
-	event.action = &"debug_give_xp"
-	event.pressed = true
-	main._unhandled_input(event)
+	_player(main).progress.add_xp(100)
 	assert_eq(main.profile.total_xp, 100)
 	assert_eq(_player(main).progress.level(), 3)
 
@@ -481,12 +478,11 @@ func test_the_bar_shows_the_runs_stock() -> void:
 	assert_eq(bar.widgets[0].count, 0)
 
 
-func test_f8_gives_three_of_every_potion_without_saving() -> void:
+func test_a_full_potion_stock_shows_on_the_bar_and_saves_nothing() -> void:
 	var main := _stocked({&"potion_health": 1})
-	var event := InputEventAction.new()
-	event.action = &"debug_give_potions"
-	event.pressed = true
-	main._unhandled_input(event)
+	for potion in PotionCatalog.default_catalog().potions:
+		main.run_potions.add_potion(potion.id, RunPotions.MAX_POTIONS)
+	_player(main).belt.refresh()
 	for potion in PotionCatalog.default_catalog().potions:
 		assert_eq(main.run_potions.potion_count(potion.id), 3, str(potion.id))
 	assert_eq((main.get_node("Hud/PotionBar") as PotionBar).widgets[0].count, 3)

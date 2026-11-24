@@ -5,10 +5,10 @@ const ACTIONS: Array[StringName] = [
 	&"interact", &"pause", &"cast",
 	&"spell_slot_1", &"spell_slot_2", &"spell_slot_3", &"spell_slot_4", &"spell_slot_5",
 	&"aim_up", &"aim_down", &"aim_left", &"aim_right", &"restart",
-	&"spell_prev", &"spell_next", &"debug_restore_mana",
-	&"toggle_inventory", &"debug_give_scrolls", &"debug_give_xp",
+	&"spell_prev", &"spell_next",
+	&"toggle_inventory",
 	&"potion_1", &"potion_2", &"potion_3", &"potion_4", &"potion_5", &"potion_6",
-	&"potion_prev", &"potion_next", &"potion_use", &"debug_give_potions", &"debug_toggle_map", &"mute", &"debug_perf_overlay",
+	&"potion_prev", &"potion_next", &"potion_use", &"mute", &"debug_perf_overlay",
 ]
 const MOVE_ACTIONS: Array[StringName] = [&"move_up", &"move_down", &"move_left", &"move_right"]
 
@@ -55,21 +55,9 @@ func test_spell_cycling_is_on_the_controller_shoulders() -> void:
 		assert_true(_has_event(action, InputEventJoypadButton), "%s has no joypad button" % action)
 
 
-func test_debug_restore_mana_is_a_key() -> void:
-	assert_true(_has_event(&"debug_restore_mana", InputEventKey))
-
-
 func test_toggle_inventory_has_key_and_joypad() -> void:
 	assert_true(_has_event(&"toggle_inventory", InputEventKey))
 	assert_true(_has_event(&"toggle_inventory", InputEventJoypadButton))
-
-
-func test_debug_give_scrolls_is_a_key() -> void:
-	assert_true(_has_event(&"debug_give_scrolls", InputEventKey))
-
-
-func test_debug_give_xp_is_a_key() -> void:
-	assert_true(_has_event(&"debug_give_xp", InputEventKey))
 
 
 func test_potion_slots_are_keys_z_x_c_v_b_n() -> void:
@@ -109,22 +97,6 @@ func test_a_dpad_press_matches_only_movement() -> void:
 		event.pressed = true
 		for action in [&"potion_prev", &"potion_next", &"potion_use"]:
 			assert_false(event.is_action(action), "D-pad %d must not match %s" % [button, action])
-
-
-func test_debug_give_potions_is_f8() -> void:
-	var found := false
-	for event in InputMap.action_get_events(&"debug_give_potions"):
-		if event is InputEventKey and event.physical_keycode == KEY_F8:
-			found = true
-	assert_true(found)
-
-
-func test_debug_toggle_map_is_f7() -> void:
-	var found := false
-	for event in InputMap.action_get_events(&"debug_toggle_map"):
-		if event is InputEventKey and event.physical_keycode == KEY_F7:
-			found = true
-	assert_true(found)
 
 
 func test_the_mute_action_is_the_m_key_and_takes_no_controller_button() -> void:

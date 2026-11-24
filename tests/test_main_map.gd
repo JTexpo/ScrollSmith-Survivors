@@ -64,17 +64,6 @@ func test_the_spawn_ring_works_at_every_corner() -> void:
 			assert_false(Rect2(center - half, spawner.view_size).grow(-0.5).has_point(at), "inside the view at %s" % corner)
 
 
-func test_f7_toggles_the_overlay() -> void:
-	var main := _new_main()
-	var overlay := main.get_node("GameMap/Debug") as Node2D
-	assert_false(overlay.visible)
-	var event := InputEventAction.new()
-	event.action = &"debug_toggle_map"
-	event.pressed = true
-	main._unhandled_input(event)
-	assert_true(overlay.visible)
-
-
 func test_the_camera_starts_on_the_player_with_no_glide() -> void:
 	var main := _new_main()
 	await wait_frames(1)
