@@ -179,3 +179,19 @@ func test_first_map_lecterns_are_at_least_400_from_the_start() -> void:
 	for placement in map.placements:
 		if placement.scene.resource_path == LECTERN:
 			assert_gte(placement.position.distance_to(map.player_start), 400.0, "Lectern at %s is too near the start" % placement.position)
+
+
+func test_a_map_has_a_description_and_an_art_set_with_empty_defaults() -> void:
+	var map := _map()
+	assert_eq(map.description, "")
+	assert_eq(map.enemy_art_set, &"")
+
+
+func test_the_ruins_are_named_and_keep_their_id() -> void:
+	var ruins := load("res://resources/maps/first_map.tres") as MapData
+	assert_eq(ruins.id, &"first_map")
+	assert_eq(ruins.display_name, "The Ruins")
+	assert_eq(ruins.enemy_art_set, &"ruins")
+	assert_false(ruins.description.is_empty())
+	for i in ruins.description.length():
+		assert_true(ruins.description.unicode_at(i) >= 32 and ruins.description.unicode_at(i) <= 126)

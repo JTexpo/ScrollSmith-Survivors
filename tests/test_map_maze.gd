@@ -235,3 +235,48 @@ func test_a_maze_without_a_material_gives_empty_materials() -> void:
 	for wall in _maze().shapes():
 		assert_eq(wall.material, &"")
 
+
+
+func _walls_around(maze: MapMaze, cell: Vector2i) -> int:
+	var count := 0
+	for step in MapMaze.STEPS:
+		if not _open(maze, cell, cell + step):
+			count += 1
+	return count
+
+
+func _cell_of(maze: MapMaze, centre: Vector2) -> Vector2i:
+	return Vector2i(((centre - maze.area.position) / maze.cell_size).floor())
+
+
+func test_dead_end_cells_have_exactly_one_opening() -> void:
+	var maze := _maze(3, 2)
+	var cells := maze.dead_end_cells()
+	assert_gt(cells.size(), 0)
+	for centre in cells:
+		assert_true(maze.area.has_point(centre))
+		assert_eq(_walls_around(maze, _cell_of(maze, centre)), 3)
+
+
+func test_dead_end_cells_are_deterministic_for_a_seed() -> void:
+	assert_eq(_maze(5, 2, true).dead_end_cells(), _maze(5, 2, true).dead_end_cells())
+
+
+func test_dead_end_cells_follow_the_half_turn() -> void:
+	var maze := _maze(7, 2)
+	var twin := _maze(7, 2)
+	twin.rotated = true
+	var turned := {}
+	for centre in maze.dead_end_cells():
+		turned[maze.area.position * 2.0 + maze.area.size - centre] = true
+	var found := twin.dead_end_cells()
+	assert_eq(found.size(), turned.size())
+	for centre in found:
+		assert_true(turned.has(centre), "%s is a half-turn image" % centre)
+
+
+func test_the_cleared_centre_is_never_a_dead_end() -> void:
+	var maze := _maze(2, 0, true)
+	var room := maze.center_room_center()
+	for centre in maze.dead_end_cells():
+		assert_gt(centre.distance_to(room), maze.cell_size)
