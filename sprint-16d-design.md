@@ -1,6 +1,6 @@
 # Sprint 16d Design: The maze's art and the Dire Minotaur
 
-**Status:** Proposed, awaiting approval.
+**Status:** Implemented (Sprint 16d). Deviations: the Minotaur was redrawn twice and the maze troll and zombie once on the user's feedback; the stampede test runs on open ground because a wall in the maze cuts a chain by design (every chain in the maze was cut by a wall in the bot fights).
 
 Sprint 16 is four parts (see `sprint-development.md`): 16a the map select, the art sets and the layouts (done), 16b the forest's art and the Tempest Dragon (done), 16c the ruins' art refresh (done), **16d the maze's art and the Dire Minotaur (this doc)**. Scope comes from the Sprint 16 plan, `CLAUDE.md` (Enemies and bosses, Art pipeline, Maps and the map select, the 16b and 16c sections) and the user's answers in conversation. Decisions below were agreed with the user in conversation, except where marked "my call".
 

@@ -994,6 +994,8 @@ The ruins with their themed enemy set.
 
 ## Sprint 16d: The maze's art and the Dire Minotaur
 
+**Status:** done (see `sprint-16d-design.md`, `development-log.md` and `CLAUDE.md`, "The maze's art and the Dire Minotaur"). The planned renaming of the plain sprites was dropped. **Sprint 16 is complete.**
+
 **Goal:** The maze feels like a minotaur's dungeon.
 
 ### Tasks
