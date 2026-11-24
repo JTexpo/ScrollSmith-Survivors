@@ -1,6 +1,6 @@
 # Sprint 15a Design: The front door
 
-**Status:** Proposed, awaiting approval.
+**Status:** Built (Sprint 15a).
 
 Sprint 15 is three parts: **15a** the front door (this doc), **15b** onboarding and run statistics, **15c** release preparation. Scope comes from the Sprint 15 list in `sprint-development.md`, `CLAUDE.md` and the user's answers in conversation. Decisions below were agreed with the user in conversation, except where marked "my call".
 
@@ -74,3 +74,11 @@ Today the game opens straight into a run, has no pause, and its effect and audio
 - **Death screen tests:** the Home button's tap goes home and never restarts, and restart still works elsewhere.
 - **Real window (touch rule):** the home screen, Settings (a slider and a toggle by touch and by mouse), New game's two steps, the pause menu and the pause button, checked with `Input.parse_input_event` in window coordinates, plus screenshots of each screen. Not checked on a phone.
 - `godot --headless --import` after adding a `class_name`, then the full suite and a smoke run (the smoke test's start scene follows the project's main scene).
+
+## 6. Revisions during the build
+
+- **Full screen (user request mid-build):** a Full screen button on the home screen and a toggle in Settings, a saved `GameSettings.fullscreen`, and `ScreenMode` (a desktop applies the saved choice at start; a browser only allows it from a tap, so never at start there).
+- `SettingsScreen.set_scale` became `set_strength` (`CanvasLayer` has a built-in `set_scale`).
+- The home screen holds the shop, settings and confirm screens as child scenes, not `load()` calls.
+- The suite's short soak passes a looser slope limit (the verdict takes a `slope_limit`).
+- A scene-changing tap: the screens take `get_viewport()` before handling input.

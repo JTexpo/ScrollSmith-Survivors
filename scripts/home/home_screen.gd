@@ -40,8 +40,10 @@ func _ready() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	# Taken before handling: a bridged tap on Play changes the scene, which takes this node out of the tree (no viewport) before we return.
+	var viewport := get_viewport()
 	if handle_input(event):
-		get_viewport().set_input_as_handled()
+		viewport.set_input_as_handled()
 
 
 ## Turns a touch into the left mouse press or release the buttons expect, unless a screen on top is open (it bridges its own).

@@ -72,8 +72,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	# Taken before handling: a bridged tap on Quit's confirmation can change the scene and take this node out of the tree.
+	var viewport := get_viewport()
 	if handle_input(event):
-		get_viewport().set_input_as_handled()
+		viewport.set_input_as_handled()
 
 
 ## Turns a touch into the left mouse press or release the buttons expect. False while closed, or while Settings or the confirmation

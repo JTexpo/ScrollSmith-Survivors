@@ -5,7 +5,7 @@ extends RefCounted
 const LINES: Array[String] = [
 	"ScrollSmith Survivors",
 	"",
-	"Made by (your name here)",
+	"Made by JTexpo",
 	"Art, music and sound: made with the game's own tools",
 	"Made with Godot 4 and GUT",
 	"",

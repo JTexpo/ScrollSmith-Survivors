@@ -61,14 +61,16 @@ func _ready() -> void:
 func _input(event: InputEvent) -> void:
 	if not _open:
 		return
+	# Taken first: a confirmed tap can change the scene (Quit to home, Play), which takes this node out of the tree.
+	var viewport := get_viewport()
 	if event.is_action_pressed(&"ui_cancel") or event.is_action_pressed(&"pause"):
 		_cancel_now()
-		get_viewport().set_input_as_handled()
+		viewport.set_input_as_handled()
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and not CARD.has_point(event.position):
 		_cancel_now()
-		get_viewport().set_input_as_handled()
+		viewport.set_input_as_handled()
 	elif handle_input(event):
-		get_viewport().set_input_as_handled()
+		viewport.set_input_as_handled()
 
 
 ## Shows the card. Cancel has focus, so Enter or the controller's accept is the safe choice.
