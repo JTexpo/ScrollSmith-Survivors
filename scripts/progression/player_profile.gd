@@ -7,6 +7,8 @@ extends RefCounted
 ## The largest XP or Gold a save accepts (2^53, the last whole number a JSON float holds exactly).
 const MAX_VALUE := 9007199254740992
 const SLOT_COUNT := 3
+## The map an old save's flat bests belong to (the only map there was).
+const OLD_BESTS_MAP := &"first_map"
 ## The most of one potion an old save could hold (a count above it is a bad save).
 const LEGACY_MAX_POTIONS := 99
 
@@ -20,11 +22,10 @@ var equipped: Dictionary = {}
 ## Potions an OLD save held between runs (id to count). Potions last one run now (`RunPotions`), so `Main` cashes these in for Gold once
 ## (`ShopSystem.cash_in_legacy_potions`). Never written back.
 var legacy_potions: Dictionary = {}
-## The player's records (Sprint 15b): the longest survival in whole seconds, the most enemies defeated in one run and the highest level
-## reached. Saved only when any is above 0, so an old save and an old reader are unaffected.
-var best_seconds: int = 0
-var best_enemies: int = 0
-var best_level: int = 0
+## The player's records per map (Sprint 16a): map id (String) to `{"seconds": int, "enemies": int}`, the longest survival in whole seconds
+## and the most enemies defeated in one run on that map. Saved only when any is above 0, so an old save and an old reader are unaffected.
+## An old save's flat bests (Sprint 15b, with a level) load as the ruins' (`first_map`) records and the level is dropped.
+var bests: Dictionary = {}
 
 
 ## Null if a field is missing (version and total_xp), has a wrongly typed or out-of-range value, or
@@ -64,13 +65,21 @@ static func from_dict(data: Dictionary) -> PlayerProfile:
 	if data.has("bests"):
 		if not data["bests"] is Dictionary:
 			return null
-		var bests: Dictionary = data["bests"]
-		for key in ["seconds", "enemies", "level"]:
-			if bests.has(key) and not _is_whole_in_range(bests[key]):
-				return null
-		profile.best_seconds = int(bests.get("seconds", 0))
-		profile.best_enemies = int(bests.get("enemies", 0))
-		profile.best_level = int(bests.get("level", 0))
+		var found: Dictionary = data["bests"]
+		if found.has("seconds") or found.has("enemies") or found.has("level"):
+			for key in ["seconds", "enemies", "level"]:
+				if found.has(key) and not _is_whole_in_range(found[key]):
+					return null
+			profile.set_best(OLD_BESTS_MAP, int(found.get("seconds", 0)), int(found.get("enemies", 0)))
+		else:
+			for map_id in found:
+				if not map_id is String or not found[map_id] is Dictionary:
+					return null
+				var entry: Dictionary = found[map_id]
+				for key in ["seconds", "enemies"]:
+					if entry.has(key) and not _is_whole_in_range(entry[key]):
+						return null
+				profile.set_best(StringName(map_id), int(entry.get("seconds", 0)), int(entry.get("enemies", 0)))
 	if data.has("potions"):
 		if not data["potions"] is Dictionary:
 			return null
@@ -151,9 +160,26 @@ func to_dict() -> Dictionary:
 	}
 	if muted:
 		data["muted"] = true
-	if best_seconds > 0 or best_enemies > 0 or best_level > 0:
-		data["bests"] = {"seconds": best_seconds, "enemies": best_enemies, "level": best_level}
+	var written := {}
+	for map_id in bests:
+		var entry: Dictionary = bests[map_id]
+		if int(entry["seconds"]) > 0 or int(entry["enemies"]) > 0:
+			written[map_id] = {"seconds": int(entry["seconds"]), "enemies": int(entry["enemies"])}
+	if not written.is_empty():
+		data["bests"] = written
 	return data
+
+
+func best_seconds(map_id: StringName) -> int:
+	return int((bests.get(String(map_id), {}) as Dictionary).get("seconds", 0))
+
+
+func best_enemies(map_id: StringName) -> int:
+	return int((bests.get(String(map_id), {}) as Dictionary).get("enemies", 0))
+
+
+func set_best(map_id: StringName, seconds: int, enemies: int) -> void:
+	bests[String(map_id)] = {"seconds": seconds, "enemies": enemies}
 
 
 ## `current + amount` held at MAX_VALUE, ignoring amounts at or below 0 (and safe from int overflow).

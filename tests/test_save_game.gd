@@ -192,21 +192,23 @@ func test_erase_of_a_missing_file_is_fine_and_creates_nothing() -> void:
 	assert_false(FileAccess.file_exists(_path()))
 
 
-func test_bests_survive_save_and_load() -> void:
+func test_per_map_bests_survive_save_and_load() -> void:
 	var profile := PlayerProfile.new()
-	profile.best_seconds = 123
-	profile.best_enemies = 45
-	profile.best_level = 6
+	profile.set_best(&"forest", 123, 45)
+	profile.set_best(&"maze", 60, 7)
 	assert_true(SaveGame.save_profile(profile, _path()))
 	var loaded := SaveGame.load_profile(_path())
-	assert_eq(loaded.best_seconds, 123)
-	assert_eq(loaded.best_enemies, 45)
-	assert_eq(loaded.best_level, 6)
+	assert_eq(loaded.best_seconds(&"forest"), 123)
+	assert_eq(loaded.best_enemies(&"forest"), 45)
+	assert_eq(loaded.best_seconds(&"maze"), 60)
 
 
-func test_erase_takes_the_bests_with_the_save() -> void:
+func test_erase_takes_every_map_s_bests() -> void:
 	var profile := PlayerProfile.new()
-	profile.best_enemies = 99
+	profile.set_best(&"forest", 5, 99)
+	profile.set_best(&"first_map", 5, 98)
 	SaveGame.save_profile(profile, _path())
 	assert_true(SaveGame.erase(_path()))
-	assert_eq(SaveGame.load_profile(_path()).best_enemies, 0, "New game starts without records")
+	var loaded := SaveGame.load_profile(_path())
+	assert_eq(loaded.best_enemies(&"forest"), 0, "New game starts without records")
+	assert_eq(loaded.best_enemies(&"first_map"), 0)

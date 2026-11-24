@@ -30,10 +30,9 @@ func _enemy(rewards: bool = true) -> Enemy:
 	return enemy
 
 
-func test_a_new_tally_is_empty_and_starts_at_level_one() -> void:
+func test_a_new_tally_is_empty() -> void:
 	for counter in ["enemies", "bosses", "scrolls", "crafts", "potions", "xp", "gold"]:
 		assert_eq(_stats.get(counter), 0, counter)
-	assert_eq(_stats.level, 1)
 
 
 func test_each_event_adds_exactly_one_to_the_right_counter() -> void:
@@ -68,12 +67,6 @@ func test_xp_and_gold_add_the_announced_amounts() -> void:
 	assert_eq(_stats.gold, 3)
 
 
-func test_level_keeps_the_highest_reached() -> void:
-	_progress.leveled_up.emit(4, LevelReward.new())
-	_progress.leveled_up.emit(3, LevelReward.new())
-	assert_eq(_stats.level, 4)
-
-
 func test_nothing_counts_before_bind_and_after_freeze() -> void:
 	var unbound := RunStats.new()
 	_spawner.enemy_died.emit(_enemy())
@@ -82,10 +75,8 @@ func test_nothing_counts_before_bind_and_after_freeze() -> void:
 	assert_true(_stats.is_frozen())
 	_spawner.enemy_died.emit(_enemy())
 	_collector.xp_collected.emit(9)
-	_progress.leveled_up.emit(8, LevelReward.new())
 	assert_eq(_stats.enemies, 1)
 	assert_eq(_stats.xp, 0)
-	assert_eq(_stats.level, 1)
 
 
 func test_binding_twice_does_not_double_count() -> void:

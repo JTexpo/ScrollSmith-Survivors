@@ -191,7 +191,7 @@ func test_the_death_message_is_a_heading_with_no_font_size_override() -> void:
 
 func test_the_widest_recap_values_fit_their_columns() -> void:
 	var rows: Array[Dictionary] = []
-	for label in ["Time survived", "Enemies defeated", "Bosses defeated", "Level reached", "XP earned", "Gold earned", "Scrolls collected", "Spells crafted", "Potions drunk"]:
+	for label in ["Time survived", "Enemies defeated", "Bosses defeated", "XP earned", "Gold earned", "Scrolls collected", "Spells crafted", "Potions drunk"]:
 		rows.append({"label": label, "value": "999999", "best": "best 999:59", "new_best": false})
 	_screen.set_recap(rows)
 	for label in _screen.get_node("Recap").find_children("*", "Label", true, false):
@@ -256,7 +256,7 @@ func test_focus_moves_between_shop_and_home_by_keyboard_and_controller() -> void
 
 func _rows(new_best: bool = false) -> Array[Dictionary]:
 	var rows: Array[Dictionary] = []
-	for i in 9:
+	for i in 8:
 		rows.append({"label": "Stat %d" % i, "value": str(i * 10), "best": "best %d" % (i * 12) if i < 3 else "", "new_best": new_best and i == 1})
 	return rows
 
@@ -269,10 +269,10 @@ func test_the_recap_is_hidden_until_set() -> void:
 func test_set_recap_shows_every_row_with_its_best_or_new_best_mark() -> void:
 	_screen.set_recap(_rows(true))
 	var lines := _screen.recap_text().split("\n")
-	assert_eq(lines.size(), 9)
+	assert_eq(lines.size(), 8)
 	assert_eq(lines[0], "Stat 0: 0  best 0")
 	assert_eq(lines[1], "Stat 1: 10  New best!", "a new best shows the mark instead of the best")
-	assert_eq(lines[8], "Stat 8: 80")
+	assert_eq(lines[7], "Stat 7: 70")
 
 
 func test_the_recap_card_fits_the_screen() -> void:
