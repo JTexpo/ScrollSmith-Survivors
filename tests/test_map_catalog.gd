@@ -96,7 +96,7 @@ func test_restart_reloads_the_same_scene() -> void:
 		assert_eq(main.scene_file_path, entry.scene_path)
 
 
-func test_the_forest_names_the_dragon_and_the_others_keep_the_titan() -> void:
+func test_each_map_names_its_own_boss() -> void:
 	assert_eq(_catalog.find(&"forest").boss_name(), "Tempest Dragon")
 	assert_eq(_catalog.find(&"first_map").boss_name(), "Ember Titan")
-	assert_eq(_catalog.find(&"maze").boss_name(), "Ember Titan")
+	assert_eq(_catalog.find(&"maze").boss_name(), "Dire Minotaur")

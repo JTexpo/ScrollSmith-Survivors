@@ -106,3 +106,9 @@ func test_it_has_dead_ends_and_the_centre_is_never_one() -> void:
 
 func test_the_maze_has_loops_so_a_chase_can_circle() -> void:
 	assert_gte(_map.mazes[0].extra_openings, 6)
+
+
+func test_the_maze_lists_the_minotaur_as_its_boss() -> void:
+	assert_eq(_map.bosses.size(), 1)
+	assert_eq(_map.bosses[0].id, &"dire_minotaur")
+	assert_true((load("res://resources/maps/first_map.tres") as MapData).bosses.is_empty(), "the ruins keep the shared roster")

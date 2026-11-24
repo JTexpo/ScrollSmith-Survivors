@@ -51,7 +51,7 @@ func test_each_card_shows_name_theme_boss_and_best() -> void:
 	assert_string_contains(forest, "Open woods. Somewhere, a dragon.")
 	assert_string_contains(forest, "Boss: Tempest Dragon")
 	assert_string_contains(_screen.card_text(1), "Boss: Ember Titan")
-	assert_string_contains(_screen.card_text(2), "Boss: Ember Titan")
+	assert_string_contains(_screen.card_text(2), "Boss: Dire Minotaur")
 	assert_string_contains(forest, "Best: 2:05")
 	assert_string_contains(_screen.card_text(1), "No best yet")
 	assert_string_contains(_screen.card_text(2), "No best yet")

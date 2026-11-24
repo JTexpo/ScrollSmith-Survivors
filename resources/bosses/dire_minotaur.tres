@@ -1,0 +1,133 @@
+[gd_resource type="Resource" script_class="BossData" load_steps=19 format=3]
+
+[ext_resource type="Script" path="res://resources/bosses/boss_data.gd" id="1"]
+[ext_resource type="Script" path="res://resources/bosses/boss_phase.gd" id="2"]
+[ext_resource type="Script" path="res://resources/bosses/boss_attack.gd" id="3"]
+[ext_resource type="Resource" path="res://resources/enemies/archetypes/swarmer.tres" id="4"]
+[ext_resource type="Resource" path="res://resources/bosses/boss_scrolls.tres" id="5"]
+
+[sub_resource type="Resource" id="p1_slam"]
+script = ExtResource("3")
+kind = 0
+telegraph_time = 1.0
+radius = 48.0
+damage = 30.0
+
+[sub_resource type="Resource" id="p1_charge"]
+script = ExtResource("3")
+kind = 1
+telegraph_time = 0.8
+damage = 25.0
+dash_speed = 280.0
+dash_time = 0.6
+recover_time = 1.8
+vulnerability_bonus = 0.5
+repeats = 1
+chain_warning = 0.6
+
+[sub_resource type="Resource" id="p1_summon"]
+script = ExtResource("3")
+kind = 3
+telegraph_time = 0.8
+count = 4
+summon_archetype = ExtResource("4")
+
+[sub_resource type="Resource" id="phase_1"]
+script = ExtResource("2")
+health_threshold = 1.0
+attacks = Array[ExtResource("3")]([SubResource("p1_slam"), SubResource("p1_charge"), SubResource("p1_summon")])
+attack_interval = 2.6
+speed_multiplier = 1.0
+
+[sub_resource type="Resource" id="p2_slam"]
+script = ExtResource("3")
+kind = 0
+telegraph_time = 1.0
+radius = 48.0
+damage = 30.0
+
+[sub_resource type="Resource" id="p2_charge"]
+script = ExtResource("3")
+kind = 1
+telegraph_time = 0.8
+damage = 25.0
+dash_speed = 280.0
+dash_time = 0.6
+recover_time = 1.8
+vulnerability_bonus = 0.5
+repeats = 2
+chain_warning = 0.6
+
+[sub_resource type="Resource" id="p2_burst"]
+script = ExtResource("3")
+kind = 2
+telegraph_time = 0.6
+damage = 12.0
+count = 10
+projectile_speed = 120.0
+projectile_range = 260.0
+
+[sub_resource type="Resource" id="p2_summon"]
+script = ExtResource("3")
+kind = 3
+telegraph_time = 0.8
+count = 4
+summon_archetype = ExtResource("4")
+
+[sub_resource type="Resource" id="phase_2"]
+script = ExtResource("2")
+health_threshold = 0.6
+attacks = Array[ExtResource("3")]([SubResource("p2_slam"), SubResource("p2_charge"), SubResource("p2_burst"), SubResource("p2_summon")])
+attack_interval = 1.8
+speed_multiplier = 1.2
+
+[sub_resource type="Resource" id="p3_charge"]
+script = ExtResource("3")
+kind = 1
+telegraph_time = 0.8
+damage = 25.0
+dash_speed = 320.0
+dash_time = 0.6
+recover_time = 1.8
+vulnerability_bonus = 0.5
+repeats = 2
+chain_warning = 0.6
+
+[sub_resource type="Resource" id="p3_slam"]
+script = ExtResource("3")
+kind = 0
+telegraph_time = 1.0
+radius = 48.0
+damage = 30.0
+
+[sub_resource type="Resource" id="p3_burst"]
+script = ExtResource("3")
+kind = 2
+telegraph_time = 0.6
+damage = 12.0
+count = 12
+projectile_speed = 120.0
+projectile_range = 260.0
+
+[sub_resource type="Resource" id="phase_3"]
+script = ExtResource("2")
+health_threshold = 0.25
+attacks = Array[ExtResource("3")]([SubResource("p3_charge"), SubResource("p3_slam"), SubResource("p3_burst")])
+attack_interval = 1.2
+speed_multiplier = 1.4
+
+[resource]
+script = ExtResource("1")
+id = &"dire_minotaur"
+display_name = "Dire Minotaur"
+element = 2
+max_health = 1500.0
+contact_damage = 20.0
+speed = 32.0
+body_scale = 3.0
+color = Color(0.45, 0.3, 0.18, 1)
+phases = Array[ExtResource("2")]([SubResource("phase_1"), SubResource("phase_2"), SubResource("phase_3")])
+reward_xp = 300
+reward_gold = 150
+reward_scroll_count = 2
+reward_drop_table = ExtResource("5")
