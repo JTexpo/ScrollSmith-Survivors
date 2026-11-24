@@ -854,7 +854,7 @@ A balanced and stable version of the game that can support extended play session
 
 **Goal:** Prepare the game for its first public release.
 
-Sprint 15 is split into three: **15a** the front door (built), **15b** onboarding and run statistics, **15c** release preparation.
+Sprint 15 is split into three: **15a** the front door (built), **15b** onboarding and run statistics (built), **15c** release preparation (**parked** by the user on 2026-11-24 until the game is improved further; the plan, the missing pieces, a manual test checklist and itch.io notes are in `docs/release-planning/`, and the wishlist that comes first is in `docs/release-planning/future-roadmap.md`: new maps and bosses, achievements, and a livelier home screen and tutorial).
 
 **Built note (15a):** the game opens on a home screen (Play, Shop, Tutorial dimmed until 15b, Settings, New game, Full screen) that is its own scene, so no run exists until Play. Settings are saved in their own file (music and effects volume, every screen-effect switch, the performance overlay, full screen) with a Reduce motion preset and read-only Controls and Credits pages; the sound board follows the volumes live. New game asks twice and keeps one `.bak`. A pause menu (Esc, controller Start or a HUD button) offers Resume, Settings and Quit to home; the inventory now pauses the game; the death screen gained a Home button. Checked in a real window by touch and mouse; not on a phone.
 
