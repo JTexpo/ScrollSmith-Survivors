@@ -704,3 +704,15 @@ Found and fixed: (1) the maze map sealed its outer band (1041 unreachable free c
 Measured (battery and Low Power Mode, so only ratios mean anything): stress with 300 enemies, `--obstacles --drops`: before the prefilter forest 28 to 84, ruins 11 to 14, maze 7.6 fps; after, maze 43 to 52 against the ruins' 32 to 38 in the same batch. Order check (a kiting bot, 300 simulated seconds): survival forest 75 and 48 s, ruins 58 and 42 s, maze 43 and 38 s. Grid build and field sweep (ms): ruins 4.1 and 22, forest 1.0 and 34, maze 6.3 and 17.
 
 Open: the web build has no sound (logged in `docs/release-planning/`, fix before the next publish); re-measure the maze plugged in.
+
+## 2026-11-24: Sprint 16b (the forest's art and the Tempest Dragon)
+
+Decisions (user): approach B for the boss: the existing four attacks plus one new one, lightning strikes (several warned circles around the player). My calls: the map names its roster (`MapData.bosses`), the Dragon has the Titan's weight but its own pattern (three phases, speed 36), it walks and does not fly, always-avoidable lightning (pinned by a test), no new sound, no new world art unless the forest looks bare.
+
+What was built: `MapData.bosses`, `EnemySpawner.boss_roster` and `bosses()`, `BossAttack.Kind.LIGHTNING` with `spread` and `escape_margin`, `LightningPlan`, the Boss strike handling, `tempest_dragon.tres`, four forest enemy sprites and the Dragon's sprite, and tests for each (plus a fight test on the forest scene).
+
+Found on the way: the ent first read as a mushroom and the rat as a dark blob on the contact sheets, so both were redrawn; a few tests that assumed every shipped map shows the Ember Titan or that the forest set has no sprites were updated.
+
+Measured (battery and Low Power Mode, so only ratios mean anything): stress with `--boss` on the forest 36 to 38 fps against the ruins' 31 to 36. Boss-fight bot (starting spell, three seeds, died every time): survived 43 to 57 s against the Dragon (boss left at 36 to 65% health) and 27 to 30 s against the Titan (53 to 55%), so the Dragon is the gentler fight.
+
+Open: the web build has no sound (fix before the next publish); the Dragon's numbers are starting values for the user to tune; the maze still shows the ruins' and forest's enemies until 16d.

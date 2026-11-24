@@ -961,6 +961,8 @@ Three maps selectable from Play, all playable.
 
 ## Sprint 16b: The forest's art and the Tempest Dragon
 
+**Status:** done (see `sprint-16b-design.md`, `development-log.md` and `CLAUDE.md`, "The forest's art and the Tempest Dragon").
+
 **Goal:** The forest looks and feels like its own place, about finding a dragon.
 
 ### Tasks

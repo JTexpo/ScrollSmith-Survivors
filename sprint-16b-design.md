@@ -1,6 +1,6 @@
 # Sprint 16b Design: The forest's art and the Tempest Dragon
 
-**Status:** Proposed, awaiting approval.
+**Status:** Implemented (Sprint 16b). Deviation: the 16a order check was not repeated (it has no boss and the sprites do not change gameplay); everything else follows this design.
 
 Sprint 16 is four parts (see `sprint-development.md`): 16a the map select, the art sets and the new layouts (done), **16b the forest's art and the Tempest Dragon (this doc)**, 16c the ruins' art refresh, 16d the maze's art and the Dire Minotaur. Scope comes from the Sprint 16 plan, `CLAUDE.md` (Enemies and bosses, Art pipeline, Maps and the map select) and the user's answers in conversation. Decisions below were agreed with the user in conversation, except where marked "my call".
 
