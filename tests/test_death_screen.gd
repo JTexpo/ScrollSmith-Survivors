@@ -238,3 +238,50 @@ func test_the_longest_summary_wraps_inside_the_card() -> void:
 	assert_lte(wrapped.y, 3.0 * UiFont.SIZE, "at most three lines")
 	var card := _screen.get_node("Card") as Panel
 	assert_lte(width, card.size.x, "the summary is no wider than the card")
+
+
+func test_the_home_button_exists_beside_shop_and_is_big_enough() -> void:
+	_screen.show_death()
+	var home := _screen.get_node("HomeButton") as Button
+	var shop := _screen.get_node("ShopButton") as Button
+	assert_true(home.visible)
+	assert_gte(home.size.x, 96.0)
+	assert_gte(home.size.y, 32.0)
+	assert_false(home.get_global_rect().intersects(shop.get_global_rect()), "they sit side by side")
+
+
+func test_home_button_tap_goes_home_and_never_restarts() -> void:
+	_screen.home_scene_path = "res://this_scene_does_not_exist.tscn"
+	_screen.show_death()
+	watch_signals(_screen)
+	var touch := InputEventScreenTouch.new()
+	touch.pressed = true
+	touch.position = (_screen.get_node("HomeButton") as Button).get_global_rect().get_center()
+	_screen.handle_event(touch)
+	assert_signal_emit_count(_screen, "home_requested", 1)
+	assert_signal_not_emitted(_screen, "restart_requested")
+
+
+func test_home_button_is_ignored_inside_the_input_delay_and_while_the_shop_is_open() -> void:
+	_screen.home_scene_path = "res://this_scene_does_not_exist.tscn"
+	_screen.input_delay_msec = 5000
+	_screen.show_death()
+	watch_signals(_screen)
+	(_screen.get_node("HomeButton") as Button).pressed.emit()
+	assert_signal_not_emitted(_screen, "home_requested")
+	_screen.input_delay_msec = 0
+	_screen.set_shop_open(true)
+	(_screen.get_node("HomeButton") as Button).pressed.emit()
+	assert_signal_not_emitted(_screen, "home_requested")
+
+
+func test_a_tap_elsewhere_still_restarts() -> void:
+	_screen.restart_scene_path = "res://this_scene_does_not_exist.tscn"
+	_screen.show_death()
+	watch_signals(_screen)
+	var touch := InputEventScreenTouch.new()
+	touch.pressed = true
+	touch.position = Vector2(5, 5)
+	_screen.handle_event(touch)
+	assert_signal_emit_count(_screen, "restart_requested", 1)
+	assert_signal_not_emitted(_screen, "home_requested")
