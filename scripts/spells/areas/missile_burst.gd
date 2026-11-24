@@ -38,5 +38,4 @@ func launch(spell: SpellData, origin: Vector2, _direction: Vector2, _target: Vec
 	_rng.randomize()
 	SpellSkin.dress(self, _visual, outline, spell, Vector2.ZERO, SpellSkin.INSTANT_LIFE, _rng)
 	# One hit on each enemy for the burst's whole short life.
-	_configure_hitbox(_hitbox, spell, LIFE + 1.0)
-	_hitbox.damage *= spell.area_data.burst_damage_share
+	_configure_hitbox(_hitbox, spell, LIFE + 1.0, spell.area_data.burst_damage_share)

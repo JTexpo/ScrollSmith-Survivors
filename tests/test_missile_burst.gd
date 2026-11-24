@@ -139,3 +139,25 @@ func test_the_burst_announces_its_hits() -> void:
 	await wait_physics_frames(8)
 	ImpactEvents.bus.hit.disconnect(listener)
 	assert_eq(heard[0], 2)
+
+
+func test_the_burst_pushes_by_the_same_share_as_it_damages() -> void:
+	var spell := _fire()
+	var burst := _burst_at(spell, Vector2(200, 0))
+	assert_almost_eq((burst.get_node("Hitbox") as HitboxComponent).knockback, spell.knockback * 0.5, 0.0001, "half the damage, half the push")
+
+
+func test_the_burst_announces_the_weight_of_its_own_smaller_hit() -> void:
+	var spell := _fire()
+	spell.damage = 40.0
+	spell.cast_interval = 1.5
+	_enemy(Vector2(200, 0))
+	var heard: Array[float] = []
+	var listener := func(_at: Vector2, weight: float, _element: StringName) -> void: heard.append(weight)
+	ImpactEvents.bus.hit.connect(listener)
+	_burst_at(spell, Vector2(200, 0))
+	await wait_physics_frames(8)
+	ImpactEvents.bus.hit.disconnect(listener)
+	assert_eq(heard.size(), 1)
+	assert_almost_eq(heard[0], ImpactWeight.of(spell, null, 0.5), 0.0001, "the burst's hit is half a Missile hit")
+	assert_lt(heard[0], ImpactWeight.of(spell, null, 1.0))
