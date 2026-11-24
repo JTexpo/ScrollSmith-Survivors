@@ -634,15 +634,25 @@ func test_a_wall_ends_the_chain_at_once_and_opens_the_boss() -> void:
 	_root.add_child(map)
 	map.setup(data)
 	var boss := _boss(_data([_chain(2)] as Array[BossAttack]))
-	assert_true(_until(boss, Boss.State.ACT))
-	assert_true(_until(boss, Boss.State.RECOVER), "the dash hit the wall")
-	assert_true(boss.vulnerable, "the crash opens it")
-	var seen_warning := false
-	for i in roundi(1.0 / STEP):
+	# Count the dashes: with repeats 2 a chain would make three; the wall must stop it after the first, at once.
+	var dashes := 0
+	var was_acting := false
+	var steps_to_recover := 0
+	for i in roundi(6.0 / STEP):
 		boss._physics_process(STEP)
-		if boss.state == Boss.State.TELEGRAPH:
-			seen_warning = true
-	assert_false(seen_warning, "no further dash of the chain follows a crash")
+		var acting := boss.state == Boss.State.ACT
+		if acting and not was_acting:
+			dashes += 1
+		was_acting = acting
+		if boss.state == Boss.State.RECOVER:
+			break
+		steps_to_recover += 1
+	assert_eq(boss.state, Boss.State.RECOVER, "it ended up open")
+	assert_true(boss.vulnerable, "the crash opens it")
+	assert_eq(dashes, 1, "only the first dash ran: the wall ended the chain")
+	assert_lt(boss.global_position.x, 190.0, "it stopped short of the wall")
+	# Without the rule it would warn again (0.6 s) and dash twice more, taking far longer than the first dash alone.
+	assert_lt(steps_to_recover * STEP, 2.5, "it went from the first warning to open in about one dash, not three")
 
 
 func test_attack_started_is_emitted_once_per_chained_attack() -> void:
@@ -679,13 +689,16 @@ func test_a_charge_with_no_repeats_is_exactly_the_old_charge() -> void:
 	assert_almost_eq(boss.global_position.x, 100.0 + 156.0, 0.01)
 
 
-func test_a_chain_does_nothing_without_a_real_step() -> void:
+func test_a_paused_game_freezes_the_chain() -> void:
 	var boss := _boss(_data([_chain(2)] as Array[BossAttack]))
-	assert_true(_until(boss, Boss.State.ACT))
+	boss.set_physics_process(true)
+	get_tree().paused = true
 	var state := boss.state
 	var at := boss.global_position
-	get_tree().paused = true
-	await wait_process_frames(2)
-	get_tree().paused = false
-	assert_eq(boss.state, state, "the chain moves only on physics steps")
+	# Real time passes (the timer keeps running while paused) but the boss must not take a step: its idle countdown alone is 0.5 s.
+	await get_tree().create_timer(0.9, true, false, true).timeout
+	assert_eq(boss.state, state, "a paused boss does not begin its attack")
 	assert_eq(boss.global_position, at)
+	get_tree().paused = false
+	await get_tree().create_timer(0.9, false, true, false).timeout
+	assert_ne(boss.state, state, "and it carries on once the game resumes")
