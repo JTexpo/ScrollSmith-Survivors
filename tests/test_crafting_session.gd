@@ -387,10 +387,10 @@ func test_new_and_current_stats_include_the_loadouts_bonuses() -> void:
 	session.select_area(_missile)
 	var fresh := session.new_stats()
 	assert_almost_eq(fresh["pool"], 150.0, 0.001)
-	assert_almost_eq(fresh["interval"], 0.35 / 1.25, 0.0001)
+	assert_almost_eq(fresh["interval"], 0.6 / 1.25, 0.0001)
 	var current := session.current_stats()
 	assert_almost_eq(current["pool"], 1500.0, 0.001)
-	assert_almost_eq(current["interval"], 0.35 / 1.25, 0.0001)
+	assert_almost_eq(current["interval"], 0.6 / 1.25, 0.0001)
 
 
 func test_stats_without_bonuses_are_the_plain_numbers() -> void:

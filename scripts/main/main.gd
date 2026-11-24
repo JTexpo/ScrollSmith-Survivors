@@ -48,6 +48,8 @@ var profile: PlayerProfile
 var track: LevelTrack
 var catalog: EquipmentCatalog
 var potion_catalog: PotionCatalog
+## The potions held this run (never saved, empty at every run start).
+var run_potions: RunPotions
 
 var _rng := RandomNumberGenerator.new()
 
@@ -119,12 +121,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed(&"debug_give_scrolls"):
 		for scroll in debug_scrolls:
 			_player.inventory.add(scroll, 3)
-	# DEBUG: 3 of every potion, saved, until potions are found another way. Delete later.
+	# DEBUG: 3 of every potion for this run (never saved). Delete later.
 	elif event.is_action_pressed(&"debug_give_potions"):
 		for potion in potion_catalog.potions:
-			profile.add_potion(potion.id, 3)
+			run_potions.add_potion(potion.id, RunPotions.MAX_POTIONS)
 		_player.belt.refresh()
-		_saver.save_now()
 	# DEBUG: 100 XP, to try levels without grinding. It is saved like real XP. Delete later.
 	elif event.is_action_pressed(&"debug_give_xp"):
 		_player.progress.add_xp(100)
@@ -156,10 +157,14 @@ func _begin_progression() -> void:
 	catalog = EquipmentCatalog.default_catalog()
 	potion_catalog = PotionCatalog.default_catalog()
 	profile = SaveGame.load_profile(save_path) if not save_path.is_empty() else PlayerProfile.new()
+	if not profile.legacy_potions.is_empty():
+		ShopSystem.cash_in_legacy_potions(profile, potion_catalog)
+		if not save_path.is_empty():
+			SaveGame.save_profile(profile, save_path)
 	var progress := _player.progress
 	progress.bind(_player, profile, track)
-	_player.belt.bind(_player, profile, potion_catalog)
-	_player.belt.used.connect(_on_potion_used)
+	run_potions = RunPotions.new()
+	_player.belt.bind(_player, run_potions, potion_catalog)
 	_player.belt.refused.connect(_level_toast.show_message)
 	_potion_bar.bind(_player.belt, _player.effects, potion_catalog)
 	_potion_bar.slot_pressed.connect(_on_potion_slot_pressed)
@@ -224,7 +229,7 @@ func _on_point_used(point: PointOfInterest, _actor: Node) -> void:
 		return
 	if point.data.kind == PointOfInterestData.Kind.MERCHANT:
 		if not _merchant_screen.is_open():
-			_merchant_screen.open(profile, potion_catalog, point)
+			_merchant_screen.open(profile, run_potions, potion_catalog, point)
 			point_effect_applied.emit(point.data.kind)
 		return
 	var reason := PointOfInterestSystem.refusal(point.data, _player, point.cooldown_left)
@@ -242,16 +247,11 @@ func _on_point_used(point: PointOfInterest, _actor: Node) -> void:
 	point_effect_applied.emit(point.data.kind)
 
 
-## A potion bought from a merchant is saved at once, so quitting cannot undo the sale. The sale spent Gold on the
-## profile directly, so the HUD is told too.
+## A potion bought from a merchant spent Gold, which is saved at once so quitting cannot undo the sale. The sale spent Gold on the
+## profile directly, so the HUD is told too. The potion itself is run-only and is never saved.
 func _on_merchant_purchase() -> void:
 	_player.belt.refresh()
 	_player.progress.announce_gold()
-	_saver.save_now()
-
-
-## A drunk potion is saved at once, so quitting cannot refund it.
-func _on_potion_used(_potion: PotionData) -> void:
 	_saver.save_now()
 
 
@@ -293,7 +293,7 @@ func _rolled_notice(run_buffs: RunBuffs, reward_level: int) -> String:
 
 
 func _on_shop_requested() -> void:
-	_shop_screen.open(profile, catalog, potion_catalog)
+	_shop_screen.open(profile, catalog)
 
 
 func _on_player_died() -> void:

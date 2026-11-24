@@ -20,7 +20,7 @@ const REASON_FULL_MANA := "Every spell is already full."
 static func refusal(
 	potion: PotionData,
 	player: Player,
-	profile: PlayerProfile,
+	potions: RunPotions,
 	cooldown_left: float,
 	shared_left: float,
 ) -> String:
@@ -28,7 +28,7 @@ static func refusal(
 		return REASON_UNKNOWN
 	if player.health.is_dead():
 		return REASON_DEAD
-	if profile.potion_count(potion.id) <= 0:
+	if potions.potion_count(potion.id) <= 0:
 		return REASON_NONE
 	if cooldown_left > 0.0:
 		return REASON_COOLDOWN

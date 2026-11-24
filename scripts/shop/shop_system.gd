@@ -38,22 +38,34 @@ static func potion_price(potion: PotionData, price_multiplier: float = 1.0) -> i
 	return maxi(ceili(potion.price * price_multiplier), 1)
 
 
-## Buys one potion. Nothing changes on any failure (unknown id, too little Gold, already at the limit).
-static func buy_potion(profile: PlayerProfile, catalog: PotionCatalog, id: StringName, price_multiplier: float = 1.0) -> ShopResult:
+## Buys one potion into the run's stock. Nothing changes on any failure (unknown id, too little Gold, already at the limit of 3).
+static func buy_potion(profile: PlayerProfile, potions: RunPotions, catalog: PotionCatalog, id: StringName, price_multiplier: float = 1.0) -> ShopResult:
 	var result := ShopResult.new()
 	var potion := catalog.find(id)
 	if potion == null:
 		result.reason = REASON_UNKNOWN
 	elif not can_afford_potion(profile, potion, price_multiplier):
 		result.reason = REASON_BROKE
-	elif profile.potion_count(id) >= PlayerProfile.MAX_POTIONS:
+	elif potions.potion_count(id) >= RunPotions.MAX_POTIONS:
 		result.reason = REASON_FULL
 	else:
 		profile.spend_gold(potion_price(potion, price_multiplier))
-		profile.add_potion(id)
+		potions.add_potion(id)
 		result.ok = true
 		result.potion = potion
 	return result
+
+
+## Old saves held potions between runs. They are cashed in once, at list price, so nobody loses what they paid for. Returns the Gold added.
+static func cash_in_legacy_potions(profile: PlayerProfile, catalog: PotionCatalog) -> int:
+	var total := 0
+	for id in profile.legacy_potions:
+		var potion := catalog.find(id)
+		if potion != null:
+			total += potion.price * int(profile.legacy_potions[id])
+	profile.legacy_potions.clear()
+	profile.add_gold(total)
+	return total
 
 
 static func can_afford_potion(profile: PlayerProfile, potion: PotionData, price_multiplier: float = 1.0) -> bool:

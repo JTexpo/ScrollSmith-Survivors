@@ -5,8 +5,8 @@ const O := Vector2(300, 150)
 const AREAS := {
 	"cone": ["res://resources/spells/areas/cone_area.tres", Vector2(30, 0), Vector2.INF],
 	"line": ["res://resources/spells/areas/line_area.tres", Vector2(40, 0), Vector2.INF],
-	"missile": ["res://resources/spells/areas/missile_area.tres", Vector2(40, 0), Vector2.INF],
 	"wave": ["res://resources/spells/areas/wave_area.tres", Vector2(30, 0), Vector2.INF],
+	"missile": ["res://resources/spells/areas/missile_area.tres", Vector2(40, 0), Vector2.INF],
 	"zone": ["res://resources/spells/areas/zone_area.tres", Vector2(80, 0), Vector2(380, 150)],
 }
 
@@ -40,6 +40,11 @@ func test_every_area_announces_a_hit_with_the_spells_weight_and_element() -> voi
 			assert_almost_eq(float(_heard[0][1]), ImpactWeight.of(spell), 0.0001, key)
 		if is_instance_valid(enemy):
 			enemy.queue_free()
+		# Whatever is still alive (a zone, a wave, a Missile's late burst) must not be heard in the next area's turn.
+		for node in get_children():
+			if node is AreaEffect:
+				node.queue_free()
+		await wait_physics_frames(2)
 
 
 func test_a_heavier_spell_announces_a_heavier_hit() -> void:

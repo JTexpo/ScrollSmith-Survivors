@@ -207,7 +207,7 @@ func test_hybrid_uses_the_mean_of_the_bases() -> void:
 	assert_almost_eq(hybrid.damage, 10.0 * (1.0 + 0.7) / 2.0, 0.0001)
 	assert_almost_eq(hybrid.mana_cost, 1.0, 0.0001)
 	assert_almost_eq(hybrid.max_mana, 100.0 * (1.0 + 1.5) / 2.0, 0.0001)
-	assert_almost_eq(hybrid.cast_interval, 0.35 * (1.0 + 0.5) / 2.0, 0.0001)
+	assert_almost_eq(hybrid.cast_interval, 0.6 * (1.0 + 0.5) / 2.0, 0.0001)
 
 
 func test_hybrid_elements_name_color_and_id() -> void:

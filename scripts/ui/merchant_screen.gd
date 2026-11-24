@@ -24,12 +24,14 @@ var input_guard_msec: int = 300
 var _open: bool = false
 var _opened_at_msec: int = 0
 var _profile: PlayerProfile
+var _potions: RunPotions
 var _catalog: PotionCatalog
 var _merchant: PointOfInterest
 var _message: String = ""
 
 var _buttons: Dictionary = {}
 var _title_label: Label
+var _restock_label: Label
 var _gold_label: Label
 var _detail_label: Label
 var _message_label: Label
@@ -64,10 +66,11 @@ func handle_input(event: InputEvent) -> bool:
 
 
 ## `catalog` is the potions on sale (the default catalog when it is null). Pauses the world when `pause_tree`.
-func open(profile: PlayerProfile, catalog: PotionCatalog, merchant: PointOfInterest) -> void:
+func open(profile: PlayerProfile, potions: RunPotions, catalog: PotionCatalog, merchant: PointOfInterest) -> void:
 	if _open:
 		return
 	_profile = profile
+	_potions = potions
 	_catalog = catalog if catalog != null else PotionCatalog.default_catalog()
 	_merchant = merchant
 	_message = ""
@@ -113,6 +116,17 @@ func gold_text() -> String:
 	return "Gold %d" % (_profile.gold if _profile != null else 0)
 
 
+## "Fully stocked", or "Restocks in 4:30" while potions are missing (the world is paused while the screen is open, so it shows the time
+## as of opening or the last sale).
+func restock_text() -> String:
+	if _merchant == null or _merchant.stock == null:
+		return ""
+	var seconds := ceili(_merchant.stock.seconds_to_restock(_merchant.data.refresh_seconds))
+	if seconds <= 0:
+		return "Fully stocked"
+	return "Restocks in %s" % PointOfInterest.clock_text(seconds)
+
+
 func message_text() -> String:
 	return _message
 
@@ -135,7 +149,7 @@ func activate(id: StringName) -> void:
 		_refresh()
 		refused.emit(_message)
 		return
-	var result := ShopSystem.buy_potion(_profile, _catalog, id, _merchant.data.price_multiplier)
+	var result := ShopSystem.buy_potion(_profile, _potions, _catalog, id, _merchant.data.price_multiplier)
 	if result.ok:
 		_merchant.stock.take(id)
 		_message = "Bought %s." % potion.display_name
@@ -156,6 +170,8 @@ func _build() -> void:
 	var content := UiKit.window(root)
 	_title_label = _label("Merchant", Vector2(8, 3), Vector2(200, 12), &"Heading")
 	content.add_child(_title_label)
+	_restock_label = _label("", Vector2(212, 3), Vector2(150, 12), &"Muted")
+	content.add_child(_restock_label)
 	content.add_child(_label("Potions", Vector2(8, 28), Vector2(152, 10), &"Heading"))
 	var coin := UiKit.icon(&"icon_coin")
 	coin.position = Vector2(366, 2)
@@ -201,15 +217,16 @@ func _refresh() -> void:
 		var left := _merchant.stock.count(id)
 		var button := _buttons[id] as Button
 		if left <= 0:
-			button.text = "%s\nsold out  own %d" % [title, _profile.potion_count(id)]
+			button.text = "%s\nsold out  own %d/%d" % [title, _potions.potion_count(id), RunPotions.MAX_POTIONS]
 		else:
-			button.text = "%s\n%dg  x%d  own %d" % [title, ShopSystem.potion_price(potion, _merchant.data.price_multiplier), left, _profile.potion_count(id)]
+			button.text = "%s\n%dg  x%d  own %d/%d" % [title, ShopSystem.potion_price(potion, _merchant.data.price_multiplier), left, _potions.potion_count(id), RunPotions.MAX_POTIONS]
 	_gold_label.text = gold_text()
+	_restock_label.text = restock_text()
 	_message_label.text = _message
 
 
 func _show_detail(potion: PotionData) -> void:
-	_detail_label.text = "%s  (%d Gold)\n%s" % [potion.display_name, ShopSystem.potion_price(potion, _merchant.data.price_multiplier), potion.description]
+	_detail_label.text = "%s  (%d Gold)  Lasts one run.\n%s" % [potion.display_name, ShopSystem.potion_price(potion, _merchant.data.price_multiplier), potion.description]
 
 
 func _first_button() -> Button:

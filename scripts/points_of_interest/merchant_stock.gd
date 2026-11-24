@@ -49,6 +49,14 @@ func restock_left() -> float:
 	return maxf(_left, 0.0)
 
 
+## Seconds until everything is back, for the prompt and the screen: 0 when the stock is full, the whole `restock_seconds` right after a
+## sale (the timer starts on the next tick), then what is left.
+func seconds_to_restock(restock_seconds: float) -> float:
+	if is_full():
+		return 0.0
+	return restock_seconds if _left < 0.0 else _left
+
+
 func is_full() -> bool:
 	for id in _counts:
 		if int(_counts[id]) < _full_count:

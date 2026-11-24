@@ -2,7 +2,7 @@ extends GutTest
 
 var _root: Node2D
 var _player: Player
-var _profile: PlayerProfile
+var _profile: RunPotions
 var _catalog: PotionCatalog
 var _belt: PotionBelt
 
@@ -12,7 +12,7 @@ func before_each() -> void:
 	add_child_autofree(_root)
 	_player = load("res://scenes/player/player.tscn").instantiate() as Player
 	_root.add_child(_player)
-	_profile = PlayerProfile.new()
+	_profile = RunPotions.new()
 	_catalog = PotionCatalog.default_catalog()
 	_belt = _player.belt
 	_belt.bind(_player, _profile, _catalog)
@@ -112,11 +112,11 @@ func test_each_type_has_its_own_cooldown() -> void:
 
 
 func test_mashing_burns_only_one_potion() -> void:
-	_profile.add_potion(&"potion_health", 5)
+	_profile.add_potion(&"potion_health", 3)
 	_hurt(90.0)
 	for i in 10:
 		_belt.use(&"potion_health")
-	assert_eq(_profile.potion_count(&"potion_health"), 4)
+	assert_eq(_profile.potion_count(&"potion_health"), 2)
 
 
 func test_a_timed_potion_cannot_be_drunk_twice_while_running() -> void:
@@ -189,8 +189,8 @@ func test_a_potion_id_missing_from_the_catalog_is_refused_and_skipped() -> void:
 
 func test_count_follows_the_profile() -> void:
 	assert_eq(_belt.count(&"potion_luck"), 0)
-	_profile.add_potion(&"potion_luck", 4)
-	assert_eq(_belt.count(&"potion_luck"), 4)
+	_profile.add_potion(&"potion_luck", 3)
+	assert_eq(_belt.count(&"potion_luck"), 3)
 
 
 func test_use_slot_drinks_the_potion_at_that_place_in_the_bar() -> void:

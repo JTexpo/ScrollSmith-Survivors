@@ -99,8 +99,10 @@ func test_refresh_progress_and_the_prompt_text_follow_the_state() -> void:
 	assert_eq(merchant.prompt_text(), "Merchant (E)")
 	merchant.stock.take(&"potion_health")
 	merchant._process(30.0)
-	assert_eq(merchant.prompt_text(), "Merchant (E)", "a merchant is always open")
+	assert_eq(merchant.prompt_text(), "Merchant (E) 4:30", "a merchant is always open and shows when it restocks")
 	assert_between(merchant.refresh_progress(), 0.05, 0.15, "its ring shows the restock")
+	merchant._process(300.0)
+	assert_eq(merchant.prompt_text(), "Merchant (E)", "no timer once the stock is full again")
 
 
 func test_a_merchant_has_stock_and_the_others_do_not() -> void:

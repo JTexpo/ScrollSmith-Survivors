@@ -84,13 +84,23 @@ func refresh_progress() -> float:
 	return 1.0 - cooldown_left / data.refresh_seconds
 
 
-## "Health Shrine (E)" when it can be used, "Health Shrine 2:15" while it refreshes. A merchant always shows (E).
+## "Health Shrine (E)" when it can be used, "Health Shrine 2:15" while it refreshes. A merchant is always open, so it shows
+## "Merchant (E)" and, while its stock is missing, "Merchant (E) 4:30" until everything is back.
 func prompt_text() -> String:
 	var title := data.display_name if data != null else ""
-	if cooldown_left <= 0.0 or stock != null:
+	if stock != null:
+		var restock := ceili(stock.seconds_to_restock(data.refresh_seconds))
+		if restock <= 0:
+			return "%s (E)" % title
+		return "%s (E) %s" % [title, clock_text(restock)]
+	if cooldown_left <= 0.0:
 		return "%s (E)" % title
-	var seconds := ceili(cooldown_left)
-	return "%s %d:%02d" % [title, floori(seconds / 60.0), seconds % 60]
+	return "%s %s" % [title, clock_text(ceili(cooldown_left))]
+
+
+## Whole seconds as minutes and seconds, "4:30".
+static func clock_text(seconds: int) -> String:
+	return "%d:%02d" % [floori(seconds / 60.0), seconds % 60]
 
 
 ## The shown or hidden "E" prompt, called by the player's InteractionComponent.

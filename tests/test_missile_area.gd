@@ -6,6 +6,9 @@ const FIRE_PATH := "res://resources/spells/fire_missile.tres"
 func _fire(max_hits: int = 1) -> SpellData:
 	var spell := (load(FIRE_PATH) as SpellData).duplicate() as SpellData
 	spell.max_hits = max_hits
+	# These tests are about the flying projectile itself; the burst where it ends has its own file (test_missile_burst).
+	spell.area_data = spell.area_data.duplicate() as AreaData
+	spell.area_data.burst_radius = 0.0
 	return spell
 
 

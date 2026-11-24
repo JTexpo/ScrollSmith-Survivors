@@ -788,6 +788,8 @@ Sprint 14 is split into three: **14a** the world pass (built), **14b** balance, 
 
 **Built note (14a):** the first map has its points of interest and Lecterns spread out and guarded. The chest moved to the bottom-left inside a ring of trees, the merchant to a hedge yard north of the plaza, and the Lecterns to a ring at the top, a ring at the west edge and a hedge room east of the island, each with one opening; the Rare scroll spots, Health Shrine and Mana Shrine did not move. Nothing is closer than 400 px to the next, the Lecterns are 700 px or more apart and 400 px or more from the start. Map data only; stress is about 106 fps. Whether it feels better is the user's call.
 
+**Built note (14b):** the Missile bursts where it ends (a small area hit of 18 px for half its damage, so it matters in a crowd without taking the Zone's role) and casts every 0.6 s; the Cone reaches 94 px at Normal (Short is what Normal used to be) and casts every 0.8 s; potions last one run (an in-memory `RunPotions`, at most 3 of each type, sold only by the merchant, which now shows a restock timer on its prompt and its screen, and the death-screen shop no longer sells them; old saves' potions are cashed in for Gold once); and a spell audit tool (`scripts/dev/spell_audit.gd`) reports damage per mana pool for every Base, Area and buff against groups of 1 and 8. The audit found the four Zones about 5x the median in a crowd; nothing was changed because the user decides. All starting values are the user's to tune by play.
+
 ### Tasks
 
 #### Gameplay Balancing

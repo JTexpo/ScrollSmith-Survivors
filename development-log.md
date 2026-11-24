@@ -620,3 +620,13 @@ Found while building: a 158 px ring does not fit the 184 px strip east of the is
 Left open: the feel of the layout is the user's call; the west Lectern and the chest are about 320 px apart.
 
 Follow-up (review after 14a merged): the whole-branch review found the tree rings leaked (13 px slits, the player is 12 px) and the east room had a second opening on its north side. Fixed on `sprint-14a-review-fixes`: seven-tree rings with slits of about 6 px, a cap wall on the room, the west Lectern moved to (176, 688), the chest ring opening east, and stronger guard tests (exactly one opening, no slit of 12 px or more). Stress about 98 fps (run to run noise 96 to 108).
+
+## 2026-11-23: Sprint 14b (balance)
+
+Decisions (user): the Missile explodes where it ends (Area data, not a new Area) and casts slower; potions are run-only, capped at 3 of each, sold only by the in-run merchant and lost when the run ends; XP and enemy pacing stay. Feedback while building: the burst was "massive" (36 to 18 px), the Cone's Short range was impractical so its Normal went from 56 to 94 px, the Cone was the strongest spell so it casts every 0.8 s (was 0.55), and the merchant needed a restock timer like the other points of interest.
+
+What was built: `AreaData` burst fields, `MissileBurst`, the Missile and Cone numbers, `RunPotions`, the potion belt, rules, merchant, shop and `Main` moved off the saved profile (legacy potions cashed in once), the merchant's restock text, `SpellAudit` and its script.
+
+Audit (a model: tight group, cone 6, line 3, wave 5, zone every tick): the four Zones do 12000 to 15000 damage per pool and 430 to 670 per second against 8 enemies, 5x to 6x the median (about 2500) and 5x to 10x the dps of Missile, Cone, Line and Wave (40 to 105). The starting Sea Cone and Fire Missile top the pool column only because their pools are 10x a crafted spell's. The crafted Missile with its burst sits near the median. No number was changed.
+
+Left open: the user decides whether Zones need a change; all burst, cone and potion numbers are starting values; the merchant screen shows the restock time as of opening (the world is paused).
