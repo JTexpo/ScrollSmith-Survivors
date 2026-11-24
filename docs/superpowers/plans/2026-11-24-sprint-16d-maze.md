@@ -1,0 +1,116 @@
+# Sprint 16d: The Maze's Art and the Dire Minotaur Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** The maze shows seven enemy sprites of its own and its boss is the Dire Minotaur (Land), whose charges chain through a new `repeats` field.
+
+**Architecture:** `BossAttack` gains `repeats` and `chain_warning`; `Boss` re-aims and re-warns between chained dashes and a wall ends the chain; the Minotaur is `BossData` listed in `maze_map.tres`'s roster (the 16b `MapData.bosses`); seven maze enemy sprites and the Minotaur are built by the art tool and found by the 16a `enemy_<set>_<type>` lookup. No sprite is renamed.
+
+**Tech Stack:** Godot 4.7 GDScript, GUT, the art tool (`tools/art/art_builder.gd`).
+
+**Spec:** `sprint-16d-design.md`
+
+## Global Constraints
+
+- Commands run with the venv active (`source venv/bin/activate`); never bare `python3`; scripted edits use `venv/bin/python`; Edit tool first; scratch files in the scratchpad directory, never `/tmp`. Full suite: `godot --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests -gexit`; one file: add `-gselect=<file>` (one file only). After adding a `class_name`, run `godot --headless --import`; after editing a `.sprite`, run `godot --headless -s tools/art/art_builder.gd` then `godot --headless --import`. **Never run two Godot processes at once**; run the full suite alone, in the background for `task-done`.
+- Everything but the art and the boss is the same on every map: no change to the spawn config, difficulty curve, enemy stats, rewards, the Ember Titan, the Tempest Dragon (their charges have `repeats` 0 and behave exactly as before; their existing tests stay green), the ruins or the forest. **No existing sprite is renamed, edited or deleted** (the plain `enemy_<type>` sprites stay the default and the fallback). No new sound; the boss stinger, boss music and blast sounds are reused. No autoload.
+- Art rules: one pixel size (never scaled or rotated), bright, simple, cartoon; sizes and animations exactly those of the plain sprite each stands beside (zombie `enemy_maze_standard` 14 by 14 `move` 0-1 6 fps loop, `death` 2-3 12 fps once; snakes `enemy_maze_swarmer` 10 by 10 the same two; ghost `enemy_maze_chaser` 12 by 12 the same two; troll `enemy_maze_tank` 24 by 24 the same two; skeletons `enemy_maze_ranged` 14 by 14 plus `attack` 4-5 12 fps once; warforge `enemy_maze_exploder` 14 by 14 plus `fuse` 4-5 10 fps loop; beholder `enemy_maze_support` 14 by 14 plus `pulse` 4-5 12 fps once; Dire Minotaur `boss_dire_minotaur` 40 by 32 `idle` 0-1 4 fps loop, `telegraph` 2-3 8 fps loop, `attack` 4-5 10 fps once, `vulnerable` 6-7 6 fps loop); the seven enemies are ramp sprites (slots `1` to `5` plus fixed letters from `art/palette.txt`) in the five element colourways; the Minotaur is fixed colours from the existing palette, one `base` variant; a 1 px transparent margin on every frame; no skin colours; the palette limit is 64 (55 used), add none unless truly needed.
+- Method (as 16b and 16c): compose each sprite with a scratchpad Python generator (simple shapes plus an automatic 1 px outline), write the `.sprite` source, build, **look at contact sheets in the five colourways, comparing the frames of every animation (not only the first: the 16c mimic shipped identical move frames) and redraw anything that reads badly or does not move** before committing. The committed `.sprite` grids are the source.
+- Tests never touch the real save or settings and never really change scene; every test that builds a run scene sets `save_path = ""` and the pick screen's `pause_tree = false` before `add_child`.
+- Rulings to ledger where they matter: the Minotaur's numbers are starting values (the user tunes by play); the balance, order and performance reports are reported, never asserted; the 16c plan's "rename in 16d" is dropped by the design (ledger it).
+
+## Review Focus
+
+- **Chain:** each chained dash is warned (`chain_warning`) and re-aimed at the player's new position; contact damage only during a dash; a wall ends the whole chain at once and opens the boss; the window follows the last dash only; `attack_started` fires once per attack; a boss killed mid-chain clears its marks and stops; a pause freezes it; `repeats` 0 is exactly the old charge (the Titan and Dragon).
+- **Always avoidable:** every chained charge's `(chain_warning - 0.25) * 90 >= 18 + 6` (the boss's 36 px hit width and the player's 12 px box), for every phase of the Minotaur.
+- **Rosters:** the maze sends the Minotaur, the forest the Dragon, the ruins the Titan; an empty roster still falls back to the config's; the three map cards' boss lines fit.
+- **Art:** no stale output, no pixel outside the palette, no frame touching its margin, every animation's frames differ (at least 8 pixels), headers equal the plain sprites', every colourway loads; the maze uses its seven sprites; the ruins, forest and the empty or unknown set are unchanged; no coloured square anywhere; none of the seven reads as another map's enemy.
+- **Maze boss movement:** the Minotaur crosses the maze to the player through the flow field in bounded time and does not stay stuck in a corridor or dead end.
+
+---
+
+### Task 1: Chained charges
+
+**Files:**
+- Modify: `resources/bosses/boss_attack.gd`, `scripts/enemies/boss.gd`, `tests/test_boss.gd`, `tests/test_boss_data.gd`
+
+**Interfaces:**
+- Produces: `BossAttack.repeats: int` (`@export`, default 0, "CHARGE: extra dashes after the first"), `BossAttack.chain_warning: float` (`@export`, default 0.6, "CHARGE: seconds of warning before each chained dash"), `BossAttack.dash_count() -> int` (`1 + maxi(repeats, 0)`). `Boss` keeps `_dashes_left`; the first dash starts as today; when a dash ends by its time (not by an obstacle) and `_dashes_left > 0` it re-aims (`_dash_direction` from the boss to the player's position now, falling back to the old direction when the player is on the boss), returns to `State.TELEGRAPH` for `chain_warning` seconds with the charge marks shown, then dashes again; when a dash ends against an obstacle the chain ends at once through `_finish_attack()` (recovery and vulnerability follow); after the last dash `_finish_attack()` as today. `_hitbox.damage` is the attack's damage during every dash and the contact damage otherwise. `attack_started` is emitted once per attack. `_on_died` clears the marks.
+
+- [ ] **Step 1: Write the failing tests.** `test_boss_data`: `test_a_charge_has_no_repeats_by_default` (`repeats` 0, `chain_warning` 0.6, `dash_count()` 1), `test_dash_count_is_one_plus_the_repeats_and_never_below_one` (repeats 2 gives 3, repeats -4 gives 1), and `test_the_titan_and_the_dragon_never_chain` (every charge in `ember_titan.tres` and `tempest_dragon.tres` has `repeats` 0). `test_boss` (using its `_boss`, `_data`, `_attack`, `_step` and `_player` helpers; add `K.CHARGE` chain parameters through a small helper): `test_a_chained_charge_dashes_repeats_plus_one_times` (count dashes by watching `state` enter ACT, with `repeats` 2: three), `test_each_chained_dash_is_warned_and_shows_the_dash_marks` (after a dash ends the state is TELEGRAPH for `chain_warning`, `charge_marks()` is not empty, and the boss does not move during it), `test_each_chained_dash_re_aims_at_the_players_new_position` (move the player between dashes: the second dash's direction points at the new spot, not the old one), `test_contact_damage_applies_only_during_a_dash_in_a_chain` (the hitbox damage is the attack's damage in ACT and the contact damage in TELEGRAPH and RECOVER), `test_the_vulnerability_window_starts_after_the_last_dash_only` (`vulnerable` false between dashes, true after the last, for `recover_time`), `test_a_wall_ends_the_chain_at_once_and_opens_the_boss` (put the boss against the arena edge or a test `ObstacleMap`/stand-in as the existing `test_a_charge_...obstacle` tests do: after the first dash hits the wall there is no further warning, the state is RECOVER and `vulnerable` is true), `test_attack_started_is_emitted_once_per_chained_attack`, `test_a_boss_killed_mid_chain_clears_its_marks_and_stops` (hit it to death during a chain warning: `charge_marks()` is empty and no further state change), `test_a_charge_with_no_repeats_is_exactly_the_old_charge` (the same step sequence as the existing charge test gives the same states and positions), `test_a_chain_freezes_while_paused` (the boss steps only through `_physics_process`, so no step means no change: assert the state and position are unchanged after the tree is paused and `_physics_process` is not called, as the existing pause tests do). Run. Expected: FAIL.
+- [ ] **Step 2: Implement** the `BossAttack` fields and helper and the `Boss` chain (reuse `_begin_attack`'s charge setup for the re-aim; keep `_dash` as it is except for deciding between "next dash" and "finish"). Run `godot --headless --import`, `test_boss_data`, `test_boss`, `test_boss_art`, `test_tempest_dragon_fight`, `test_tempest_dragon_data` (the existing charge, Titan and Dragon tests must pass unchanged), then the whole suite. Expected: PASS.
+- [ ] **Step 3: Commit** `feat: charges can chain (a stampede of re-aimed dashes)`.
+
+---
+
+### Task 2: The Dire Minotaur's data and the maze's roster
+
+**Files:**
+- Create: `resources/bosses/dire_minotaur.tres`, `tests/test_dire_minotaur_data.gd`
+- Modify: `resources/maps/maze_map.tres`, `tests/test_map_catalog.gd`, `tests/test_maze_map_layout.gd`
+
+**Interfaces:**
+- Consumes: Task 1 (`repeats`, `chain_warning`, `dash_count()`), 16b (`MapData.bosses`, `Kind.LIGHTNING` not used here).
+- Produces: `dire_minotaur.tres` (`BossData`): `id = &"dire_minotaur"`, `display_name = "Dire Minotaur"`, `element = 2` (Land), `max_health = 1500.0`, `contact_damage = 20.0`, `speed = 32.0`, `body_scale = 3.0`, an earth-brown `color` for the no-art fallback, the Titan's `reward_xp = 300`, `reward_gold = 150`, `reward_scroll_count = 2` and the same `reward_drop_table` (`boss_scrolls.tres`). Three phases (starting values; every `telegraph_time` at least 0.6): phase 1 (`health_threshold` 1.0, `attack_interval` 2.6, `speed_multiplier` 1.0): slam (telegraph 1.0, radius 48, damage 30), charge (telegraph 0.8, damage 25, dash_speed 280, dash_time 0.6, recover_time 1.8, vulnerability 0.5, `repeats` 1, `chain_warning` 0.6), summon (4 Swarmers, telegraph 0.8). Phase 2 (0.6, 1.8, 1.2): slam as phase 1, charge as phase 1 with `repeats` 2, burst (count 10, damage 12, speed 120, range 260, telegraph 0.6), summon as phase 1. Phase 3 (0.25, 1.2, 1.4): charge (dash_speed 320, otherwise phase 1's) with `repeats` 2 and `chain_warning` 0.6, slam as phase 1, burst (count 12). `maze_map.tres` gets `bosses = [dire_minotaur]`.
+
+- [ ] **Step 1: Write the failing tests** (`test_dire_minotaur_data`): `test_the_minotaur_matches_the_spec` (the identity and numbers above), `test_it_has_the_titans_health_rewards_and_table`, `test_it_is_land`, `test_three_phases_fall_in_threshold_order_and_speed_up` (thresholds 1.0, 0.6, 0.25; intervals strictly falling; speed multipliers rising), `test_every_phase_has_attacks_and_every_attack_has_a_warning` (at least 0.6 s, and every chained dash's `chain_warning` at least 0.6), `test_every_phase_has_a_chained_charge_and_the_chains_do_not_shrink` (`repeats` 1, 2, 2), **`test_every_chained_charge_can_be_sidestepped_at_the_players_base_speed`** (the player's speed read from `res://scenes/player/player.tscn`'s `MoveComponent` (90), the boss's hit half-width from `boss.tscn`'s contact shape (12 px) times `body_scale` (3) over two plus the player's 6 px half-width: `(chain_warning - 0.25) * speed >= that sum` for every charge with `repeats` above 0 in every phase), `test_the_summon_uses_swarmers`, `test_a_hit_that_skips_a_phase_lands_in_the_last_one`. `test_map_catalog`: update the boss-name test to `test_each_map_names_its_own_boss` (forest "Tempest Dragon", ruins "Ember Titan", maze "Dire Minotaur"). `test_maze_map_layout`: `test_the_maze_lists_the_minotaur_as_its_boss` (and the ruins still list none). Run. Expected: FAIL.
+- [ ] **Step 2: Create the `.tres`** (hand-written like `tempest_dragon.tres`) and add `bosses` to `maze_map.tres` (a new ext_resource for the script and the boss and the array line, and `load_steps` raised by the two). Run `godot --headless --import`, the three files, `test_map_select_screen` (the card still fits "Boss: Dire Minotaur") and the whole suite. Expected: PASS.
+- [ ] **Step 3: Commit** `feat: the Dire Minotaur and the maze's boss roster`.
+
+---
+
+### Task 3: The seven maze enemy sprites
+
+**Files:**
+- Create: `art/sprites/enemy_maze_standard.sprite`, `enemy_maze_swarmer.sprite`, `enemy_maze_chaser.sprite`, `enemy_maze_tank.sprite`, `enemy_maze_ranged.sprite`, `enemy_maze_exploder.sprite`, `enemy_maze_support.sprite`, their built outputs in `assets/sprites/` (committed), `tests/test_maze_art.gd`
+- Modify: `tests/test_art_set_is_only_a_look.gd` (add `&"maze"` where the sets are listed if it is not already there)
+- Reference: `art/sprites/enemy_*.sprite` (the plain sprites), `art/sprites/enemy_forest_*.sprite`, `enemy_ruins_*.sprite`, `art/palette.txt`
+
+**Interfaces:**
+- Consumes: the 16a lookup.
+- Produces: `enemy_maze_standard` (a zombie: a shambling dungeon corpse with outstretched arms and tattered clothes), `enemy_maze_swarmer` (snakes: a small coiled snake with a tongue), `enemy_maze_chaser` (a ghost: a wailing sheet-like spirit with a wavy hem, clearly not the cultist), `enemy_maze_tank` (a troll: a hulking club-carrying brute), `enemy_maze_ranged` (skeletons: a skeleton archer with a bow; `attack` draws and looses), `enemy_maze_exploder` (a warforge: a small furnace-chested robot whose core flashes in `fuse`), `enemy_maze_support` (a beholder: a floating eyeball with eyestalks, `pulse` flashes the eyes), each with the sizes and animations in Global Constraints, five colourways.
+
+- [ ] **Step 1: Write the failing tests** (`test_maze_art`, in the style of `test_ruins_art`): `test_the_maze_resolves_its_seven_sprites_in_every_colourway` (every type and each of `none fire thunder land sea`, at the plain sprite's size, with a silhouette), `test_each_maze_sprite_has_the_animations_of_the_sprite_beside_it` (names, frame counts, fps, loop flags equal to `enemy_<type>`'s), `test_an_enemy_in_the_maze_set_uses_its_maze_sprite_for_all_seven` (`look_sprite()` is `enemy_maze_<type>` and `has_art()` true), `test_the_ruins_forest_and_empty_sets_are_unchanged` (ruins: the three 16c sprites and plain for the rest; forest: its four and plain for the rest; empty and unknown: plain for all seven), `test_every_maze_archetype_and_element_is_drawn_with_art`, `test_an_elite_maze_enemy_gets_an_outline_from_the_silhouette`, **`test_every_animation_of_the_maze_sprites_visibly_changes_between_its_frames`** (at least 8 differing pixels between the two frames of every `move`, `death`, `attack`, `fuse` and `pulse` animation, in the `none` and `fire` colourways). Run. Expected: FAIL.
+- [ ] **Step 2: Compose and write the seven `.sprite` sources** with a scratchpad generator and build (`godot --headless -s tools/art/art_builder.gd`, `godot --headless --import`).
+- [ ] **Step 3: Look at them.** With a throwaway scratchpad script load the built sheets and save contact sheets (5x nearest on a dungeon-stone background) for the five colourways; **compare the two frames of every animation**, and the zombie against the goblin and bandit, the ghost against the cultist, the skeleton against the kobold and elemental, the beholder against the elemental; redraw what reads badly or does not move, rebuild and look again. Record in the ledger what the images showed.
+- [ ] **Step 4: Run** `test_maze_art`, `test_ruins_art`, `test_forest_art`, `test_enemy_art_sets`, `test_enemy_art`, `test_art_assets`, `test_art_set_is_only_a_look` and then the whole suite. Expected: PASS.
+- [ ] **Step 5: Commit** `feat: maze enemy sprites (zombie, snakes, ghost, troll, skeletons, warforge, beholder)`.
+
+---
+
+### Task 4: The Dire Minotaur's art and the animation audit
+
+**Files:**
+- Create: `art/sprites/boss_dire_minotaur.sprite`, its built outputs (committed)
+- Modify: `tests/test_boss_art.gd`, `tests/test_art_set_is_only_a_look.gd` only if needed
+- Create: `tests/test_animation_frames.gd`
+
+**Interfaces:**
+- Produces: `boss_dire_minotaur` (40 by 32, fixed colours from the existing palette, one `base` variant) with `idle`, `telegraph`, `attack`, `vulnerable` as in Global Constraints: a hulking bull-headed brute with wide cream horns, an earth-brown hide and a stone-grey belt, wide shoulders; `telegraph` pawing and snorting steam with the head lowered, `attack` a lunge with a white speed flash, `vulnerable` dazed with stars. `tests/test_animation_frames.gd`: an audit over every committed sprite sheet that has a two-frame animation: for each of the ruins, forest and maze enemy sprites, the three bosses and the plain enemy sprites, every `move`, `death`, `attack`, `fuse`, `pulse`, `idle`, `telegraph` and `vulnerable` animation's two frames differ by at least 4 pixels (a lower bound than the 8 required for new sprites, so an old sprite with a subtle but real animation is not flagged; identical frames are always a bug).
+
+- [ ] **Step 1: Write the failing tests.** `test_boss_art`: `test_the_minotaur_has_art_and_idles`, `test_the_minotaurs_animations_exist_with_the_planned_frames` (40 by 32; the four names, 2 frames each, 4, 8, 10 and 6 fps, loop flags true, true, false, true), `test_the_minotaur_is_one_to_one_at_boss_scale_three`, `test_a_charge_warning_plays_telegraph_and_the_dash_attack` (a Minotaur whose attack list is only a chained charge: TELEGRAPH shows `telegraph`, ACT shows `attack`, the pause between chained dashes shows `telegraph` again, and the window shows `vulnerable`). `test_animation_frames`: `test_no_two_frame_animation_has_identical_frames` over every sprite found (list the failures by sprite and animation). Run. Expected: the Minotaur tests FAIL (no sprite yet); **the audit may also fail on an older sprite, which is a real finding (see Step 4).**
+- [ ] **Step 2: Compose and write `boss_dire_minotaur.sprite`**, build, import, run `test_boss_art` and `test_art_assets`.
+- [ ] **Step 3: Look at it** (all eight frames at 4x on the maze floor colour, and in a window next to the Ember Titan and Tempest Dragon for size and silhouette, comparing the two frames of every animation); redraw what reads badly and rebuild; record in the ledger.
+- [ ] **Step 4: The audit.** Run `test_animation_frames`. For each sprite it flags, look at the sheet: if the animation really is static (identical or nearly identical frames) redraw it in the same method (a new commit per sprite family, with the stale-output test green), and ledger each; if the audit's threshold flags a deliberate subtle animation, ledger a ruling and lower that case only with a comment. Expected after fixes: PASS.
+- [ ] **Step 5: Run the whole suite.** Expected: PASS.
+- [ ] **Step 6: Commit** `feat: Dire Minotaur art and the animation audit` (and any sprite fixes as their own commits).
+
+---
+
+### Task 5: The maze fight, the checks and the docs
+
+**Files:**
+- Modify: `CLAUDE.md`, `development-log.md`, `sprint-development.md`, `sprint-16d-design.md` (status line), `docs/release-planning/future-roadmap.md` only if something new is found
+- Create: `tests/test_dire_minotaur_fight.gd`
+- Create (scratchpad only): the bot and screenshot scripts
+
+**Interfaces:**
+- Consumes: everything above.
+
+- [ ] **Step 1: Fight and maze tests.** `tests/test_dire_minotaur_fight.gd` (a `Main` on `main_maze.tscn`, `save_path = ""`, hand-stepped physics as `test_tempest_dragon_fight` does): `test_the_director_spawns_the_minotaur_on_the_maze` (`RunDirector.tick(300)` gives `dire_minotaur`, and the forest and ruins still give the Dragon and the Titan), `test_the_minotaur_fight_uses_every_attack_and_dies_once` (spawn it through the spawner; step it through the three phases by damage; `attack_started` fired for slam, charge, burst and summon; at least one chain of three dashes happened (count ACT entries within one attack); the blast zone group never exceeded 40; it died once), `test_the_minotaurs_rewards_drop_once_where_it_died`, **`test_the_minotaur_crosses_the_maze_to_the_player`** (spawn it at the far corner of the maze with the player at the start, step `_physics_process(0.05)` for up to 5 simulated minutes with its attacks disabled (an empty attack list in a duplicated `BossData`): it must come within 80 px of the player and must not sit within 6 px of one spot for more than 20 simulated seconds while farther than 80 px away; state the bound you measure and ledger it). Run. Expected: PASS (these pin behaviour; a failure is a real finding to fix with a failing test first, most likely a stuck boss in a dead end).
+- [ ] **Step 2: Real-window check.** Throwaway scratchpad scripts (windowed, a scratch `HOME`): a maze crowd with the new enemies, the Minotaur's four poses beside the Titan and Dragon, a stampede warning with its dash-line marks in a corridor (and the crash into a wall), and the map select's three boss lines; read each image, fix what looks wrong (a real bug with a test first). If the maze looks bare, say so in the final message (do not add art).
+- [ ] **Step 3: Balance report (not asserted).** The 16b boss-fight bot over the maze scene (the Minotaur), the forest (the Dragon) and the ruins (the Titan), three seeds each, 120 simulated seconds: time to defeat or survival, damage taken, how often the Minotaur's chain ended against a wall (add a counter in the scratch script via `attack_started` and `state` changes). Report the table in the ledger and the dev log; change no number.
+- [ ] **Step 4: Performance.** `godot --path . res://scenes/world/stress_test.tscn -- --enemies=300 --seconds=8 --obstacles --drops --boss --map=maze` against `--map=first_map`, three interleaved runs each; ledger the medians and the Low Power Mode caveat. (The stress scene already takes the map's own boss.)
+- [ ] **Step 5: Docs.** `CLAUDE.md`: a new "The maze's art and the Dire Minotaur (Sprint 16d)" section (chained charges and their rules and the always-avoidable pin, the Minotaur's numbers and phases, the seven sprites, the Minotaur's art, that no sprite was renamed and why: the plain sprites are the empty-set default and the fallback; the animation audit and what it found; the checks) and correct the 16c section's "16d renames every sprite" line; update the Project State line (Sprint 16 complete); `development-log.md` entry with the measurements; `sprint-development.md` marks 16d done and the Sprint 16 completion criteria met; the design doc's status becomes "Implemented" with any deviations named; `docs/release-planning/future-roadmap.md` notes what is next (achievements, livelier home screen, the web sound fix).
+- [ ] **Step 6: Full suite and smoke run.** `godot --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests -gexit` and `godot --headless --quit-after 60`. Expected: all green; the only warning is the known home-scene exit leak.
+- [ ] **Step 7: Commit** `feat: Dire Minotaur fight checks and Sprint 16d docs`.
