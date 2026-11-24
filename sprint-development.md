@@ -928,7 +928,7 @@ A complete, playable release candidate.
 ### Decisions
 Confirmed by the user: the enemy columns above; **everything but the sprites is the same on every map, and the difficulty order (forest easiest, ruins medium, maze hardest) comes only from the layout**; **all three maps open from the start** (unlocking by boss belongs to the achievements sprint, 17); **every map is 1920 by 1080, the same as the ruins** (the user: no need to expand; the forest is bounded with no walls and its points of interest spread as far apart as that allows); **bests are kept per map** (the user: some maps are easier than others, so a longest survival or most enemies only means something against the same map).
 
-Still to settle (the user's call, at 16a's brainstorming): the forest is "about finding a dragon" and the maze is a minotaur's maze, so should those bosses be **found** (waiting in a lair on the map that the player travels to, perhaps with a hint on the way) instead of arriving every 300 seconds like the Ember Titan does? That changes how a run is paced on those maps and is the main design question of 16a.
+**Nothing is left open for the maps' design.** Confirmed by the user: **the bosses arrive on the same 300-second timer on every map, with no lair mechanic** (the forest is "about finding a dragon" and the maze is a minotaur's dungeon as themes, not as a hunt), and **the death card drops the "Level reached" row** (the level is permanent, so at level 20 it would always say 20), which also removes the saved best level.
 
 ---
 
@@ -937,7 +937,7 @@ Still to settle (the user's call, at 16a's brainstorming): the forest is "about 
 **Goal:** Play chooses a map; a map says which enemy art set and boss roster it uses; the forest and the maze exist and are playable, with today's art and the Ember Titan until their art sprints.
 
 ### Tasks
-- [ ] **Bests per map.** The saved `bests` becomes one entry per map id (`{"ruins": {"seconds": N, "enemies": N, ...}, "forest": {...}}`); an old save's flat `bests` (made on the ruins, the only map then) loads as the ruins' bests, so nothing is lost; `RunRecords` and `RunRecap` take the map id, the death card shows and compares the current map's bests, New game erases all of them. (The death card's "Level reached" row and the saved best level always equal the player's permanent level; the user's feedback is open: replace with "Levels gained" or remove, decided when this task is built.)
+- [ ] **Bests per map.** The saved `bests` becomes one entry per map id (`{"ruins": {"seconds": N, "enemies": N}, "forest": {...}}`); an old save's flat `bests` (made on the ruins, the only map then) loads as the ruins' bests, so nothing is lost; `RunRecords` and `RunRecap` take the map id, the death card shows and compares the current map's bests, New game erases all of them. The death card's **"Level reached" row is removed** (user decision) and with it the saved best level (an old save's `level` value is ignored), leaving eight rows and two bests (longest survival and most enemies).
 - [ ] `MapData` names its enemy art set, a short description and its boss roster (the map's `spawn_config.bosses`), plus a `MapCatalog` resource listing the maps in order (forest, ruins, maze). The ruins keep the first map's data and id.
 - [ ] A per-map enemy art lookup (`enemy_<set>_<type>`, falling back to `enemy_<type>`); the existing sprites are renamed into their sets (goblin, wolf, kobold into `forest`; slime, armour, imp, cultist into `ruins`) so the ruins and forest still show today's art where the new sprites do not exist yet. The boss's sprite comes from its `BossData`. No enemy stats change.
 - [ ] A map select screen between the home screen's Play and the run (cards with the map's name, a theme line and its boss), by touch, mouse, keyboard and controller; the chosen map is passed to the run without an autoload.
@@ -963,7 +963,7 @@ Three maps selectable from Play, all playable.
 
 ### Tasks
 - [ ] New forest enemy sprites: rats, ent, creepers and shaman (the goblin, wolves and kobolds already exist), with the same animations as the current set and element colourways, through the art pipeline and its stale-output tests.
-- [ ] The **Tempest Dragon**: boss art (idle, telegraph, attack, vulnerable), a Thunder `BossData` with phases and attacks (built from the existing slam, charge, burst and summon kinds, tuned to feel different from the Ember Titan), its rewards, and its place in the forest's roster; how it is found follows the 16a decision.
+- [ ] The **Tempest Dragon**: boss art (idle, telegraph, attack, vulnerable), a Thunder `BossData` with phases and attacks (built from the existing slam, charge, burst and summon kinds, tuned to feel different from the Ember Titan), its rewards, and its place in the forest's roster; it arrives on the 300-second timer like the Ember Titan.
 - [ ] Forest world art as needed (floor patches, decorations, groves), bright and cartoon with one pixel size.
 - [ ] Sound: reuse the boss stinger and boss music unless the user wants new ones.
 - [ ] Tests for the set lookup, the boss data and its fight (like the Ember Titan's); real-window screenshots; a balance check against the ruins' difficulty.
@@ -992,7 +992,7 @@ The ruins with their themed enemy set.
 
 ### Tasks
 - [ ] Seven maze enemy sprites (zombie, snakes, ghost, troll, skeletons, warforge, beholder), done as in 16b.
-- [ ] The **Dire Minotaur**: boss art, a Land `BossData` (phases and attacks tuned for corridors, where a charge matters), rewards and its place in the maze's roster; how it is found follows the 16a decision.
+- [ ] The **Dire Minotaur**: boss art, a Land `BossData` (phases and attacks tuned for corridors, where a charge matters), rewards and its place in the maze's roster; it arrives on the 300-second timer like the Ember Titan.
 - [ ] Maze world art as needed (a darker dungeon variant of the stone floor and walls, if wanted).
 - [ ] Tests, screenshots, and a balance check for the maze's tight corridors (crowd behaviour, boss movement through the flow field).
 
