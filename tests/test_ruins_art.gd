@@ -107,3 +107,27 @@ func test_an_elite_ruins_enemy_gets_an_outline_from_the_silhouette() -> void:
 		var outline := (enemy.get_node("Body") as BodyView).get_node("Outline") as AnimatedSprite2D
 		assert_true(outline.visible, "%s: the silhouette outline shows" % type)
 		assert_null(enemy.get_node_or_null("EliteOutline"), "%s: the square outline is only for enemies without art" % type)
+
+
+## How many pixels differ between two frames of a sheet (frames sit side by side, left to right).
+func _frame_difference(set_data: SpriteSetData, a: int, b: int) -> int:
+	var sheet := set_data.sheet.get_image()
+	var size := set_data.frame_size
+	var differing := 0
+	for y in size.y:
+		for x in size.x:
+			if sheet.get_pixel(a * size.x + x, y) != sheet.get_pixel(b * size.x + x, y):
+				differing += 1
+	return differing
+
+
+func test_every_animation_of_the_new_sprites_visibly_changes_between_its_frames() -> void:
+	var animated := {&"move": [0, 1], &"death": [2, 3], &"attack": [4, 5]}
+	for type in NEW_TYPES:
+		for element in [&"none", &"fire"]:
+			var set_data := SpriteLibrary.find(StringName("enemy_ruins_%s" % type), element)
+			for animation in animated:
+				if not set_data.frames().has_animation(animation):
+					continue
+				var pair: Array = animated[animation]
+				assert_gte(_frame_difference(set_data, pair[0], pair[1]), 8, "%s %s: the two frames differ by at least 8 pixels" % [type, animation])
