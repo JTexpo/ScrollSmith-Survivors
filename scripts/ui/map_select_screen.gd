@@ -19,6 +19,8 @@ var input_guard_msec: int = 300
 
 var _open: bool = false
 var _opened_msec: int = 0
+## The card Play starts: the last one that had focus (Play itself takes focus when it is clicked or reached by key, so focus alone cannot say).
+var _selected: int = 0
 var _entries: Array[MapEntry] = []
 var _cards: Array[Button] = []
 var _card_texts: Array[String] = []
@@ -42,7 +44,7 @@ func _ready() -> void:
 	_back = _add_button("Back", Vector2(8, BUTTONS_Y), &"ButtonRed")
 	_back.pressed.connect(close)
 	_play = _add_button("Play", Vector2(96, BUTTONS_Y), &"ButtonGreen")
-	_play.pressed.connect(func() -> void: choose(focused_index() if focused_index() >= 0 else 0))
+	_play.pressed.connect(func() -> void: choose(_selected))
 	_back.focus_neighbor_right = _back.get_path_to(_play)
 	_play.focus_neighbor_left = _play.get_path_to(_back)
 
@@ -103,6 +105,7 @@ func open(profile: PlayerProfile, catalog: MapCatalog, last_map: StringName) -> 
 	_wire_focus()
 	_open = true
 	_opened_msec = Time.get_ticks_msec()
+	_selected = focus_index
 	visible = true
 	if count > 0:
 		_cards[focus_index].grab_focus()
@@ -174,6 +177,7 @@ func _add_card(index: int, entry: MapEntry, profile: PlayerProfile, at: Vector2)
 	card.size = CARD_SIZE
 	card.custom_minimum_size = CARD_SIZE
 	card.pressed.connect(choose.bind(index))
+	card.focus_entered.connect(func() -> void: _selected = index)
 	_content.add_child(card)
 	var preview := MapPreview.new()
 	preview.position = Vector2(8, 8)

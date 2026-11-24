@@ -205,3 +205,22 @@ func test_every_label_and_the_whole_text_stay_inside_their_card() -> void:
 			var text_size := UiFont.plain().get_multiline_string_size(lab.text, HORIZONTAL_ALIGNMENT_LEFT, lab.size.x if lab.autowrap_mode != TextServer.AUTOWRAP_OFF else -1.0, UiFont.SIZE)
 			assert_lte(text_size.x, lab.size.x + 0.5, "%s: the text is no wider than its box" % lab.text)
 			assert_lte(text_size.y, lab.size.y + 0.5, "%s: the text is no taller than its box" % lab.text)
+
+
+func test_play_starts_the_selected_card_even_after_play_took_focus() -> void:
+	_open(PlayerProfile.new(), &"maze")
+	await wait_process_frames(2)
+	_button("Play").grab_focus()
+	watch_signals(_screen)
+	_button("Play").pressed.emit()
+	assert_eq(get_signal_parameters(_screen, "map_chosen")[0], _catalog.entries[2], "a mouse click, key or controller press on Play starts the map that was selected, not the first")
+
+
+func test_play_follows_the_card_that_was_focused_last() -> void:
+	_open(PlayerProfile.new(), &"forest")
+	await wait_process_frames(2)
+	_card(1).grab_focus()
+	_button("Play").grab_focus()
+	watch_signals(_screen)
+	_button("Play").pressed.emit()
+	assert_eq(get_signal_parameters(_screen, "map_chosen")[0], _catalog.entries[1])
