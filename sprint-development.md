@@ -897,14 +897,14 @@ A complete, playable release candidate.
 
 **Status:** planned (the user's request of 2026-11-24, updated the same day with the user's confirmed enemy columns and map themes). Split into four sprints so none is lost: **16a** the map select, the per-map art sets and the new layouts, **16b** the forest's art and the Tempest Dragon, **16c** the ruins' art refresh, **16d** the maze's art and the Dire Minotaur. Each leaves a playable build. Sprint 15c (release) is parked until the wishlist is done (see `docs/release-planning/`).
 
-**Goal:** Three themed maps to play, each with its own look for the same enemies and its own boss.
+**Goal:** Three themed maps to play, each with its own look for the same enemies, its own boss and its own difficulty (forest easy, ruins medium, maze hard).
 
 ### The maps (the user's themes, in this order)
 1. **The forest**: an open forest (no walls, Vampire Survivors style, with points of interest) **about finding a dragon**; its boss is the **Tempest Dragon** (Thunder).
 2. **The ruins**: the ruins of a city, which is **the map we have now** (its id and layout stay); its boss is the **Ember Titan** (Fire).
 3. **The maze**: a **minotaur's maze or dungeon**, one complete maze (the user liked the mazes in the first map), with points of interest; its boss is the **Dire Minotaur** (Land).
 
-**Enemies are the same on every map** (the same seven types, elements and difficulty); only the sprites differ per map.
+**The same seven enemy types and elements appear on every map; only the sprites differ per map. Difficulty differs by map (the user: the forest is the easiest, the ruins medium, the maze the hardest).** The ruins keep today's numbers exactly; the forest and the maze get their own difficulty through their own spawn config, which is already data (`MapData.spawn_config`, `SpawnConfig.difficulty`: a `DifficultyCurve` of enemy health, damage and speed per minute, the spawn interval and the maximum alive, plus the elite modifier and the boss interval), so no code branches on a map.
 
 ### The enemy columns (confirmed by the user: each column is one map)
 | Type | Forest | Ruins | Maze |
@@ -926,9 +926,9 @@ A complete, playable release candidate.
 - **Naming:** enemy art is looked up as `enemy_<set>_<type>` (`forest`, `ruins`, `maze`) with a fallback to the current `enemy_<type>`. 16a renames the existing sprites into their sets, so no map ever shows a wrong or missing enemy.
 
 ### Decisions
-Confirmed by the user: the enemy columns above; **all three maps open from the start** (unlocking by boss belongs to the achievements sprint, 17); **every map is 1920 by 1080, the same as the ruins** (the user: no need to expand; the forest is bounded with no walls and its points of interest spread as far apart as that allows); **one shared set of bests** across maps.
+Confirmed by the user: the enemy columns above; **the map difficulty order (forest easiest, ruins medium, maze hardest)**; **all three maps open from the start** (unlocking by boss belongs to the achievements sprint, 17); **every map is 1920 by 1080, the same as the ruins** (the user: no need to expand; the forest is bounded with no walls and its points of interest spread as far apart as that allows); **one shared set of bests** across maps.
 
-Still to settle (the user's call, at 16a's brainstorming): the forest is "about finding a dragon" and the maze is a minotaur's maze, so should those bosses be **found** (waiting in a lair on the map that the player travels to, perhaps with a hint on the way) instead of arriving every 300 seconds like the Ember Titan does? That changes how a run is paced on those maps and is the main design question of 16a.
+Still to settle (the user's call, at 16a's brainstorming): (1) **should a harder map pay more XP and Gold** (a per-map reward multiplier, proposed: forest 0.8, ruins 1.0, maze 1.25)? (2) **are the bests still shared across maps**, or kept per map? With different difficulties a shared "longest survival" would mostly come from the forest, so per-map bests (a `bests` entry per map id in the save) may now be fairer; this reopens the earlier decision. (3) The lair question: the forest is "about finding a dragon" and the maze is a minotaur's maze, so should those bosses be **found** (waiting in a lair on the map that the player travels to, perhaps with a hint on the way) instead of arriving every 300 seconds like the Ember Titan does? That changes how a run is paced on those maps and is the main design question of 16a.
 
 ---
 
@@ -937,6 +937,7 @@ Still to settle (the user's call, at 16a's brainstorming): the forest is "about 
 **Goal:** Play chooses a map; a map says which enemy art set and boss roster it uses; the forest and the maze exist and are playable, with today's art and the Ember Titan until their art sprints.
 
 ### Tasks
+- [ ] Each map gets its own `SpawnConfig` and `DifficultyCurve` (the ruins unchanged; the forest gentler and the maze harsher, starting numbers proposed in the design and tuned by play), plus the reward multiplier if the user wants one.
 - [ ] `MapData` names its enemy art set, a short description and its boss roster (the map's `spawn_config.bosses`), plus a `MapCatalog` resource listing the maps in order (forest, ruins, maze). The ruins keep the first map's data and id.
 - [ ] A per-map enemy art lookup (`enemy_<set>_<type>`, falling back to `enemy_<type>`); the existing sprites are renamed into their sets (goblin, wolf, kobold into `forest`; slime, armour, imp, cultist into `ruins`) so the ruins and forest still show today's art where the new sprites do not exist yet. The boss's sprite comes from its `BossData`. No enemy stats change.
 - [ ] A map select screen between the home screen's Play and the run (cards with the map's name, a theme line and its boss), by touch, mouse, keyboard and controller; the chosen map is passed to the run without an autoload.
@@ -950,7 +951,7 @@ Three maps selectable from Play, all playable.
 
 ### Completion Criteria
 - Every map loads, is fully reachable and has no layout problems.
-- The ruins play exactly as before.
+- The ruins play exactly as before, and the forest is clearly easier and the maze clearly harder (checked with a simulated run of each).
 - Missing enemy art never breaks a map.
 - Performance on every map stays at or near the ruins'.
 
@@ -999,7 +1000,7 @@ The ruins with their themed enemy set.
 The maze with its own enemies and the Dire Minotaur.
 
 ### Completion Criteria (16a to 16d together)
-- Three themed maps, each with its own enemy look and its own boss, and the same enemy stats everywhere.
+- Three themed maps, each with its own enemy look, its own boss and its own difficulty, and the same enemy types and elements everywhere.
 - The ruins' layout and id are unchanged.
 - No map-specific code branches on a map id.
 
