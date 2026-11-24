@@ -33,3 +33,18 @@ func test_stress_scene_spawns_requested_enemies() -> void:
 		if child is Enemy:
 			count += 1
 	assert_eq(count, 20)
+
+
+func test_a_known_map_id_gives_that_map() -> void:
+	for id in [&"forest", &"first_map", &"maze"]:
+		var found := StressTest.map_for_id(String(id))
+		assert_eq(found["map"].id, id)
+		assert_eq(found["problem"], "")
+
+
+func test_an_unknown_map_id_is_reported_and_the_default_kept() -> void:
+	var found := StressTest.map_for_id("nowhere")
+	assert_eq(found["map"].id, &"first_map", "the ruins stay the default stress map")
+	assert_string_contains(found["problem"], "nowhere")
+	assert_string_contains(found["problem"], "forest, first_map, maze", "the valid ids are listed")
+	assert_eq(StressTest.map_for_id("")["problem"], "", "no --map is not a problem")
