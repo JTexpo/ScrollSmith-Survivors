@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/main/main.gd" id="0"]
+[ext_resource type="PackedScene" path="res://scenes/ui/perf_overlay.tscn" id="perf_overlay"]
 [ext_resource type="PackedScene" path="res://scenes/world/game_map.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2"]
 [ext_resource type="Script" path="res://scripts/systems/enemy_spawner.gd" id="3"]
@@ -205,3 +206,4 @@ script = ExtResource("fx_director")
 
 [node name="LowHealthWarning" parent="." instance=ExtResource("low_health")]
 
+[node name="PerfOverlay" parent="." instance=ExtResource("perf_overlay")]

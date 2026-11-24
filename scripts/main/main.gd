@@ -29,6 +29,7 @@ signal point_effect_applied(kind: int)
 @onready var _pick_screen: BuffPickScreen = $BuffPickScreen
 @onready var _xp_bar: XpBar = $Hud/XpBar
 @onready var _level_toast: LevelToast = $Hud/LevelToast
+@onready var _perf_overlay: PerfOverlay = $PerfOverlay
 @onready var _gold_counter: GoldCounter = $Hud/GoldCounter
 @onready var _shop_screen: ShopScreen = $ShopScreen
 @onready var _merchant_screen: MerchantScreen = $MerchantScreen
@@ -99,6 +100,8 @@ func _ready() -> void:
 	_begin_progression()
 	_board.bind(self)
 	_fx.bind(self)
+	_perf_overlay.bind(_spawner)
+	_perf_overlay.sync()
 	_board.mute_changed.connect(_mute_button.set_muted)
 	_mute_button.pressed.connect(_on_mute_button_pressed)
 	_player.died.connect(_mute_button.hide)
@@ -114,6 +117,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	# DEBUG: shows the map's bounds and placements. Delete when no longer needed.
 	elif event.is_action_pressed(&"debug_toggle_map"):
 		_map.toggle_debug()
+	# Tester tool: the performance overlay (F3, or a long press on the mute button).
+	elif event.is_action_pressed(&"debug_perf_overlay"):
+		toggle_perf_overlay()
 	# DEBUG: refills every spell's mana. Delete once potions exist.
 	elif event.is_action_pressed(&"debug_restore_mana"):
 		_player.loadout.restore_all_mana()
@@ -267,6 +273,12 @@ func _on_mute_changed(value: bool) -> void:
 func _on_mute_button_pressed() -> void:
 	_board.set_muted(not _board.muted)
 	_player.require_cast_release()
+
+
+## Flips the performance overlay's switch and shows or hides it.
+func toggle_perf_overlay() -> void:
+	FxSettings.set_switch("perf_overlay", not FxSettings.perf_overlay)
+	_perf_overlay.sync()
 
 
 func _on_boss_spawned(boss: Boss, _number: int) -> void:

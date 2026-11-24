@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/perf_overlay.gd" id="1"]
+
+[node name="PerfOverlay" type="CanvasLayer"]
+script = ExtResource("1")
