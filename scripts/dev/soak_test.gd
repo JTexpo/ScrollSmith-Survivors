@@ -2,7 +2,9 @@ extends SceneTree
 ## Developer tool: plays the game for many rounds and prints the engine's node, object, orphan and memory counts after each, then a
 ## verdict on whether the run stayed flat. Run with a fixed frame rate so the simulated time is steady:
 ##   godot --headless --fixed-fps 60 -s scripts/dev/soak_test.gd -- --rounds=12 --frames=600
-## Options: --rounds=N (default 12), --frames=N per round (default 600), --warmup=N (default 3), --band=F (default 0.1).
+## Options: --rounds=N (default 12), --frames=N per round (default 600), --warmup=N (default 3), --band=F (default 0.1), --restart-every=N rounds
+## (default 1: a fresh Main every round, so only a leak that outlives Main shows; a larger N also catches a leak inside one run but then
+## pickups pile toward their caps, so the counts saw-tooth and --band needs to be wide).
 
 
 func _init() -> void:
@@ -10,6 +12,7 @@ func _init() -> void:
 	var frames := 600
 	var warmup := 3
 	var band := SoakRun.DEFAULT_BAND
+	var restart_every := 1
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--rounds="):
 			rounds = int(argument.get_slice("=", 1))
@@ -19,9 +22,12 @@ func _init() -> void:
 			warmup = int(argument.get_slice("=", 1))
 		elif argument.begins_with("--band="):
 			band = float(argument.get_slice("=", 1))
+		elif argument.begins_with("--restart-every="):
+			restart_every = maxi(int(argument.get_slice("=", 1)), 1)
 	# The tree is not running inside _init yet, so wait one frame before adding nodes that use it.
 	await process_frame
 	var driver := SoakDriver.new()
+	driver.restart_every = restart_every
 	root.add_child(driver)
 	var samples := await driver.run(rounds, frames)
 	for sample in samples:

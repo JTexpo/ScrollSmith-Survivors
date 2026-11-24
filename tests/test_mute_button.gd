@@ -146,3 +146,30 @@ func test_it_only_processes_while_a_press_is_held() -> void:
 	assert_true(_button.is_processing())
 	_release(Vector2(110, 60))
 	assert_false(_button.is_processing())
+
+
+func test_a_press_inside_announces_that_a_hold_started() -> void:
+	watch_signals(_button)
+	_button.handle_touch(Vector2(110, 60))
+	assert_signal_emit_count(_button, "hold_started", 1)
+	_button.handle_touch(Vector2(112, 62))
+	assert_signal_emit_count(_button, "hold_started", 1, "a second press while holding is not a new hold")
+
+
+func test_another_fingers_release_is_ignored_and_not_swallowed() -> void:
+	watch_signals(_button)
+	_button.handle_touch(Vector2(110, 60), 0)
+	assert_false(_button.handle_release(Vector2(110, 60), 1), "finger 1 never pressed the button")
+	assert_signal_not_emitted(_button, "pressed")
+	_now = 200
+	assert_true(_button.handle_release(Vector2(110, 60), 0))
+	assert_signal_emit_count(_button, "pressed", 1)
+
+
+func test_a_mouse_release_does_not_end_a_touch_hold() -> void:
+	watch_signals(_button)
+	_button.handle_touch(Vector2(110, 60), 0)
+	var release := _click(Vector2(110, 60))
+	release.pressed = false
+	assert_false(_button.handle_mouse_release(release))
+	assert_signal_not_emitted(_button, "pressed")

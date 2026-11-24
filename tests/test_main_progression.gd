@@ -642,3 +642,11 @@ func test_a_tap_on_the_mute_button_still_toggles_mute_and_leaves_the_overlay_alo
 	assert_eq(board.muted, not muted_before)
 	assert_false(FxSettings.perf_overlay)
 	FxSettings.reset()
+
+
+func test_pressing_the_mute_button_blocks_casting_for_the_whole_hold() -> void:
+	var main := _new_main("")
+	var button := main.get_node("Hud/MuteButton") as MuteButton
+	assert_false(_player(main)._cast_blocked)
+	button.hold_started.emit()
+	assert_true(_player(main)._cast_blocked, "a held click on the button must not fire spells while it is held")

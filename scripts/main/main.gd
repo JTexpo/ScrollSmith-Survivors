@@ -105,6 +105,7 @@ func _ready() -> void:
 	_board.mute_changed.connect(_mute_button.set_muted)
 	_mute_button.pressed.connect(_on_mute_button_pressed)
 	_mute_button.long_pressed.connect(_on_mute_button_long_pressed)
+	_mute_button.hold_started.connect(_player.require_cast_release)
 	_player.died.connect(_mute_button.hide)
 	if profile.muted:
 		_board.set_muted(true)
