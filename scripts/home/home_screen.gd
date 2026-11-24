@@ -14,6 +14,8 @@ const SURE_QUESTION := "This cannot be undone. Start over from level 1?"
 var save_path: String = SaveGame.DEFAULT_PATH
 var settings_path: String = SettingsStore.DEFAULT_PATH
 var profile: PlayerProfile
+## How a scene is loaded: `func(path: String) -> Error`. Empty uses `SceneSwitcher`. A test sets it so it never really changes scene.
+var scene_changer: Callable = Callable()
 
 var _buttons: Dictionary = {}
 var _message: Label
@@ -70,6 +72,8 @@ func play_map(entry: MapEntry) -> Error:
 		return ERR_FILE_NOT_FOUND
 	GameSettings.last_map = entry.map.id
 	SettingsStore.save_file(settings_path)
+	if scene_changer.is_valid():
+		return scene_changer.call(entry.scene_path)
 	return SceneSwitcher.change_to(get_tree(), entry.scene_path)
 
 

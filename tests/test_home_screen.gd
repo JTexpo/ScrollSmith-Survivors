@@ -4,6 +4,8 @@ const ROOT := "res://.godot/save_tests"
 
 var _dir: String
 var _home: HomeScreen
+## The scene paths the home screen asked to load (it never really changes scene in a test: that would replace the runner's tree).
+var _requested: Array[String] = []
 
 
 func before_each() -> void:
@@ -33,6 +35,10 @@ func _start(gold: int = 0) -> HomeScreen:
 		profile.add_gold(gold)
 		SaveGame.save_profile(profile, _save_path())
 	_home = (load("res://scenes/home/home.tscn") as PackedScene).instantiate() as HomeScreen
+	_requested.clear()
+	_home.scene_changer = func(path: String) -> Error:
+		_requested.append(path)
+		return OK
 	_home.save_path = _save_path()
 	_home.settings_path = "%s/settings.json" % _dir
 	add_child_autofree(_home)
@@ -81,10 +87,9 @@ func test_play_opens_the_map_select_and_changes_no_scene() -> void:
 func test_play_map_remembers_the_map_and_saves_settings() -> void:
 	_start()
 	var entry := MapCatalog.default_catalog().find(&"maze")
-	entry = entry.duplicate() as MapEntry
-	entry.scene_path = Scenes.HOME  # an existing scene whose change we do not want to follow: check the saved choice before the frame
 	var result := _home.play_map(entry)
 	assert_eq(result, OK)
+	assert_eq(_requested, [entry.scene_path] as Array[String], "it asked for the entry's own run scene")
 	assert_eq(GameSettings.last_map, &"maze")
 	GameSettings.reset()
 	SettingsStore.load_file("%s/settings.json" % _dir)
@@ -98,7 +103,7 @@ func test_play_map_with_a_missing_scene_returns_an_error_and_keeps_everything() 
 	assert_eq(_home.play_map(_missing_entry()), ERR_FILE_NOT_FOUND)
 	assert_eq(GameSettings.last_map, before, "a failed start does not remember the map")
 	assert_true(_home.map_select_screen().is_open(), "the screen stays so the player can pick again")
-	assert_false(FileAccess.file_exists("%s/settings.json" % _dir) and GameSettings.last_map == &"maze")
+	assert_true(_requested.is_empty(), "no scene change was requested")
 
 
 func test_choosing_a_card_on_the_screen_starts_that_map() -> void:
@@ -108,6 +113,7 @@ func test_choosing_a_card_on_the_screen_starts_that_map() -> void:
 	watch_signals(_home.map_select_screen())
 	_home.map_select_screen().choose(0)
 	assert_signal_emit_count(_home.map_select_screen(), "map_chosen", 1)
+	assert_eq(_requested, [MapCatalog.default_catalog().entries[0].scene_path] as Array[String])
 
 
 func test_input_is_not_bridged_to_the_home_buttons_while_the_select_is_open() -> void:
