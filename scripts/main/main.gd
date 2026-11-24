@@ -160,6 +160,8 @@ func _apply_map() -> void:
 	_spawner.arena_bounds = area
 	if _map.map_data != null and _map.map_data.spawn_config != null:
 		_spawner.config = _map.map_data.spawn_config
+	if _map.map_data != null:
+		_spawner.enemy_art_set = _map.map_data.enemy_art_set
 	_player.global_position = _map.player_start()
 	_camera.limit_left = int(area.position.x)
 	_camera.limit_top = int(area.position.y)
