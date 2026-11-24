@@ -189,3 +189,19 @@ func test_no_label_is_wider_than_its_card_so_theme_lines_really_wrap() -> void:
 			theme_label = label
 	assert_not_null(theme_label)
 	assert_gt(theme_label.get_line_count(), 1, "the long theme line wraps onto more than one line")
+
+
+func test_every_label_and_the_whole_text_stay_inside_their_card() -> void:
+	var profile := PlayerProfile.new()
+	profile.set_best(&"forest", 5999, 1)
+	profile.set_best(&"maze", 754, 1)
+	_open(profile)
+	await wait_process_frames(2)
+	for i in _screen.card_count():
+		var card_rect := _card(i).get_global_rect()
+		for label in _card(i).find_children("*", "Label", true, false):
+			var lab := label as Label
+			assert_true(card_rect.encloses(lab.get_global_rect()), "%s: the label box is inside card %d" % [lab.text, i])
+			var text_size := UiFont.plain().get_multiline_string_size(lab.text, HORIZONTAL_ALIGNMENT_LEFT, lab.size.x if lab.autowrap_mode != TextServer.AUTOWRAP_OFF else -1.0, UiFont.SIZE)
+			assert_lte(text_size.x, lab.size.x + 0.5, "%s: the text is no wider than its box" % lab.text)
+			assert_lte(text_size.y, lab.size.y + 0.5, "%s: the text is no taller than its box" % lab.text)
