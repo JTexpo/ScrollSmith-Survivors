@@ -1,0 +1,573 @@
+[gd_resource type="Resource" script_class="MapData" load_steps=91 format=3]
+
+[ext_resource type="Script" path="res://resources/maps/map_data.gd" id="1"]
+[ext_resource type="Script" path="res://resources/maps/map_placement.gd" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/lectern.tscn" id="3"]
+[ext_resource type="Resource" path="res://resources/spawning/default_spawn_config.tres" id="4"]
+[ext_resource type="Script" path="res://resources/maps/map_obstacle.gd" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/health_shrine.tscn" id="p1"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/mana_shrine.tscn" id="p2"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/treasure_chest.tscn" id="p3"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/rare_scroll_spot.tscn" id="p4"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/merchant.tscn" id="p5"]
+
+[sub_resource type="Resource" id="lectern_0"]
+script = ExtResource("2")
+scene = ExtResource("3")
+position = Vector2(320, 256)
+
+[sub_resource type="Resource" id="lectern_1"]
+script = ExtResource("2")
+scene = ExtResource("3")
+position = Vector2(1680, 272)
+
+[sub_resource type="Resource" id="lectern_2"]
+script = ExtResource("2")
+scene = ExtResource("3")
+position = Vector2(1200, 896)
+
+[sub_resource type="Resource" id="chest"]
+script = ExtResource("2")
+scene = ExtResource("p3")
+position = Vector2(320, 880)
+
+[sub_resource type="Resource" id="merchant"]
+script = ExtResource("2")
+scene = ExtResource("p5")
+position = Vector2(1696, 592)
+
+[sub_resource type="Resource" id="rare_0"]
+script = ExtResource("2")
+scene = ExtResource("p4")
+position = Vector2(528, 480)
+
+[sub_resource type="Resource" id="rare_1"]
+script = ExtResource("2")
+scene = ExtResource("p4")
+position = Vector2(1264, 704)
+
+[sub_resource type="Resource" id="mana"]
+script = ExtResource("2")
+scene = ExtResource("p2")
+position = Vector2(1200, 160)
+
+[sub_resource type="Resource" id="health"]
+script = ExtResource("2")
+scene = ExtResource("p1")
+position = Vector2(720, 992)
+
+[sub_resource type="Resource" id="ring_lectern0_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(326.6, 317.7)
+radius = 18
+
+[sub_resource type="Resource" id="ring_lectern0_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(285.4, 307.4)
+radius = 18
+
+[sub_resource type="Resource" id="ring_lectern0_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(260.4, 273.2)
+radius = 18
+
+[sub_resource type="Resource" id="ring_lectern0_3"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(263.3, 230.9)
+radius = 18
+
+[sub_resource type="Resource" id="ring_lectern0_4"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(292.8, 200.3)
+radius = 18
+
+[sub_resource type="Resource" id="ring_lectern0_5"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(334.9, 195.8)
+radius = 18
+
+[sub_resource type="Resource" id="ring_lectern0_6"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(370.1, 219.5)
+radius = 18
+
+[sub_resource type="Resource" id="ring_lectern1_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1632.2, 232.5)
+radius = 18
+
+[sub_resource type="Resource" id="ring_lectern1_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1668.8, 211.0)
+radius = 18
+
+[sub_resource type="Resource" id="ring_lectern1_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1710.6, 218.1)
+radius = 18
+
+[sub_resource type="Resource" id="ring_lectern1_3"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1738.1, 250.4)
+radius = 18
+
+[sub_resource type="Resource" id="ring_lectern1_4"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1738.4, 292.8)
+radius = 18
+
+[sub_resource type="Resource" id="ring_lectern1_5"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1711.4, 325.5)
+radius = 18
+
+[sub_resource type="Resource" id="ring_lectern1_6"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1669.7, 333.1)
+radius = 18
+
+[sub_resource type="Resource" id="ring_lectern2_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1227.2, 840.3)
+radius = 18
+
+[sub_resource type="Resource" id="ring_lectern2_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1256.6, 870.8)
+radius = 18
+
+[sub_resource type="Resource" id="ring_lectern2_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1259.6, 913.1)
+radius = 18
+
+[sub_resource type="Resource" id="ring_lectern2_3"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1234.7, 947.4)
+radius = 18
+
+[sub_resource type="Resource" id="ring_lectern2_4"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1193.5, 957.7)
+radius = 18
+
+[sub_resource type="Resource" id="ring_lectern2_5"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1155.4, 939.1)
+radius = 18
+
+[sub_resource type="Resource" id="ring_lectern2_6"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1138.1, 900.3)
+radius = 18
+
+[sub_resource type="Resource" id="ring_chest_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(372.6, 912.9)
+radius = 18
+
+[sub_resource type="Resource" id="ring_chest_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(339.1, 939.0)
+radius = 18
+
+[sub_resource type="Resource" id="ring_chest_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(296.8, 937.5)
+radius = 18
+
+[sub_resource type="Resource" id="ring_chest_3"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(265.2, 909.1)
+radius = 18
+
+[sub_resource type="Resource" id="ring_chest_4"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(259.4, 867.1)
+radius = 18
+
+[sub_resource type="Resource" id="ring_chest_5"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(281.8, 831.1)
+radius = 18
+
+[sub_resource type="Resource" id="ring_chest_6"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(322.2, 818.0)
+radius = 18
+
+[sub_resource type="Resource" id="ring_merchant_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1668.9, 536.3)
+radius = 18
+
+[sub_resource type="Resource" id="ring_merchant_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1711.0, 531.9)
+radius = 18
+
+[sub_resource type="Resource" id="ring_merchant_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1746.2, 555.6)
+radius = 18
+
+[sub_resource type="Resource" id="ring_merchant_3"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1757.8, 596.4)
+radius = 18
+
+[sub_resource type="Resource" id="ring_merchant_4"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1740.6, 635.1)
+radius = 18
+
+[sub_resource type="Resource" id="ring_merchant_5"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1702.4, 653.7)
+radius = 18
+
+[sub_resource type="Resource" id="ring_merchant_6"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1661.3, 643.4)
+radius = 18
+
+[sub_resource type="Resource" id="grove_0_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(973.8, 154.5)
+radius = 18
+
+[sub_resource type="Resource" id="grove_0_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(997.0, 166.2)
+radius = 18
+
+[sub_resource type="Resource" id="grove_0_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(975.2, 180.4)
+radius = 18
+
+[sub_resource type="Resource" id="grove_1_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(758.5, 625.6)
+radius = 18
+
+[sub_resource type="Resource" id="grove_1_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(762.7, 600.0)
+radius = 18
+
+[sub_resource type="Resource" id="grove_1_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(782.8, 616.5)
+radius = 18
+
+[sub_resource type="Resource" id="grove_2_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1246.0, 475.4)
+radius = 18
+
+[sub_resource type="Resource" id="grove_2_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1269.0, 463.3)
+radius = 18
+
+[sub_resource type="Resource" id="grove_2_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1268.0, 489.3)
+radius = 18
+
+[sub_resource type="Resource" id="grove_3_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1706.7, 957.5)
+radius = 18
+
+[sub_resource type="Resource" id="grove_3_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1724.2, 938.4)
+radius = 18
+
+[sub_resource type="Resource" id="grove_3_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1732.1, 963.1)
+radius = 18
+
+[sub_resource type="Resource" id="grove_4_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(98.1, 595.0)
+radius = 18
+
+[sub_resource type="Resource" id="grove_4_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(118.7, 579.1)
+radius = 18
+
+[sub_resource type="Resource" id="grove_4_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(122.1, 604.9)
+radius = 18
+
+[sub_resource type="Resource" id="grove_5_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1358.2, 145.7)
+radius = 18
+
+[sub_resource type="Resource" id="grove_5_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1332.4, 143.2)
+radius = 18
+
+[sub_resource type="Resource" id="grove_5_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1347.4, 122.1)
+radius = 18
+
+[sub_resource type="Resource" id="grove_6_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(843.1, 965.4)
+radius = 18
+
+[sub_resource type="Resource" id="grove_6_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(866.8, 954.9)
+radius = 18
+
+[sub_resource type="Resource" id="grove_6_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(864.1, 980.7)
+radius = 18
+
+[sub_resource type="Resource" id="grove_7_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(635.7, 124.5)
+radius = 18
+
+[sub_resource type="Resource" id="grove_7_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(653.2, 105.4)
+radius = 18
+
+[sub_resource type="Resource" id="grove_7_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(661.1, 130.1)
+radius = 18
+
+[sub_resource type="Resource" id="grove_8_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1494.9, 780.4)
+radius = 18
+
+[sub_resource type="Resource" id="grove_8_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1482.2, 803.0)
+radius = 18
+
+[sub_resource type="Resource" id="grove_8_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(1468.9, 780.6)
+radius = 18
+
+[sub_resource type="Resource" id="grove_9_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(420.1, 585.2)
+radius = 18
+
+[sub_resource type="Resource" id="grove_9_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(394.4, 589.5)
+radius = 18
+
+[sub_resource type="Resource" id="grove_9_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(403.5, 565.2)
+radius = 18
+
+[sub_resource type="Resource" id="grove_10_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(613.9, 860.6)
+radius = 18
+
+[sub_resource type="Resource" id="grove_10_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(588.0, 860.4)
+radius = 18
+
+[sub_resource type="Resource" id="grove_10_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(601.1, 838.0)
+radius = 18
+
+[sub_resource type="Resource" id="grove_11_0"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(791.0, 359.8)
+radius = 18
+
+[sub_resource type="Resource" id="grove_11_1"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(768.7, 373.1)
+radius = 18
+
+[sub_resource type="Resource" id="grove_11_2"]
+script = ExtResource("5")
+material = &"tree"
+kind = 1
+position = Vector2(768.3, 347.1)
+radius = 18
+
+[resource]
+script = ExtResource("1")
+id = &"forest"
+display_name = "The Forest"
+description = "Open woods. Somewhere, a dragon."
+enemy_art_set = &"forest"
+size = Vector2(1920, 1080)
+floor_color = Color(0.16, 0.2, 0.17, 1)
+border_color = Color(0.08, 0.1, 0.09, 1)
+floor_style = &"grass"
+border_style = &"border"
+player_start = Vector2(960, 540)
+spawn_config = ExtResource("4")
+placements = Array[ExtResource("2")]([SubResource("lectern_0"), SubResource("lectern_1"), SubResource("lectern_2"), SubResource("chest"), SubResource("merchant"), SubResource("rare_0"), SubResource("rare_1"), SubResource("mana"), SubResource("health")])
+obstacles = Array[ExtResource("5")]([SubResource("ring_lectern0_0"), SubResource("ring_lectern0_1"), SubResource("ring_lectern0_2"), SubResource("ring_lectern0_3"), SubResource("ring_lectern0_4"), SubResource("ring_lectern0_5"), SubResource("ring_lectern0_6"), SubResource("ring_lectern1_0"), SubResource("ring_lectern1_1"), SubResource("ring_lectern1_2"), SubResource("ring_lectern1_3"), SubResource("ring_lectern1_4"), SubResource("ring_lectern1_5"), SubResource("ring_lectern1_6"), SubResource("ring_lectern2_0"), SubResource("ring_lectern2_1"), SubResource("ring_lectern2_2"), SubResource("ring_lectern2_3"), SubResource("ring_lectern2_4"), SubResource("ring_lectern2_5"), SubResource("ring_lectern2_6"), SubResource("ring_chest_0"), SubResource("ring_chest_1"), SubResource("ring_chest_2"), SubResource("ring_chest_3"), SubResource("ring_chest_4"), SubResource("ring_chest_5"), SubResource("ring_chest_6"), SubResource("ring_merchant_0"), SubResource("ring_merchant_1"), SubResource("ring_merchant_2"), SubResource("ring_merchant_3"), SubResource("ring_merchant_4"), SubResource("ring_merchant_5"), SubResource("ring_merchant_6"), SubResource("grove_0_0"), SubResource("grove_0_1"), SubResource("grove_0_2"), SubResource("grove_1_0"), SubResource("grove_1_1"), SubResource("grove_1_2"), SubResource("grove_2_0"), SubResource("grove_2_1"), SubResource("grove_2_2"), SubResource("grove_3_0"), SubResource("grove_3_1"), SubResource("grove_3_2"), SubResource("grove_4_0"), SubResource("grove_4_1"), SubResource("grove_4_2"), SubResource("grove_5_0"), SubResource("grove_5_1"), SubResource("grove_5_2"), SubResource("grove_6_0"), SubResource("grove_6_1"), SubResource("grove_6_2"), SubResource("grove_7_0"), SubResource("grove_7_1"), SubResource("grove_7_2"), SubResource("grove_8_0"), SubResource("grove_8_1"), SubResource("grove_8_2"), SubResource("grove_9_0"), SubResource("grove_9_1"), SubResource("grove_9_2"), SubResource("grove_10_0"), SubResource("grove_10_1"), SubResource("grove_10_2"), SubResource("grove_11_0"), SubResource("grove_11_1"), SubResource("grove_11_2")])
+decoration_count = 0
+decoration_seed = 7
+decoration_styles = PackedStringArray("flowers", "mushrooms", "pebbles")
