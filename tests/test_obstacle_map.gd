@@ -226,3 +226,36 @@ func test_a_body_in_the_grid_band_out_of_range_drifts_out_instead_of_jumping() -
 	# A body that really is inside a wall is still pushed out at once.
 	var inside := node.resolve_move(Vector2(160, 40), Vector2(161, 40))
 	assert_false(node.overlaps_wall(inside))
+
+
+## The shape tests skip shapes whose box cannot touch the segment. That must never change an answer: on a maze and on the ruins, many random
+## segments and points give exactly what testing every shape gives.
+func test_the_box_prefilter_never_changes_an_answer() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 11
+	for path in ["res://resources/maps/maze_map.tres", "res://resources/maps/first_map.tres", "res://resources/maps/forest_map.tres"]:
+		var map := load(path) as MapData
+		var node := _obstacle_map(map)
+		var mismatches := 0
+		for i in 600:
+			var from := Vector2(rng.randf_range(0.0, map.size.x), rng.randf_range(0.0, map.size.y))
+			var to := from + Vector2.from_angle(rng.randf_range(0.0, TAU)) * rng.randf_range(0.0, 200.0)
+			var brute_line := true
+			var brute_exact := false
+			for shape in node.shapes:
+				if shape.blocks_segment(from, to, map.body_radius):
+					brute_line = false
+				if shape.blocks_segment(from, to):
+					brute_exact = true
+			var brute_wall := false
+			for shape in node.shapes:
+				if shape.contains(from, map.body_radius):
+					brute_wall = true
+			# The grid shortcuts only ever answer "free", which the brute force agrees with, so compare against the shape answers.
+			if node.line_clear(from, to) != brute_line:
+				mismatches += 1
+			if node.blocks_segment(from, to) != brute_exact:
+				mismatches += 1
+			if node.overlaps_wall(from) != (brute_wall and node.grid.is_blocked(from)):
+				mismatches += 1
+		assert_eq(mismatches, 0, "%s: the prefilter changed %d answers" % [path, mismatches])
