@@ -18,26 +18,21 @@ var profile: PlayerProfile
 
 var _buttons: Dictionary = {}
 var _message: Label
-var _shop: ShopScreen
-var _settings: SettingsScreen
-var _confirm: ConfirmDialog
 var _step: int = 0
+
+@onready var _shop: ShopScreen = $ShopScreen
+@onready var _settings: SettingsScreen = $SettingsScreen
+@onready var _confirm: ConfirmDialog = $ConfirmDialog
 
 
 func _ready() -> void:
 	SettingsStore.apply_saved(settings_path)
 	profile = SaveGame.load_profile(save_path)
 	_build()
-	_shop = (load("res://scenes/ui/shop_screen.tscn") as PackedScene).instantiate() as ShopScreen
-	add_child(_shop)
 	_shop.changed.connect(_save_profile)
 	_shop.closed.connect(_focus_play)
-	_settings = (load("res://scenes/ui/settings_screen.tscn") as PackedScene).instantiate() as SettingsScreen
 	_settings.settings_path = settings_path
-	add_child(_settings)
 	_settings.closed.connect(_focus_play)
-	_confirm = (load("res://scenes/ui/confirm_dialog.tscn") as PackedScene).instantiate() as ConfirmDialog
-	add_child(_confirm)
 	_confirm.confirmed.connect(_on_confirmed)
 	_confirm.cancelled.connect(_on_cancelled)
 	_focus_play()
