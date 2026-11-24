@@ -232,3 +232,54 @@ func test_the_palette_still_fits_the_limit() -> void:
 		if line.begins_with("color "):
 			colours[line.get_slice(" ", 2)] = true
 	assert_lte(colours.size(), 64, "the world palette limit")
+
+
+func _minotaur(attack: BossAttack) -> Boss:
+	return _boss(_data(&"dire_minotaur", [attack] as Array[BossAttack]))
+
+
+func test_the_minotaur_has_art_and_idles() -> void:
+	var boss := _minotaur(_attack(K.SLAM))
+	assert_true(_view(boss).has_art())
+	assert_eq(_view(boss).current_animation(), &"idle")
+
+
+func test_the_minotaurs_animations_exist_with_the_planned_frames() -> void:
+	var set_data := SpriteLibrary.find(&"boss_dire_minotaur")
+	assert_not_null(set_data)
+	assert_eq(set_data.frame_size, Vector2i(40, 32))
+	var frames := set_data.frames()
+	var planned := {&"idle": [2, 4.0, true], &"telegraph": [2, 8.0, true], &"attack": [2, 10.0, false], &"vulnerable": [2, 6.0, true]}
+	for animation in planned:
+		assert_true(frames.has_animation(animation), String(animation))
+		assert_eq(frames.get_frame_count(animation), planned[animation][0], "%s frames" % animation)
+		assert_eq(frames.get_animation_speed(animation), planned[animation][1], "%s fps" % animation)
+		assert_eq(frames.get_animation_loop(animation), planned[animation][2], "%s loop" % animation)
+
+
+func test_the_minotaur_is_one_to_one_at_boss_scale_three() -> void:
+	var boss := _minotaur(_attack(K.SLAM))
+	assert_eq(boss.scale, Vector2.ONE * 3.0)
+	assert_almost_eq((_view(boss).get_node("Sprite") as Node2D).global_transform.get_scale().x, 1.0, 0.001)
+
+
+func test_a_chained_charge_shows_telegraph_between_dashes_attack_while_dashing_and_vulnerable_after() -> void:
+	var attack := _attack(K.CHARGE, 0.2)
+	attack.repeats = 1
+	attack.chain_warning = 0.6
+	var boss := _minotaur(attack)
+	_step(boss, 0.5)
+	assert_eq(boss.state, Boss.State.TELEGRAPH)
+	assert_eq(_view(boss).current_animation(), &"telegraph")
+	_step(boss, 0.3)
+	assert_eq(boss.state, Boss.State.ACT)
+	assert_eq(_view(boss).current_animation(), &"attack")
+	_step(boss, 0.6)
+	assert_eq(boss.state, Boss.State.TELEGRAPH, "the pause before the second dash")
+	assert_eq(_view(boss).current_animation(), &"telegraph")
+	_step(boss, 0.65)
+	assert_eq(_view(boss).current_animation(), &"attack")
+	_step(boss, 0.6)
+	assert_eq(boss.state, Boss.State.RECOVER)
+	assert_true(boss.vulnerable)
+	assert_eq(_view(boss).current_animation(), &"vulnerable")
