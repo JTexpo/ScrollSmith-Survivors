@@ -4,12 +4,21 @@ extends Control
 ## muted. Like the other HUD buttons it handles touches itself (mouse emulation is off); like the potion slots it also takes a
 ## left mouse click, so a desktop player can click it (Main blocks casting until the click is released).
 
+## A tap: the press was inside and let go inside in under HOLD_SECONDS.
 signal pressed
+## A press held for HOLD_SECONDS (a tester's long press; Main uses it to open the performance overlay). The release after it does nothing.
+signal long_pressed
 
 const SIZE := Vector2(32, 32)
+const HOLD_SECONDS := 1.0
+
+## Milliseconds now; tests replace it so time can be driven by hand.
+var clock: Callable = func() -> int: return Time.get_ticks_msec()
 
 var _face: Button
 var _muted: bool = false
+var _holding: bool = false
+var _held_since: int = 0
 
 
 func _ready() -> void:
@@ -25,21 +34,36 @@ func _ready() -> void:
 	_face.size = SIZE
 	add_child(_face)
 	_refresh()
+	set_process(false)
+
+
+func _process(_delta: float) -> void:
+	check_hold()
 
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventScreenTouch and event.pressed:
-		if handle_touch(event.position):
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			if handle_touch(event.position):
+				get_viewport().set_input_as_handled()
+		elif handle_release(event.position):
 			get_viewport().set_input_as_handled()
 	elif event is InputEventMouseButton:
-		if handle_mouse_click(event):
+		if event.pressed:
+			if handle_mouse_click(event):
+				get_viewport().set_input_as_handled()
+		elif handle_mouse_release(event):
 			get_viewport().set_input_as_handled()
 
 
+## A press inside the button starts the hold (nothing fires yet: a tap fires on release, a long press after HOLD_SECONDS).
 func handle_touch(screen_position: Vector2) -> bool:
 	if not is_visible_in_tree() or not get_global_rect().has_point(screen_position):
 		return false
-	pressed.emit()
+	if not _holding:
+		_holding = true
+		_held_since = clock.call()
+		set_process(true)
 	return true
 
 
@@ -48,6 +72,35 @@ func handle_mouse_click(event: InputEventMouseButton) -> bool:
 	if event.button_index != MOUSE_BUTTON_LEFT or not event.pressed:
 		return false
 	return handle_touch(event.position)
+
+
+## The release that ends a hold. It is a tap (`pressed`) when it lands inside the button before HOLD_SECONDS, and does nothing after
+## a long press or when it lands outside. True when a hold was ended.
+func handle_release(screen_position: Vector2) -> bool:
+	if not _holding:
+		return false
+	_holding = false
+	set_process(false)
+	var held_msec: int = int(clock.call()) - _held_since
+	if get_global_rect().has_point(screen_position) and held_msec < int(HOLD_SECONDS * 1000.0):
+		pressed.emit()
+	return true
+
+
+func handle_mouse_release(event: InputEventMouseButton) -> bool:
+	if event.button_index != MOUSE_BUTTON_LEFT or event.pressed:
+		return false
+	return handle_release(event.position)
+
+
+## Emits `long_pressed` once when a press has been held long enough, and ends the hold (the release then does nothing).
+func check_hold() -> void:
+	if not _holding:
+		return
+	if int(clock.call()) - _held_since >= int(HOLD_SECONDS * 1000.0):
+		_holding = false
+		set_process(false)
+		long_pressed.emit()
 
 
 func set_muted(value: bool) -> void:

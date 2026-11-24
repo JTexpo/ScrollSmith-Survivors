@@ -616,3 +616,29 @@ func test_cashing_in_old_potions_shows_a_toast_once() -> void:
 	main.free()
 	var again := _new_main(_path())
 	assert_false((again.get_node("Hud/LevelToast") as LevelToast).is_showing(), "nothing to cash in the second time")
+
+
+func test_a_long_press_on_the_mute_button_toggles_the_overlay_and_leaves_mute_alone() -> void:
+	FxSettings.reset()
+	var main := _new_main("")
+	var board := main.get_node("SoundBoard") as SoundBoard
+	var button := main.get_node("Hud/MuteButton") as MuteButton
+	var muted_before := board.muted
+	button.long_pressed.emit()
+	assert_true(FxSettings.perf_overlay)
+	assert_true((main.get_node("PerfOverlay") as PerfOverlay).visible)
+	assert_eq(board.muted, muted_before, "a long press never mutes")
+	button.long_pressed.emit()
+	assert_false(FxSettings.perf_overlay)
+	FxSettings.reset()
+
+
+func test_a_tap_on_the_mute_button_still_toggles_mute_and_leaves_the_overlay_alone() -> void:
+	FxSettings.reset()
+	var main := _new_main("")
+	var board := main.get_node("SoundBoard") as SoundBoard
+	var muted_before := board.muted
+	(main.get_node("Hud/MuteButton") as MuteButton).pressed.emit()
+	assert_eq(board.muted, not muted_before)
+	assert_false(FxSettings.perf_overlay)
+	FxSettings.reset()

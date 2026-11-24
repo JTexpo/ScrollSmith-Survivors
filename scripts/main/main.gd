@@ -104,6 +104,7 @@ func _ready() -> void:
 	_perf_overlay.sync()
 	_board.mute_changed.connect(_mute_button.set_muted)
 	_mute_button.pressed.connect(_on_mute_button_pressed)
+	_mute_button.long_pressed.connect(_on_mute_button_long_pressed)
 	_player.died.connect(_mute_button.hide)
 	if profile.muted:
 		_board.set_muted(true)
@@ -279,6 +280,12 @@ func _on_mute_button_pressed() -> void:
 func toggle_perf_overlay() -> void:
 	FxSettings.set_switch("perf_overlay", not FxSettings.perf_overlay)
 	_perf_overlay.sync()
+
+
+## A long press on the mute button opens or closes the performance overlay (and never mutes); like a tap it must not also fire a spell.
+func _on_mute_button_long_pressed() -> void:
+	toggle_perf_overlay()
+	_player.require_cast_release()
 
 
 func _on_boss_spawned(boss: Boss, _number: int) -> void:
