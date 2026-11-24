@@ -160,3 +160,27 @@ func test_escape_margin_is_the_distance_run_minus_the_danger() -> void:
 	attack.telegraph_time = 0.5
 	assert_lt(attack.escape_margin(90.0), 0.0, "too short a warning is not escapable")
 	assert_eq(BossAttack.new().spread, 80.0, "the default spread")
+
+
+func test_a_charge_has_no_repeats_by_default() -> void:
+	var attack := BossAttack.new()
+	attack.kind = K.CHARGE
+	assert_eq(attack.repeats, 0)
+	assert_eq(attack.chain_warning, 0.6)
+	assert_eq(attack.dash_count(), 1)
+
+
+func test_dash_count_is_one_plus_the_repeats_and_never_below_one() -> void:
+	var attack := BossAttack.new()
+	attack.repeats = 2
+	assert_eq(attack.dash_count(), 3)
+	attack.repeats = -4
+	assert_eq(attack.dash_count(), 1)
+
+
+func test_the_titan_and_the_dragon_never_chain() -> void:
+	for path in ["res://resources/bosses/ember_titan.tres", "res://resources/bosses/tempest_dragon.tres"]:
+		for phase in (load(path) as BossData).phases:
+			for attack in phase.attacks:
+				if attack.kind == K.CHARGE:
+					assert_eq(attack.repeats, 0, "%s: a plain charge" % path)
