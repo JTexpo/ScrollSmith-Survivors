@@ -858,6 +858,8 @@ Sprint 15 is split into three: **15a** the front door (built), **15b** onboardin
 
 **Built note (15a):** the game opens on a home screen (Play, Shop, Tutorial dimmed until 15b, Settings, New game, Full screen) that is its own scene, so no run exists until Play. Settings are saved in their own file (music and effects volume, every screen-effect switch, the performance overlay, full screen) with a Reduce motion preset and read-only Controls and Credits pages; the sound board follows the volumes live. New game asks twice and keeps one `.bak`. A pause menu (Esc, controller Start or a HUD button) offers Resume, Settings and Quit to home; the inventory now pauses the game; the death screen gained a Home button. Checked in a real window by touch and mouse; not on a phone.
 
+**Built note (15b):** the Tutorial button works: four pages with pictures (surviving and moving, casting spells, scrolls and the Lectern, potions and the shop), never opening by itself, with key names read from the Input Map. A per-run tally (`RunStats`, which only listens) feeds a death-card recap of nine stats, and three bests (longest survival, most enemies, highest level) are saved in an optional field of the progress save, with "New best!" shown only for a beaten non-zero best whose save worked; New game erases them. The one-line death summary is gone. Checked in a real window by touch and mouse; not on a phone.
+
 ### Tasks
 
 - [x] Implement the main menu. (15a: the home screen.)
@@ -865,10 +867,10 @@ Sprint 15 is split into three: **15a** the front door (built), **15b** onboardin
 - [x] Implement audio settings. (15a: music and effects volume.)
 - [x] Implement control settings. (15a: a read-only Controls page; no key remapping.)
 - [x] Implement pause menu. (15a.)
-- [ ] Implement game-over screen.
-- [ ] Implement run statistics.
+- [x] Implement game-over screen. (15b: the death card is a run recap.)
+- [x] Implement run statistics. (15b: a per-run tally and three saved bests.)
 - [ ] Implement persistent save data.
-- [ ] Implement tutorial/onboarding.
+- [x] Implement tutorial/onboarding. (15b: four Tutorial pages.)
 - [ ] Implement credits.
 - [ ] Create game icon.
 - [ ] Create promotional screenshots.

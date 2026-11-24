@@ -416,3 +416,36 @@ func test_a_new_board_starts_at_the_saved_volumes() -> void:
 	var fresh := _make()
 	assert_not_null(fresh)
 	assert_almost_eq(_sfx_bus_db(), linear_to_db(0.3), 0.01)
+
+
+func test_a_board_outside_the_tree_plays_nothing_and_does_not_error() -> void:
+	_board.unlock()
+	remove_child(_board)
+	var before := _board.plays_started()
+	_board.play(SoundId.UI_CLICK)
+	assert_eq(_board.plays_started(), before, "nothing can play from a node that is out of the tree")
+	add_child(_board)
+
+
+func test_a_board_that_left_the_tree_no_longer_wires_new_buttons() -> void:
+	# A scene change takes the old board out of the tree for a frame while the next scene's buttons are added; those buttons must not
+	# be wired to the leaving board (their first focus would make it play from outside the tree). `bind` does this connection in the game.
+	get_tree().node_added.connect(_board._on_node_added)
+	remove_child(_board)
+	var button := Button.new()
+	add_child_autofree(button)
+	assert_false(button.has_meta(&"sound_wired"))
+	add_child(_board)
+
+
+func test_a_button_wired_by_a_board_that_then_left_does_not_error_when_pressed() -> void:
+	_board.unlock()
+	get_tree().node_added.connect(_board._on_node_added)
+	var button := Button.new()
+	add_child_autofree(button)
+	assert_true(button.has_meta(&"sound_wired"), "a board in the tree wires a new button")
+	remove_child(_board)
+	button.pressed.emit()
+	button.focus_entered.emit()
+	assert_eq(_board.plays_started(), 0, "nothing played, and no engine error")
+	add_child(_board)

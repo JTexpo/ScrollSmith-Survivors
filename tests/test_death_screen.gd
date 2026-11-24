@@ -58,29 +58,6 @@ func test_restart_with_missing_path_fails_safely_every_time() -> void:
 	assert_eq(_screen.restart(), ERR_FILE_NOT_FOUND)
 
 
-func test_run_summary_text_shows_xp_and_level() -> void:
-	_screen.set_run_summary(120, 7)
-	assert_eq(_screen.summary_text(), "+120 XP, +0 Gold this run, level 7")
-
-
-func test_death_screen_without_a_summary_shows_no_extra_line() -> void:
-	_screen.show_death()
-	assert_eq(_screen.summary_text(), "")
-
-
-func test_restart_still_works_with_a_summary() -> void:
-	_screen.set_run_summary(5, 1)
-	_screen.show_death()
-	watch_signals(_screen)
-	_screen.handle_event(_restart_action())
-	assert_signal_emitted(_screen, "restart_requested")
-
-
-func test_summary_includes_gold() -> void:
-	_screen.set_run_summary(120, 7, 45)
-	assert_eq(_screen.summary_text(), "+120 XP, +45 Gold this run, level 7")
-
-
 func _shop_button() -> Button:
 	return _screen.get_node("ShopButton") as Button
 
@@ -199,23 +176,6 @@ func test_a_tap_on_the_shop_button_inside_the_delay_does_nothing() -> void:
 	assert_signal_not_emitted(_screen, "restart_requested")
 
 
-func test_summary_includes_time_survived() -> void:
-	_screen.set_run_summary(120, 7, 45, 307.0)
-	assert_eq(_screen.summary_text(), "+120 XP, +45 Gold this run, level 7, survived 5:07")
-
-
-func test_summary_without_seconds_is_unchanged() -> void:
-	_screen.set_run_summary(120, 7, 45)
-	assert_eq(_screen.summary_text(), "+120 XP, +45 Gold this run, level 7")
-	_screen.set_run_summary(1, 1, 0, -1.0)
-	assert_eq(_screen.summary_text(), "+1 XP, +0 Gold this run, level 1")
-
-
-func test_zero_seconds_still_shows_the_time() -> void:
-	_screen.set_run_summary(0, 1, 0, 0.0)
-	assert_eq(_screen.summary_text(), "+0 XP, +0 Gold this run, level 1, survived 0:00")
-
-
 func test_the_death_screen_sits_on_a_card_and_the_shop_button_is_green() -> void:
 	assert_true(_screen.get_node("Card") is Panel)
 	assert_eq((_screen.get_node("Card") as Panel).mouse_filter, Control.MOUSE_FILTER_IGNORE)
@@ -226,19 +186,17 @@ func test_the_death_message_is_a_heading_with_no_font_size_override() -> void:
 	var message := _screen.get_node("Message") as Label
 	assert_eq(message.theme_type_variation, &"Heading")
 	assert_false(message.has_theme_font_size_override("font_size"))
-	assert_false((_screen.get_node("Summary") as Label).has_theme_font_size_override("font_size"))
+	assert_false((_screen.get_node("Hint") as Label).has_theme_font_size_override("font_size"))
 
 
-func test_the_longest_summary_wraps_inside_the_card() -> void:
-	_screen.set_run_summary(99999, 20, 99999, 5999.0)
-	var summary := _screen.get_node("Summary") as Label
-	assert_ne(summary.autowrap_mode, TextServer.AUTOWRAP_OFF)
-	var width := summary.size.x if summary.size.x > 0.0 else 320.0
-	var wrapped := UiFont.plain().get_multiline_string_size(summary.text, HORIZONTAL_ALIGNMENT_CENTER, width, UiFont.SIZE, -1, TextServer.BREAK_WORD_BOUND | TextServer.BREAK_MANDATORY)
-	assert_lte(wrapped.y, 3.0 * UiFont.SIZE, "at most three lines")
-	var card := _screen.get_node("Card") as Panel
-	assert_lte(width, card.size.x, "the summary is no wider than the card")
-
+func test_the_widest_recap_values_fit_their_columns() -> void:
+	var rows: Array[Dictionary] = []
+	for label in ["Time survived", "Enemies defeated", "Bosses defeated", "Level reached", "XP earned", "Gold earned", "Scrolls collected", "Spells crafted", "Potions drunk"]:
+		rows.append({"label": label, "value": "999999", "best": "best 999:59", "new_best": false})
+	_screen.set_recap(rows)
+	for label in _screen.get_node("Recap").find_children("*", "Label", true, false):
+		var width := UiFont.plain().get_string_size((label as Label).text, HORIZONTAL_ALIGNMENT_LEFT, -1, UiFont.SIZE).x
+		assert_lte(width, (label as Label).size.x, "%s fits its column" % (label as Label).text)
 
 func test_the_home_button_exists_beside_shop_and_is_big_enough() -> void:
 	_screen.show_death()
@@ -294,3 +252,52 @@ func test_focus_moves_between_shop_and_home_by_keyboard_and_controller() -> void
 	assert_eq(shop.find_valid_focus_neighbor(SIDE_RIGHT), home)
 	assert_eq(home.find_valid_focus_neighbor(SIDE_LEFT), shop)
 	assert_eq(shop.find_next_valid_focus(), home)
+
+
+func _rows(new_best: bool = false) -> Array[Dictionary]:
+	var rows: Array[Dictionary] = []
+	for i in 9:
+		rows.append({"label": "Stat %d" % i, "value": str(i * 10), "best": "best %d" % (i * 12) if i < 3 else "", "new_best": new_best and i == 1})
+	return rows
+
+
+func test_the_recap_is_hidden_until_set() -> void:
+	_screen.show_death()
+	assert_eq(_screen.recap_text(), "")
+
+
+func test_set_recap_shows_every_row_with_its_best_or_new_best_mark() -> void:
+	_screen.set_recap(_rows(true))
+	var lines := _screen.recap_text().split("\n")
+	assert_eq(lines.size(), 9)
+	assert_eq(lines[0], "Stat 0: 0  best 0")
+	assert_eq(lines[1], "Stat 1: 10  New best!", "a new best shows the mark instead of the best")
+	assert_eq(lines[8], "Stat 8: 80")
+
+
+func test_the_recap_card_fits_the_screen() -> void:
+	_screen.set_recap(_rows(true))
+	_screen.show_death()
+	var screen_rect := Rect2(0, 0, 480, 270)
+	for label in _screen.get_node("Recap").find_children("*", "Label", true, false):
+		var label_rect := Rect2((label as Label).global_position, (label as Label).size)
+		assert_true(screen_rect.encloses(label_rect), "%s inside the screen" % (label as Label).text)
+		var width := UiFont.plain().get_string_size((label as Label).text, HORIZONTAL_ALIGNMENT_LEFT, -1, UiFont.SIZE).x
+		assert_lte(width, (label as Label).size.x, "%s fits its column" % (label as Label).text)
+
+
+func test_the_recap_sits_above_the_buttons() -> void:
+	_screen.set_recap(_rows(true))
+	_screen.show_death()
+	var lowest := 0.0
+	for label in _screen.get_node("Recap").find_children("*", "Label", true, false):
+		lowest = maxf(lowest, (label as Label).global_position.y + (label as Label).size.y)
+	assert_lt(lowest, (_screen.get_node("ShopButton") as Button).global_position.y, "no row touches the buttons")
+
+
+func test_shop_home_and_restart_still_work_with_the_recap() -> void:
+	_screen.set_recap(_rows())
+	_screen.show_death()
+	watch_signals(_screen)
+	_screen.handle_event(_restart_action())
+	assert_signal_emit_count(_screen, "restart_requested", 1)

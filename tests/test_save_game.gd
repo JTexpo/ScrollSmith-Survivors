@@ -190,3 +190,23 @@ func test_erase_of_a_missing_file_is_fine_and_creates_nothing() -> void:
 	assert_true(SaveGame.erase(_path()))
 	assert_false(FileAccess.file_exists(_path() + ".bak"))
 	assert_false(FileAccess.file_exists(_path()))
+
+
+func test_bests_survive_save_and_load() -> void:
+	var profile := PlayerProfile.new()
+	profile.best_seconds = 123
+	profile.best_enemies = 45
+	profile.best_level = 6
+	assert_true(SaveGame.save_profile(profile, _path()))
+	var loaded := SaveGame.load_profile(_path())
+	assert_eq(loaded.best_seconds, 123)
+	assert_eq(loaded.best_enemies, 45)
+	assert_eq(loaded.best_level, 6)
+
+
+func test_erase_takes_the_bests_with_the_save() -> void:
+	var profile := PlayerProfile.new()
+	profile.best_enemies = 99
+	SaveGame.save_profile(profile, _path())
+	assert_true(SaveGame.erase(_path()))
+	assert_eq(SaveGame.load_profile(_path()).best_enemies, 0, "New game starts without records")

@@ -182,7 +182,8 @@ func last_volume_offset_db() -> float:
 ## Plays a sound effect. `pitch` multiplies the sound's own random wobble and `volume_offset_db` adds to its volume.
 func play(id: StringName, pitch: float = 1.0, volume_offset_db: float = 0.0) -> void:
 	requested.emit(id)
-	if muted or not _unlocked:
+	# A board that has left the tree (a scene change is freeing it) cannot play: the engine refuses and logs an error.
+	if muted or not _unlocked or not is_inside_tree():
 		return
 	var data := catalog.find(id)
 	if data == null:
@@ -475,6 +476,13 @@ func _update_steps(delta: float) -> void:
 	if _step_left <= 0.0:
 		_step_left = STEP_INTERVAL
 		play(SoundId.STEP)
+
+
+## A leaving board stops listening for new buttons: during a scene change it is out of the tree for a frame while the next scene's buttons
+## arrive, and wiring those to it would make it play from outside the tree.
+func _exit_tree() -> void:
+	if get_tree() != null and get_tree().node_added.is_connected(_on_node_added):
+		get_tree().node_added.disconnect(_on_node_added)
 
 
 func _on_node_added(node: Node) -> void:

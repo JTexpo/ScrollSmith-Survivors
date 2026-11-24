@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/shop_screen.tscn" id="shop"]
 [ext_resource type="PackedScene" path="res://scenes/ui/settings_screen.tscn" id="settings"]
 [ext_resource type="PackedScene" path="res://scenes/ui/confirm_dialog.tscn" id="confirm"]
+[ext_resource type="PackedScene" path="res://scenes/ui/tutorial_screen.tscn" id="tutorial"]
 
 [node name="Home" type="Control"]
 layout_mode = 3
@@ -19,3 +20,5 @@ script = ExtResource("1")
 [node name="SettingsScreen" parent="." instance=ExtResource("settings")]
 
 [node name="ConfirmDialog" parent="." instance=ExtResource("confirm")]
+
+[node name="TutorialScreen" parent="." instance=ExtResource("tutorial")]

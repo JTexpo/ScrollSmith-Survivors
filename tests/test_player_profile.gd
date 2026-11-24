@@ -274,3 +274,51 @@ func test_a_wrongly_typed_muted_field_is_ignored_not_fatal() -> void:
 	var restored := PlayerProfile.from_dict(data)
 	assert_not_null(restored, "the rest of the save still loads")
 	assert_false(restored.muted)
+
+
+func test_bests_round_trip_through_a_dictionary() -> void:
+	var profile := PlayerProfile.new()
+	profile.best_seconds = 301
+	profile.best_enemies = 120
+	profile.best_level = 9
+	var parsed = JSON.parse_string(JSON.stringify(profile.to_dict()))
+	var restored := PlayerProfile.from_dict(parsed)
+	assert_not_null(restored)
+	assert_eq(restored.best_seconds, 301)
+	assert_eq(restored.best_enemies, 120)
+	assert_eq(restored.best_level, 9)
+
+
+func test_a_profile_with_no_bests_writes_no_bests_field() -> void:
+	assert_false(PlayerProfile.new().to_dict().has("bests"), "an old reader and an old save are unaffected")
+
+
+func test_an_old_save_without_bests_loads_with_zero_bests() -> void:
+	var profile := PlayerProfile.from_dict({"version": SaveGame.VERSION, "total_xp": 8})
+	assert_not_null(profile)
+	assert_eq(profile.best_seconds, 0)
+	assert_eq(profile.best_enemies, 0)
+	assert_eq(profile.best_level, 0)
+
+
+func test_a_bad_bests_value_is_a_bad_save() -> void:
+	var base := {"version": SaveGame.VERSION, "total_xp": 5}
+	var cases := {
+		"not a dictionary": {"bests": []},
+		"null": {"bests": null},
+		"string": {"bests": {"seconds": "9"}},
+		"negative": {"bests": {"enemies": -1}},
+		"fractional": {"bests": {"level": 2.5}},
+	}
+	for name in cases:
+		var data := base.duplicate()
+		data.merge(cases[name], true)
+		assert_null(PlayerProfile.from_dict(data), name)
+
+
+func test_a_partial_bests_dictionary_defaults_the_missing_keys() -> void:
+	var profile := PlayerProfile.from_dict({"version": SaveGame.VERSION, "total_xp": 0, "bests": {"enemies": 12}})
+	assert_not_null(profile)
+	assert_eq(profile.best_enemies, 12)
+	assert_eq(profile.best_seconds, 0)
+	assert_eq(profile.best_level, 0)

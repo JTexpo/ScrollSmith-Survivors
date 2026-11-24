@@ -612,6 +612,10 @@ Area spells keep their exact hit area as a faint tint with a bright edge, and pl
 
 The HUD and every screen share one light, cartoony look: cream panels with a thick plum outline and stepped corners, pink health and sky-blue XP bars, red buttons for the main action and green for the second, and yellow for Gold, highlights and the selected choice. Text uses a slim pixel font (5 px letters); text over the world has a dark outline baked into the letters so it reads on grass, stone and bosses. The font, panels, buttons and bars are drawn in the same pipeline as the sprites (`art/fonts/`, `art/sprites/ui_*.sprite`), so replacing one is editing a grid and re-running the art tool. Everything is drawn at the game's one pixel size and never scaled.
 
+### Onboarding and run records (Sprint 15b)
+
+The home screen's Tutorial button opens four short pages with pictures: surviving and moving, casting spells (and that mana never comes back), scrolls and the Lectern, and potions and the shop. It never opens by itself. When you die, the card now recaps the run (time survived, enemies and bosses defeated, level reached, XP and Gold earned, scrolls collected, spells crafted, potions drunk) and remembers your three bests (longest survival, most enemies, highest level) in your save, marking a beaten one "New best!". New game erases the bests with the rest of your progress.
+
 ### The front door (Sprint 15a)
 
 The game opens on a home screen with Play, Shop, Settings, New game and a Full screen button (the Tutorial arrives soon). Settings has music and effects volume, a switch for every screen effect (and the performance overlay), a Reduce motion button, a list of the controls and the credits, and everything is remembered. New game asks twice before it erases your XP, Gold and equipment (your settings stay, and one backup of the old save is kept). In a run, Esc, the controller's Start or the pause button opens a pause menu (Resume, Settings, Quit to home), and opening the inventory pauses the game too. The death screen has a Home button next to Shop.

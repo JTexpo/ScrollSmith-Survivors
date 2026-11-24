@@ -20,6 +20,11 @@ var equipped: Dictionary = {}
 ## Potions an OLD save held between runs (id to count). Potions last one run now (`RunPotions`), so `Main` cashes these in for Gold once
 ## (`ShopSystem.cash_in_legacy_potions`). Never written back.
 var legacy_potions: Dictionary = {}
+## The player's records (Sprint 15b): the longest survival in whole seconds, the most enemies defeated in one run and the highest level
+## reached. Saved only when any is above 0, so an old save and an old reader are unaffected.
+var best_seconds: int = 0
+var best_enemies: int = 0
+var best_level: int = 0
 
 
 ## Null if a field is missing (version and total_xp), has a wrongly typed or out-of-range value, or
@@ -56,6 +61,16 @@ static func from_dict(data: Dictionary) -> PlayerProfile:
 			var id := StringName(data["equipped"][key])
 			if profile.owns(id):
 				profile.equipped[slot] = id
+	if data.has("bests"):
+		if not data["bests"] is Dictionary:
+			return null
+		var bests: Dictionary = data["bests"]
+		for key in ["seconds", "enemies", "level"]:
+			if bests.has(key) and not _is_whole_in_range(bests[key]):
+				return null
+		profile.best_seconds = int(bests.get("seconds", 0))
+		profile.best_enemies = int(bests.get("enemies", 0))
+		profile.best_level = int(bests.get("level", 0))
 	if data.has("potions"):
 		if not data["potions"] is Dictionary:
 			return null
@@ -136,6 +151,8 @@ func to_dict() -> Dictionary:
 	}
 	if muted:
 		data["muted"] = true
+	if best_seconds > 0 or best_enemies > 0 or best_level > 0:
+		data["bests"] = {"seconds": best_seconds, "enemies": best_enemies, "level": best_level}
 	return data
 
 

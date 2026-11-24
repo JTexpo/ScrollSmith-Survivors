@@ -1,6 +1,6 @@
 class_name HomeScreen
 extends Control
-## The home screen, the first thing the game shows: Play, Shop, Tutorial (dimmed until its pages exist), Settings and New game. It
+## The home screen, the first thing the game shows: Play, Shop, Tutorial, Settings and New game. It
 ## loads the progress save itself and owns the Shop and New game flows, so none of that needs a run. The run scene is not created until
 ## Play loads it (through SceneSwitcher), so no run, buff pick or crowd exists behind this screen. Touches are handled here because
 ## mouse emulation from touch is off.
@@ -23,6 +23,7 @@ var _step: int = 0
 @onready var _shop: ShopScreen = $ShopScreen
 @onready var _settings: SettingsScreen = $SettingsScreen
 @onready var _confirm: ConfirmDialog = $ConfirmDialog
+@onready var _tutorial: TutorialScreen = $TutorialScreen
 
 
 func _ready() -> void:
@@ -34,6 +35,7 @@ func _ready() -> void:
 	_shop.closed.connect(_focus_play)
 	_settings.settings_path = settings_path
 	_settings.closed.connect(_focus_play)
+	_tutorial.closed.connect(_focus_play)
 	_confirm.confirmed.connect(_on_confirmed)
 	_confirm.cancelled.connect(_on_cancelled)
 	_focus_play()
@@ -48,7 +50,7 @@ func _input(event: InputEvent) -> void:
 
 ## Turns a touch into the left mouse press or release the buttons expect, unless a screen on top is open (it bridges its own).
 func handle_input(event: InputEvent) -> bool:
-	if not event is InputEventScreenTouch or _shop.is_open() or _settings.is_open() or _confirm.is_open():
+	if not event is InputEventScreenTouch or _shop.is_open() or _settings.is_open() or _confirm.is_open() or _tutorial.is_open():
 		return false
 	get_viewport().push_input(TouchBridge.to_mouse_button(event), true)
 	return true
@@ -61,6 +63,14 @@ func play() -> Error:
 
 func open_shop() -> void:
 	_shop.open(profile, EquipmentCatalog.default_catalog())
+
+
+func open_tutorial() -> void:
+	_tutorial.open()
+
+
+func tutorial_screen() -> TutorialScreen:
+	return _tutorial
 
 
 func open_settings() -> void:
@@ -143,7 +153,7 @@ func _build() -> void:
 	_message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(_message)
 	var index := 0
-	for entry in [["Play", &"ButtonGreen"], ["Shop", &""], ["Tutorial (soon)", &""], ["Settings", &""], ["New game", &"ButtonRed"]]:
+	for entry in [["Play", &"ButtonGreen"], ["Shop", &""], ["Tutorial", &""], ["Settings", &""], ["New game", &"ButtonRed"]]:
 		var button := UiKit.button(entry[0], entry[1])
 		button.position = Vector2((480.0 - BUTTON_SIZE.x) / 2.0, FIRST_BUTTON_Y + index * BUTTON_STEP)
 		button.custom_minimum_size = BUTTON_SIZE
@@ -154,7 +164,7 @@ func _build() -> void:
 	(_buttons["Shop"] as Button).pressed.connect(open_shop)
 	(_buttons["Settings"] as Button).pressed.connect(open_settings)
 	(_buttons["New game"] as Button).pressed.connect(new_game)
-	(_buttons["Tutorial (soon)"] as Button).disabled = true
+	(_buttons["Tutorial"] as Button).pressed.connect(open_tutorial)
 	# A phone player taps this to fill the screen (a browser allows full screen only from a tap).
 	var fullscreen := UiKit.button("Full screen")
 	fullscreen.position = Vector2(480.0 - 92.0, 8.0)
