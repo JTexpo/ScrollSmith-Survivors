@@ -979,6 +979,8 @@ The forest with its full enemy set and the Tempest Dragon.
 
 ## Sprint 16c: The ruins' art refresh
 
+**Status:** done (see `sprint-16c-design.md`, `development-log.md` and `CLAUDE.md`, "The ruins' art refresh"). The renaming of every plain sprite into its set is left for 16d (option A).
+
 **Goal:** The ruins show exactly their column: bandit, slime, mimic, animated armour, elemental, mephit, cultist and the Ember Titan.
 
 ### Tasks

@@ -1,6 +1,6 @@
 # Sprint 16c Design: The ruins' art refresh
 
-**Status:** Proposed, awaiting approval.
+**Status:** Implemented (Sprint 16c). The mimic's two move frames turned out identical after the first build (the user noticed) and were redrawn; a test now requires every new animation to change between its frames.
 
 Sprint 16 is four parts (see `sprint-development.md`): 16a the map select, the art sets and the layouts (done), 16b the forest's art and the Tempest Dragon (done), **16c the ruins' art refresh (this doc)**, 16d the maze's art and the Dire Minotaur. This is a small change (three sprites, their tests and the docs), so the design is short. Decisions below were agreed with the user in conversation, except where marked "my call".
 
