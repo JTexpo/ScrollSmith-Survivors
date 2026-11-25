@@ -18,8 +18,6 @@ static func post_set(material: StringName) -> SpriteSetData:
 	return _find("post_", material)
 
 
-
-
 static func _find(prefix: String, art_name: StringName) -> SpriteSetData:
 	if art_name == &"":
 		return null

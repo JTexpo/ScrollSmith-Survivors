@@ -3,7 +3,6 @@ extends GutTest
 ## `enemy_<type>` fallback; the empty set is unchanged (the ruins' and maze's own sprites are in `test_ruins_art` and `test_maze_art`).
 const EnemyArtHelpers := preload("res://tests/helpers/enemy_art_helpers.gd")
 
-const BOUNDS := Rect2(0, 0, 960, 540)
 const NEW_TYPES: Array[StringName] = [&"swarmer", &"tank", &"exploder", &"support"]
 const FALLBACK_TYPES: Array[StringName] = [&"standard", &"chaser", &"ranged"]
 const ALL_TYPES: Array[StringName] = [&"standard", &"swarmer", &"chaser", &"tank", &"ranged", &"exploder", &"support"]

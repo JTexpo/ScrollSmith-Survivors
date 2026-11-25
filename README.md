@@ -602,7 +602,7 @@ Sprites are 16 by 16 (the player), 10 to 24 (enemies by kind) and 32 by 32 (the 
 
 ### The world (Sprint 13b)
 
-The first map is a bright cartoon world: a grass plaza with flowers and mushrooms, brick-and-stone mazes and a walled stronghold and tunnel on one lavender stone floor, and trees for the pillar groves. Floors are 16 by 16 tiles, walls a 9-slice of a 16 by 16 tile, posts and decorations ordinary sprites, all in the one palette. A zone's floor has a wavy edge so regions blend into each other. A map names its art (a floor style per zone, a material per wall or post, a list of decoration styles) and a missing name keeps the flat colour. To change one, overwrite its PNG in `assets/sprites/` (`tile_<style>`, `wall_<material>`, `post_<material>`, `decor_<style>`) and add the line `hand_drawn` to its `.sprite`, or edit its grid and run the art tool.
+The first map is a bright cartoon world: a grass plaza, brick-and-stone mazes and a walled stronghold and tunnel on one lavender stone floor, and trees for the pillar groves. Floors are 16 by 16 tiles, walls a 9-slice of a 16 by 16 tile, posts ordinary sprites, all in the one palette. A zone's floor has a wavy edge so regions blend into each other. A map names its art (a floor style per zone, a material per wall or post) and a missing name keeps the flat colour. To change one, overwrite its PNG in `assets/sprites/` (`tile_<style>`, `wall_<material>`, `post_<material>`) and add the line `hand_drawn` to its `.sprite`, or edit its grid and run the art tool.
 
 ### Spells, enemy attacks and the wizard (Sprint 13c)
 

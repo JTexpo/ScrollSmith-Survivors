@@ -4,7 +4,6 @@ extends GutTest
 const EnemyArtHelpers := preload("res://tests/helpers/enemy_art_helpers.gd")
 const SpriteHelpers := preload("res://tests/helpers/sprite_helpers.gd")
 
-const BOUNDS := Rect2(0, 0, 960, 540)
 const ALL_TYPES: Array[StringName] = [&"standard", &"swarmer", &"chaser", &"tank", &"ranged", &"exploder", &"support"]
 const ELEMENTS: Array[StringName] = [&"none", &"fire", &"thunder", &"land", &"sea"]
 const RUINS_SPRITES: Array[StringName] = [&"standard", &"chaser", &"ranged"]

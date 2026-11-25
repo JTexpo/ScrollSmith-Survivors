@@ -29,7 +29,10 @@ func test_no_decor_sprite_sources_or_scripts_remain() -> void:
 		assert_false(String(file).begins_with("decor_"), "%s" % file)
 	for file in DirAccess.get_files_at("res://scripts/world"):
 		assert_false(String(file).begins_with("map_decor"), "%s" % file)
-	assert_false(ClassDB.class_exists(&"MapDecor") or FileAccess.file_exists("res://scripts/world/map_decor.gd"), "MapDecor is gone")
+	for entry in ProjectSettings.get_global_class_list():
+		assert_false(String(entry["class"]).begins_with("MapDecor"), "%s is back" % entry["class"])
+	for method in (WorldArt as GDScript).get_script_method_list():
+		assert_ne(method["name"], "decor_set", "WorldArt.decor_set is back")
 
 
 func test_the_map_files_name_no_decoration() -> void:

@@ -9,7 +9,7 @@ Requested by the user (item 5 of the follow-up list). **No code was changed.** T
 | Decision | Count | Meaning |
 |---|---|---|
 | Keep: observer seam | 73 | Reads private state of a widget, the sound board or the effects, so a test can see what the player would see. The only alternative is making that state public. |
-| Keep: documented contract or tool API | 7 | Named in `CLAUDE.md` or used by developer tools, or encodes a design rule. |
+| Keep: documented contract or tool API | 7 | Named in the architecture docs or used by developer tools, or encodes a design rule. |
 | Make real | 2 | A real concept the game computes inline somewhere; use the method there so it has a production caller. |
 | Move to a test helper | 2 | Loaders only tests call. |
 | Remove | 7 | Dead in the game; tests can reach the fact another way. |
@@ -41,12 +41,12 @@ Requested by the user (item 5 of the follow-up list). **No code was changed.** T
 
 ## Keep: documented contract or tool API
 
-- `damage_system.calculate` (11 test uses): the Sprint 1 contract named in `CLAUDE.md` ("all damage goes through `DamageSystem.calculate`"); production uses `resolve`. Keep unless the contract text is rewritten.
+- `damage_system.calculate` (11 test uses): the Sprint 1 contract named in the architecture docs ("all damage goes through `DamageSystem.calculate`"); production uses `resolve`. Keep unless the contract text is rewritten.
 - `spell_audit.rows` (115 test uses): used by `scripts/dev/spell_audit.gd`, a developer tool.
 - `run_potions.counts` (56 test uses): documented "for tests and tools"; used by the potion bar.
 - `body_view.set_set` (18 test uses): used by `set_look`; the "for tests" note is also true.
-- `map_maze.center_room_center` (8 test uses): map-authoring helper in `CLAUDE.md` (where the middle room is).
-- `map_maze.dead_end_cells` (9 test uses): map-authoring helper in `CLAUDE.md` (where placements go in a maze).
+- `map_maze.center_room_center` (8 test uses): map-authoring helper in the architecture docs (where the middle room is).
+- `map_maze.dead_end_cells` (9 test uses): map-authoring helper in the architecture docs (where placements go in a maze).
 - `boss_attack.escape_margin` (4 test uses): the formula of the always-avoidable boss rule; tests pin it for every attack.
 
 ## Keep: observer seams (73)

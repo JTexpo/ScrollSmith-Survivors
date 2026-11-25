@@ -15,6 +15,8 @@ Run everything with the venv active (`source venv/bin/activate`). Godot is the H
 - Run one test: add `-gunit_test_name=test_name`
 - Smoke-run the project: `godot --headless --quit-after 60`
 - Run the game: `godot --path .` (or open `project.godot` in the editor and press F5)
+- Art, theme, fonts and sounds are built from text sources by `godot --headless -s tools/art/art_builder.gd` (`art/sprites/*.sprite`, `art/palette.txt`, `art/fonts`, `audio/`); run `godot --headless --import` before it after a new `class_name` and again after it. Edit a source and forget the tool, and `test_art_assets` or `test_audio_assets` fails. Committed outputs are in `assets/`.
+- Soak test: `godot --headless --fixed-fps 60 -s scripts/dev/soak_test.gd -- --rounds=12 --frames=600`. Spell audit: `godot --headless -s scripts/dev/spell_audit.gd`. Stress-scene options beyond the ones below (`--obstacles`, `--map=<id>`, `--boss`, `--minutes=N`, `--fx`, `--sound`) are in `docs/architecture/polish-and-performance.md` and `maps-and-world.md`.
 - Stress test (windowed): `godot --path . res://scenes/world/stress_test.tscn -- --enemies=300 --seconds=10` prints one `STRESS` line with fps and frame times. Target is 60 fps at 300 enemies. Options: `--area=missile|cone|zone|line|wave`, `--drops`, `--copies=N` (Duplicate Area shots) and `--interval=SECONDS` (the default 0.05 s torture rate is far faster than any real spell).
 
 The `godot` MCP server (`@coding-solo/godot-mcp`, launched via `npx`) is configured in `.mcp.json`. Node and `npx` live only in the gitignored `venv/` (installed with `nodeenv`), so start Claude Code from a shell where you ran `source venv/bin/activate`, or the server fails to connect. Godot itself (4.7.2) comes from Homebrew.
@@ -27,7 +29,7 @@ The design docs are the source of truth. Read them before changing anything:
 
 - `README.md`: game design document (GDD). Mechanics, progression tables, enemy and equipment design.
 - `technical-design.md`: architecture, proposed directory layout, coding standards.
-- `sprint-development.md`: Sprints 0–15 plus the MVP definition. Find the current sprint here.
+- `sprint-development.md`: Sprints 0–16 plus the MVP definition. Find the current sprint here.
 - `docs/architecture/`: how each system works and why, one doc per subsystem (index at the end of this file). **Read the one for the system you are about to change.**
 - `claude-prompt.txt`: the user's per-task prompt template.
 
@@ -48,7 +50,7 @@ Layering, per `technical-design.md`:
 - **Scenes** are physical objects and UI (Player, Enemy, Projectile, Lectern, HUD, crafting menu).
 - **Scripts** hold logic and systems.
 - **Custom `Resource`s** hold all data definitions: `SpellData`, scroll, `EnemyData`, equipment and potion definitions.
-- **Autoloads** are only for truly global or persistent state (Game/Run/Save managers). Avoid adding more.
+- **Autoloads** are only for truly global state, and the project has no autoloads: static classes and nodes in the run scene do that job, and `test_front_door_guards` and `test_audio_guards` fail if one appears.
 
 Systems that must stay separate and reusable:
 
@@ -63,10 +65,11 @@ Systems that must stay separate and reusable:
 
 ## Established Design Rules (do not change without asking)
 
-- **Mana never regenerates naturally.** Each spell has its own pool. A depleted spell can't be cast until something explicitly restores mana (potions, debug tools, or future effects). Spells must not cast with insufficient mana.
+- **Mana never regenerates naturally.** Each spell has its own pool. A depleted spell can't be cast until something explicitly restores mana (potions or future effects). Spells must not cast with insufficient mana.
 - Crafting needs at least one Base and exactly one Area. Buffs are optional. Every buff and every increase in range or area raises mana cost. Hybrid (multi-Base) spells drain mana faster.
 - Elements: Fire > Land > Thunder > Sea > Fire. Each element is strong against the one it beats and weak against the one that beats it. Enemies without an affinity take normal damage.
 - XP feeds a permanent 20-level wizard track (reward table in the README). Gold buys equipment between runs. Spell slots go from 1 to 5.
+- **User rulings, kept here because they are easy to undo by accident** (the reasons are in `docs/architecture/`): every player spell passes over obstacles (only movement and enemy projectiles are blocked); an element never changes a stat (archetype and element are picked independently); potions last one run and are sold only by the in-run merchant, and scrolls are never sold or saved; the run continues after a boss, and every boss attack has a warning a player at base speed can always escape; starting-spell buffs are rolled or picked again at every run start and never saved; every sprite is drawn at one pixel size, never scaled or rotated; green means go and red means stop in the interface; everything but layout and art is the same on every map.
 - Inputs go through the Godot Input Map using logical actions. Keyboard, mouse, and controller share one gameplay implementation (WASD, E interact, 1–5 spell slots, mouse aim, LMB cast, Esc pause, M mute).
 
 ## Conventions
@@ -75,8 +78,10 @@ Systems that must stay separate and reusable:
 - Use typed GDScript where practical. One responsibility per script. Prefer composition over inheritance. Avoid circular dependencies. Use signals between independent systems.
 - Gameplay and balance values belong in Resources or `@export` properties, not scattered through scripts.
 - Directories from the proposed layout (`scenes/`, `scripts/{autoload,systems,utilities}/`, `resources/`, `assets/`, `tests/`) are created only as their systems are built.
+- **Writing tests.** A test that instantiates a run scene (`main.tscn`, the forest or maze scene) sets `save_path = ""` (so the real save is never touched) and the pick screen's `pause_tree = false` before `add_child` (`tests/helpers/main_helpers.gd` does both). A test of the home screen's Play sets `HomeScreen.scene_changer`; one that really changes scene breaks every later test. Hand-written `.tscn` files need `node_paths=PackedStringArray("prop")` on the `[node]` line for any Node-typed export set by NodePath, or it stays null silently. Never run two Godot processes at once (false failures). Shared test code lives in `tests/helpers/` and `tests/map_layout_checks.gd`.
+- **New sprint notes** go in the matching `docs/architecture/<topic>.md` under a `## <title> (Sprint <id>)` heading, and that heading is added to `tests/fixtures/claude_md_sections.txt`; a new topic doc is also listed in the index below and in `TOPICS` of `tests/test_claude_md.gd`.
 - Don't optimize prematurely. Profile first. Object pooling for projectiles is the likely first optimization.
-- Record significant architectural decisions. The layout in `technical-design.md` mentions a `development-log.md`, which doesn't exist yet.
+- Record significant architectural decisions and measurements in `development-log.md`.
 
 ## Web build and GitHub Pages
 
