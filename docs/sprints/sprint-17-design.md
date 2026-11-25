@@ -1,6 +1,6 @@
 # Sprint 17 Design: Achievements
 
-**Status:** Proposed, awaiting the user's approval. Branch `sprint-17-achievements`.
+**Status:** Implemented (Sprint 17). Deviations: the Achievements screen is 3 columns by 4 rows with Close at the top right, the toast is bottom-centre, `lifetime_gold` is always written, `SoundBoard.bind_achievements` is public, and the screen takes `open(catalog, profile, track)`; see `docs/architecture/progression-and-economy.md`.
 
 Sprint 17 of the wishlist (`docs/release-planning/future-roadmap.md`, item 2). Scope comes from the user's answers in conversation; decisions marked "my call" are mine and open to correction.
 
