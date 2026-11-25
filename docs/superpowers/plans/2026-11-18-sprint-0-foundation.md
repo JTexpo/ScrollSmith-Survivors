@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7.2 (Homebrew), typed GDScript, GUT 9.7.1 (already vendored in `addons/gut/`), Compatibility renderer.
 
-**Spec:** `sprint-0-design.md` (approved). Scope also follows `sprint-development.md` (Sprint 0), `technical-design.md` and `CLAUDE.md`.
+**Spec:** `docs/sprints/sprint-0-design.md` (approved). Scope also follows `sprint-development.md` (Sprint 0), `technical-design.md` and `CLAUDE.md`.
 
 ## Global Constraints
 
@@ -64,8 +64,8 @@
 Run: `godot --headless --import` then `godot --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests -gexit`
 Expected: GUT starts and the smoke test passes. If the settings are wrong the test fails first. Fix `project.godot` until it passes. If GUT fails to load on 4.7.2, stop and report the error. Don't work around it silently.
 - [ ] **Step 5: Run the project once** with `godot --headless --quit-after 60` and expect no errors or warnings in the output.
-- [ ] **Step 6: Record** the verified test command in `CLAUDE.md` (replace the "no commands exist" statements that are now false, and keep the rest), and write the first `development-log.md` entry (date, decisions from `sprint-0-design.md`, GUT 9.7.1).
-- [ ] **Step 7: Commit** `project.godot`, `.gutconfig.json`, `tests/`, `scenes/`, `addons/gut/`, `.gitignore`, `sprint-0-design.md`, `docs/`, `development-log.md`, `CLAUDE.md` with `chore: Godot project skeleton, GUT 9.7.1, Sprint 0 design`.
+- [ ] **Step 6: Record** the verified test command in `CLAUDE.md` (replace the "no commands exist" statements that are now false, and keep the rest), and write the first `development-log.md` entry (date, decisions from `docs/sprints/sprint-0-design.md`, GUT 9.7.1).
+- [ ] **Step 7: Commit** `project.godot`, `.gutconfig.json`, `tests/`, `scenes/`, `addons/gut/`, `.gitignore`, `docs/sprints/sprint-0-design.md`, `docs/`, `development-log.md`, `CLAUDE.md` with `chore: Godot project skeleton, GUT 9.7.1, Sprint 0 design`.
 
 ---
 
@@ -99,7 +99,7 @@ Expected: GUT starts and the smoke test passes. If the settings are wrong the te
 
 - [ ] **Step 1: Write the failing tests.** `test_input_map.gd`: `test_all_actions_exist` iterates the 14 names and asserts `InputMap.has_action(name)`, and `test_movement_has_keyboard_and_joypad_events` asserts each `move_*` has at least one `InputEventKey` and one `InputEventJoypadMotion` or `InputEventJoypadButton`. `test_move_component.gd`: `test_diagonal_not_faster` calls `apply` on a `CharacterBody2D` with `Vector2(1, 1)` and asserts `body.velocity.length()` is within 0.01 of `speed`. `test_zero_direction_stops` asserts velocity `== Vector2.ZERO`.
 - [ ] **Step 2: Run** the two files. Expect FAIL.
-- [ ] **Step 3: Define the Input Map** with a headless script (`godot --headless -s <script>`) that builds each action with `ProjectSettings.set_setting("input/<name>", {"deadzone": 0.5, "events": [...]})` and calls `ProjectSettings.save()`. Bindings per `sprint-0-design.md` section 4. `cast` is left mouse button, the pause is Esc and Start, and `spell_slot_n` is keys 1–5 only (controller bindings deferred). Run it once and check `project.godot` contains the actions.
+- [ ] **Step 3: Define the Input Map** with a headless script (`godot --headless -s <script>`) that builds each action with `ProjectSettings.set_setting("input/<name>", {"deadzone": 0.5, "events": [...]})` and calls `ProjectSettings.save()`. Bindings per `docs/sprints/sprint-0-design.md` section 4. `cast` is left mouse button, the pause is Esc and Start, and `spell_slot_n` is keys 1–5 only (controller bindings deferred). Run it once and check `project.godot` contains the actions.
 - [ ] **Step 4: Implement `MoveComponent`**, then `player.gd` (`class_name Player extends CharacterBody2D`): `_physics_process` reads `Input.get_vector("move_left", "move_right", "move_up", "move_down")` and calls the `MoveComponent`. `player.tscn` is a colored `ColorRect`/`Polygon2D` 12×12 placeholder, a `CollisionShape2D`, `Camera2D` with `position_smoothing_enabled = true`, and the two components. The arena is a 960×540 floor with four static wall bodies, and `Camera2D` limits are set to the arena rectangle. `main.tscn` instances the arena and player.
 - [ ] **Step 5: Run** the tests. Expect PASS. Run the project headless for 60 frames and expect no errors.
 - [ ] **Step 6: Commit** `feat: Input Map, MoveComponent, Player, arena`.
@@ -183,7 +183,7 @@ Expected: GUT starts and the smoke test passes. If the settings are wrong the te
 
 - [ ] **Step 1: Run the full suite:** `godot --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests -gexit`. Expect 0 failing tests.
 - [ ] **Step 2: Run the project** headless for 60 frames, and via the `godot` MCP server (`run_project`, then `get_debug_output`). Expect no errors or warnings.
-- [ ] **Step 3: Ask the user to run the manual checklist** from `sprint-0-design.md` section 7 (movement, controller, camera limits, resize crispness, enemy visible, touch emulation).
+- [ ] **Step 3: Ask the user to run the manual checklist** from `docs/sprints/sprint-0-design.md` section 7 (movement, controller, camera limits, resize crispness, enemy visible, touch emulation).
 - [ ] **Step 4: Tick the Sprint 0 boxes** in `sprint-development.md` that are done, update the memory notes, and commit `docs: Sprint 0 complete`.
 
 ## Self-review notes

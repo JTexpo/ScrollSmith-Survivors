@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7.2, typed GDScript, GUT 9.7.1.
 
-**Spec:** `sprint-12a-design.md` (repo root). Read it first. Sprint 12b (obstacles) and 12c (points of interest) are NOT built here.
+**Spec:** `docs/sprints/sprint-12a-design.md` (repo root). Read it first. Sprint 12b (obstacles) and 12c (points of interest) are NOT built here.
 
 ## Global Constraints
 
@@ -147,7 +147,7 @@
 ### Task 6: Verify and document
 
 **Files:**
-- Modify: `sprint-development.md`, `README.md`, `technical-design.md`, `CLAUDE.md`, `development-log.md`, `sprint-12a-design.md` (Status: Built)
+- Modify: `sprint-development.md`, `README.md`, `technical-design.md`, `CLAUDE.md`, `development-log.md`, `docs/sprints/sprint-12a-design.md` (Status: Built)
 
 - [ ] **Step 1: Smoke and MCP run.** `godot --headless --quit-after 60` is clean. Run the project with `mcp__godot__run_project` once and read `get_debug_output` for warnings (load them with `ToolSearch select:`), then `stop_project`.
 - [ ] **Step 2: Stress.** Run `godot --path . res://scenes/world/stress_test.tscn -- --enemies=300 --seconds=8 --drops` once and `--minutes=0` once. Expected: within noise of Sprint 11 (Standard-only Missile about 481 fps, default about 402). The stress scene still uses `test_arena.tscn`, so a drop means the shared code changed: investigate.

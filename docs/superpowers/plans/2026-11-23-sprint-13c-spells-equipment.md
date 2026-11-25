@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7.2, GDScript, GUT 9.7.1, the 13a/13b art pipeline (`art/`, `tools/art/art_builder.gd`).
 
-**Spec:** `sprint-13c-design.md`
+**Spec:** `docs/sprints/sprint-13c-design.md`
 
 ## Global Constraints
 
@@ -168,7 +168,7 @@
 ### Task 8: Verify and document
 
 **Files:**
-- Modify: `sprint-development.md`, `README.md`, `technical-design.md`, `CLAUDE.md`, `development-log.md`, `sprint-13c-design.md` (Status: Built)
+- Modify: `sprint-development.md`, `README.md`, `technical-design.md`, `CLAUDE.md`, `development-log.md`, `docs/sprints/sprint-13c-design.md` (Status: Built)
 
 - [ ] **Step 1: Smoke and MCP run.** `godot --headless --quit-after 60` is clean. Run the project with `mcp__godot__run_project`, read `get_debug_output`, then `stop_project`.
 - [ ] **Step 2: Stress.** Four runs each of the full scene and of `--area=cone --copies=5 --interval=0.4`, `--area=zone`, `--area=wave` and `--boss`, medians, compared with `main` measured in the same session in a throwaway worktree. Record all in the log.

@@ -934,7 +934,7 @@ Confirmed by the user: the enemy columns above; **everything but the sprites is 
 
 ## Sprint 16a: The map select, the art sets and the new layouts
 
-**Status:** done (see `sprint-16a-design.md`, `development-log.md` and `CLAUDE.md`, "Maps and the map select").
+**Status:** done (see `docs/sprints/sprint-16a-design.md`, `development-log.md` and `CLAUDE.md`, "Maps and the map select").
 
 **Goal:** Play chooses a map; a map says which enemy art set and boss roster it uses; the forest and the maze exist and are playable, with today's art and the Ember Titan until their art sprints.
 
@@ -961,7 +961,7 @@ Three maps selectable from Play, all playable.
 
 ## Sprint 16b: The forest's art and the Tempest Dragon
 
-**Status:** done (see `sprint-16b-design.md`, `development-log.md` and `CLAUDE.md`, "The forest's art and the Tempest Dragon").
+**Status:** done (see `docs/sprints/sprint-16b-design.md`, `development-log.md` and `CLAUDE.md`, "The forest's art and the Tempest Dragon").
 
 **Goal:** The forest looks and feels like its own place, about finding a dragon.
 
@@ -979,7 +979,7 @@ The forest with its full enemy set and the Tempest Dragon.
 
 ## Sprint 16c: The ruins' art refresh
 
-**Status:** done (see `sprint-16c-design.md`, `development-log.md` and `CLAUDE.md`, "The ruins' art refresh"). The renaming of every plain sprite into its set is left for 16d (option A).
+**Status:** done (see `docs/sprints/sprint-16c-design.md`, `development-log.md` and `CLAUDE.md`, "The ruins' art refresh"). The renaming of every plain sprite into its set is left for 16d (option A).
 
 **Goal:** The ruins show exactly their column: bandit, slime, mimic, animated armour, elemental, mephit, cultist and the Ember Titan.
 
@@ -994,7 +994,7 @@ The ruins with their themed enemy set.
 
 ## Sprint 16d: The maze's art and the Dire Minotaur
 
-**Status:** done (see `sprint-16d-design.md`, `development-log.md` and `CLAUDE.md`, "The maze's art and the Dire Minotaur"). The planned renaming of the plain sprites was dropped. **Sprint 16 is complete.**
+**Status:** done (see `docs/sprints/sprint-16d-design.md`, `development-log.md` and `CLAUDE.md`, "The maze's art and the Dire Minotaur"). The planned renaming of the plain sprites was dropped. **Sprint 16 is complete.**
 
 **Goal:** The maze feels like a minotaur's dungeon.
 

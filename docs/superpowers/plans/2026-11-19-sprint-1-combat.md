@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7.2, typed GDScript, GUT 9.7.1, Compatibility renderer. Existing Sprint 0 code in `scripts/`, `scenes/`, `tests/`.
 
-**Spec:** `sprint-1-design.md` (approved). Also `sprint-0-design.md`, `CLAUDE.md`, `technical-design.md`.
+**Spec:** `docs/sprints/sprint-1-design.md` (approved). Also `docs/sprints/sprint-0-design.md`, `CLAUDE.md`, `technical-design.md`.
 
 ## Global Constraints
 

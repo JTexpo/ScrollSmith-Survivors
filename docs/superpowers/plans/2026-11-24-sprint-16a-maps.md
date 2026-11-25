@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7 GDScript, GUT, the game theme, `UiKit`, existing sprites.
 
-**Spec:** `sprint-16a-design.md`
+**Spec:** `docs/sprints/sprint-16a-design.md`
 
 ## Global Constraints
 
@@ -177,7 +177,7 @@
 ### Task 10: The stress option, the order check, docs and the full verification
 
 **Files:**
-- Modify: `scripts/dev/stress_test.gd` (a `--map=<id>` option), `tests/test_stress_report.gd` only if it parses options, `CLAUDE.md`, `development-log.md`, `sprint-development.md`, `sprint-16a-design.md` (status line), `README.md` if it lists screens or maps
+- Modify: `scripts/dev/stress_test.gd` (a `--map=<id>` option), `tests/test_stress_report.gd` only if it parses options, `CLAUDE.md`, `development-log.md`, `sprint-development.md`, `docs/sprints/sprint-16a-design.md` (status line), `README.md` if it lists screens or maps
 - Create (scratchpad only): the order-check driver script
 
 **Interfaces:**

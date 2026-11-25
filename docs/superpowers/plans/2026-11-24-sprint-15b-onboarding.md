@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7 GDScript, GUT, the game theme, `UiKit` and the existing sprites.
 
-**Spec:** `sprint-15b-design.md`
+**Spec:** `docs/sprints/sprint-15b-design.md`
 
 ## Global Constraints
 
@@ -93,7 +93,7 @@
 ### Task 5: Guards, real-window checks and docs
 
 **Files:**
-- Modify: `tests/test_front_door_guards.gd`, `CLAUDE.md` (a "Onboarding and run statistics (Sprint 15b)" section, the Project State line, the death-screen mentions), `README.md`, `sprint-development.md` (15b ticks: run statistics, game-over screen, tutorial/onboarding, and a Built note), `development-log.md`, `sprint-15b-design.md` (Status: Built, revisions), `technical-design.md` (the `bests` field)
+- Modify: `tests/test_front_door_guards.gd`, `CLAUDE.md` (a "Onboarding and run statistics (Sprint 15b)" section, the Project State line, the death-screen mentions), `README.md`, `sprint-development.md` (15b ticks: run statistics, game-over screen, tutorial/onboarding, and a Built note), `development-log.md`, `docs/sprints/sprint-15b-design.md` (Status: Built, revisions), `technical-design.md` (the `bests` field)
 
 - [ ] **Step 1: Guards.** Extend `test_front_door_guards.gd` with `test_no_gameplay_script_references_the_recap_records_or_tutorial` (allowed: `scripts/ui/run_recap.gd`, `scripts/progression/run_records.gd`, `scripts/progression/run_stats.gd`, `scripts/ui/death_screen.gd`, `scripts/ui/tutorial_*`, `scripts/main/main.gd`, `scripts/home/`) and `test_run_stats_never_calls_into_gameplay` (the script contains no method call on a node other than `connect`). Run. Expected: PASS or fix what it finds.
 - [ ] **Step 2: Real window** (a scratchpad script: throwaway save and settings paths, `await process_frame` first, `--resolution 960x540`): screenshots of all four tutorial pages and of the death card (a first run with no mark, then a better run with "New best!" marks, using a throwaway save and a Main whose tally is set by killing enemies and collecting a pickup); by TOUCH and by MOUSE: open the Tutorial from the home screen, tap Next three times and Back once, Done closes, the home Play button has focus; die and read the card, tap Home. Read the screenshots and report what was seen and what was not checked (a real phone).

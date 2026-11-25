@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7 `.tres` data, GDScript tests (GUT), `venv/bin/python` for the one scripted data edit.
 
-**Spec:** `sprint-14a-design.md`
+**Spec:** `docs/sprints/sprint-14a-design.md`
 
 ## Global Constraints
 
@@ -93,7 +93,7 @@ Contract positions (proposed; Task 2 may shift a ring by up to 40 px if a layout
 ### Task 3: Docs and wrap-up
 
 **Files:**
-- Modify: `CLAUDE.md` (the Points of interest "Placement on the first map" line and the Map regions first-map paragraph), `sprint-development.md` (a 14a note under Sprint 14), `development-log.md`, `sprint-14a-design.md` (Status: Built, plus "Revisions during the build" for any nudge), `README.md` only if it names old positions.
+- Modify: `CLAUDE.md` (the Points of interest "Placement on the first map" line and the Map regions first-map paragraph), `sprint-development.md` (a 14a note under Sprint 14), `development-log.md`, `docs/sprints/sprint-14a-design.md` (Status: Built, plus "Revisions during the build" for any nudge), `README.md` only if it names old positions.
 
 - [ ] **Step 1: Update the docs** to the new layout (placement table, the ring formula, the yard, the grove, the tests that pin it) and state clearly that whether it feels better is the user's call.
 - [ ] **Step 2: Run the whole suite and `godot --headless --quit-after 60`.** Expected: PASS, no new warnings; stress `--enemies=300 --seconds=8 --obstacles --drops` once, expected within noise of about 105 to 120 fps (about 30 more shapes).

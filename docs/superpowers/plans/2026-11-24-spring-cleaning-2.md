@@ -19,7 +19,7 @@
 
 ## Review Focus
 
-- **Dead links:** a moved file mentioned by a path form the script missed (a relative `../sprint-9-design.md`, a mention in a `.tres` or script comment, a backtick-less mention).
+- **Dead links:** a moved file mentioned by a path form the script missed (a relative path with `../` in front, a mention in a `.tres` or script comment, a backtick-less mention).
 - **Facts lost in the split:** a `CLAUDE.md` rule that was only stated inside a section and is no longer discoverable; the split must be a pure move (a test compares the sections' text).
 - **Decoration leftovers:** an old saved `.tres` still carrying `decoration_*` fields (Godot ignores unknown fields, but the guard must see none), the `Decor` node name in tests or `DrawChunk` callers, `decor_` names in tools or the palette.
 - **Helper moves that change behaviour:** a shared helper that two files used with slightly different bodies.

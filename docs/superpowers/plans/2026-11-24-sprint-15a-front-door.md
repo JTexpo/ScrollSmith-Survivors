@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7 GDScript, GUT, the game theme and `UiKit`.
 
-**Spec:** `sprint-15a-design.md`
+**Spec:** `docs/sprints/sprint-15a-design.md`
 
 ## Global Constraints
 
@@ -114,7 +114,7 @@
 
 **Files:**
 - Create: `tests/test_front_door_guards.gd`
-- Modify: `CLAUDE.md` (a "Front door (Sprint 15a)" section, the Project State line, the Sprint 5 inventory line, the death-screen line), `README.md` (a player-facing paragraph), `sprint-development.md` (15a ticks and a Built note), `development-log.md`, `sprint-15a-design.md` (Status: Built, revisions), `technical-design.md` (settings file)
+- Modify: `CLAUDE.md` (a "Front door (Sprint 15a)" section, the Project State line, the Sprint 5 inventory line, the death-screen line), `README.md` (a player-facing paragraph), `sprint-development.md` (15a ticks and a Built note), `development-log.md`, `docs/sprints/sprint-15a-design.md` (Status: Built, revisions), `technical-design.md` (settings file)
 
 - [ ] **Step 1: Write `tests/test_front_door_guards.gd`** (RED if anything missed it): `test_the_project_has_no_autoload`, `test_no_script_outside_the_front_door_references_the_settings_screen_or_store` (allowed: `scripts/settings/`, `scripts/ui/settings_screen.gd`, `scripts/ui/pause_menu.gd`, `scripts/home/`, `scripts/main/main.gd`, `scripts/audio/sound_board.gd`, `scripts/ui/perf_overlay.gd`), `test_the_home_screen_never_instantiates_the_run_scene_itself` (no `load` or `preload` of `main.tscn` in `home_screen.gd`; it only passes the path to `SceneSwitcher`), `test_every_new_screen_handles_touch` (each of `HomeScreen`, `SettingsScreen`, `ConfirmDialog`, `PauseMenu`, `PauseButton` defines a touch path: `_input` or `handle_input`/`handle_touch` that mentions `InputEventScreenTouch` or `TouchBridge`), `test_every_screen_that_must_work_paused_is_always`. Run. Expected: PASS or fix what it finds.
 - [ ] **Step 2: Real window** (a scratchpad script as in earlier sprints: `save_path` and `settings_path` in a throwaway folder, `await process_frame` first, `--resolution 960x540`, `Input.parse_input_event` in window coordinates): screenshots of the home screen, Settings (main, controls and credits pages), both New game confirmations, the pause menu, the pause button and the death screen with Home; by TOUCH and by MOUSE: press Play (the run scene appears), move a volume slider and flip a toggle and see the saved file change, run New game through both steps against a throwaway save (the `.bak` appears and settings stay), pause and resume (the run clock and `GameTime` freeze then continue), open and close the inventory (pauses and resumes) and tap Home on the death screen (goes home, does not restart). Read the screenshots; report what was seen and what was not checked (a real phone).

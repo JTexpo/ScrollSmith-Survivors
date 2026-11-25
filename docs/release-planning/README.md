@@ -10,4 +10,4 @@ Everything needed to resume is here:
 | `itchio-notes.md` | Notes for publishing the web build to itch.io (items marked VERIFY were written from memory and must be checked against itch.io's current documentation before relying on them) |
 | `future-roadmap.md` | The user's wishlist (new maps and bosses, achievements, livelier home and tutorial art) and every open item from earlier sprints, with where the details live |
 
-The original Sprint 15 list is in `sprint-development.md`; the finished halves are `sprint-15a-design.md` (the front door) and `sprint-15b-design.md` (onboarding and run statistics).
+The original Sprint 15 list is in `sprint-development.md`; the finished halves are `docs/sprints/sprint-15a-design.md` (the front door) and `docs/sprints/sprint-15b-design.md` (onboarding and run statistics).

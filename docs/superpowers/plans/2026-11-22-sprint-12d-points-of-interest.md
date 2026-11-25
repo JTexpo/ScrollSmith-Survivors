@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7.2, typed GDScript, GUT 9.7.1.
 
-**Spec:** `sprint-12d-design.md` (repo root). Read it first.
+**Spec:** `docs/sprints/sprint-12d-design.md` (repo root). Read it first.
 
 ## Global Constraints
 
@@ -194,7 +194,7 @@
 ### Task 8: Verify and document
 
 **Files:**
-- Modify: `sprint-development.md`, `README.md`, `technical-design.md`, `CLAUDE.md`, `development-log.md`, `sprint-12d-design.md` (Status: Built)
+- Modify: `sprint-development.md`, `README.md`, `technical-design.md`, `CLAUDE.md`, `development-log.md`, `docs/sprints/sprint-12d-design.md` (Status: Built)
 
 - [ ] **Step 1: Smoke and MCP run.** `godot --headless --quit-after 60` is clean. Run the project with `mcp__godot__run_project`, read `get_debug_output` for warnings (load with `ToolSearch select:`), then `stop_project`.
 - [ ] **Step 2: Stress.** `godot --path . res://scenes/world/stress_test.tscn -- --enemies=300 --seconds=8 --drops --obstacles`, three or four runs, median. Expected: within about 15% of Sprint 12c (about 186 fps), since the stress scene builds the first map (and so the new nodes).

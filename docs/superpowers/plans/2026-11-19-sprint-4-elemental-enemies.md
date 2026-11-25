@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7.2, typed GDScript, GUT 9.7.1, Compatibility renderer. Existing code in `scripts/`, `scenes/`, `resources/`, `tests/`.
 
-**Spec:** `sprint-4-design.md` (approved). Also `sprint-3-design.md`, `CLAUDE.md`, `technical-design.md` section 8.
+**Spec:** `docs/sprints/sprint-4-design.md` (approved). Also `docs/sprints/sprint-3-design.md`, `CLAUDE.md`, `technical-design.md` section 8.
 
 ## Global Constraints
 
@@ -137,11 +137,11 @@
 ### Task 6: Docs, stress measurements, wrap-up
 
 **Files:**
-- Modify: `README.md` (Elemental Affinities: replace "a Fire enemy may resist Fire damage but be vulnerable to Sea damage" with "a Fire enemy takes extra damage from Sea and reduced damage from Land, and normal damage from Fire and Thunder"), `technical-design.md` (section 8.2: enemies have one element and vulnerability and resistance come from the table, with per-enemy overrides left for later), `sprint-development.md` (tick every Sprint 4 box that is built, plus a Built note), `CLAUDE.md` (Project State, a "Elemental enemies (Sprint 4)" section, and fix the Sprint 2 line saying nothing passes a defender element yet), `development-log.md`, `sprint-4-design.md` (Status: Built)
+- Modify: `README.md` (Elemental Affinities: replace "a Fire enemy may resist Fire damage but be vulnerable to Sea damage" with "a Fire enemy takes extra damage from Sea and reduced damage from Land, and normal damage from Fire and Thunder"), `technical-design.md` (section 8.2: enemies have one element and vulnerability and resistance come from the table, with per-enemy overrides left for later), `sprint-development.md` (tick every Sprint 4 box that is built, plus a Built note), `CLAUDE.md` (Project State, a "Elemental enemies (Sprint 4)" section, and fix the Sprint 2 line saying nothing passes a defender element yet), `development-log.md`, `docs/sprints/sprint-4-design.md` (Status: Built)
 
 **Interfaces:** none (documentation and measurement).
 
 - [ ] **Step 1: Run the stress test** at 300 enemies for the default Missile, `--area=wave` and `--area=zone`: `godot --path . res://scenes/world/stress_test.tscn -- --enemies=300 --seconds=10` (and with `--area=wave`, `--area=zone`). Record the `STRESS` lines. Expected: `avg_fps` of at least 60 for all three. If any is below 60, stop and report it before continuing.
-- [ ] **Step 2: Update the docs** listed above. In `development-log.md` add a "Sprint 4 (elemental enemies)" entry: the decisions and calls from `sprint-4-design.md`, the enemy stats, a note that the Sprint 2 cast-time limitation is gone, the known limitations (overkill damage numbers show full damage, which the user is happy with, and no in-game legend of the element cycle), and a note that the player has no element by default but the hurtbox property lets equipment add one later, and the stress table beside the Sprint 3 numbers.
+- [ ] **Step 2: Update the docs** listed above. In `development-log.md` add a "Sprint 4 (elemental enemies)" entry: the decisions and calls from `docs/sprints/sprint-4-design.md`, the enemy stats, a note that the Sprint 2 cast-time limitation is gone, the known limitations (overkill damage numbers show full damage, which the user is happy with, and no in-game legend of the element cycle), and a note that the player has no element by default but the hurtbox property lets equipment add one later, and the stress table beside the Sprint 3 numbers.
 - [ ] **Step 3: Run the full suite** and the smoke run. Expected: all pass, no errors.
 - [ ] **Step 4: Commit.** `git add -A && git commit -m "docs: Sprint 4 complete"`, with the trailer.

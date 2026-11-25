@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7.2, GDScript, GUT 9.7.1, the 13a to 13e art and audio pipelines.
 
-**Spec:** `sprint-13f-design.md`
+**Spec:** `docs/sprints/sprint-13f-design.md`
 
 ## Global Constraints
 
@@ -38,7 +38,7 @@
 - Effect nodes: new `scripts/fx/{burst_layer,camera_shake,screen_flash,fx_director,low_health_warning,hit_indicator}.gd`, `scenes/fx/{low_health_warning,hit_indicator}.tscn`, `scenes/main/main.tscn` (adds the director and the warning), `tests/test_burst_layer.gd`, `test_camera_shake.gd`, `test_fx_director.gd`, `test_low_health_warning.gd`, `test_hit_indicator.gd`.
 - Touched by one-line additions: `scripts/spells/area_effect.gd` (announce hits), `scripts/systems/scroll_dropper.gd` (`placed` signal), `scripts/ui/health_bar.gd` (heart beat), `scripts/ui/spell_slot_widget.gd` (low-mana pulse), `scripts/audio/sound_board.gd` (volume offset and weight), `scripts/entities/body_view.gd` (a small jitter offset), `tests/test_health_bar.gd`, `test_spell_slot_widget` (inside `test_spell_bar.gd`), `test_sound_board.gd`, `test_scroll_dropper.gd`, `test_body_view.gd`, the five area tests.
 - Art and sound: `art/sprites/icon_heart_beat.sprite`, `fx_hit_edge_h.sprite`, `fx_hit_edge_v.sprite` (and built files); `audio/sounds/heartbeat.sfx`, `audio/sounds/mana_low.sfx`, `assets/audio/*.wav`, `scripts/audio/sound_id.gd`, `resources/audio/sound_catalog.tres`.
-- Dev tool and docs: `scenes/world/fx_test.tscn`, `scripts/world/fx_test.gd`, `scripts/dev/stress_test.gd` (`--fx`), `CLAUDE.md`, `README.md`, `technical-design.md`, `sprint-development.md`, `development-log.md`, `sprint-13f-design.md`.
+- Dev tool and docs: `scenes/world/fx_test.tscn`, `scripts/world/fx_test.gd`, `scripts/dev/stress_test.gd` (`--fx`), `CLAUDE.md`, `README.md`, `technical-design.md`, `sprint-development.md`, `development-log.md`, `docs/sprints/sprint-13f-design.md`.
 
 ---
 
@@ -127,7 +127,7 @@
 
 **Files:**
 - Create: `audio/sounds/mana_low.sfx`, `tests/test_fx_touches.gd`
-- Modify: `scripts/fx/fx_director.gd`, `scripts/systems/scroll_dropper.gd`, `scripts/ui/spell_slot_widget.gd`, `scripts/audio/sound_id.gd`, `resources/audio/sound_catalog.tres`, `scripts/audio/sound_board.gd`, `tests/test_scroll_dropper.gd`, `tests/test_spell_bar.gd`, `tests/test_sound_catalog.gd`, `tests/test_sound_board.gd`, `sprint-13f-design.md` (the "one new sound" line becomes two)
+- Modify: `scripts/fx/fx_director.gd`, `scripts/systems/scroll_dropper.gd`, `scripts/ui/spell_slot_widget.gd`, `scripts/audio/sound_id.gd`, `resources/audio/sound_catalog.tres`, `scripts/audio/sound_board.gd`, `tests/test_scroll_dropper.gd`, `tests/test_spell_bar.gd`, `tests/test_sound_catalog.gd`, `tests/test_sound_board.gd`, `docs/sprints/sprint-13f-design.md` (the "one new sound" line becomes two)
 
 **Interfaces:**
 - Consumes: Tasks 2 and 3, `PickupCollector.collected(scroll)` and `xp_collected` and `gold_collected`, `RunProgress.leveled_up`, `SpellInstance.mana_changed`.
@@ -159,7 +159,7 @@
 
 **Files:**
 - Create: `tests/test_fx_guards.gd`
-- Modify: `CLAUDE.md` (a new "Polish (Sprint 13f)" section and the Project State line), `README.md`, `technical-design.md`, `sprint-development.md` (13f ticks and a Built note), `development-log.md`, `sprint-13f-design.md` (Status: Built, plus a "Revisions during the build" note per change)
+- Modify: `CLAUDE.md` (a new "Polish (Sprint 13f)" section and the Project State line), `README.md`, `technical-design.md`, `sprint-development.md` (13f ticks and a Built note), `development-log.md`, `docs/sprints/sprint-13f-design.md` (Status: Built, plus a "Revisions during the build" note per change)
 
 **Interfaces:**
 - Consumes: everything above. Produces nothing later tasks need.

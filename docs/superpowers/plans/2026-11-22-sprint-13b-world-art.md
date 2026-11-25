@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7.2, GDScript, GUT 9.7.1, the 13a art pipeline (`art/`, `tools/art/art_builder.gd`).
 
-**Spec:** `sprint-13b-design.md`
+**Spec:** `docs/sprints/sprint-13b-design.md`
 
 ## Global Constraints
 
@@ -172,7 +172,7 @@
 ### Task 8: Verify and document
 
 **Files:**
-- Modify: `sprint-development.md`, `README.md`, `technical-design.md`, `CLAUDE.md`, `development-log.md`, `sprint-13b-design.md` (Status: Built)
+- Modify: `sprint-development.md`, `README.md`, `technical-design.md`, `CLAUDE.md`, `development-log.md`, `docs/sprints/sprint-13b-design.md` (Status: Built)
 
 - [ ] **Step 1: Smoke and MCP run.** `godot --headless --quit-after 60` is clean. Run the project with `mcp__godot__run_project`, read `get_debug_output`, then `stop_project`.
 - [ ] **Step 2: Stress.** Four runs of the Task 4 command, median against the 13a number (about 139 fps) and against `main` measured in the same session in a throwaway worktree. Record both in the log.
