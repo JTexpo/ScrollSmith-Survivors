@@ -2,6 +2,7 @@ extends GutTest
 ## Guards the Sprint 15a rules no single feature test can: no autoload, the settings screen and store stay inside the front-door code,
 ## the home screen never builds the run scene itself, every new screen takes touches, and everything that must work while paused keeps
 ## running when the tree is paused.
+const FileHelpers := preload("res://tests/helpers/file_helpers.gd")
 
 const ALLOWED := [
 	"res://scripts/settings/",
@@ -31,15 +32,6 @@ const ALWAYS_SCENES := [
 ]
 
 
-func _files(dir: String, extension: String, found: Array[String] = []) -> Array[String]:
-	for file in DirAccess.get_files_at(dir):
-		if String(file).ends_with(extension):
-			found.append("%s/%s" % [dir, file])
-	for folder in DirAccess.get_directories_at(dir):
-		_files("%s/%s" % [dir, folder], extension, found)
-	return found
-
-
 func _code(path: String) -> String:
 	var lines := PackedStringArray()
 	for line in FileAccess.get_file_as_string(path).split("\n"):
@@ -65,7 +57,7 @@ func test_the_project_has_no_autoload() -> void:
 
 func test_no_script_outside_the_front_door_references_the_settings_screen_or_store() -> void:
 	var offenders: Array[String] = []
-	for path in _files("res://scripts", ".gd"):
+	for path in FileHelpers.files("res://scripts", ".gd"):
 		if _allowed(path):
 			continue
 		var code := _code(path)
@@ -109,7 +101,7 @@ const STATS_WORDS := ["RunRecap", "RunRecords", "RunStats", "TutorialScreen", "T
 
 func test_no_gameplay_script_references_the_recap_records_tally_or_tutorial() -> void:
 	var offenders: Array[String] = []
-	for path in _files("res://scripts", ".gd"):
+	for path in FileHelpers.files("res://scripts", ".gd"):
 		var allowed := false
 		for prefix in STATS_ALLOWED:
 			if path.begins_with(prefix):

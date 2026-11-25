@@ -1,20 +1,13 @@
 extends GutTest
 ## Sprint 16d: the Dire Minotaur in real runs. Driven by hand-stepped physics so it is fast and exact. The fight uses every attack and a three-dash
 ## stampede (on open ground, where no wall cuts the chain), the maze sends the Minotaur, and in the maze it crosses the corridors to the player.
+const MainHelpers := preload("res://tests/helpers/main_helpers.gd")
 
 const K := BossAttack.Kind
 const STEP := 0.05
 const MINOTAUR := "res://resources/bosses/dire_minotaur.tres"
 const MAZE := "res://scenes/main/main_maze.tscn"
 const FOREST := "res://scenes/main/main_forest.tscn"
-
-
-func _new_main(path: String) -> Main:
-	var main := load(path).instantiate() as Main
-	main.save_path = ""
-	(main.get_node("BuffPickScreen") as BuffPickScreen).pause_tree = false
-	add_child_autofree(main)
-	return main
 
 
 func _zones() -> Array:
@@ -26,7 +19,7 @@ func _hit(boss: Boss, damage: float) -> void:
 
 
 func test_the_director_spawns_the_minotaur_on_the_maze() -> void:
-	var main := _new_main(MAZE)
+	var main := MainHelpers.new_main(self, MAZE)
 	await wait_process_frames(2)
 	var director := main.get_node("RunDirector") as RunDirector
 	director.tick(300.0)
@@ -37,7 +30,7 @@ func test_the_director_spawns_the_minotaur_on_the_maze() -> void:
 
 
 func test_the_minotaur_fight_uses_every_attack_and_a_stampede_and_dies_once() -> void:
-	var main := _new_main(FOREST)
+	var main := MainHelpers.new_main(self, FOREST)
 	await wait_process_frames(2)
 	var player := main.get_node("Player") as Player
 	player.health.set_max_health(1.0e9)
@@ -87,7 +80,7 @@ func test_the_minotaur_fight_uses_every_attack_and_a_stampede_and_dies_once() ->
 
 
 func test_the_minotaurs_rewards_drop_once_where_it_died() -> void:
-	var main := _new_main(MAZE)
+	var main := MainHelpers.new_main(self, MAZE)
 	await wait_process_frames(2)
 	var director := main.get_node("RunDirector") as RunDirector
 	watch_signals(director)
@@ -109,7 +102,7 @@ func test_the_minotaurs_rewards_drop_once_where_it_died() -> void:
 
 
 func test_the_minotaur_crosses_the_maze_to_the_player() -> void:
-	var main := _new_main(MAZE)
+	var main := MainHelpers.new_main(self, MAZE)
 	await wait_process_frames(2)
 	var player := main.get_node("Player") as Player
 	player.health.set_max_health(1.0e9)

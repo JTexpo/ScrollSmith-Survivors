@@ -2,6 +2,7 @@ extends GutTest
 ## Guards the Sprint 13f rules that no single feature test can: gameplay code stays unaware of the screen effects (it only announces),
 ## the project has no autoload, no effect scales or rotates anything (one pixel size), effects freeze or hide while paused, the comfort
 ## limits are fixed in the config, and a crowd fight at the stress rate keeps the particle pool, the shakes and the flashes bounded.
+const FileHelpers := preload("res://tests/helpers/file_helpers.gd")
 
 ## Scripts allowed to name the effect nodes. Everything else may only mention `ImpactEvents` (the announcement).
 const ALLOWED := [
@@ -22,15 +23,6 @@ func after_each() -> void:
 	FxSettings.reset()
 
 
-func _files(dir: String, extension: String, found: Array[String] = []) -> Array[String]:
-	for file in DirAccess.get_files_at(dir):
-		if String(file).ends_with(extension):
-			found.append("%s/%s" % [dir, file])
-	for folder in DirAccess.get_directories_at(dir):
-		_files("%s/%s" % [dir, folder], extension, found)
-	return found
-
-
 func _is_allowed(path: String) -> bool:
 	for prefix in ALLOWED:
 		if path.begins_with(prefix):
@@ -48,7 +40,7 @@ func _code(path: String) -> String:
 
 func test_no_script_outside_the_effects_code_references_the_director_burst_layer_shake_or_flash() -> void:
 	var offenders: Array[String] = []
-	for path in _files("res://scripts", ".gd"):
+	for path in FileHelpers.files("res://scripts", ".gd"):
 		if _is_allowed(path):
 			continue
 		var code := _code(path)
@@ -68,7 +60,7 @@ func test_the_project_has_no_autoload() -> void:
 
 func test_no_effect_scene_scales_or_rotates_a_node() -> void:
 	var offenders: Array[String] = []
-	for path in _files("res://scenes/fx", ".tscn"):
+	for path in FileHelpers.files("res://scenes/fx", ".tscn"):
 		for line in FileAccess.get_file_as_string(path).split("\n"):
 			if line.begins_with("scale =") or line.begins_with("rotation") or line.begins_with("skew"):
 				offenders.append("%s: %s" % [path, line])
@@ -77,7 +69,7 @@ func test_no_effect_scene_scales_or_rotates_a_node() -> void:
 
 func test_no_effect_script_sets_scale_or_rotation() -> void:
 	var offenders: Array[String] = []
-	for path in _files("res://scripts/fx", ".gd"):
+	for path in FileHelpers.files("res://scripts/fx", ".gd"):
 		for line in _code(path).split("\n"):
 			if line.contains(".scale =") or line.contains(".rotation =") or line.contains("rotate(") or line.contains(".rotation_degrees"):
 				offenders.append("%s: %s" % [path, line.strip_edges()])

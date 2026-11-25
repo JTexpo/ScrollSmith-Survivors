@@ -1,6 +1,8 @@
 extends GutTest
 ## Sprint 16c: the ruins' own enemy sprites (a bandit, a mimic, an elemental). The slime, armour, mephit (imp) and cultist stay; the forest and
 ## maze keep the goblin, wolf and kobold through the `enemy_<type>` fallback.
+const EnemyArtHelpers := preload("res://tests/helpers/enemy_art_helpers.gd")
+const SpriteHelpers := preload("res://tests/helpers/sprite_helpers.gd")
 
 const BOUNDS := Rect2(0, 0, 960, 540)
 const NEW_TYPES: Array[StringName] = [&"standard", &"chaser", &"ranged"]
@@ -24,16 +26,7 @@ func before_each() -> void:
 
 
 func _enemy(archetype: StringName, art_set: StringName, element: StringName = &"none") -> Enemy:
-	var data := _composer.compose(
-		load("res://resources/enemies/archetypes/%s.tres" % archetype) as EnemyArchetype,
-		load("res://resources/enemies/elements/%s.tres" % element) as EnemyElement,
-	)
-	var enemy := (load("res://scenes/enemies/base_enemy.tscn") as PackedScene).instantiate() as Enemy
-	enemy.art_set = art_set
-	enemy.setup(data, BOUNDS, _rng)
-	_root.add_child(enemy)
-	enemy.set_physics_process(false)
-	return enemy
+	return EnemyArtHelpers.make(_root, _composer, _rng, archetype, art_set, element)
 
 
 func test_the_ruins_resolve_the_three_new_sprites_in_every_colourway() -> void:
@@ -106,18 +99,6 @@ func test_an_elite_ruins_enemy_gets_an_outline_from_the_silhouette() -> void:
 		assert_null(enemy.get_node_or_null("EliteOutline"), "%s: the square outline is only for enemies without art" % type)
 
 
-## How many pixels differ between two frames of a sheet (frames sit side by side, left to right).
-func _frame_difference(set_data: SpriteSetData, a: int, b: int) -> int:
-	var sheet := set_data.sheet.get_image()
-	var size := set_data.frame_size
-	var differing := 0
-	for y in size.y:
-		for x in size.x:
-			if sheet.get_pixel(a * size.x + x, y) != sheet.get_pixel(b * size.x + x, y):
-				differing += 1
-	return differing
-
-
 func test_every_animation_of_the_new_sprites_visibly_changes_between_its_frames() -> void:
 	var animated := {&"move": [0, 1], &"death": [2, 3], &"attack": [4, 5]}
 	for type in NEW_TYPES:
@@ -127,4 +108,4 @@ func test_every_animation_of_the_new_sprites_visibly_changes_between_its_frames(
 				if not set_data.frames().has_animation(animation):
 					continue
 				var pair: Array = animated[animation]
-				assert_gte(_frame_difference(set_data, pair[0], pair[1]), 8, "%s %s: the two frames differ by at least 8 pixels" % [type, animation])
+				assert_gte(SpriteHelpers.frame_difference(set_data, pair[0], pair[1]), 8, "%s %s: the two frames differ by at least 8 pixels" % [type, animation])

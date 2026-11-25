@@ -5,10 +5,6 @@ const WAVE := "res://resources/spells/areas/wave_area.tres"
 const O := Vector2(300, 150)
 
 
-func _damaged(enemy: Enemy) -> bool:
-	return _health(enemy).current_health < _health(enemy).max_health
-
-
 func _wave(spell: SpellData) -> WaveArea:
 	return _launch(spell, O) as WaveArea
 

@@ -1,5 +1,7 @@
 extends GutTest
 
+const ScrollHelpers := preload("res://tests/helpers/scroll_helpers.gd")
+
 var _rules: CraftingRules
 var _inventory: ScrollInventory
 var _loadout: SpellLoadout
@@ -8,10 +10,6 @@ var _fire: ScrollData
 var _thunder: ScrollData
 var _missile: ScrollData
 var _wave: ScrollData
-
-
-func _scroll(path: String) -> ScrollData:
-	return load("res://resources/scrolls/%s.tres" % path) as ScrollData
 
 
 func _make_loadout(unlocked: int) -> SpellLoadout:
@@ -35,10 +33,10 @@ func before_each() -> void:
 	_inventory = ScrollInventory.new()
 	add_child_autofree(_inventory)
 	_loadout = _make_loadout(1)
-	_fire = _scroll("base/fire")
-	_thunder = _scroll("base/thunder")
-	_missile = _scroll("area/missile")
-	_wave = _scroll("area/wave")
+	_fire = ScrollHelpers.scroll("base/fire")
+	_thunder = ScrollHelpers.scroll("base/thunder")
+	_missile = ScrollHelpers.scroll("area/missile")
+	_wave = ScrollHelpers.scroll("area/wave")
 
 
 func _request(base: ScrollData, area: ScrollData, option_index: int = 1, slot: int = 0) -> CraftingRequest:
@@ -56,7 +54,7 @@ func _snapshot() -> Dictionary:
 	for slot in _loadout.slots:
 		slots.append([slot, slot.current_mana if slot != null else -1.0])
 	var counts := []
-	for scroll in [_fire, _thunder, _missile, _wave, _scroll("base/sea"), _scroll("buff/damage"), _scroll("buff/additional_base"), _scroll("buff/duplicate_area"), _scroll("buff/ignore_resistance")]:
+	for scroll in [_fire, _thunder, _missile, _wave, ScrollHelpers.scroll("base/sea"), ScrollHelpers.scroll("buff/damage"), ScrollHelpers.scroll("buff/additional_base"), ScrollHelpers.scroll("buff/duplicate_area"), ScrollHelpers.scroll("buff/ignore_resistance")]:
 		counts.append(_inventory.count(scroll))
 	return {"slots": slots, "counts": counts, "total": _inventory.total_count()}
 
@@ -97,11 +95,11 @@ func _full(bases: Array, buffs: Array, area: ScrollData = null) -> CraftingReque
 
 
 func _buff_cases() -> Array:
-	var damage := _scroll("buff/damage")
-	var extra := _scroll("buff/additional_base")
-	var sea := _scroll("base/sea")
-	var duplicate := _scroll("buff/duplicate_area")
-	var ignore := _scroll("buff/ignore_resistance")
+	var damage := ScrollHelpers.scroll("buff/damage")
+	var extra := ScrollHelpers.scroll("buff/additional_base")
+	var sea := ScrollHelpers.scroll("base/sea")
+	var duplicate := ScrollHelpers.scroll("buff/duplicate_area")
+	var ignore := ScrollHelpers.scroll("buff/ignore_resistance")
 	var fire_copy := _fire.duplicate() as ScrollData
 	var bad_buff := damage.duplicate() as ScrollData
 	bad_buff.buff = null
@@ -125,16 +123,16 @@ func _buff_cases() -> Array:
 
 func _give_for_buff_cases() -> void:
 	_inventory.add(_fire)
-	_inventory.add(_scroll("base/sea"))
+	_inventory.add(ScrollHelpers.scroll("base/sea"))
 	_inventory.add(_missile)
-	_inventory.add(_scroll("buff/damage"))
-	_inventory.add(_scroll("buff/additional_base"), 2)
-	_inventory.add(_scroll("buff/duplicate_area"), 5)
-	_inventory.add(_scroll("buff/ignore_resistance"), 2)
+	_inventory.add(ScrollHelpers.scroll("buff/damage"))
+	_inventory.add(ScrollHelpers.scroll("buff/additional_base"), 2)
+	_inventory.add(ScrollHelpers.scroll("buff/duplicate_area"), 5)
+	_inventory.add(ScrollHelpers.scroll("buff/ignore_resistance"), 2)
 
 
 func test_a_buff_craft_consumes_every_scroll_used() -> void:
-	var damage := _scroll("buff/damage")
+	var damage := ScrollHelpers.scroll("buff/damage")
 	_inventory.add(_fire, 2)
 	_inventory.add(_missile)
 	_inventory.add(damage, 3)
@@ -147,8 +145,8 @@ func test_a_buff_craft_consumes_every_scroll_used() -> void:
 
 
 func test_a_hybrid_craft_consumes_both_bases_and_the_additional_base_scroll() -> void:
-	var sea := _scroll("base/sea")
-	var extra := _scroll("buff/additional_base")
+	var sea := ScrollHelpers.scroll("base/sea")
+	var extra := ScrollHelpers.scroll("buff/additional_base")
 	for scroll in [_fire, sea, extra, _missile]:
 		_inventory.add(scroll)
 	var result := CraftingSystem.craft(_full([_fire, sea], [extra]), _rules, _inventory, _loadout)
@@ -158,7 +156,7 @@ func test_a_hybrid_craft_consumes_both_bases_and_the_additional_base_scroll() ->
 
 
 func test_a_spell_that_could_never_cast_is_refused() -> void:
-	var damage := _scroll("buff/damage")
+	var damage := ScrollHelpers.scroll("buff/damage")
 	_inventory.add(_fire)
 	_inventory.add(_missile)
 	_inventory.add(damage, 40)
@@ -191,7 +189,7 @@ func test_every_invalid_buff_case_changes_nothing() -> void:
 
 
 func test_validate_never_consumes_with_buffs() -> void:
-	var damage := _scroll("buff/damage")
+	var damage := ScrollHelpers.scroll("buff/damage")
 	_inventory.add(_fire)
 	_inventory.add(_missile)
 	_inventory.add(damage)

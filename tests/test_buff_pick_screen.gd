@@ -1,18 +1,16 @@
 extends GutTest
 
+const ScrollHelpers := preload("res://tests/helpers/scroll_helpers.gd")
+
 var _screen: BuffPickScreen
 var _options: Array[ScrollData]
-
-
-func _scroll(name: String) -> ScrollData:
-	return load("res://resources/scrolls/buff/%s.tres" % name) as ScrollData
 
 
 func before_each() -> void:
 	_screen = load("res://scenes/ui/buff_pick_screen.tscn").instantiate() as BuffPickScreen
 	_screen.pause_tree = false
 	add_child_autofree(_screen)
-	_options = [_scroll("damage"), _scroll("max_mana"), _scroll("duplicate_area")]
+	_options = [ScrollHelpers.buff_scroll("damage"), ScrollHelpers.buff_scroll("max_mana"), ScrollHelpers.buff_scroll("duplicate_area")]
 
 
 func test_starts_closed_and_hidden() -> void:
@@ -92,15 +90,15 @@ func test_reopening_replaces_the_old_buttons() -> void:
 
 
 func test_effect_text_names_the_buff_numbers() -> void:
-	var damage := BuffPickScreen.effect_text(_scroll("damage"))
+	var damage := BuffPickScreen.effect_text(ScrollHelpers.buff_scroll("damage"))
 	assert_string_contains(damage, "damage x1.5")
 	assert_string_contains(damage, "cost x1.5")
-	var copies := BuffPickScreen.effect_text(_scroll("duplicate_area"))
+	var copies := BuffPickScreen.effect_text(ScrollHelpers.buff_scroll("duplicate_area"))
 	assert_string_contains(copies, "+1 copy")
 	assert_string_contains(copies, "cost x2")
-	assert_string_contains(BuffPickScreen.effect_text(_scroll("max_mana")), "mana pool x1.5")
-	assert_string_contains(BuffPickScreen.effect_text(_scroll("ignore_resistance")), "ignores resistance")
-	assert_string_contains(BuffPickScreen.effect_text(_scroll("double_vulnerability")), "strong-hit bonus")
+	assert_string_contains(BuffPickScreen.effect_text(ScrollHelpers.buff_scroll("max_mana")), "mana pool x1.5")
+	assert_string_contains(BuffPickScreen.effect_text(ScrollHelpers.buff_scroll("ignore_resistance")), "ignores resistance")
+	assert_string_contains(BuffPickScreen.effect_text(ScrollHelpers.buff_scroll("double_vulnerability")), "strong-hit bonus")
 
 
 func test_touch_event_is_bridged_while_open() -> void:

@@ -1,5 +1,7 @@
 extends GutTest
 
+const ScrollHelpers := preload("res://tests/helpers/scroll_helpers.gd")
+
 var _rules: CraftingRules
 var _inventory: ScrollInventory
 var _loadout: SpellLoadout
@@ -8,10 +10,6 @@ var _fire: ScrollData
 var _thunder: ScrollData
 var _missile: ScrollData
 var _wave: ScrollData
-
-
-func _scroll(path: String) -> ScrollData:
-	return load("res://resources/scrolls/%s.tres" % path) as ScrollData
 
 
 func _make_loadout(unlocked: int) -> SpellLoadout:
@@ -35,10 +33,10 @@ func before_each() -> void:
 	_inventory = ScrollInventory.new()
 	add_child_autofree(_inventory)
 	_loadout = _make_loadout(1)
-	_fire = _scroll("base/fire")
-	_thunder = _scroll("base/thunder")
-	_missile = _scroll("area/missile")
-	_wave = _scroll("area/wave")
+	_fire = ScrollHelpers.scroll("base/fire")
+	_thunder = ScrollHelpers.scroll("base/thunder")
+	_missile = ScrollHelpers.scroll("area/missile")
+	_wave = ScrollHelpers.scroll("area/wave")
 
 
 func test_defaults() -> void:
@@ -169,7 +167,7 @@ func test_confirm_when_invalid_changes_nothing() -> void:
 
 
 func test_owned_buffs_are_listed_but_never_craftable() -> void:
-	var buff := _scroll("buff/damage")
+	var buff := ScrollHelpers.scroll("buff/damage")
 	_inventory.add(buff)
 	_inventory.add(_fire)
 	_inventory.add(_missile)
@@ -189,9 +187,9 @@ func _own(scroll: ScrollData, amount: int = 1) -> void:
 
 
 func test_bases_are_multi_select_up_to_the_limit() -> void:
-	var extra := _scroll("buff/additional_base")
-	var sea := _scroll("base/sea")
-	var land := _scroll("base/land")
+	var extra := ScrollHelpers.scroll("buff/additional_base")
+	var sea := ScrollHelpers.scroll("base/sea")
+	var land := ScrollHelpers.scroll("base/land")
 	for scroll in [_fire, sea, land]:
 		_own(scroll)
 	_own(extra)
@@ -216,8 +214,8 @@ func test_the_limit_is_one_without_additional_base() -> void:
 
 
 func test_choosing_a_chosen_base_clears_it() -> void:
-	var extra := _scroll("buff/additional_base")
-	var sea := _scroll("base/sea")
+	var extra := ScrollHelpers.scroll("buff/additional_base")
+	var sea := ScrollHelpers.scroll("base/sea")
 	_own(_fire)
 	_own(sea)
 	_own(extra)
@@ -230,9 +228,9 @@ func test_choosing_a_chosen_base_clears_it() -> void:
 
 
 func test_buff_stacks_respect_ownership_and_caps() -> void:
-	var damage := _scroll("buff/damage")
-	var duplicate := _scroll("buff/duplicate_area")
-	var ignore := _scroll("buff/ignore_resistance")
+	var damage := ScrollHelpers.scroll("buff/damage")
+	var duplicate := ScrollHelpers.scroll("buff/duplicate_area")
+	var ignore := ScrollHelpers.scroll("buff/ignore_resistance")
 	_own(damage, 2)
 	_own(duplicate, 5)
 	_own(ignore, 2)
@@ -249,8 +247,8 @@ func test_buff_stacks_respect_ownership_and_caps() -> void:
 
 
 func test_removing_additional_base_trims_the_extra_bases() -> void:
-	var extra := _scroll("buff/additional_base")
-	var sea := _scroll("base/sea")
+	var extra := ScrollHelpers.scroll("buff/additional_base")
+	var sea := ScrollHelpers.scroll("base/sea")
 	_own(_fire)
 	_own(sea)
 	_own(extra)
@@ -264,7 +262,7 @@ func test_removing_additional_base_trims_the_extra_bases() -> void:
 
 
 func test_bad_buff_choices_are_rejected() -> void:
-	var no_effect := _scroll("buff/damage").duplicate() as ScrollData
+	var no_effect := ScrollHelpers.scroll("buff/damage").duplicate() as ScrollData
 	no_effect.buff = null
 	_own(_fire)
 	_own(_missile)
@@ -278,7 +276,7 @@ func test_bad_buff_choices_are_rejected() -> void:
 
 
 func test_the_request_carries_bases_and_buff_stacks_as_copies() -> void:
-	var damage := _scroll("buff/damage")
+	var damage := ScrollHelpers.scroll("buff/damage")
 	_own(_fire)
 	_own(_thunder)
 	_own(damage, 2)
@@ -294,7 +292,7 @@ func test_the_request_carries_bases_and_buff_stacks_as_copies() -> void:
 
 
 func test_confirm_with_buffs_uses_the_scrolls_and_trims_choices() -> void:
-	var damage := _scroll("buff/damage")
+	var damage := ScrollHelpers.scroll("buff/damage")
 	_own(_fire)
 	_own(_missile)
 	_own(damage)
@@ -310,7 +308,7 @@ func test_confirm_with_buffs_uses_the_scrolls_and_trims_choices() -> void:
 
 
 func test_drawbacks_describe_the_cost() -> void:
-	var damage := _scroll("buff/damage")
+	var damage := ScrollHelpers.scroll("buff/damage")
 	_own(_fire)
 	_own(_missile)
 	_own(damage, 2)
@@ -324,7 +322,7 @@ func test_drawbacks_describe_the_cost() -> void:
 
 
 func test_drawbacks_flag_a_spell_that_could_never_cast() -> void:
-	var damage := _scroll("buff/damage")
+	var damage := ScrollHelpers.scroll("buff/damage")
 	_own(_fire)
 	_own(_missile)
 	_own(damage, 40)
@@ -337,7 +335,7 @@ func test_drawbacks_flag_a_spell_that_could_never_cast() -> void:
 
 
 func test_message_asks_for_the_missing_base() -> void:
-	var extra := _scroll("buff/additional_base")
+	var extra := ScrollHelpers.scroll("buff/additional_base")
 	_own(_fire)
 	_own(_missile)
 	_own(extra)
@@ -349,7 +347,7 @@ func test_message_asks_for_the_missing_base() -> void:
 
 
 func test_huge_stacks_keep_the_numbers_finite() -> void:
-	var damage := _scroll("buff/damage")
+	var damage := ScrollHelpers.scroll("buff/damage")
 	_own(_fire)
 	_own(_missile)
 	_own(damage, 40)
@@ -364,7 +362,7 @@ func test_huge_stacks_keep_the_numbers_finite() -> void:
 
 
 func test_drawbacks_count_whole_casts_only() -> void:
-	var damage := _scroll("buff/damage")
+	var damage := ScrollHelpers.scroll("buff/damage")
 	_own(_fire)
 	_own(_missile)
 	_own(damage)
@@ -404,7 +402,7 @@ func test_stats_without_bonuses_are_the_plain_numbers() -> void:
 
 
 func test_drawbacks_count_casts_with_the_loadouts_mana_bonus() -> void:
-	var damage := _scroll("buff/damage")
+	var damage := ScrollHelpers.scroll("buff/damage")
 	_own(_fire)
 	_own(_missile)
 	_own(damage)

@@ -16,6 +16,10 @@ func _health(enemy: Enemy) -> HealthComponent:
 	return enemy.get_node("HealthComponent") as HealthComponent
 
 
+func _damaged(enemy: Enemy) -> bool:
+	return _health(enemy).current_health < _health(enemy).max_health
+
+
 func _spell(area_path: String, damage := 10.0, knockback := 0.0, range_scale := 1.0, size_scale := 1.0) -> SpellData:
 	var spell := SpellData.new()
 	spell.elements = [SpellData.Element.FIRE]

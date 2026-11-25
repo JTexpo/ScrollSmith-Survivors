@@ -5,10 +5,6 @@ const ZONE := "res://resources/spells/areas/zone_area.tres"
 const O := Vector2(300, 150)
 
 
-func _damaged(enemy: Enemy) -> bool:
-	return _health(enemy).current_health < _health(enemy).max_health
-
-
 func _zone(spell: SpellData, target: Vector2) -> ZoneArea:
 	return _launch(spell, O, Vector2.RIGHT, target) as ZoneArea
 

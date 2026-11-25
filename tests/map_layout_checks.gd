@@ -145,3 +145,33 @@ static func clearance(shapes: Array[MapObstacle], point: Vector2) -> float:
 			var d := (point - shape.position).abs() - half
 			nearest = minf(nearest, Vector2(maxf(d.x, 0.0), maxf(d.y, 0.0)).length() + minf(maxf(d.x, d.y), 0.0))
 	return nearest
+
+
+## The checks the forest and the maze tests share word for word (each takes the test, to assert on).
+static func no_narrow_gaps(test: GutTest, grid: ObstacleGrid) -> void:
+	for width in bounded_runs(grid):
+		test.assert_gte(width, 2, "a gap only one cell wide would trap bigger enemies")
+
+
+static func every_free_cell_reachable(test: GutTest, grid: ObstacleGrid, map: MapData) -> void:
+	var sealed := sealed_cells(grid, map.player_start)
+	test.assert_eq(sealed.size(), 0, "free cells nobody can walk to, for example %s" % str(sealed.slice(0, 4)))
+
+
+static func same_points_of_interest_as_the_ruins(test: GutTest, map: MapData) -> void:
+	var counts := {"lectern": 3, "rare_scroll_spot": 2, "treasure_chest": 1, "mana_shrine": 1, "health_shrine": 1, "merchant": 1}
+	for scene_name in counts:
+		test.assert_eq(positions(map, scene_name).size(), counts[scene_name], scene_name)
+	test.assert_eq(map.placements.size(), 9)
+
+
+static func spacing_rules(test: GutTest, map: MapData) -> void:
+	var all := points(map)
+	for i in all.size():
+		for j in range(i + 1, all.size()):
+			test.assert_gte(all[i].distance_to(all[j]), 400.0, "%s and %s are too close" % [all[i], all[j]])
+	var lecterns := positions(map, "lectern")
+	for i in lecterns.size():
+		test.assert_gte(lecterns[i].distance_to(map.player_start), 400.0)
+		for j in range(i + 1, lecterns.size()):
+			test.assert_gte(lecterns[i].distance_to(lecterns[j]), 700.0)

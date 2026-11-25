@@ -1,5 +1,7 @@
 extends GutTest
 
+const ScrollHelpers := preload("res://tests/helpers/scroll_helpers.gd")
+
 const K := LevelReward.Kind
 
 var _track: LevelTrack
@@ -9,10 +11,6 @@ var _buffs: RunBuffs
 func before_each() -> void:
 	_track = LevelTrack.default_track()
 	_buffs = RunBuffs.new()
-
-
-func _scroll(name: String) -> ScrollData:
-	return load("res://resources/scrolls/buff/%s.tres" % name) as ScrollData
 
 
 func _reward(kind: LevelReward.Kind, spell_index: int) -> LevelReward:
@@ -76,7 +74,7 @@ func test_roll_random_with_a_seeded_rng_is_deterministic() -> void:
 
 
 func test_options_exclude_buffs_at_their_stack_cap() -> void:
-	var capped := _scroll("ignore_resistance")
+	var capped := ScrollHelpers.buff_scroll("ignore_resistance")
 	assert_eq(capped.buff.max_stacks, 1)
 	_buffs.set_pick(7, capped.id)
 	var first_spell := StartingBuffs.options_for(_buffs, _track, 12)
@@ -88,7 +86,7 @@ func test_options_exclude_buffs_at_their_stack_cap() -> void:
 
 
 func test_uncapped_buffs_stay_available_after_being_picked() -> void:
-	var damage := _scroll("damage")
+	var damage := ScrollHelpers.buff_scroll("damage")
 	_buffs.set_pick(7, damage.id)
 	assert_true(StartingBuffs.options_for(_buffs, _track, 12).has(damage))
 
@@ -100,7 +98,7 @@ func test_options_for_a_level_with_no_buff_reward_is_empty() -> void:
 
 
 func test_no_options_leaves_the_reward_unresolved_without_error() -> void:
-	var capped := _scroll("ignore_resistance")
+	var capped := ScrollHelpers.buff_scroll("ignore_resistance")
 	var track := _custom_track([capped] as Array[ScrollData], [_reward(K.RANDOM_BUFF, 0), _reward(K.RANDOM_BUFF, 0)] as Array[LevelReward])
 	var rng := RandomNumberGenerator.new()
 	var rolled := StartingBuffs.roll_random(_buffs, track, 3, rng)

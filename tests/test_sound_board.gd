@@ -1,5 +1,7 @@
 extends GutTest
 
+const TouchHelpers := preload("res://tests/helpers/touch_helpers.gd")
+
 var _board: SoundBoard
 var _now: int = 0
 
@@ -151,12 +153,6 @@ func _key() -> InputEventKey:
 	return event
 
 
-func _touch() -> InputEventScreenTouch:
-	var event := InputEventScreenTouch.new()
-	event.pressed = true
-	return event
-
-
 func _click() -> InputEventMouseButton:
 	var event := InputEventMouseButton.new()
 	event.pressed = true
@@ -171,7 +167,7 @@ func test_music_does_not_start_before_the_first_input() -> void:
 
 
 func test_the_first_key_touch_or_click_unlocks_and_starts_the_run_loop() -> void:
-	for event in [_key(), _touch(), _click()]:
+	for event in [_key(), TouchHelpers.press(), _click()]:
 		var board := _make()
 		board._input(event)
 		assert_true(board.is_unlocked(), str(event))

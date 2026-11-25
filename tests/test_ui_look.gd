@@ -1,18 +1,10 @@
 extends GutTest
 ## Guards the Sprint 13d look: every piece of UI text uses the theme's font and styles, and every character the game
 ## prints has a glyph. They scan the sources, so a screen added later is covered too.
+const FileHelpers := preload("res://tests/helpers/file_helpers.gd")
 
 const UI_SCRIPTS := "res://scripts/ui"
 const UI_SCENES := "res://scenes/ui"
-
-
-func _files(dir: String, extension: String, found: Array[String] = []) -> Array[String]:
-	for file in DirAccess.get_files_at(dir):
-		if String(file).ends_with(extension):
-			found.append("%s/%s" % [dir, file])
-	for folder in DirAccess.get_directories_at(dir):
-		_files("%s/%s" % [dir, folder], extension, found)
-	return found
 
 
 ## The code of a script without its comments, one entry per line.
@@ -45,9 +37,9 @@ func _non_ascii(text: String) -> String:
 
 func test_no_ui_script_or_scene_sets_a_font_size() -> void:
 	var offenders: Array[String] = []
-	var paths := _files(UI_SCRIPTS, ".gd")
-	paths.append_array(_files(UI_SCENES, ".tscn"))
-	paths.append_array(_files("res://scenes/interactables", ".tscn"))
+	var paths := FileHelpers.files(UI_SCRIPTS, ".gd")
+	paths.append_array(FileHelpers.files(UI_SCENES, ".tscn"))
+	paths.append_array(FileHelpers.files("res://scenes/interactables", ".tscn"))
 	for path in paths:
 		var text := FileAccess.get_file_as_string(path)
 		if text.contains("font_size") and path != "res://scripts/ui/ui_font.gd":
@@ -57,7 +49,7 @@ func test_no_ui_script_or_scene_sets_a_font_size() -> void:
 
 func test_no_ui_script_draws_with_the_fallback_font() -> void:
 	var offenders: Array[String] = []
-	for path in _files("res://scripts", ".gd"):
+	for path in FileHelpers.files("res://scripts", ".gd"):
 		if path == "res://scripts/ui/ui_font.gd":
 			continue
 		for line in _code_lines(path):
@@ -68,10 +60,10 @@ func test_no_ui_script_draws_with_the_fallback_font() -> void:
 
 func test_no_ui_scene_or_script_styles_a_control_by_hand() -> void:
 	var offenders: Array[String] = []
-	for path in _files(UI_SCENES, ".tscn"):
+	for path in FileHelpers.files(UI_SCENES, ".tscn"):
 		if FileAccess.get_file_as_string(path).contains("theme_override_styles"):
 			offenders.append(path)
-	for path in _files(UI_SCRIPTS, ".gd"):
+	for path in FileHelpers.files(UI_SCRIPTS, ".gd"):
 		for line in _code_lines(path):
 			if line.contains("add_theme_stylebox_override") or line.contains("add_theme_font_override") or line.contains("StyleBoxFlat.new"):
 				offenders.append(path)
@@ -80,16 +72,16 @@ func test_no_ui_scene_or_script_styles_a_control_by_hand() -> void:
 
 func test_every_text_the_ui_shows_is_ascii() -> void:
 	var offenders: Array[String] = []
-	for path in _files(UI_SCRIPTS, ".gd") + _files("res://scripts/shop", ".gd") + _files("res://scripts/points_of_interest", ".gd") + _files("res://scripts/progression", ".gd") + _files("res://scripts/crafting", ".gd"):
+	for path in FileHelpers.files(UI_SCRIPTS, ".gd") + FileHelpers.files("res://scripts/shop", ".gd") + FileHelpers.files("res://scripts/points_of_interest", ".gd") + FileHelpers.files("res://scripts/progression", ".gd") + FileHelpers.files("res://scripts/crafting", ".gd"):
 		for line in _code_lines(path):
 			for literal in _string_literals(line):
 				if not _non_ascii(literal).is_empty():
 					offenders.append("%s: %s" % [path, literal])
-	for path in _files("res://scenes", ".tscn"):
+	for path in FileHelpers.files("res://scenes", ".tscn"):
 		for line in FileAccess.get_file_as_string(path).split("\n"):
 			if line.begins_with("text = ") and not _non_ascii(line).is_empty():
 				offenders.append("%s: %s" % [path, line])
-	for path in _files("res://resources", ".tres"):
+	for path in FileHelpers.files("res://resources", ".tres"):
 		for line in FileAccess.get_file_as_string(path).split("\n"):
 			if (line.begins_with("display_name") or line.begins_with("description") or line.begins_with("name = ")) and not _non_ascii(line).is_empty():
 				offenders.append("%s: %s" % [path, line])
@@ -107,12 +99,12 @@ func test_every_ascii_character_the_game_can_print_has_a_glyph() -> void:
 
 func test_the_word_temp_appears_in_no_ui_text() -> void:
 	var offenders: Array[String] = []
-	for path in _files(UI_SCRIPTS, ".gd"):
+	for path in FileHelpers.files(UI_SCRIPTS, ".gd"):
 		for line in _code_lines(path):
 			for literal in _string_literals(line):
 				if literal.to_upper().contains("TEMP"):
 					offenders.append("%s: %s" % [path, literal])
-	for path in _files(UI_SCENES, ".tscn"):
+	for path in FileHelpers.files(UI_SCENES, ".tscn"):
 		for line in FileAccess.get_file_as_string(path).split("\n"):
 			if line.begins_with("text = ") and line.to_upper().contains("TEMP"):
 				offenders.append("%s: %s" % [path, line])
@@ -121,7 +113,7 @@ func test_the_word_temp_appears_in_no_ui_text() -> void:
 
 func test_no_ui_script_still_calls_itself_temporary() -> void:
 	var offenders: Array[String] = []
-	for path in _files(UI_SCRIPTS, ".gd"):
+	for path in FileHelpers.files(UI_SCRIPTS, ".gd"):
 		if FileAccess.get_file_as_string(path).contains("TEMPORARY"):
 			offenders.append(path)
 	assert_eq(offenders, [] as Array[String], "the 13d look replaced every TEMPORARY piece")

@@ -6,10 +6,6 @@ const O := Vector2(300, 150)
 const O_LOW := Vector2(300, 400)
 
 
-func _damaged(enemy: Enemy) -> bool:
-	return _health(enemy).current_health < _health(enemy).max_health
-
-
 func test_cone_hits_enemies_inside_it_once() -> void:
 	var spell := _spell(CONE)
 	var enemies := [_enemy(O + Vector2(30, 0)), _enemy(O + Vector2(30, 15))]
