@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7.2, typed GDScript, GUT 9.7.1, Compatibility renderer. Existing code in `scripts/`, `scenes/`, `resources/`, `tests/`.
 
-**Spec:** `sprint-5-design.md` (approved). Also `sprint-4-design.md`, `CLAUDE.md`, `technical-design.md` sections 6 and 7.
+**Spec:** `docs/sprints/sprint-5-design.md` (approved). Also `docs/sprints/sprint-4-design.md`, `CLAUDE.md`, `technical-design.md` sections 6 and 7.
 
 ## Global Constraints
 
@@ -161,13 +161,13 @@
 ### Task 6: Stress check, docs, wrap-up
 
 **Files:**
-- Modify: `scenes/world/stress_test.tscn`, `scripts/dev/stress_test.gd`, `README.md` (Area Scrolls and the crafting-possibility list: five Areas, Wave scroll), `technical-design.md` (the Area scroll list gains Wave, and section 6 notes that scrolls are one `ScrollData` class with category fields), `sprint-development.md` (tick Sprint 5 boxes and add a Built note), `CLAUDE.md` (Project State and a "Scrolls (Sprint 5)" section), `development-log.md`, `sprint-5-design.md` (Status: Built)
+- Modify: `scenes/world/stress_test.tscn`, `scripts/dev/stress_test.gd`, `README.md` (Area Scrolls and the crafting-possibility list: five Areas, Wave scroll), `technical-design.md` (the Area scroll list gains Wave, and section 6 notes that scrolls are one `ScrollData` class with category fields), `sprint-development.md` (tick Sprint 5 boxes and add a Built note), `CLAUDE.md` (Project State and a "Scrolls (Sprint 5)" section), `development-log.md`, `docs/sprints/sprint-5-design.md` (Status: Built)
 
 **Interfaces:**
 - Produces a `--drops` flag for the stress test: the stress scene gets a `ScrollDropper` node and the flag connects `EnemySpawner.enemy_died` to it, so kills drop real scrolls and the pickup cap is exercised. Without the flag nothing changes.
 
 - [ ] **Step 1: Add the `--drops` flag** to `stress_test.gd` and the node to `stress_test.tscn`. Run the full suite and the smoke run. Expected: all pass, no errors.
 - [ ] **Step 2: Run the stress test** at 300 enemies for the default Missile, `--area=wave` and `--area=zone`, each also with `--drops`: `godot --path . res://scenes/world/stress_test.tscn -- --enemies=300 --seconds=10` (plus `--area=<name>` and `--drops`). Record the six `STRESS` lines. Expected: `avg_fps` of at least 60 for all. If any is below 60, stop and report it before continuing.
-- [ ] **Step 3: Update the docs** listed above. In `development-log.md` add a "Sprint 5 (scroll collection)" entry: the decisions and calls from `sprint-5-design.md`, the starting drop numbers, the known limitations (the panel does not pause the game, no inventory limit, F10 debug key to delete later), and the stress table beside the Sprint 4 numbers.
+- [ ] **Step 3: Update the docs** listed above. In `development-log.md` add a "Sprint 5 (scroll collection)" entry: the decisions and calls from `docs/sprints/sprint-5-design.md`, the starting drop numbers, the known limitations (the panel does not pause the game, no inventory limit, F10 debug key to delete later), and the stress table beside the Sprint 4 numbers.
 - [ ] **Step 4: Run the full suite** and the smoke run. Expected: all pass, no errors.
 - [ ] **Step 5: Commit.** `git add -A && git commit -m "docs: Sprint 5 complete"`, with the trailer.

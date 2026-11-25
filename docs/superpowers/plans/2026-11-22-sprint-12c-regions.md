@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7.2, typed GDScript, GUT 9.7.1.
 
-**Spec:** `sprint-12c-design.md` (repo root). Read it first. Sprint 12d (chests, shrines, merchant, rare scroll spots) is NOT built here.
+**Spec:** `docs/sprints/sprint-12c-design.md` (repo root). Read it first. Sprint 12d (chests, shrines, merchant, rare scroll spots) is NOT built here.
 
 ## Global Constraints
 
@@ -139,7 +139,7 @@
 ### Task 6: Verify and document
 
 **Files:**
-- Modify: `sprint-development.md`, `README.md`, `technical-design.md`, `CLAUDE.md`, `development-log.md`, `sprint-12c-design.md` (Status: Built)
+- Modify: `sprint-development.md`, `README.md`, `technical-design.md`, `CLAUDE.md`, `development-log.md`, `docs/sprints/sprint-12c-design.md` (Status: Built)
 
 - [ ] **Step 1: Smoke and MCP run.** `godot --headless --quit-after 60` is clean. Run the project with `mcp__godot__run_project`, read `get_debug_output` for warnings (load with `ToolSearch select:`), then `stop_project`.
 - [ ] **Step 2: Stress.** `godot --path . res://scenes/world/stress_test.tscn -- --enemies=300 --seconds=8 --drops --obstacles`, three runs, median. Expected: at least 60 fps and within about 15% of Sprint 12b (about 275 fps). Also time one full flow-field rebuild and the incremental slice on the new map (a throwaway scratchpad script, deleted afterwards). Expected: a slice of about 2 ms or less.

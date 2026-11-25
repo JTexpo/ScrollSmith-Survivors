@@ -1,14 +1,8 @@
 extends GutTest
 
+const TouchHelpers := preload("res://tests/helpers/touch_helpers.gd")
+
 var _button: InventoryButton
-
-
-func _touch(screen_position: Vector2) -> InputEventScreenTouch:
-	var event := InputEventScreenTouch.new()
-	event.index = 0
-	event.pressed = true
-	event.position = screen_position
-	return event
 
 
 func before_each() -> void:
@@ -19,15 +13,15 @@ func before_each() -> void:
 
 func test_touch_inside_emits_pressed() -> void:
 	watch_signals(_button)
-	_button._input(_touch(_button.get_global_rect().get_center()))
+	_button._input(TouchHelpers.press_at(_button.get_global_rect().get_center()))
 	assert_signal_emit_count(_button, "pressed", 1)
 
 
 func test_touch_outside_and_hidden_do_nothing() -> void:
 	watch_signals(_button)
-	_button._input(_touch(Vector2(0, 0)))
+	_button._input(TouchHelpers.press_at(Vector2(0, 0)))
 	_button.hide()
-	_button._input(_touch(_button.get_global_rect().get_center()))
+	_button._input(TouchHelpers.press_at(_button.get_global_rect().get_center()))
 	assert_signal_not_emitted(_button, "pressed")
 
 

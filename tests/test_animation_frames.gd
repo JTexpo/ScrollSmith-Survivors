@@ -1,21 +1,10 @@
 extends GutTest
 ## The audit that the 16c mimic bug called for: no two-frame animation in any enemy or boss sprite has identical (or almost identical) frames.
 ## An animation whose frames do not change is a bug (the mimic's first build had two identical move frames).
+const SpriteHelpers := preload("res://tests/helpers/sprite_helpers.gd")
 
 const MIN_DIFFERENCE := 4
 const SPRITE_DIR := "res://art/sprites"
-
-
-## How many pixels differ between two frames of a sheet (frames sit side by side, left to right).
-func _frame_difference(set_data: SpriteSetData, a: int, b: int) -> int:
-	var sheet := set_data.sheet.get_image()
-	var size := set_data.frame_size
-	var differing := 0
-	for y in size.y:
-		for x in size.x:
-			if sheet.get_pixel(a * size.x + x, y) != sheet.get_pixel(b * size.x + x, y):
-				differing += 1
-	return differing
 
 
 func _enemy_and_boss_sprites() -> Array[String]:
@@ -46,6 +35,6 @@ func test_no_two_frame_animation_has_identical_frames() -> void:
 			if animation.last_frame - animation.first_frame != 1:
 				continue
 			checked += 1
-			var difference := _frame_difference(set_data, animation.first_frame, animation.last_frame)
+			var difference := SpriteHelpers.frame_difference(set_data, animation.first_frame, animation.last_frame)
 			assert_gte(difference, MIN_DIFFERENCE, "%s %s: the two frames differ by only %d pixels" % [sprite_name, animation.name, difference])
 	assert_gt(checked, 55, "the audit really looked at the animations")

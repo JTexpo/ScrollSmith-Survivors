@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7.2, typed GDScript, GUT 9.7.1, Compatibility renderer. Existing code in `scripts/`, `scenes/`, `resources/`, `tests/`.
 
-**Spec:** `sprint-6-design.md` (approved). Also `sprint-5-design.md`, `CLAUDE.md`, `technical-design.md` sections 5 and 7.
+**Spec:** `docs/sprints/sprint-6-design.md` (approved). Also `docs/sprints/sprint-5-design.md`, `CLAUDE.md`, `technical-design.md` sections 5 and 7.
 
 ## Global Constraints
 
@@ -215,11 +215,11 @@
 ### Task 9: Docs, stress check, wrap-up
 
 **Files:**
-- Modify: `README.md` (Lectern and crafting text: one starting spell, range choice, slots unlock with levels), `technical-design.md` (section 7: built notes for the builder, system, session and pause clock), `sprint-development.md` (tick Sprint 6 boxes and add a Built note), `CLAUDE.md` (Project State and a "Crafting (Sprint 6)" section), `development-log.md`, `sprint-6-design.md` (Status: Built)
+- Modify: `README.md` (Lectern and crafting text: one starting spell, range choice, slots unlock with levels), `technical-design.md` (section 7: built notes for the builder, system, session and pause clock), `sprint-development.md` (tick Sprint 6 boxes and add a Built note), `CLAUDE.md` (Project State and a "Crafting (Sprint 6)" section), `development-log.md`, `docs/sprints/sprint-6-design.md` (Status: Built)
 
 **Interfaces:** none (documentation and measurement).
 
 - [ ] **Step 1: Run the stress test** at 300 enemies for the default Missile, `--area=wave` and `--area=zone`, each also with `--drops`: `godot --path . res://scenes/world/stress_test.tscn -- --enemies=300 --seconds=10` (plus `--area=<name>` and `--drops`). Record the six `STRESS` lines. Expected: `avg_fps` of at least 60 for all. If any is below 60, stop and report it before continuing.
-- [ ] **Step 2: Update the docs** listed above. In `development-log.md` add a "Sprint 6 (crafting)" entry: the decisions and calls from `sprint-6-design.md`, the baselines, multipliers and range options, the opening-ease change (pool 100 and 10% drops) with a note that it needs play-testing, the known limitations (buffs locked until Sprint 7, the F10 and F11 debug keys to delete later, the touch bridge needs a real-device check, no general pause menu), and the stress table beside the Sprint 5 numbers.
+- [ ] **Step 2: Update the docs** listed above. In `development-log.md` add a "Sprint 6 (crafting)" entry: the decisions and calls from `docs/sprints/sprint-6-design.md`, the baselines, multipliers and range options, the opening-ease change (pool 100 and 10% drops) with a note that it needs play-testing, the known limitations (buffs locked until Sprint 7, the F10 and F11 debug keys to delete later, the touch bridge needs a real-device check, no general pause menu), and the stress table beside the Sprint 5 numbers.
 - [ ] **Step 3: Run the full suite** and the smoke run. Expected: all pass, no errors.
 - [ ] **Step 4: Commit.** `git add -A && git commit -m "docs: Sprint 6 complete"`, with the trailer.

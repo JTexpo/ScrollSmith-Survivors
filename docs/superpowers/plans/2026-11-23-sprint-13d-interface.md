@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7.2, GDScript, GUT 9.7.1, the 13a to 13c art pipeline (`art/`, `tools/art/art_builder.gd`).
 
-**Spec:** `sprint-13d-design.md`
+**Spec:** `docs/sprints/sprint-13d-design.md`
 
 ## Global Constraints
 
@@ -187,7 +187,7 @@
 
 **Files:**
 - Create: `tests/test_ui_look.gd`
-- Modify: `CLAUDE.md` (new section "Interface (Sprint 13d)", the Project State line, and the TEMPORARY mentions it removes), `README.md`, `technical-design.md`, `sprint-development.md` (13d ticks and a Built note, "Create UI elements" ticked), `development-log.md`, `sprint-13d-design.md` (Status: Built, plus a "Revision during the build" note per change of course)
+- Modify: `CLAUDE.md` (new section "Interface (Sprint 13d)", the Project State line, and the TEMPORARY mentions it removes), `README.md`, `technical-design.md`, `sprint-development.md` (13d ticks and a Built note, "Create UI elements" ticked), `development-log.md`, `docs/sprints/sprint-13d-design.md` (Status: Built, plus a "Revision during the build" note per change of course)
 
 **Interfaces:**
 - Consumes: everything above. Produces nothing later tasks need.

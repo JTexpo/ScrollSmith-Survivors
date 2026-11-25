@@ -1,5 +1,5 @@
 extends GutTest
-## Which things have a shadow: everything that moves or can be picked up or used. Walls, trees and decorations are
+## Which things have a shadow: everything that moves or can be picked up or used. Walls and trees are
 ## static and have none, which is how a player tells them apart.
 
 const SCENES := [
@@ -29,7 +29,7 @@ func test_shadow_art_exists_in_the_widths_the_body_picks() -> void:
 
 
 func test_static_world_things_have_no_shadow() -> void:
-	# Obstacles and decorations are drawn by DrawChunk, which never builds a BodyView.
+	# Obstacles are drawn by DrawChunk, which never builds a BodyView.
 	var chunk := DrawChunk.new()
 	add_child_autofree(chunk)
 	assert_eq(chunk.get_children().size(), 0)

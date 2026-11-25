@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7.2, typed GDScript, GUT 9.7.1.
 
-**Spec:** `sprint-12b-design.md` (repo root). Read it first. Sprint 12c (chests, shrines, merchant, rare scroll spots) is NOT built here.
+**Spec:** `docs/sprints/sprint-12b-design.md` (repo root). Read it first. Sprint 12c (chests, shrines, merchant, rare scroll spots) is NOT built here.
 
 ## Global Constraints
 
@@ -215,7 +215,7 @@
 ### Task 9: Stress, verify and document
 
 **Files:**
-- Modify: `scripts/dev/stress_test.gd`, `scenes/world/stress_test.tscn` only as needed, `sprint-development.md`, `README.md`, `technical-design.md`, `CLAUDE.md`, `development-log.md`, `sprint-12b-design.md` (Status: Built)
+- Modify: `scripts/dev/stress_test.gd`, `scenes/world/stress_test.tscn` only as needed, `sprint-development.md`, `README.md`, `technical-design.md`, `CLAUDE.md`, `development-log.md`, `docs/sprints/sprint-12b-design.md` (Status: Built)
 
 - [ ] **Step 1: The stress option.** `--obstacles` makes the stress scene use the first map instead of `test_arena.tscn` (a `GameMap` with its `ObstacleMap`, the spawner's bounds, the camera limits and the player start taken from it, as `Main` does). Without it nothing changes. Add the option to the header comment and the argument parser.
 - [ ] **Step 2: Measure.** Run `godot --path . res://scenes/world/stress_test.tscn -- --enemies=300 --seconds=8 --drops` with and without `--obstacles`, three runs each, medians. Expected: with obstacles at least 60 fps and within about 15% of without. Separately measure the time of one field rebuild on the first map (a throwaway scratchpad script, deleted afterwards). Expected: under 8 ms, and if above, spread the sweep over several frames before going on.

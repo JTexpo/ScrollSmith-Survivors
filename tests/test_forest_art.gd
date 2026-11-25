@@ -1,8 +1,8 @@
 extends GutTest
 ## Sprint 16b: the forest's own enemy sprites (rats, ent, creepers, shaman). The goblin, wolves and kobolds keep showing through the
 ## `enemy_<type>` fallback; the empty set is unchanged (the ruins' and maze's own sprites are in `test_ruins_art` and `test_maze_art`).
+const EnemyArtHelpers := preload("res://tests/helpers/enemy_art_helpers.gd")
 
-const BOUNDS := Rect2(0, 0, 960, 540)
 const NEW_TYPES: Array[StringName] = [&"swarmer", &"tank", &"exploder", &"support"]
 const FALLBACK_TYPES: Array[StringName] = [&"standard", &"chaser", &"ranged"]
 const ALL_TYPES: Array[StringName] = [&"standard", &"swarmer", &"chaser", &"tank", &"ranged", &"exploder", &"support"]
@@ -23,16 +23,7 @@ func before_each() -> void:
 
 
 func _enemy(archetype: StringName, art_set: StringName, element: StringName = &"none") -> Enemy:
-	var data := _composer.compose(
-		load("res://resources/enemies/archetypes/%s.tres" % archetype) as EnemyArchetype,
-		load("res://resources/enemies/elements/%s.tres" % element) as EnemyElement,
-	)
-	var enemy := (load("res://scenes/enemies/base_enemy.tscn") as PackedScene).instantiate() as Enemy
-	enemy.art_set = art_set
-	enemy.setup(data, BOUNDS, _rng)
-	_root.add_child(enemy)
-	enemy.set_physics_process(false)
-	return enemy
+	return EnemyArtHelpers.make(_root, _composer, _rng, archetype, art_set, element)
 
 
 func test_the_forest_resolves_the_four_new_sprites_in_every_colourway() -> void:

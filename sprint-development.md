@@ -706,7 +706,7 @@ Sprint 13 is split into six: **13a** the art foundation (built), **13b** the wor
 
 **Built note (13a):** a replaceable art pipeline. Sprites are text pixel grids (`art/sprites/*.sprite`) in one palette (`art/palette.txt`), built by `tools/art/art_builder.gd` into committed PNG sheets and `SpriteSetData` resources, and shown by `BodyView`, which falls back to the old coloured square when there is no art. The player (idle, move, cast), all seven enemy archetypes in the five element colourways (move, death, and the Ranged shot, Exploder fuse and Support pulse) and the Ember Titan (idle, telegraph, attack, vulnerable) have sprites; elites get a silhouette outline. Overwriting a sheet PNG replaces that art with no code change. Gameplay and hit shapes are unchanged. Stress is about 30% lower than before (about 139 against 199 fps at 300 enemies), still more than twice the 60 fps target. Not yet drawn: player damage and hurt poses, spell and projectile art, equipment and UI.
 
-**Built note (13b):** the world has the same look. Each zone of the first map has a tiled floor (grass, and one lavender stone floor for the mazes, the stronghold and the tunnel) with a wavy, organic edge instead of a straight one, walls are a 9-slice of one stone-block tile (mazes, stronghold, tunnel) or a leafy hedge (the plaza's small walls), every round post is a tree, decorations are bold 12 by 12 sprites spread evenly (flowers, mushrooms and pebbles on the grass, pebbles and cracks on the stone), and the Lectern, the five points of interest (a ready and a dimmed refreshing look) and the scroll, XP gem and Gold coin pickups have sprites. The map names its art (`MapObstacle.material`, `MapZone.floor_style`, `decoration_styles`) and a missing name keeps today's flat colour, so collision, pathfinding and the layout tests did not change. Overwriting a tile or wall PNG replaces it with no code change (checked in a copy of the project). Several rounds of user feedback during the build made the floors brighter, simpler and more cartoon, softened the zone edges, replaced emerald-looking hedge mazes with brick and then with one stone look, and swapped marble pillars for trees. Stress is the same as main within noise (about 141 against about 135 fps median at 300 enemies). Unused but kept: the brick wall, path and hall floors and the marble post sprites.
+**Built note (13b):** the world has the same look. Each zone of the first map has a tiled floor (grass, and one lavender stone floor for the mazes, the stronghold and the tunnel) with a wavy, organic edge instead of a straight one, walls are a 9-slice of one stone-block tile (mazes, stronghold, tunnel) or a leafy hedge (the plaza's small walls), every round post is a tree, and the Lectern, the five points of interest (a ready and a dimmed refreshing look) and the scroll, XP gem and Gold coin pickups have sprites. The map names its art (`MapObstacle.material`, `MapZone.floor_style`, `decoration_styles`) and a missing name keeps today's flat colour, so collision, pathfinding and the layout tests did not change. Overwriting a tile or wall PNG replaces it with no code change (checked in a copy of the project). Several rounds of user feedback during the build made the floors brighter, simpler and more cartoon, softened the zone edges, replaced emerald-looking hedge mazes with brick and then with one stone look, and swapped marble pillars for trees. Stress is the same as main within noise (about 141 against about 135 fps median at 300 enemies). Unused but kept: the brick wall, path and hall floors and the marble post sprites.
 
 **Built note (13c):** combat has the cartoon look and the wizard wears what is equipped. Area spells keep their exact hit shape as a faint tint with a bright edge and play element effect sprites over it: Fire flames and Land rock spikes rise from the ground (nearest the caster first), Thunder bolts and Sea splashes fall from the sky; a Zone plays a fresh set at each damage tick, and a hybrid spell cycles through its elements. Missiles are one flying object per element in three size classes (the hit shape follows the exact size, the drawing never scales), and a Wave is a row of them along its front. Enemy shots take their shooter's element colours as small dark-outlined orbs, blast zones warn with rings of pixel marks that grow with the fuse and end in a burst, the boss's charge warning is a dashed line of the same marks, and the target reticle is a pixel crosshair. The wizard is drawn in layers (bare body, robe, beard, headwear, weapon): five robe colourways, a pointed hat and a hood in three trims each, and a wand and a staff in two looks each, set from `EquipmentData.sprite_name` and `sprite_variant` at run start. After feedback the wizard shows no skin at all (a shadowed face with only the eyes, and a white beard over the robe) and the hat and hood are wider so the head reads smaller. Stress with the effects is within about 15% of main (the full scene about 98 against about 113 fps, a Zone about 187 against about 222, a Line and a Wave equal). Not yet done: the HUD and menus (13d), audio (13e), polish (13f).
 
@@ -934,7 +934,7 @@ Confirmed by the user: the enemy columns above; **everything but the sprites is 
 
 ## Sprint 16a: The map select, the art sets and the new layouts
 
-**Status:** done (see `sprint-16a-design.md`, `development-log.md` and `CLAUDE.md`, "Maps and the map select").
+**Status:** done (see `docs/sprints/sprint-16a-design.md`, `development-log.md` and `CLAUDE.md`, "Maps and the map select").
 
 **Goal:** Play chooses a map; a map says which enemy art set and boss roster it uses; the forest and the maze exist and are playable, with today's art and the Ember Titan until their art sprints.
 
@@ -961,7 +961,7 @@ Three maps selectable from Play, all playable.
 
 ## Sprint 16b: The forest's art and the Tempest Dragon
 
-**Status:** done (see `sprint-16b-design.md`, `development-log.md` and `CLAUDE.md`, "The forest's art and the Tempest Dragon").
+**Status:** done (see `docs/sprints/sprint-16b-design.md`, `development-log.md` and `CLAUDE.md`, "The forest's art and the Tempest Dragon").
 
 **Goal:** The forest looks and feels like its own place, about finding a dragon.
 
@@ -979,7 +979,7 @@ The forest with its full enemy set and the Tempest Dragon.
 
 ## Sprint 16c: The ruins' art refresh
 
-**Status:** done (see `sprint-16c-design.md`, `development-log.md` and `CLAUDE.md`, "The ruins' art refresh"). The renaming of every plain sprite into its set is left for 16d (option A).
+**Status:** done (see `docs/sprints/sprint-16c-design.md`, `development-log.md` and `CLAUDE.md`, "The ruins' art refresh"). The renaming of every plain sprite into its set is left for 16d (option A).
 
 **Goal:** The ruins show exactly their column: bandit, slime, mimic, animated armour, elemental, mephit, cultist and the Ember Titan.
 
@@ -994,7 +994,7 @@ The ruins with their themed enemy set.
 
 ## Sprint 16d: The maze's art and the Dire Minotaur
 
-**Status:** done (see `sprint-16d-design.md`, `development-log.md` and `CLAUDE.md`, "The maze's art and the Dire Minotaur"). The planned renaming of the plain sprites was dropped. **Sprint 16 is complete.**
+**Status:** done (see `docs/sprints/sprint-16d-design.md`, `development-log.md` and `CLAUDE.md`, "The maze's art and the Dire Minotaur"). The planned renaming of the plain sprites was dropped. **Sprint 16 is complete.**
 
 **Goal:** The maze feels like a minotaur's dungeon.
 

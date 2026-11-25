@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7.2, typed GDScript, GUT 9.7.1, Compatibility renderer. Existing code in `scripts/`, `scenes/`, `resources/`, `tests/`.
 
-**Spec:** `sprint-10-design.md` (approved). Also `sprint-9-design.md`, `CLAUDE.md` and `technical-design.md` section 12.
+**Spec:** `docs/sprints/sprint-10-design.md` (approved). Also `docs/sprints/sprint-9-design.md`, `CLAUDE.md` and `technical-design.md` section 12.
 
 ## Global Constraints
 
@@ -210,10 +210,10 @@
 ### Task 9: Stress gate, docs and the manual check
 
 **Files:**
-- Modify: `sprint-development.md`, `README.md`, `technical-design.md`, `CLAUDE.md`, `development-log.md`, `sprint-10-design.md` (Status: Built), the memory file `sprint-0-decisions.md`
+- Modify: `sprint-development.md`, `README.md`, `technical-design.md`, `CLAUDE.md`, `development-log.md`, `docs/sprints/sprint-10-design.md` (Status: Built), the memory file `sprint-0-decisions.md`
 
 - [ ] **Step 1: Measure.** Run `godot --path . res://scenes/world/stress_test.tscn -- --enemies=300 --seconds=8 --drops --area=<missile|wave|zone>` three times each and take the median. Expected: at or above 60 fps. If a median is more than 10% below the Sprint 9 figure, profile before changing anything and record the finding as a ruling.
-- [ ] **Step 2: Docs.** `sprint-development.md`: tick the Sprint 10 boxes (potion inventory is the saved stock, cooldowns and usage restrictions as built) and add a Built note. `README.md`: the potion table with the numbers (price, effect, duration, cooldown), the refusal rules, carrying everything with a bar, and the keys and controller buttons. `technical-design.md`: the `potions` save field. `CLAUDE.md`: a "Potions (Sprint 10)" section (data-driven `PotionData`, `PotionSystem` rules, `PotionBelt` and `ActiveEffects`, the Player's three bonus layers and `refresh_bonuses` as the one place bonuses are pushed, luck in `DropTable.roll`, the potion bar and its own touch handling, the new inputs and F8) and the Project State line. `development-log.md`: "2026-11-22: Sprint 10 (potions)" with decisions, rulings, migration notes (`RunProgress.equipment_bonuses` removed, the Player's layers, `DropTable.roll` takes luck), limitations (potion effect numbers untested in play, TEMPORARY looks, potions only bought in the death-screen shop, controller uses D-pad select and use, no confirmation dialog) and the stress table. Mark `sprint-10-design.md` Status: Built.
+- [ ] **Step 2: Docs.** `sprint-development.md`: tick the Sprint 10 boxes (potion inventory is the saved stock, cooldowns and usage restrictions as built) and add a Built note. `README.md`: the potion table with the numbers (price, effect, duration, cooldown), the refusal rules, carrying everything with a bar, and the keys and controller buttons. `technical-design.md`: the `potions` save field. `CLAUDE.md`: a "Potions (Sprint 10)" section (data-driven `PotionData`, `PotionSystem` rules, `PotionBelt` and `ActiveEffects`, the Player's three bonus layers and `refresh_bonuses` as the one place bonuses are pushed, luck in `DropTable.roll`, the potion bar and its own touch handling, the new inputs and F8) and the Project State line. `development-log.md`: "2026-11-22: Sprint 10 (potions)" with decisions, rulings, migration notes (`RunProgress.equipment_bonuses` removed, the Player's layers, `DropTable.roll` takes luck), limitations (potion effect numbers untested in play, TEMPORARY looks, potions only bought in the death-screen shop, controller uses D-pad select and use, no confirmation dialog) and the stress table. Mark `docs/sprints/sprint-10-design.md` Status: Built.
 - [ ] **Step 3: Manual test notes** for the final message: press F8 for potions (or buy them on the death screen), drink each with Z to N or by tapping, check Health refuses at full health and Mana when full, check Speed and Damage timers on the bar, check Invulnerability blocks hits, check a refused potion is not used up, check potions survive death and a restart, and delete `save.json` to reset.
 - [ ] **Step 4: Full suite and smoke run.** Expected: all pass, no errors.
 - [ ] **Step 5: Commit** `docs: Sprint 10 complete` with the trailer.

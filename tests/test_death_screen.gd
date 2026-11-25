@@ -1,5 +1,7 @@
 extends GutTest
 
+const TouchHelpers := preload("res://tests/helpers/touch_helpers.gd")
+
 var _screen: DeathScreen
 
 
@@ -12,12 +14,6 @@ func before_each() -> void:
 func _restart_action() -> InputEventAction:
 	var event := InputEventAction.new()
 	event.action = &"restart"
-	event.pressed = true
-	return event
-
-
-func _touch() -> InputEventScreenTouch:
-	var event := InputEventScreenTouch.new()
 	event.pressed = true
 	return event
 
@@ -38,7 +34,7 @@ func test_restart_requested_on_action_and_on_touch_when_shown() -> void:
 	watch_signals(_screen)
 	_screen.show_death()
 	_screen.handle_event(_restart_action())
-	_screen.handle_event(_touch())
+	_screen.handle_event(TouchHelpers.press())
 	assert_signal_emit_count(_screen, "restart_requested", 2)
 
 
@@ -46,7 +42,7 @@ func test_input_ignored_during_short_delay_after_death() -> void:
 	_screen.input_delay_msec = 60000
 	watch_signals(_screen)
 	_screen.show_death()
-	_screen.handle_event(_touch())
+	_screen.handle_event(TouchHelpers.press())
 	assert_signal_not_emitted(_screen, "restart_requested")
 
 

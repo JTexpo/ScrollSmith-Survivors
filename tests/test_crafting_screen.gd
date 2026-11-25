@@ -1,5 +1,7 @@
 extends GutTest
 
+const ScrollHelpers := preload("res://tests/helpers/scroll_helpers.gd")
+
 var _root: Node2D
 var _inventory: ScrollInventory
 var _loadout: SpellLoadout
@@ -8,10 +10,6 @@ var _fire: ScrollData
 var _thunder: ScrollData
 var _missile: ScrollData
 var _wave: ScrollData
-
-
-func _scroll(path: String) -> ScrollData:
-	return load("res://resources/scrolls/%s.tres" % path) as ScrollData
 
 
 func before_each() -> void:
@@ -28,10 +26,10 @@ func before_each() -> void:
 	_screen = load("res://scenes/ui/crafting_screen.tscn").instantiate() as CraftingScreen
 	_screen.pause_tree = false
 	add_child_autofree(_screen)
-	_fire = _scroll("base/fire")
-	_thunder = _scroll("base/thunder")
-	_missile = _scroll("area/missile")
-	_wave = _scroll("area/wave")
+	_fire = ScrollHelpers.scroll("base/fire")
+	_thunder = ScrollHelpers.scroll("base/thunder")
+	_missile = ScrollHelpers.scroll("area/missile")
+	_wave = ScrollHelpers.scroll("area/wave")
 
 
 func after_each() -> void:
@@ -149,8 +147,8 @@ func test_locked_slot_cannot_be_chosen() -> void:
 
 
 func test_buffs_text_names_the_chosen_stacks() -> void:
-	var damage := _scroll("buff/damage")
-	var duplicate := _scroll("buff/duplicate_area")
+	var damage := ScrollHelpers.scroll("buff/damage")
+	var duplicate := ScrollHelpers.scroll("buff/duplicate_area")
 	_inventory.add(damage, 2)
 	_inventory.add(duplicate)
 	_screen.open(_inventory, _loadout)
@@ -220,9 +218,8 @@ func test_a_bridged_touch_does_not_press_the_global_cast_action() -> void:
 	assert_false(pressed_cast, "a bridged touch must not press the cast action")
 
 
-
 func _own(path: String, amount: int = 1) -> ScrollData:
-	var scroll := _scroll(path)
+	var scroll := ScrollHelpers.scroll(path)
 	_inventory.add(scroll, amount)
 	return scroll
 
@@ -302,7 +299,7 @@ func test_base_heading_shows_the_limit() -> void:
 	_own("base/fire")
 	_screen.open(_inventory, _loadout)
 	assert_true(_screen.base_heading_text().contains("0 of 1"), _screen.base_heading_text())
-	_screen.choose_base(_scroll("base/fire"))
+	_screen.choose_base(ScrollHelpers.scroll("base/fire"))
 	assert_true(_screen.base_heading_text().contains("1 of 1"), _screen.base_heading_text())
 	_screen.add_buff(extra)
 	assert_true(_screen.base_heading_text().contains("1 of 2"), _screen.base_heading_text())
@@ -382,7 +379,7 @@ func _stock_everything() -> void:
 	for category in ["base", "area", "buff"]:
 		for file in DirAccess.get_files_at("res://resources/scrolls/%s" % category):
 			if String(file).ends_with(".tres"):
-				_inventory.add(_scroll("%s/%s" % [category, String(file).get_basename()]), 9)
+				_inventory.add(ScrollHelpers.scroll("%s/%s" % [category, String(file).get_basename()]), 9)
 
 
 func _wrapped(text: String, width: float) -> Vector2:
@@ -431,12 +428,12 @@ func test_no_crafting_widget_sets_a_font_size() -> void:
 func test_the_preview_and_drawbacks_fit_the_preview_panel() -> void:
 	_stock_everything()
 	_screen.open(_inventory, _loadout)
-	_screen.add_buff(_scroll("buff/additional_base"))
+	_screen.add_buff(ScrollHelpers.scroll("buff/additional_base"))
 	_screen.choose_base(_fire)
 	_screen.choose_base(_thunder)
 	_screen.choose_area(_wave)
 	for id in ["damage", "double_vulnerability", "duplicate_area", "ignore_resistance", "max_mana"]:
-		_screen.add_buff(_scroll("buff/%s" % id))
+		_screen.add_buff(ScrollHelpers.scroll("buff/%s" % id))
 	var size := _wrapped(_screen.preview_text(), CraftingScreen.PREVIEW_SIZE.x)
 	assert_lte(size.y, CraftingScreen.PREVIEW_SIZE.y, "the whole preview is inside its panel")
 	assert_lte(_screen.preview_height(), CraftingScreen.PREVIEW_SIZE.y, "and so is the label that really draws it")
@@ -494,13 +491,13 @@ func test_the_preview_of_a_long_named_replacement_at_very_long_range_fits_and_cl
 	_stock_everything()
 	var loadout := _long_named_loadout()
 	_screen.open(_inventory, loadout)
-	_screen.add_buff(_scroll("buff/additional_base"))
+	_screen.add_buff(ScrollHelpers.scroll("buff/additional_base"))
 	_screen.choose_base(_fire)
 	_screen.choose_base(_thunder)
 	_screen.choose_area(_wave)
 	_screen.choose_range(3)
 	for id in ["damage", "double_vulnerability", "duplicate_area", "ignore_resistance", "max_mana"]:
-		_screen.add_buff(_scroll("buff/%s" % id))
+		_screen.add_buff(ScrollHelpers.scroll("buff/%s" % id))
 	assert_lte(_screen.preview_height(), CraftingScreen.PREVIEW_SIZE.y, "the real label fits its box")
 	assert_lte(CraftingScreen.PREVIEW_TOP + CraftingScreen.PREVIEW_SIZE.y, CraftingScreen.MESSAGE_TOP, "the message starts below the preview")
 
@@ -550,10 +547,10 @@ func test_buffs_can_still_be_stepped_from_the_buff_tab_and_show_in_the_preview()
 	_stock_everything()
 	_screen.open(_inventory, _loadout)
 	_screen.show_tab(1)
-	var plus := _screen.find_children("*", "Button", true, false).filter(func(b): return str(b.get_meta(&"key", "")) == "buff+:%s" % _scroll("buff/damage").id)
+	var plus := _screen.find_children("*", "Button", true, false).filter(func(b): return str(b.get_meta(&"key", "")) == "buff+:%s" % ScrollHelpers.scroll("buff/damage").id)
 	assert_eq(plus.size(), 1)
 	(plus[0] as Button).pressed.emit()
-	assert_eq(_screen.session.buff_stacks(_scroll("buff/damage")), 1)
+	assert_eq(_screen.session.buff_stacks(ScrollHelpers.scroll("buff/damage")), 1)
 
 
 func test_every_choice_stepper_and_slot_button_is_big_enough_to_press() -> void:

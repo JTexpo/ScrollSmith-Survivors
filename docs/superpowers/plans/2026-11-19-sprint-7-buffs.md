@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7.2, typed GDScript, GUT 9.7.1, Compatibility renderer. Existing code in `scripts/`, `scenes/`, `resources/`, `tests/`.
 
-**Spec:** `sprint-7-design.md` (approved). Also `sprint-6-design.md`, `CLAUDE.md`, `technical-design.md` sections 5, 7 and 8.
+**Spec:** `docs/sprints/sprint-7-design.md` (approved). Also `docs/sprints/sprint-6-design.md`, `CLAUDE.md`, `technical-design.md` sections 5, 7 and 8.
 
 ## Global Constraints
 
@@ -191,11 +191,11 @@
 ### Task 8: Docs, stress check, wrap-up
 
 **Files:**
-- Modify: `README.md` (Multiple Base Types, Duplicate Area, buff stacking and costs), `technical-design.md` (section 8.3 and the crafting notes), `sprint-development.md` (tick Sprint 7 boxes, add a Built note), `CLAUDE.md` (Project State; replace "The rules for combining multiple Base types are undecided, so settle them before implementing Additional Base" with the best-match rule; add a "Buffs (Sprint 7)" section), `development-log.md`, `sprint-7-design.md` (Status: Built)
+- Modify: `README.md` (Multiple Base Types, Duplicate Area, buff stacking and costs), `technical-design.md` (section 8.3 and the crafting notes), `sprint-development.md` (tick Sprint 7 boxes, add a Built note), `CLAUDE.md` (Project State; replace "The rules for combining multiple Base types are undecided, so settle them before implementing Additional Base" with the best-match rule; add a "Buffs (Sprint 7)" section), `development-log.md`, `docs/sprints/sprint-7-design.md` (Status: Built)
 
 **Interfaces:** none (documentation and measurement).
 
 - [ ] **Step 1: Run the stress test** with a five-copy spell for each Area at 300 enemies, three runs each and the median: `godot --path . res://scenes/world/stress_test.tscn -- --enemies=300 --seconds=8 --area=<missile|wave|zone> --copies=5` (and the same without `--copies` for the comparison). Record the medians. If any five-copy run is below 60 fps, also measure that Area at its real cast interval (set the stress spell's `cast_interval` to the Area's real one from the Global Constraints baselines) and report both. Report the numbers either way.
-- [ ] **Step 2: Update the docs** listed above. In `development-log.md` add a "Sprint 7 (buffs)" entry: the decisions and calls from `sprint-7-design.md`, the buff numbers, the best-match rule, the ring rule, the cost rules and why Increased Max Mana is the deliberate exception, the known limitations (balance untested in play, a hybrid is tinted with its first element, the screen is TEMPORARY in look), the migration notes, any findings during the build, and the stress table beside the Sprint 6 numbers.
+- [ ] **Step 2: Update the docs** listed above. In `development-log.md` add a "Sprint 7 (buffs)" entry: the decisions and calls from `docs/sprints/sprint-7-design.md`, the buff numbers, the best-match rule, the ring rule, the cost rules and why Increased Max Mana is the deliberate exception, the known limitations (balance untested in play, a hybrid is tinted with its first element, the screen is TEMPORARY in look), the migration notes, any findings during the build, and the stress table beside the Sprint 6 numbers.
 - [ ] **Step 3: Run the full suite** three times and the smoke run. Expected: all pass, no errors.
 - [ ] **Step 4: Commit.** `git add -A && git commit -m "docs: Sprint 7 complete"`, with the trailer.

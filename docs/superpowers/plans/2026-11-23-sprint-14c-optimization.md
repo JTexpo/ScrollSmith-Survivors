@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7 GDScript, GUT, the existing stress scene.
 
-**Spec:** `sprint-14c-design.md`
+**Spec:** `docs/sprints/sprint-14c-design.md`
 
 ## Global Constraints
 
@@ -114,7 +114,7 @@
 ### Task 6: Measure, optimize where it pays, docs and wrap-up
 
 **Files:**
-- Modify: whatever the numbers justify; `CLAUDE.md`, `README.md` only if player-facing text changes, `sprint-development.md` (14c ticks and a Built note), `development-log.md`, `sprint-14c-design.md` (Status: Built, revisions)
+- Modify: whatever the numbers justify; `CLAUDE.md`, `README.md` only if player-facing text changes, `sprint-development.md` (14c ticks and a Built note), `development-log.md`, `docs/sprints/sprint-14c-design.md` (Status: Built, revisions)
 
 - [ ] **Step 1: Baseline.** Run the stress scene (`--enemies=300 --seconds=8`) three times each with `--obstacles --drops`, with `--boss --fx --obstacles --drops`, and `--area=missile`, and record frames per second, average and p99 frame time, physics and process milliseconds. Run the soak tool and record its verdict.
 - [ ] **Step 2: Profile the biggest cost** (physics at about 20 ms in the full scene is the largest line): find where it goes (enemy movement and flow-field lookups, hitbox overlap work, the spawner, pickups), using the engine's profiler monitors in a scratchpad script. Pick candidates in order of cost. For each: write a test of the behaviour it must keep, change it, re-measure three runs, keep it only if it is clearly faster (outside the run-to-run noise of about 10%), otherwise revert and note it. Never change gameplay results.

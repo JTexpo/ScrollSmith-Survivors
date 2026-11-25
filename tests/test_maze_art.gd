@@ -1,8 +1,9 @@
 extends GutTest
 ## Sprint 16d: the maze's own enemy sprites (a zombie, snakes, a ghost, a troll, a skeleton archer, a warforge, a beholder). The plain
 ## `enemy_<type>` sprites stay as the default and the fallback; the ruins and forest are unchanged.
+const EnemyArtHelpers := preload("res://tests/helpers/enemy_art_helpers.gd")
+const SpriteHelpers := preload("res://tests/helpers/sprite_helpers.gd")
 
-const BOUNDS := Rect2(0, 0, 960, 540)
 const ALL_TYPES: Array[StringName] = [&"standard", &"swarmer", &"chaser", &"tank", &"ranged", &"exploder", &"support"]
 const ELEMENTS: Array[StringName] = [&"none", &"fire", &"thunder", &"land", &"sea"]
 const RUINS_SPRITES: Array[StringName] = [&"standard", &"chaser", &"ranged"]
@@ -23,16 +24,7 @@ func before_each() -> void:
 
 
 func _enemy(archetype: StringName, art_set: StringName, element: StringName = &"none") -> Enemy:
-	var data := _composer.compose(
-		load("res://resources/enemies/archetypes/%s.tres" % archetype) as EnemyArchetype,
-		load("res://resources/enemies/elements/%s.tres" % element) as EnemyElement,
-	)
-	var enemy := (load("res://scenes/enemies/base_enemy.tscn") as PackedScene).instantiate() as Enemy
-	enemy.art_set = art_set
-	enemy.setup(data, BOUNDS, _rng)
-	_root.add_child(enemy)
-	enemy.set_physics_process(false)
-	return enemy
+	return EnemyArtHelpers.make(_root, _composer, _rng, archetype, art_set, element)
 
 
 func test_the_maze_resolves_its_seven_sprites_in_every_colourway() -> void:
@@ -92,18 +84,6 @@ func test_an_elite_maze_enemy_gets_an_outline_from_the_silhouette() -> void:
 		assert_null(enemy.get_node_or_null("EliteOutline"), "%s: the square outline is only for enemies without art" % type)
 
 
-## How many pixels differ between two frames of a sheet (frames sit side by side, left to right).
-func _frame_difference(set_data: SpriteSetData, a: int, b: int) -> int:
-	var sheet := set_data.sheet.get_image()
-	var size := set_data.frame_size
-	var differing := 0
-	for y in size.y:
-		for x in size.x:
-			if sheet.get_pixel(a * size.x + x, y) != sheet.get_pixel(b * size.x + x, y):
-				differing += 1
-	return differing
-
-
 func test_every_animation_of_the_maze_sprites_visibly_changes_between_its_frames() -> void:
 	var animated := {&"move": [0, 1], &"death": [2, 3], &"attack": [4, 5], &"fuse": [4, 5], &"pulse": [4, 5]}
 	for type in ALL_TYPES:
@@ -113,4 +93,4 @@ func test_every_animation_of_the_maze_sprites_visibly_changes_between_its_frames
 				if not set_data.frames().has_animation(animation):
 					continue
 				var pair: Array = animated[animation]
-				assert_gte(_frame_difference(set_data, pair[0], pair[1]), 8, "%s %s %s: the two frames differ by at least 8 pixels" % [element, type, animation])
+				assert_gte(SpriteHelpers.frame_difference(set_data, pair[0], pair[1]), 8, "%s %s %s: the two frames differ by at least 8 pixels" % [element, type, animation])

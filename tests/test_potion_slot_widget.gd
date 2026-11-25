@@ -11,13 +11,6 @@ func before_each() -> void:
 	_widget.setup(2, _potion, "C")
 
 
-func _touch(position: Vector2) -> InputEventScreenTouch:
-	var event := InputEventScreenTouch.new()
-	event.pressed = true
-	event.position = position
-	return event
-
-
 func test_setup_shows_the_key_and_colour() -> void:
 	assert_eq(_widget.slot_index, 2)
 	assert_eq(_widget.key_text, "C")

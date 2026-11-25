@@ -32,18 +32,15 @@ func test_an_empty_or_unknown_name_gives_null_for_every_kind() -> void:
 		assert_null(WorldArt.floor_set(art_name), "floor %s" % art_name)
 		assert_null(WorldArt.wall_set(art_name), "wall %s" % art_name)
 		assert_null(WorldArt.post_set(art_name), "post %s" % art_name)
-		assert_null(WorldArt.decor_set(art_name), "decor %s" % art_name)
 
 
 func test_a_name_finds_its_set_by_the_naming_rule() -> void:
 	_save("tile_grass_base.tres", 3)
 	_save("wall_hedge_base.tres", 4)
 	_save("post_marble_base.tres", 5)
-	_save("decor_moss_base.tres", 6)
 	assert_eq(WorldArt.floor_set(&"grass").frame_size, Vector2i(3, 3))
 	assert_eq(WorldArt.wall_set(&"hedge").frame_size, Vector2i(4, 4))
 	assert_eq(WorldArt.post_set(&"marble").frame_size, Vector2i(5, 5))
-	assert_eq(WorldArt.decor_set(&"moss").frame_size, Vector2i(6, 6))
 	assert_null(WorldArt.wall_set(&"grass"), "a floor is not a wall")
 
 
@@ -113,22 +110,3 @@ func test_every_obstacle_and_maze_material_in_first_map_has_art() -> void:
 			assert_lte(absf(obstacle.radius - 21.0), 4.0, "a post's drawing is within 4 px of its collision")
 		else:
 			assert_not_null(WorldArt.wall_set(obstacle.material), "wall_%s" % obstacle.material)
-
-
-func test_every_decoration_style_in_first_map_has_art() -> void:
-	SpriteLibrary.root = "res://assets/sprites"
-	var map := load("res://resources/maps/first_map.tres") as MapData
-	var styles := {}
-	for style in map.decoration_styles:
-		styles[style] = true
-	for zone in map.zones:
-		for style in zone.decoration_styles:
-			styles[style] = true
-	assert_gt(styles.size(), 0, "the first map names decoration styles")
-	for style in styles:
-		var set_data := WorldArt.decor_set(StringName(style))
-		assert_not_null(set_data, "decor_%s has art" % style)
-		assert_gte(set_data.frame_count(), 2, "decor_%s has variants" % style)
-		assert_lte(set_data.frame_size.x, 16)
-		assert_lte(set_data.frame_size.y, 16)
-

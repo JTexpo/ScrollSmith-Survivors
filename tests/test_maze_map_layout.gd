@@ -60,32 +60,19 @@ func test_the_start_stands_in_the_cleared_centre_room() -> void:
 
 
 func test_no_gap_is_narrower_than_two_cells() -> void:
-	for width in Checks.bounded_runs(_grid):
-		assert_gte(width, 2, "a gap only one cell wide would trap bigger enemies")
+	Checks.no_narrow_gaps(self, _grid)
 
 
 func test_every_free_cell_is_reachable_from_the_start() -> void:
-	var sealed := Checks.sealed_cells(_grid, _map.player_start)
-	assert_eq(sealed.size(), 0, "free cells nobody can walk to, for example %s" % str(sealed.slice(0, 4)))
+	Checks.every_free_cell_reachable(self, _grid, _map)
 
 
 func test_the_same_points_of_interest_as_the_ruins() -> void:
-	var counts := {"lectern": 3, "rare_scroll_spot": 2, "treasure_chest": 1, "mana_shrine": 1, "health_shrine": 1, "merchant": 1}
-	for scene_name in counts:
-		assert_eq(Checks.positions(_map, scene_name).size(), counts[scene_name], scene_name)
-	assert_eq(_map.placements.size(), 9)
+	Checks.same_points_of_interest_as_the_ruins(self, _map)
 
 
 func test_spacing_rules() -> void:
-	var all := Checks.points(_map)
-	for i in all.size():
-		for j in range(i + 1, all.size()):
-			assert_gte(all[i].distance_to(all[j]), 400.0, "%s and %s are too close" % [all[i], all[j]])
-	var lecterns := Checks.positions(_map, "lectern")
-	for i in lecterns.size():
-		assert_gte(lecterns[i].distance_to(_map.player_start), 400.0)
-		for j in range(i + 1, lecterns.size()):
-			assert_gte(lecterns[i].distance_to(lecterns[j]), 700.0)
+	Checks.spacing_rules(self, _map)
 
 
 func test_every_point_of_interest_and_lectern_is_in_a_dead_end() -> void:

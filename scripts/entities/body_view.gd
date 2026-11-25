@@ -24,7 +24,7 @@ var fallback_color: Color = Color(0.9, 0.25, 0.25):
 			_fallback.color = value
 
 ## Whether this body draws a soft oval shadow on the ground under its sprite. Things that move, can be picked up or can
-## be used have one and static things (walls, trees, decorations) do not, so a player can tell them apart.
+## be used have one and static things (walls, trees) do not, so a player can tell them apart.
 @export var shadow_enabled: bool = false:
 	set(value):
 		shadow_enabled = value

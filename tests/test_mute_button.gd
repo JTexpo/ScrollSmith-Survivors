@@ -3,14 +3,6 @@ extends GutTest
 var _button: MuteButton
 
 
-func _touch(screen_position: Vector2) -> InputEventScreenTouch:
-	var event := InputEventScreenTouch.new()
-	event.index = 0
-	event.pressed = true
-	event.position = screen_position
-	return event
-
-
 func _click(screen_position: Vector2, button_index: int = MOUSE_BUTTON_LEFT) -> InputEventMouseButton:
 	var event := InputEventMouseButton.new()
 	event.button_index = button_index

@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7.2, typed GDScript, GUT 9.7.1, Compatibility renderer. Existing code in `scripts/`, `scenes/`, `resources/`, `tests/`.
 
-**Spec:** `sprint-3-design.md` (approved). Also `sprint-2-design.md`, `CLAUDE.md`, `technical-design.md` sections 5 and 9.
+**Spec:** `docs/sprints/sprint-3-design.md` (approved). Also `docs/sprints/sprint-2-design.md`, `CLAUDE.md`, `technical-design.md` sections 5 and 9.
 
 ## Global Constraints
 
@@ -158,11 +158,11 @@
 ### Task 6: Docs, stress measurements, wrap-up
 
 **Files:**
-- Modify: `README.md` (Area Scrolls: add **Wave**, update the Available Areas list and the example spell table with `Sea Wave | Sea + Wave | Moving wall of damage`, and any "four Areas" wording), `technical-design.md` (section 9: add `9.5 Wave`, say five Areas, and note the `AreaData` plus one-scene-per-Area structure), `sprint-development.md` (Sprint 3: add Wave tasks, tick every completed box, change "all four Area types"/"All four Areas" to five, add a Built note), `CLAUDE.md` (Project State, plus a "Spell architecture (Sprint 3)" section), `development-log.md`, `sprint-3-design.md` (Status: Built)
+- Modify: `README.md` (Area Scrolls: add **Wave**, update the Available Areas list and the example spell table with `Sea Wave | Sea + Wave | Moving wall of damage`, and any "four Areas" wording), `technical-design.md` (section 9: add `9.5 Wave`, say five Areas, and note the `AreaData` plus one-scene-per-Area structure), `sprint-development.md` (Sprint 3: add Wave tasks, tick every completed box, change "all four Area types"/"All four Areas" to five, add a Built note), `CLAUDE.md` (Project State, plus a "Spell architecture (Sprint 3)" section), `development-log.md`, `docs/sprints/sprint-3-design.md` (Status: Built)
 
 **Interfaces:** none (documentation and measurement).
 
 - [ ] **Step 1: Run the stress test for each Area.** For each of `missile`, `line`, `cone`, `zone`, `wave`: `godot --path . res://scenes/world/stress_test.tscn -- --enemies=300 --seconds=10 --area=<name>`. Record the `STRESS` line for each. Expected: `avg_fps` of at least 60 for all five. If any is below 60, stop and report it before continuing.
-- [ ] **Step 2: Update the docs** listed above. In `development-log.md` add a "Sprint 3 (spell areas)" entry: the decisions and calls from `sprint-3-design.md`, the starting numbers, and a table of the five stress results beside the Sprint 2 Missile baseline (696.6 fps at 300 enemies). Note that damage is still worked out at cast time and Sprint 4 must move the multiplier to hit time through `AreaEffect._configure_hitbox`.
+- [ ] **Step 2: Update the docs** listed above. In `development-log.md` add a "Sprint 3 (spell areas)" entry: the decisions and calls from `docs/sprints/sprint-3-design.md`, the starting numbers, and a table of the five stress results beside the Sprint 2 Missile baseline (696.6 fps at 300 enemies). Note that damage is still worked out at cast time and Sprint 4 must move the multiplier to hit time through `AreaEffect._configure_hitbox`.
 - [ ] **Step 3: Run the full suite** and the smoke run. Expected: all pass, no errors.
 - [ ] **Step 4: Commit.** `git add -A && git commit -m "docs: Sprint 3 complete"`, with the trailer.

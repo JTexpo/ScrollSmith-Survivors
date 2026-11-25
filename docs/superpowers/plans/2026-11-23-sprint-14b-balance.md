@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7 GDScript, GUT, `.tres` data.
 
-**Spec:** `sprint-14b-design.md`
+**Spec:** `docs/sprints/sprint-14b-design.md`
 
 ## Global Constraints
 
@@ -112,7 +112,7 @@
 ### Task 6: Real-window checks, performance and docs
 
 **Files:**
-- Modify: `CLAUDE.md` (Sprint 8 "Run start" and Sprint 9/10 sections where potions are saved and shop-sold: update the Potions section, the Project State line, Spell architecture's Missile line), `README.md` (potions and Missile text), `sprint-development.md` (14b note), `development-log.md`, `sprint-14b-design.md` (Status: Built, revisions), `technical-design.md` if it names the profile's potions.
+- Modify: `CLAUDE.md` (Sprint 8 "Run start" and Sprint 9/10 sections where potions are saved and shop-sold: update the Potions section, the Project State line, Spell architecture's Missile line), `README.md` (potions and Missile text), `sprint-development.md` (14b note), `development-log.md`, `docs/sprints/sprint-14b-design.md` (Status: Built, revisions), `technical-design.md` if it names the profile's potions.
 
 - [ ] **Step 1: Real window** (scratchpad script, `save_path = ""`, `await process_frame` first): screenshot a Missile burst on a crowd and at max range, the merchant screen (own n/3, the one-run line) and the shop screen (no potions row). Stress: `--area=missile --enemies=300 --seconds=8` three times, compared with `git stash`-free main numbers noted in the log; expected within noise.
 - [ ] **Step 2: Update the docs** and state clearly: the Missile numbers (36 px, 50%, 0.6 s) are starting values, whether it feels right and the audit's flagged rows are the user's call.

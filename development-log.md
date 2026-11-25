@@ -2,7 +2,7 @@
 
 ## 2026-11-18: Sprint 0 start
 
-Decisions (details in `sprint-0-design.md`):
+Decisions (details in `docs/sprints/sprint-0-design.md`):
 
 - Godot 4.7.2 from Homebrew, not pinned locally. CI pins the version later. Web export templates are installed when the first web export is needed.
 - Compatibility renderer, 480x270 internal resolution, `viewport` stretch with integer scaling, nearest-neighbor filtering, 2D pixel snap.
@@ -42,7 +42,7 @@ Enemies stopped in front of the player. Each enemy aimed at a random point up to
 
 ## 2026-11-19: Sprint 2 (base spell system)
 
-Decisions (details in `sprint-2-design.md`):
+Decisions (details in `docs/sprints/sprint-2-design.md`):
 
 - `SpellData` is configuration only. `SpellInstance` (plain `RefCounted`) owns current mana and the cast cooldown, so two copies of one spell never share mana. `SpellLoadout` holds five slots and the selected index, and the Player only forwards input to it.
 - A depleted spell stays selected and does nothing: no auto-switch, and the "dry" cue plays once per press (a latch cleared by `end_cast()` or a selection change). The player picks the next spell on purpose, because mana never regenerates.
@@ -65,7 +65,7 @@ Sprint 1 was 733.6 and 535.3 fps, so the spell path costs about 5%. The 60 fps t
 
 ## 2026-11-19: Sprint 3 (spell Areas)
 
-Decisions (details in `sprint-3-design.md`):
+Decisions (details in `docs/sprints/sprint-3-design.md`):
 
 - Five Areas, with **Wave** added at the user's request: a wide crescent that travels outward, widens a little, and hits every enemy it passes once. Each Area is one scene behind `launch(spell, origin, direction, target)`, with defaults in an `AreaData` resource. A spell carries `range_scale` and `size_scale`, which Sprint 6 crafting will write. The rule linking range to mana cost is left to the Spell Builder (Sprint 6).
 - `AreaData` is the single source of truth for a spell's Area. `SpellData.area` and `projectile_lifetime` were removed, and Missile's lifetime is now range / speed. `AreaType` moved to `AreaData` with `WAVE` appended.
@@ -94,7 +94,7 @@ The 60 fps target is met by a wide margin for every Area. Wave is the most expen
 
 ## 2026-11-19: Sprint 4 (elemental enemies)
 
-Decisions (details in `sprint-4-design.md`):
+Decisions (details in `docs/sprints/sprint-4-design.md`):
 
 - The elemental multiplier now applies at impact. The hitbox carries the attacker's element and the hurtbox holds the defender's, so the Sprint 2 limitation (multiplier at cast time) is gone. `AreaEffect._configure_hitbox` sets raw damage and element.
 - Rules, decided with the user: same element is normal damage (no same-type disadvantage). An enemy takes the strong multiplier (1.5) from the element that beats it and the weak one (0.5) from the one it beats. The README example that said a Fire enemy resists Fire was corrected to match.
@@ -121,7 +121,7 @@ The 60 fps target is still met by a wide margin. Wave dropped the most (about 40
 
 ## 2026-11-19: Sprint 5 (scroll collection)
 
-Decisions (details in `sprint-5-design.md`):
+Decisions (details in `docs/sprints/sprint-5-design.md`):
 
 - One `ScrollData` class with a category and optional category fields (the user chose this over a class per category). 15 scrolls: 4 Base, 5 Area (Wave included, since the user added it) and 6 Buff. Buff scrolls are only collectible this sprint. Rarity is data for display, and drop weights are authored per table.
 - Themed drops (the user's idea, with the condition that the Base scroll is heavily preferred but never guaranteed): each enemy has its own `DropTable`. An elemental enemy weights its own Base scroll 12 and the others 1, which is 80% of its Base drops and about 45% of all its drops. Every table has a 6% drop chance. Area scrolls weigh 1-2 and Buff scrolls 0.25-1.
@@ -149,7 +149,7 @@ The 60 fps target is met everywhere on this machine. With 100 pickups on the gro
 
 ## 2026-11-19: Sprint 6 (Arcane Lectern and crafting)
 
-Decisions (details in `sprint-6-design.md`):
+Decisions (details in `docs/sprints/sprint-6-design.md`):
 
 - All crafting rules live in two static classes. `SpellBuilder` builds a spell from a Base scroll, an Area scroll and a range option, using baselines on each Area and multipliers on each Base scroll. `CraftingSystem` validates, consumes the scrolls all-or-nothing and equips. The UI and the Lectern hold no rules, and a failed craft never costs a scroll.
 - Range is chosen at crafting (your request from Sprint 3): Short (range x0.6, cost x0.7), Normal, Long (x1.5, x1.4), Very long (x2.0, x1.8). Longer range costs more per cast and gives fewer casts from the same pool. Size is not chosen. Buff scrolls show locked until Sprint 7.
@@ -204,7 +204,7 @@ The 60 fps target is met everywhere by a wide margin. Wave and Missile are uncha
 
 ## 2026-11-20: Sprint 7 (buffs)
 
-Decisions (details in `sprint-7-design.md`):
+Decisions (details in `docs/sprints/sprint-7-design.md`):
 - All six buffs work. A buff is **data**: a `BuffEffect` resource on the Buff scroll (your choice over a script per buff). Multipliers multiply, bonuses add, and a new buff is a new `.tres`.
 - **Best match** for several Bases (your vision): each hit uses whichever element does best against that enemy (strong beats neutral beats weak, the first element wins a tie). It lives only in `DamageSystem.resolve`. The strong multiplier is the only thing Double Vulnerability scales (one stack is 2.0x, two are 2.5x), and a resisted hit under Ignore Resistance becomes a normal hit.
 - **Duplicate Area is a ring** (your choice): aimed Areas fire copies evenly around the player with the first on the aim, ground zones keep the first at the target and ring the rest at 1.5 x the zone radius. One cast pays mana once, and the copies are independent hits.
@@ -753,3 +753,15 @@ Design `docs/spring-cleaning-design.md`, plan `docs/superpowers/plans/2026-11-24
 - **`.gitignore`** cut from 176 lines of Python template to the Godot, scratch and system entries; no tracked or untracked file changed status.
 - **Test audit (report only):** 2471 tests in 206 files; the mechanical measures show little bloat (one test without an assertion, about 40 data pins, a few verbatim duplicates between the forest and maze layout tests). Nothing deleted; options in `docs/test-audit.md`.
 - **Left for the user:** the 92 test-only accessors, duplicated test helpers, the decoration scatter system, the root `sprint-*-design.md` files, `.superpowers/` and the plugin.
+
+## 2026-11-24: Spring cleaning 2 (branch `chore/spring-cleaning-2`)
+
+Design `docs/spring-cleaning-2-design.md`, plan `docs/superpowers/plans/2026-11-24-spring-cleaning-2.md`. One commit per item; the suite went 2472 to 2457 (the decoration tests left, the guards for links, decorations and `CLAUDE.md` arrived).
+
+- **Sprint designs moved** to `docs/sprints/` (31 files); 134 mentions in 35 other files were given the new path; `tests/test_doc_links.gd` fails on a mention that does not resolve and on a stray document in the root.
+- **Decoration system removed:** `MapDecor`, `MapDecorLayer`, the `decoration_*` fields of `MapData` and `MapZone` (and their lines in the three maps), `WorldArt.decor_set`, the decoration drawing of `DrawChunk` (now `set_items(obstacles, centres)`), the four `decor_*` sprites (16 files) and their tests. Screenshots of the ruins and the forest are unchanged. `tests/test_no_decoration.gd` guards it.
+- **Test code shared, no test removed:** the four map checks copied between the forest and maze layout tests are in `tests/map_layout_checks.gd`; `_damaged` is in `AreaTestBase`; `tests/helpers/` holds the touch, main-scene, scroll, sprite-frame, file-walk and enemy-art helpers. Copies with different bodies stayed. Two unused `_touch` helpers were deleted. The count did not change in this step.
+- **Mutation sample** (`docs/test-mutation-report.md`): 37 one-line breaks of production code, 35 caught, 2 survived the whole suite (the spell cooldown counting down, and a finished hitbox refusing a second hit). Two small tests would close them; not added, left for the user.
+- **Test-only accessor report** (`docs/test-accessor-report.md`): 96 functions only tests call. Proposed: remove 7, move 2 loaders to a test helper, make 2 real, keep the rest (observer seams, documented contracts, `CraftingScreen` wrappers). **No code changed; the user decides.**
+- **`CLAUDE.md` slimmed** from 120,165 to about 16,300 bytes (after the review put the test-writing rules, the user rulings, the no-autoload rule and the build commands back into the core). Thirty per-sprint sections moved word for word (checked by hash) into ten docs in `docs/architecture/`; the core rules, commands, workflow, web build and touch gotchas stayed, with an index. `tests/test_claude_md.gd` fails if the file passes 25,000 bytes, a link breaks, or a section is not in a topic doc.
+- **Left for the user:** the accessor removals and the two mutation survivors.

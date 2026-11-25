@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7.2, GDScript, GUT 9.7.1, the 13a to 13d art tool (`tools/art/art_builder.gd`).
 
-**Spec:** `sprint-13e-design.md`
+**Spec:** `docs/sprints/sprint-13e-design.md`
 
 ## Global Constraints
 
@@ -207,7 +207,7 @@
 
 **Files:**
 - Create: `tests/test_audio_guards.gd`
-- Modify: `CLAUDE.md` (a new "Audio (Sprint 13e)" section and the Project State line), `README.md`, `technical-design.md`, `sprint-development.md` (13e ticks and a Built note), `development-log.md`, `sprint-13e-design.md` (Status: Built, plus a "Revisions during the build" note per change of course)
+- Modify: `CLAUDE.md` (a new "Audio (Sprint 13e)" section and the Project State line), `README.md`, `technical-design.md`, `sprint-development.md` (13e ticks and a Built note), `development-log.md`, `docs/sprints/sprint-13e-design.md` (Status: Built, plus a "Revisions during the build" note per change of course)
 
 **Interfaces:**
 - Consumes: everything above. Produces nothing later tasks need.

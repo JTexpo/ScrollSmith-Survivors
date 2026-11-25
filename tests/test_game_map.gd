@@ -14,9 +14,6 @@ func _data() -> MapData:
 	placement.scene = load(LECTERN)
 	placement.position = Vector2(100, 100)
 	map.placements = [placement] as Array[MapPlacement]
-	map.decoration_count = 20
-	map.decoration_seed = 5
-	map.decoration_colors = PackedColorArray([Color(0.2, 0.3, 0.2)])
 	return map
 
 
@@ -91,12 +88,6 @@ func test_each_placement_is_instanced_at_its_position() -> void:
 	var placed := placements.get_child(0) as Node2D
 	assert_eq(placed.position, Vector2(100, 100))
 	assert_true(placed.is_in_group(&"lecterns"))
-
-
-func test_decorations_are_scattered_from_the_data() -> void:
-	var data := _data()
-	var node := _map_node(data)
-	assert_eq((node.get_node("Decor") as MapDecorLayer).item_count(), MapDecor.scatter(data).size())
 
 
 func test_bounds_and_player_start_come_from_the_data() -> void:
@@ -216,8 +207,6 @@ func _zoned_data() -> MapData:
 	var first := MapZone.new()
 	first.area = Rect2(0, 0, 200, 150)
 	first.floor_color = Color(0.5, 0.2, 0.2)
-	first.decoration_count = 15
-	first.decoration_colors = PackedColorArray([Color(0.6, 0.3, 0.3)])
 	var second := MapZone.new()
 	second.area = Rect2(200, 150, 200, 150)
 	second.floor_color = Color(0.2, 0.2, 0.5)
@@ -225,7 +214,7 @@ func _zoned_data() -> MapData:
 	return data
 
 
-func test_each_zone_has_a_floor_under_the_decorations() -> void:
+func test_each_zone_has_a_floor_tint() -> void:
 	var data := _zoned_data()
 	var node := _map_node(data)
 	var zones := node.get_node("Zones")
@@ -236,14 +225,6 @@ func test_each_zone_has_a_floor_under_the_decorations() -> void:
 		assert_eq(floor_rect.color, data.zones[i].floor_color)
 		assert_eq(floor_rect.mouse_filter, Control.MOUSE_FILTER_IGNORE)
 	assert_lt(node.get_node("Floor").get_index(), zones.get_index())
-	assert_lt(zones.get_index(), node.get_node("Decor").get_index())
-
-
-func test_the_decor_layer_holds_global_and_zone_items() -> void:
-	var data := _zoned_data()
-	var node := _map_node(data)
-	var expected := MapDecor.scatter(data).size() + MapDecor.scatter_zone(data, 0).size() + MapDecor.scatter_zone(data, 1).size()
-	assert_eq((node.get_node("Decor") as MapDecorLayer).item_count(), expected)
 
 
 func test_the_obstacle_layer_is_split_into_chunks_and_keeps_the_count() -> void:
@@ -315,7 +296,6 @@ func test_floor_styles_add_patches_in_draw_order() -> void:
 	assert_lt(node.get_node("Floor").get_index(), base.get_index())
 	assert_lt(base.get_index(), node.get_node("Zones").get_index())
 	assert_lt(node.get_node("Zones").get_index(), zone_art.get_index())
-	assert_lt(zone_art.get_index(), node.get_node("Decor").get_index())
 
 
 func test_a_missing_style_adds_no_patch_and_keeps_the_colour() -> void:
@@ -408,42 +388,6 @@ func test_draw_chunks_with_art_still_split_the_layer() -> void:
 	assert_gt(layer.chunk_count(), 1, "far apart obstacles are in different chunks")
 
 
-func _decor_art(file: String, frames: int) -> void:
-	_tile_art(file)
-	var set_data := load("%s/%s" % [_art_dir, file]) as SpriteSetData
-	set_data.tile = false
-	set_data.frame_size = Vector2i(8, 8)
-	set_data.sheet = ImageTexture.create_from_image(Image.create(8 * frames, 8, false, Image.FORMAT_RGBA8))
-	assert_eq(ResourceSaver.save(set_data, "%s/%s" % [_art_dir, file]), OK)
-
-
-func _decor_art_count(node: GameMap) -> int:
-	var count := 0
-	for chunk in (node.get_node("Decor") as MapDecorLayer).get_children():
-		count += (chunk as DrawChunk).art_decor_count()
-	return count
-
-
-func test_decor_with_art_is_drawn_as_art_and_item_counts_do_not_change() -> void:
-	var data := _data()
-	data.decoration_styles = PackedStringArray(["moss"])
-	var plain := _map_node(_data())
-	_decor_art("decor_moss_base.tres", 3)
-	var styled := _map_node(data)
-	assert_eq((styled.get_node("Decor") as MapDecorLayer).item_count(), (styled.get_node("Decor") as MapDecorLayer).item_count())
-	assert_gt(_decor_art_count(styled), 0)
-	assert_eq(_decor_art_count(styled), (styled.get_node("Decor") as MapDecorLayer).item_count(), "every item has art")
-	assert_eq(_decor_art_count(plain), 0, "a map with no styles keeps its coloured squares")
-
-
-func test_decor_with_a_missing_style_keeps_its_coloured_squares() -> void:
-	var data := _data()
-	data.decoration_styles = PackedStringArray(["no_such_decoration"])
-	var node := _map_node(data)
-	assert_gt((node.get_node("Decor") as MapDecorLayer).item_count(), 0)
-	assert_eq(_decor_art_count(node), 0)
-
-
 func test_a_zone_with_floor_art_hides_its_flat_tint_and_one_without_keeps_it() -> void:
 	_tile_art("tile_path_base.tres")
 	var data := _zoned_data()
@@ -489,7 +433,7 @@ func test_wall_centres_are_drawn_after_every_border_even_across_chunks() -> void
 
 func test_the_floor_layers_draw_below_the_shadows_and_the_walls_above_them() -> void:
 	var node := _map_node(_data())
-	for layer in ["Border", "Floor", "BaseArt", "Zones", "ZoneArt", "Decor"]:
+	for layer in ["Border", "Floor", "BaseArt", "Zones", "ZoneArt"]:
 		assert_lt((node.get_node(layer) as CanvasItem).z_index, BodyView.SHADOW_Z, "%s is under the shadows" % layer)
 		assert_true((node.get_node(layer) as CanvasItem).z_as_relative)
 	assert_eq((node.get_node("Obstacles") as CanvasItem).z_index, 0, "walls and trees are over the shadows")

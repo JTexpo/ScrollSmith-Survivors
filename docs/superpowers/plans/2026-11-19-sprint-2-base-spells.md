@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7.2, typed GDScript, GUT 9.7.1, Compatibility renderer. Existing Sprint 0 and 1 code in `scripts/`, `scenes/`, `resources/`, `tests/`.
 
-**Spec:** `sprint-2-design.md` (approved). Also `sprint-0-design.md`, `sprint-1-design.md`, `CLAUDE.md`, `technical-design.md` section 5.
+**Spec:** `docs/sprints/sprint-2-design.md` (approved). Also `docs/sprints/sprint-0-design.md`, `docs/sprints/sprint-1-design.md`, `CLAUDE.md`, `technical-design.md` section 5.
 
 ## Global Constraints
 
@@ -157,14 +157,14 @@
 ### Task 8: Stress test, docs and the manual checklist
 
 **Files:**
-- Modify: `development-log.md`, `CLAUDE.md`, `sprint-development.md`, `sprint-2-design.md` (status line)
+- Modify: `development-log.md`, `CLAUDE.md`, `sprint-development.md`, `docs/sprints/sprint-2-design.md` (status line)
 
 **Interfaces:**
 - Consumes: everything above.
 - Produces: the recorded perf result and updated docs.
 
 - [ ] **Step 1: Run the stress test.** `godot --path . res://scenes/world/stress_test.tscn -- --enemies=300 --seconds=10` (windowed), and again with `--enemies=500`. Expected: one `STRESS` line each, avg fps at or above 60 (it was 733.6 and 535.3 in Sprint 1). If either drops below 60, stop and report: optimization becomes in scope.
-- [ ] **Step 2: Update the docs.** `development-log.md`: a Sprint 2 section with the decisions (SpellInstance/Loadout split, numbers actually used if tuned, controller cycling, `max_hits`, the dry-cue latch, why enemy elements stay out), the new stress numbers, and the known limitation that damage is computed at cast time with no defender element (Sprint 4 moves the multiplier to hit time). `CLAUDE.md`: Project State mentions Sprint 2; replace the "TEMPORARY attack" lines in "Combat architecture" with a short "Spell architecture (Sprint 2)" section (SpellData vs SpellInstance, SpellLoadout, ElementTable, SpellBar and health bar still TEMPORARY); remove the old stress-test attacker wording. `sprint-development.md`: tick the Sprint 2 task boxes that are done (note "Implement spell targeting" is the aim direction, "spell visual effects" is the element tint, and that the enemy-side half of the elemental modifiers lands in Sprint 4). `sprint-2-design.md`: status line becomes "Built".
+- [ ] **Step 2: Update the docs.** `development-log.md`: a Sprint 2 section with the decisions (SpellInstance/Loadout split, numbers actually used if tuned, controller cycling, `max_hits`, the dry-cue latch, why enemy elements stay out), the new stress numbers, and the known limitation that damage is computed at cast time with no defender element (Sprint 4 moves the multiplier to hit time). `CLAUDE.md`: Project State mentions Sprint 2; replace the "TEMPORARY attack" lines in "Combat architecture" with a short "Spell architecture (Sprint 2)" section (SpellData vs SpellInstance, SpellLoadout, ElementTable, SpellBar and health bar still TEMPORARY); remove the old stress-test attacker wording. `sprint-development.md`: tick the Sprint 2 task boxes that are done (note "Implement spell targeting" is the aim direction, "spell visual effects" is the element tint, and that the enemy-side half of the elemental modifiers lands in Sprint 4). `docs/sprints/sprint-2-design.md`: status line becomes "Built".
 - [ ] **Step 3: Full verification.** Full suite, smoke run, and a final godot MCP run with no warnings.
 - [ ] **Step 4: Write the manual checklist** into the final message for the user: cast each of the four spells (keys 1–4), watch the bar drain, deplete one and hold the mouse button (nothing fires, nothing switches), pick another slot, refill with F9, tap slots with touch emulation, cycle with a controller's shoulder buttons if available.
 - [ ] **Step 5: Commit** `docs: Sprint 2 complete`.

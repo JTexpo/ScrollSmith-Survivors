@@ -1,6 +1,7 @@
 extends GutTest
 ## Sprint 16b: the Tempest Dragon in a real run on the forest. Driven by hand-stepped physics so it is fast and exact: it must use every
 ## attack, never break the blast zone cap, telegraph, and die and pay out once. The forest sends the Dragon, the ruins and maze the Titan.
+const MainHelpers := preload("res://tests/helpers/main_helpers.gd")
 
 const K := BossAttack.Kind
 const STEP := 0.05
@@ -9,14 +10,6 @@ const SCENES := {
 	&"first_map": "res://scenes/main/main.tscn",
 	&"maze": "res://scenes/main/main_maze.tscn",
 }
-
-
-func _new_main(path: String) -> Main:
-	var main := load(path).instantiate() as Main
-	main.save_path = ""
-	(main.get_node("BuffPickScreen") as BuffPickScreen).pause_tree = false
-	add_child_autofree(main)
-	return main
 
 
 func _zones() -> Array:
@@ -30,7 +23,7 @@ func _hit(boss: Boss, damage: float) -> void:
 func test_the_director_spawns_each_maps_own_boss() -> void:
 	var expected := {&"forest": &"tempest_dragon", &"first_map": &"ember_titan", &"maze": &"dire_minotaur"}
 	for id in SCENES:
-		var main := _new_main(SCENES[id])
+		var main := MainHelpers.new_main(self, SCENES[id])
 		await wait_process_frames(2)
 		var director := main.get_node("RunDirector") as RunDirector
 		director.tick(300.0)
@@ -43,7 +36,7 @@ func test_the_director_spawns_each_maps_own_boss() -> void:
 
 
 func test_the_dragon_fight_runs_every_attack_and_dies_once() -> void:
-	var main := _new_main(SCENES[&"forest"])
+	var main := MainHelpers.new_main(self, SCENES[&"forest"])
 	await wait_process_frames(2)
 	var player := main.get_node("Player") as Player
 	player.health.set_max_health(1.0e9)
@@ -82,7 +75,7 @@ func test_the_dragon_fight_runs_every_attack_and_dies_once() -> void:
 
 
 func test_the_dragons_rewards_drop_once_where_it_died() -> void:
-	var main := _new_main(SCENES[&"forest"])
+	var main := MainHelpers.new_main(self, SCENES[&"forest"])
 	await wait_process_frames(2)
 	var director := main.get_node("RunDirector") as RunDirector
 	watch_signals(director)

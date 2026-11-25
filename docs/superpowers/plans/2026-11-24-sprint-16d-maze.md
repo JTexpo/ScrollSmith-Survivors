@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7 GDScript, GUT, the art tool (`tools/art/art_builder.gd`).
 
-**Spec:** `sprint-16d-design.md`
+**Spec:** `docs/sprints/sprint-16d-design.md`
 
 ## Global Constraints
 
@@ -100,7 +100,7 @@
 ### Task 5: The maze fight, the checks and the docs
 
 **Files:**
-- Modify: `CLAUDE.md`, `development-log.md`, `sprint-development.md`, `sprint-16d-design.md` (status line), `docs/release-planning/future-roadmap.md` only if something new is found
+- Modify: `CLAUDE.md`, `development-log.md`, `sprint-development.md`, `docs/sprints/sprint-16d-design.md` (status line), `docs/release-planning/future-roadmap.md` only if something new is found
 - Create: `tests/test_dire_minotaur_fight.gd`
 - Create (scratchpad only): the bot and screenshot scripts
 

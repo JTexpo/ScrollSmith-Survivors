@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7.2, typed GDScript, GUT 9.7.1.
 
-**Spec:** `sprint-13a-design.md` (repo root). Read it first. Tiles, the Lectern, points of interest, pickups, spell art and the HUD (13b), audio (13c) and polish effects (13d) are NOT built here.
+**Spec:** `docs/sprints/sprint-13a-design.md` (repo root). Read it first. Tiles, the Lectern, points of interest, pickups, spell art and the HUD (13b), audio (13c) and polish effects (13d) are NOT built here.
 
 ## Global Constraints
 
@@ -177,7 +177,7 @@
 ### Task 7: Verify and document
 
 **Files:**
-- Modify: `sprint-development.md`, `README.md`, `technical-design.md`, `CLAUDE.md`, `development-log.md`, `sprint-13a-design.md` (Status: Built)
+- Modify: `sprint-development.md`, `README.md`, `technical-design.md`, `CLAUDE.md`, `development-log.md`, `docs/sprints/sprint-13a-design.md` (Status: Built)
 
 - [ ] **Step 1: Smoke and MCP run.** `godot --headless --quit-after 60` is clean. Run the project with `mcp__godot__run_project`, read `get_debug_output` for warnings (load with `ToolSearch select:`), then `stop_project`.
 - [ ] **Step 2: Stress.** `godot --path . res://scenes/world/stress_test.tscn -- --enemies=300 --seconds=8 --drops --obstacles`, four runs, median. Expected: at least 60 fps and within about 15% of about 192 fps. If it is lower, apply the shared-clock fallback (a measured, ledgered change) and re-run.

@@ -8,7 +8,7 @@
 
 **Tech Stack:** Godot 4.7 GDScript, GUT, the art tool (`tools/art/art_builder.gd`).
 
-**Spec:** `sprint-16c-design.md`
+**Spec:** `docs/sprints/sprint-16c-design.md`
 
 ## Global Constraints
 
@@ -50,7 +50,7 @@
 
 **Files:**
 - Create: `tests/test_art_set_is_only_a_look.gd`
-- Modify: `CLAUDE.md`, `development-log.md`, `sprint-development.md`, `sprint-16c-design.md` (status line)
+- Modify: `CLAUDE.md`, `development-log.md`, `sprint-development.md`, `docs/sprints/sprint-16c-design.md` (status line)
 - Create (scratchpad only): the window screenshot script
 
 **Interfaces:**
