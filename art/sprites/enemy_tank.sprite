@@ -1,5 +1,6 @@
 # A suit of animated armour with a plume, glowing visor, pauldrons and a sword.
 size 24 24
+outline
 anim move 0 1 6 loop
 anim death 2 3 12 once
 frame

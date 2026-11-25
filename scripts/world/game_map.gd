@@ -72,19 +72,6 @@ func _ready() -> void:
 	obstacle_map.name = &"ObstacleMap"
 	add_child(obstacle_map)
 	obstacle_map.setup(map_data)
-	var overlay := MapDebugOverlay.new()
-	overlay.name = &"Debug"
-	overlay.visible = false
-	add_child(overlay)
-	overlay.setup(map_data)
-	overlay.bind(obstacle_map)
-
-
-## DEBUG: shows or hides the layout overlay (F7).
-func toggle_debug() -> void:
-	var overlay := get_node_or_null("Debug") as Node2D
-	if overlay != null:
-		overlay.visible = not overlay.visible
 
 
 ## The map's rectangle, or an empty one when there is no data.

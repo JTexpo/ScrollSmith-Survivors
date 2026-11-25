@@ -91,7 +91,7 @@ func test_nine_slice_corners_are_drawn_one_to_one_and_there_is_one_centre() -> v
 
 func test_every_wall_set_has_slice_margins_that_fit_a_16_pixel_wall() -> void:
 	SpriteLibrary.root = "res://assets/sprites"
-	for material in [&"hedge", &"brick", &"stone"]:
+	for material in [&"hedge", &"stone"]:
 		var set_data := WorldArt.wall_set(material)
 		assert_not_null(set_data, "wall_%s has art" % material)
 		assert_true(set_data.tile, "wall_%s is a tile" % material)

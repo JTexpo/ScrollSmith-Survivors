@@ -1,5 +1,6 @@
 # A bandit: a masked rogue in a bandana with a knot, a cloak, a belt and a dagger.
 size 14 14
+outline
 anim move 0 1 6 loop
 anim death 2 3 12 once
 frame

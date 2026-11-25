@@ -5,8 +5,6 @@ extends Node2D
 ## A point of interest's effect was applied (not refused), or a merchant's stall opened. The sound board listens.
 signal point_effect_applied(kind: int)
 
-## DEBUG: the scrolls F10 hands out (3 of each). Delete with the debug key.
-@export var debug_scrolls: Array[ScrollData] = []
 
 @onready var _player: Player = $Player
 @onready var _map: GameMap = $GameMap
@@ -130,27 +128,9 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"toggle_inventory"):
 		_toggle_inventory()
-	# DEBUG: shows the map's bounds and placements. Delete when no longer needed.
-	elif event.is_action_pressed(&"debug_toggle_map"):
-		_map.toggle_debug()
 	# Tester tool: the performance overlay (F3, or a long press on the mute button).
 	elif event.is_action_pressed(&"debug_perf_overlay"):
 		toggle_perf_overlay()
-	# DEBUG: refills every spell's mana. Delete once potions exist.
-	elif event.is_action_pressed(&"debug_restore_mana"):
-		_player.loadout.restore_all_mana()
-	# DEBUG: 3 of every scroll, to try the panel and crafting without grinding. Delete later.
-	elif event.is_action_pressed(&"debug_give_scrolls"):
-		for scroll in debug_scrolls:
-			_player.inventory.add(scroll, 3)
-	# DEBUG: 3 of every potion for this run (never saved). Delete later.
-	elif event.is_action_pressed(&"debug_give_potions"):
-		for potion in potion_catalog.potions:
-			run_potions.add_potion(potion.id, RunPotions.MAX_POTIONS)
-		_player.belt.refresh()
-	# DEBUG: 100 XP, to try levels without grinding. It is saved like real XP. Delete later.
-	elif event.is_action_pressed(&"debug_give_xp"):
-		_player.progress.add_xp(100)
 
 
 ## Hands the map's size to the spawner and camera, its spawn config to the spawner (when it has one)

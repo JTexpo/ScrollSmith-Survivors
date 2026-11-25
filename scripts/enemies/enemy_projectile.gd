@@ -1,6 +1,6 @@
 class_name EnemyProjectile
 extends Node2D
-## TEMPORARY look: a small shot fired by a Ranged enemy or a boss. Its hit is a passive HitboxComponent on
+## A small shot fired by a Ranged enemy or a boss, drawn by its sprite. Its hit is a passive HitboxComponent on
 ## the enemy hitbox layer, so the player's hurtbox finds it like any enemy hit. It flies straight, frees
 ## itself at its range or after its one hit, and passes through enemies and spells. A hit the player
 ## refuses (the invulnerability window) does not spend it. At most MAX_ALIVE exist: a new shot frees the

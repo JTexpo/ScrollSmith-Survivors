@@ -1,5 +1,6 @@
 # Snakes: a small coiled dungeon snake with a flicking red tongue. Comes in clusters.
 size 10 10
+outline
 anim move 0 1 6 loop
 anim death 2 3 12 once
 frame

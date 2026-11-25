@@ -8,7 +8,7 @@ enum Kind { XP, GOLD }
 
 const XP_POINTS := [Vector2(0, -4), Vector2(4, 3), Vector2(-4, 3)]
 const GOLD_POINTS := [Vector2(0, -4), Vector2(4, 0), Vector2(0, 4), Vector2(-4, 0)]
-## TEMPORARY colours (placeholder art).
+## Placeholder colours, used when there is no art.
 const XP_COLOR := Color(1.0, 0.92, 0.55)
 const GOLD_COLOR := Color(1.0, 0.72, 0.1)
 

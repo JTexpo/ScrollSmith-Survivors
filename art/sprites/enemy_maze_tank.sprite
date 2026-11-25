@@ -1,5 +1,6 @@
-# A troll: a hulking tusked brute with a studded club and a loincloth.
+# A troll: a hulking tusked brute with moss patches, a bone necklace and thick darker arms.
 size 24 24
+outline
 anim move 0 1 6 loop
 anim death 2 3 12 once
 frame

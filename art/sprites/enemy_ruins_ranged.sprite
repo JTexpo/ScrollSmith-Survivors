@@ -1,5 +1,6 @@
 # An elemental: a floating spirit with a swirling bright core that flares when it throws.
 size 14 14
+outline
 anim move 0 1 6 loop
 anim death 2 3 12 once
 anim attack 4 5 12 once

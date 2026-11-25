@@ -2,7 +2,7 @@ class_name ArtBuilder
 extends RefCounted
 ## Turns sprite grids and the palette into PNG sheets and `SpriteSetData` resources. Pure and testable: the command-line
 ## tool (`tools/art/art_builder.gd`) only calls `build_all`. A sprite that uses ramp slots is built once per element
-## variant, one that does not once as `base`, and every sprite also gets a white silhouette sheet for outlines.
+## variant, one that does not once as `base`, and a sprite whose source has an `outline` line also gets a white silhouette sheet for outlines.
 
 ## How many files the last `build_all` wrote.
 static var files_written: int = 0
@@ -95,7 +95,7 @@ static func build_all(source_dir: String, palette_path: String, out_dir: String)
 			continue
 		for variant in source.variants_needed(palette):
 			_write_image(out_dir, sprite_name, String(variant), build_sheet(source, palette, variant), source)
-		if not source.is_surface():
+		if source.outline and not source.is_surface():
 			_write_image(out_dir, sprite_name, "silhouette", build_silhouette(source), source)
 	return problems
 
@@ -114,7 +114,7 @@ static func _build_hand_drawn(out_dir: String, sprite_name: String, source: Spri
 	for variant in variants:
 		var png_path := "%s/%s_%s.png" % [out_dir, sprite_name, variant]
 		_write_set(out_dir, sprite_name, String(variant), png_path, source)
-	if source.is_surface():
+	if source.is_surface() or not source.outline:
 		return problems
 	var first := Image.load_from_file(ProjectSettings.globalize_path("%s/%s_%s.png" % [out_dir, sprite_name, variants[0]]))
 	first.convert(Image.FORMAT_RGBA8)

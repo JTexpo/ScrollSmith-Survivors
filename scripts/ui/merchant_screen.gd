@@ -107,11 +107,6 @@ func button_text(id: StringName) -> String:
 	return (_buttons[id] as Button).text
 
 
-## Where a button is on screen, for tests that touch it.
-func potion_button_center(id: StringName) -> Vector2:
-	return (_buttons[id] as Button).get_global_rect().get_center()
-
-
 func gold_text() -> String:
 	return "Gold %d" % (_profile.gold if _profile != null else 0)
 

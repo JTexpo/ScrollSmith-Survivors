@@ -216,3 +216,19 @@ func test_a_sprite_without_ramp_slots_is_still_built_once_as_base() -> void:
 	assert_eq(source.errors.size(), 0, str(source.errors))
 	assert_eq(source.variants_needed(palette), [&"base"] as Array[StringName])
 
+
+
+func test_an_outline_line_sets_outline() -> void:
+	var source := SpriteSource.parse("outline\nsize 2 1\nanim a 0 0 1 loop\nframe\nKW", _palette())
+	assert_eq(source.errors.size(), 0, str(source.errors))
+	assert_true(source.outline)
+
+
+func test_a_source_without_the_line_has_no_outline() -> void:
+	assert_false(SpriteSource.parse("size 2 1\nanim a 0 0 1 loop\nframe\nKW", _palette()).outline)
+
+
+func test_outline_on_a_tile_is_ignored_and_is_not_an_error() -> void:
+	var source := SpriteSource.parse("tile\noutline\nsize 2 2\nanim a 0 0 1 loop\nframe\nKW\nWK", _palette())
+	assert_eq(source.errors.size(), 0, str(source.errors))
+	assert_true(source.is_surface())

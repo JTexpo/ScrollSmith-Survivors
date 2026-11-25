@@ -1,6 +1,6 @@
 class_name Boss
 extends Node2D
-## TEMPORARY look: a boss, run entirely from a BossData. It reuses the enemy health, hurtbox, hit flash and
+## A boss, drawn through a BodyView and run entirely from a BossData. It reuses the enemy health, hurtbox, hit flash and
 ## contact hitbox, ignores knockback, and is a small state machine: IDLE (chase and count down), TELEGRAPH
 ## (the warning of one attack), ACT (a charge's dash) and RECOVER (still for a moment, and after a charge
 ## open to +damage). Everything happens in _physics_process with the step's delta, so nothing runs while the
