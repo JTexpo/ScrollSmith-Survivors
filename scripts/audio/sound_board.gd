@@ -522,11 +522,10 @@ func _on_voice_finished(index: int) -> void:
 	_limiter.finished(index)
 
 
-## Creates the Music and Sfx buses (both feed Master) if they are missing. Volumes live in the sound data and the music code.
+## The Music and Sfx buses (both feed Master) come from `default_bus_layout.tres`, which the project loads at start. They are never
+## added here: on the web a bus added at run time reverses the engine's bus order and silences everything
+## (see `tests/test_audio_buses.gd`). Volumes live in the sound data and the music code.
 func _setup_buses() -> void:
 	for bus_name in [BUS_MUSIC, BUS_SFX]:
 		if AudioServer.get_bus_index(bus_name) < 0:
-			AudioServer.add_bus()
-			var index := AudioServer.bus_count - 1
-			AudioServer.set_bus_name(index, bus_name)
-			AudioServer.set_bus_send(index, "Master")
+			push_error("SoundBoard: the audio bus '%s' is missing; it comes from default_bus_layout.tres" % bus_name)
