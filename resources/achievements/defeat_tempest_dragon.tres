@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AchievementData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://resources/achievements/achievement_data.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/spells/thunder_zone.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = &"defeat_tempest_dragon"
+display_name = "Stormbreaker"
+description = "defeat the Tempest Dragon"
+kind = 0
+threshold = 0
+boss_id = &"tempest_dragon"
+icon = &"icon_ach_boss_tempest_dragon"
+reward_spell = ExtResource("2")
+reward_slot = 3
