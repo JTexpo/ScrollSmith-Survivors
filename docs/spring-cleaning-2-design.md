@@ -1,6 +1,6 @@
 # Spring cleaning 2: design and plan
 
-**Status:** Approved by the user in conversation ("I approve this plan"). Branch `chore/spring-cleaning-2`, cut from `main` after the first spring cleaning (PR #39).
+**Status:** Implemented (spring cleaning 2). Branch `chore/spring-cleaning-2`, cut from `main` after the first spring cleaning (PR #39).
 
 **Scope (the user's, items 1 to 5 of the follow-up list):** slim `CLAUDE.md`, move the sprint design documents, finish the test cleanup, remove the decoration system completely, and review the test-only accessors. Nothing else is touched: not the plugin, not `.superpowers/`, not historical plan content beyond link paths.
 
