@@ -27,7 +27,7 @@ Requested by the user (item 5 of the follow-up list). **No code was changed.** T
 
 ## Make real
 
-- `spell_instance.mana_ratio` (3 test uses): the same ratio is computed in `SpellInstance` only for tests; spell widgets read mana themselves. Use it in `SpellSlotWidget` where the bar fills (one line), or drop it.
+- `spell_instance.mana_ratio` (3 test uses): only tests call it; `SpellSlotWidget` receives `set_mana(current, maximum)` and derives its own ratio. Either pass `mana_ratio()` along with those two numbers, or drop the method.
 - `point_of_interest.is_ready` (12 test uses): the prompt and the use path both test `cooldown_left <= 0.0` inline; call `is_ready()` there.
 
 ## Move to a test helper
