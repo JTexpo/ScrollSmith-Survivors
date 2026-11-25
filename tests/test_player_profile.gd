@@ -348,3 +348,95 @@ func test_an_unknown_map_has_zero_bests() -> void:
 	assert_eq(profile.best_seconds(&"nowhere"), 0)
 	assert_eq(profile.best_enemies(&"nowhere"), 0)
 
+
+
+func test_achievements_and_lifetime_gold_round_trip() -> void:
+	var profile := PlayerProfile.new()
+	profile.earn_gold(1234)
+	profile.grant_achievement(&"reach_level_5")
+	profile.grant_achievement(&"defeat_ember_titan")
+	var restored := PlayerProfile.from_dict(JSON.parse_string(JSON.stringify(profile.to_dict())))
+	assert_not_null(restored)
+	assert_eq(restored.lifetime_gold, 1234)
+	assert_eq(restored.gold, 1234)
+	assert_eq(restored.achievements, [&"reach_level_5", &"defeat_ember_titan"] as Array[StringName])
+
+
+func test_a_new_save_always_writes_lifetime_gold_and_only_writes_achievements_when_any() -> void:
+	var profile := PlayerProfile.new()
+	var data := profile.to_dict()
+	assert_true(data.has("lifetime_gold"))
+	assert_eq(data["lifetime_gold"], 0)
+	assert_false(data.has("achievements"))
+	profile.grant_achievement(&"reach_level_5")
+	assert_true(profile.to_dict().has("achievements"))
+
+
+func test_refunded_gold_does_not_reload_as_earned() -> void:
+	var profile := PlayerProfile.new()
+	profile.add_gold(300)
+	var restored := PlayerProfile.from_dict(profile.to_dict())
+	assert_eq(restored.gold, 300)
+	assert_eq(restored.lifetime_gold, 0)
+
+
+func test_an_old_save_loads_with_lifetime_gold_equal_to_its_gold_and_no_achievements() -> void:
+	var restored := PlayerProfile.from_dict({"version": SaveGame.VERSION, "total_xp": 10, "gold": 450})
+	assert_not_null(restored)
+	assert_eq(restored.lifetime_gold, 450)
+	assert_eq(restored.achievements.size(), 0)
+
+
+func test_grant_achievement_is_idempotent() -> void:
+	var profile := PlayerProfile.new()
+	assert_true(profile.grant_achievement(&"reach_level_5"))
+	assert_false(profile.grant_achievement(&"reach_level_5"))
+	assert_eq(profile.achievements.size(), 1)
+	assert_true(profile.has_achievement(&"reach_level_5"))
+	assert_false(profile.has_achievement(&"reach_level_10"))
+
+
+func test_a_bad_achievements_field_is_a_bad_save() -> void:
+	for bad in ["reach_level_5", 5, {"a": 1}, [5], [["x"]], [null]]:
+		assert_null(PlayerProfile.from_dict({"version": SaveGame.VERSION, "total_xp": 0, "achievements": bad}), str(bad))
+
+
+func test_a_bad_lifetime_gold_is_a_bad_save() -> void:
+	for bad in [-1, 1.5, "100", null, 1.0e19, [1]]:
+		assert_null(PlayerProfile.from_dict({"version": SaveGame.VERSION, "total_xp": 0, "lifetime_gold": bad}), str(bad))
+
+
+func test_unknown_ids_are_kept_in_a_round_trip() -> void:
+	var restored := PlayerProfile.from_dict({"version": SaveGame.VERSION, "total_xp": 0, "achievements": ["removed_in_a_later_version", "reach_level_5"]})
+	assert_not_null(restored)
+	assert_true(restored.has_achievement(&"removed_in_a_later_version"))
+	assert_eq(PlayerProfile.from_dict(restored.to_dict()).achievements.size(), 2)
+
+
+func test_a_repeated_id_in_a_save_is_loaded_once() -> void:
+	var restored := PlayerProfile.from_dict({"version": SaveGame.VERSION, "total_xp": 0, "achievements": ["reach_level_5", "reach_level_5"]})
+	assert_eq(restored.achievements.size(), 1)
+
+
+func test_earn_gold_raises_both_and_add_gold_only_gold() -> void:
+	var profile := PlayerProfile.new()
+	profile.earn_gold(100)
+	assert_eq(profile.gold, 100)
+	assert_eq(profile.lifetime_gold, 100)
+	profile.add_gold(50)
+	assert_eq(profile.gold, 150)
+	assert_eq(profile.lifetime_gold, 100)
+	profile.spend_gold(120)
+	assert_eq(profile.lifetime_gold, 100, "spending never lowers it")
+	profile.earn_gold(0)
+	profile.earn_gold(-5)
+	assert_eq(profile.lifetime_gold, 100)
+
+
+func test_best_seconds_overall_is_the_largest_over_maps() -> void:
+	var profile := PlayerProfile.new()
+	assert_eq(profile.best_seconds_overall(), 0)
+	profile.set_best(&"first_map", 420, 30)
+	profile.set_best(&"forest_map", 710, 12)
+	profile.set_best(&"maze_map", 90, 4)
+	assert_eq(profile.best_seconds_overall(), 710)

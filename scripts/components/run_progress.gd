@@ -46,7 +46,7 @@ func add_xp(amount: int) -> void:
 func add_gold(amount: int) -> void:
 	if amount <= 0 or profile == null or _player.health.is_dead():
 		return
-	profile.add_gold(amount)
+	profile.earn_gold(amount)
 	run_gold += amount
 	gold_changed.emit(profile.gold)
 

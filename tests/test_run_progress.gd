@@ -212,3 +212,18 @@ func test_a_level_up_sets_only_the_level_layer() -> void:
 	assert_almost_eq(_player.temporary_bonuses.fraction(StatBonuses.Stat.CAST_SPEED), 0.25, 0.0001)
 	assert_almost_eq(_speed(), 90.0 * 1.18, 0.001)
 	assert_almost_eq(_player.loadout.bonuses.fraction(StatBonuses.Stat.CAST_SPEED), 0.25, 0.0001)
+
+
+func test_collected_gold_counts_as_earned() -> void:
+	_progress.add_gold(40)
+	assert_eq(_profile.lifetime_gold, 40)
+	assert_eq(_profile.gold, 40)
+
+
+func test_a_purchase_notification_and_a_refund_are_not_earned() -> void:
+	_profile.add_gold(100)
+	_progress.announce_gold()
+	assert_eq(_profile.lifetime_gold, 0)
+	_progress.add_gold(0)
+	_progress.add_gold(-3)
+	assert_eq(_profile.lifetime_gold, 0)

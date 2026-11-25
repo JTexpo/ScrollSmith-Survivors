@@ -26,6 +26,11 @@ var legacy_potions: Dictionary = {}
 ## and the most enemies defeated in one run on that map. Saved only when any is above 0, so an old save and an old reader are unaffected.
 ## An old save's flat bests (Sprint 15b, with a level) load as the ruins' (`first_map`) records and the level is dropped.
 var bests: Dictionary = {}
+## The ids of the achievements the player has earned (Sprint 17). Saved only when there are any. An id the game no longer knows is kept and ignored.
+var achievements: Array[StringName] = []
+## Every Gold the player has ever EARNED (collected in a run), which spending never lowers and a refund never raises. Always saved; a save without it
+## (an old one) loads with the Gold it holds, the best figure known.
+var lifetime_gold: int = 0
 
 
 ## Null if a field is missing (version and total_xp), has a wrongly typed or out-of-range value, or
@@ -80,6 +85,19 @@ static func from_dict(data: Dictionary) -> PlayerProfile:
 					if entry.has(key) and not _is_whole_in_range(entry[key]):
 						return null
 				profile.set_best(StringName(map_id), int(entry.get("seconds", 0)), int(entry.get("enemies", 0)))
+	if data.has("achievements"):
+		if not data["achievements"] is Array:
+			return null
+		for id in data["achievements"]:
+			if not id is String:
+				return null
+			profile.grant_achievement(StringName(id))
+	if data.has("lifetime_gold"):
+		if not _is_whole_in_range(data["lifetime_gold"]):
+			return null
+		profile.lifetime_gold = int(data["lifetime_gold"])
+	else:
+		profile.lifetime_gold = profile.gold
 	if data.has("potions"):
 		if not data["potions"] is Dictionary:
 			return null
@@ -111,6 +129,32 @@ func add_xp(amount: int) -> void:
 
 func add_gold(amount: int) -> void:
 	gold = _added(gold, amount)
+
+
+## Gold the player earned in a run: it raises the balance and the lifetime total. A refund or cash-in uses `add_gold`, which does not count.
+func earn_gold(amount: int) -> void:
+	add_gold(amount)
+	lifetime_gold = _added(lifetime_gold, amount)
+
+
+func has_achievement(id: StringName) -> bool:
+	return achievements.has(id)
+
+
+## False, with nothing changed, if the achievement is already held.
+func grant_achievement(id: StringName) -> bool:
+	if achievements.has(id):
+		return false
+	achievements.append(id)
+	return true
+
+
+## The longest survival on any map, in whole seconds (0 with no record).
+func best_seconds_overall() -> int:
+	var best := 0
+	for map_id in bests:
+		best = maxi(best, int((bests[map_id] as Dictionary).get("seconds", 0)))
+	return best
 
 
 ## Spends Gold. False, with nothing changed, if the amount is not positive or more than the player has.
@@ -157,7 +201,13 @@ func to_dict() -> Dictionary:
 		"gold": gold,
 		"owned": owned_ids,
 		"equipped": equipped_ids,
+		"lifetime_gold": lifetime_gold,
 	}
+	if not achievements.is_empty():
+		var earned: Array[String] = []
+		for id in achievements:
+			earned.append(str(id))
+		data["achievements"] = earned
 	if muted:
 		data["muted"] = true
 	var written := {}
