@@ -1,6 +1,6 @@
 # Spring cleaning: design and plan
 
-**Status:** Proposed, awaiting approval. Branch `chore/spring-cleaning`.
+**Status:** Implemented (spring cleaning). Branch `chore/spring-cleaning`.
 
 **Scope (the user's): unused assets and code smells in the repo, items 1 to 6 of the proposal.** Nothing outside this list is touched: not the `.superpowers/` scratch folder, not the Superpowers plugin, not the sprint design and plan documents, not the 92 test-only accessors, not the duplicated test helpers, not the decoration scatter system (a bigger decision left for the user), not the root design docs. Anything deleted is deleted by exact path, listed below or (for item 3) in a list this plan produces and records before deleting.
 

@@ -740,3 +740,16 @@ Found: the animation audit found no static animation in any older sprite; every 
 Measured (battery and Low Power Mode, so ratios only): stress with `--boss --map=maze` at or above the ruins' rate in every interleaved pair (51, 134 and 125 against 44, 101 and 27 fps). Boss-fight bot (starting spell, died every time): 30 to 55 s against the Minotaur, 43 to 57 s against the Dragon, 27 to 30 s against the Titan.
 
 Open: the web build has no sound (fix before the next publish); the Minotaur's numbers are starting values for the user to tune; next on the wishlist are achievements (Sprint 17) and a livelier home screen and tutorial (Sprint 18).
+
+## 2026-11-24: Spring cleaning (branch `chore/spring-cleaning`)
+
+Design `docs/spring-cleaning-design.md`, plan `docs/superpowers/plans/2026-11-24-spring-cleaning.md`, test audit `docs/test-audit.md`. One commit per item.
+
+- **Debug cheat keys removed.** F7 (map overlay), F8 (potions), F9 (mana), F10 (scrolls) and F12 (XP, which was saved) worked on the live web build. Five input actions, the `debug_scrolls` export, `MapDebugOverlay` and the tests that used the keys as tools are gone; `tests/test_no_cheat_keys.gd` fails if a `debug_` action other than the F3 performance overlay returns.
+- **Unused art removed:** seven sprites (`tile_hall`, `tile_path`, `wall_brick`, `post_marble`, `icon_scroll`, `decor_grass`, `decor_moss`), 40 files.
+- **Silhouette sheets only where shown:** a new `outline` header line (`SpriteSource.outline`) builds a silhouette only for the 21 enemy sprites (an elite's outline is the only user). 207 tracked files, 828 KB, deleted. Elite outlines checked in a real window.
+- **Web package filter:** `export_presets.cfg` also excludes `art/*`, `audio/*`, `tools/*` and the four developer scenes; `tests/test_export_filter.gd` fails if shipped code names an excluded path. **Limit: the package size could not be measured here (no export templates); the next GitHub Actions web build shows it.**
+- **Dead code and stale text:** `MerchantScreen.potion_button_center`, `ThemeBuilder.RED_DARK`, four TEMPORARY comments (`tests/test_no_temporary_markers.gd` guards the word), two stale doc sentences.
+- **`.gitignore`** cut from 176 lines of Python template to the Godot, scratch and system entries; no tracked or untracked file changed status.
+- **Test audit (report only):** 2471 tests in 206 files; the mechanical measures show little bloat (one test without an assertion, about 40 data pins, a few verbatim duplicates between the forest and maze layout tests). Nothing deleted; options in `docs/test-audit.md`.
+- **Left for the user:** the 92 test-only accessors, duplicated test helpers, the decoration scatter system, the root `sprint-*-design.md` files, `.superpowers/` and the plugin.
