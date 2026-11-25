@@ -287,3 +287,13 @@ func test_a_muted_profile_starts_the_game_muted() -> void:
 	for file in DirAccess.get_files_at(absolute):
 		DirAccess.remove_absolute("%s/%s" % [absolute, file])
 	DirAccess.remove_absolute(absolute)
+
+
+func test_an_achievement_unlock_plays_the_achievement_sound() -> void:
+	var tracker := AchievementTracker.new()
+	add_child_autofree(tracker)
+	_board.bind_achievements(tracker)
+	_heard.clear()
+	tracker.unlocked.emit(AchievementData.new())
+	assert_eq(_heard, [SoundId.ACHIEVEMENT] as Array[StringName])
+

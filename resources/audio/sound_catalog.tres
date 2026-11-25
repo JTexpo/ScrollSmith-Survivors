@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SoundCatalog" load_steps=48 format=3]
+[gd_resource type="Resource" script_class="SoundCatalog" load_steps=49 format=3]
 
 [ext_resource type="Script" path="res://resources/audio/sound_catalog.gd" id="1"]
 [ext_resource type="Script" path="res://resources/audio/sound_data.gd" id="2"]
@@ -202,6 +202,13 @@ volume_db = -4.0
 max_voices = 1
 priority = 2
 
+[sub_resource type="Resource" id="achievement"]
+script = ExtResource("2")
+id = &"achievement"
+volume_db = -4.0
+max_voices = 2
+priority = 1
+
 [sub_resource type="Resource" id="step"]
 script = ExtResource("2")
 id = &"step"
@@ -382,4 +389,4 @@ priority = 0
 
 [resource]
 script = ExtResource("1")
-sounds = Array[ExtResource("2")]([SubResource("cast_fire"), SubResource("cast_thunder"), SubResource("cast_land"), SubResource("cast_sea"), SubResource("hit_fire"), SubResource("hit_thunder"), SubResource("hit_land"), SubResource("hit_sea"), SubResource("hit_strong"), SubResource("hit_resisted"), SubResource("enemy_shot"), SubResource("blast_warn"), SubResource("blast_boom"), SubResource("enemy_die"), SubResource("enemy_die_big"), SubResource("enemy_die_elite"), SubResource("boss_spawn"), SubResource("boss_slam"), SubResource("boss_charge"), SubResource("boss_burst"), SubResource("boss_die"), SubResource("player_hurt"), SubResource("player_die"), SubResource("level_up"), SubResource("step"), SubResource("pickup_scroll"), SubResource("pickup_xp"), SubResource("pickup_gold"), SubResource("potion_drink"), SubResource("potion_refused"), SubResource("ui_click"), SubResource("ui_back"), SubResource("ui_hover"), SubResource("lectern_open"), SubResource("craft_confirm"), SubResource("craft_fail"), SubResource("shop_buy"), SubResource("shop_fail"), SubResource("shop_equip"), SubResource("shrine_heal"), SubResource("shrine_mana"), SubResource("chest_open"), SubResource("merchant_open"), SubResource("music_run"), SubResource("music_boss"), SubResource("heartbeat"), SubResource("mana_low")])
+sounds = Array[ExtResource("2")]([SubResource("cast_fire"), SubResource("cast_thunder"), SubResource("cast_land"), SubResource("cast_sea"), SubResource("hit_fire"), SubResource("hit_thunder"), SubResource("hit_land"), SubResource("hit_sea"), SubResource("hit_strong"), SubResource("hit_resisted"), SubResource("enemy_shot"), SubResource("blast_warn"), SubResource("blast_boom"), SubResource("enemy_die"), SubResource("enemy_die_big"), SubResource("enemy_die_elite"), SubResource("boss_spawn"), SubResource("boss_slam"), SubResource("boss_charge"), SubResource("boss_burst"), SubResource("boss_die"), SubResource("player_hurt"), SubResource("player_die"), SubResource("level_up"), SubResource("achievement"), SubResource("step"), SubResource("pickup_scroll"), SubResource("pickup_xp"), SubResource("pickup_gold"), SubResource("potion_drink"), SubResource("potion_refused"), SubResource("ui_click"), SubResource("ui_back"), SubResource("ui_hover"), SubResource("lectern_open"), SubResource("craft_confirm"), SubResource("craft_fail"), SubResource("shop_buy"), SubResource("shop_fail"), SubResource("shop_equip"), SubResource("shrine_heal"), SubResource("shrine_mana"), SubResource("chest_open"), SubResource("merchant_open"), SubResource("music_run"), SubResource("music_boss"), SubResource("heartbeat"), SubResource("mana_low")])

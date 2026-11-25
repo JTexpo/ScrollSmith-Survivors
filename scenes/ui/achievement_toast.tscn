@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/achievement_toast.gd" id="1"]
+
+[node name="AchievementToast" type="Label"]
+theme_type_variation = &"HudToast"
+script = ExtResource("1")
