@@ -100,3 +100,13 @@ func test_the_entry_points_are_not_excluded() -> void:
 	for file in must_ship:
 		var relative := file.trim_prefix("res://")
 		assert_false(_excluded(patterns, relative), "%s must ship" % relative)
+
+
+func test_the_build_time_only_scripts_are_not_used_by_the_game() -> void:
+	for builder in BUILD_TIME_ONLY:
+		var class_label := String(builder).get_file().get_basename().to_pascal_case()
+		for root in ["scripts", "scenes", "resources"]:
+			for file in _files_under("res://%s" % root):
+				if file == builder or file.begins_with("res://scripts/art/") or not TEXT_EXTENSIONS.has(file.get_extension()):
+					continue
+				assert_false(_without_comments(FileAccess.get_file_as_string(file)).contains(class_label), "%s uses %s, which reads res://art and does not ship" % [file, class_label])

@@ -8,7 +8,7 @@ Requested by the user: "check on all of the tests ... not sure how much they are
 |---|---|
 | Files / tests | 206 files, 2471 tests (full run about 170 s headless) |
 | Largest files | `test_main_progression` 65, `test_spell_loadout` 47, `test_crafting_screen` 44, `test_boss` 44, `test_enemy_spawner` 42: even spread, no giant file |
-| Tests with no assertion | 1: `test_cast_pattern.gd::test_aimed_ring_rotates_with_the_aim` |
+| Tests with no direct assertion (the script counts `assert_` calls in the body, so it misses helpers) | 1, a false alarm: `test_aimed_ring_rotates_with_the_aim` asserts through the `_assert_angle` helper (the count only saw direct `assert_` calls) |
 | Exact duplicate bodies | 8 groups, 20 tests (below) |
 | One-assert tests of 3 lines or fewer | about 280 (about 11%); 69 of them are a lone null/true/false check |
 | Tests that only pin a data value from a `.tres` | about 40 (1.6%) |
@@ -22,7 +22,7 @@ Requested by the user: "check on all of the tests ... not sure how much they are
    - `test_the_summon_uses_swarmers` in the Dragon's and the Minotaur's data tests (keep, one per boss).
 3. **The weakest category is "data pins"** (about 40 tests, in `test_boss`, `test_enemy_spawner`, `test_map_data`, `test_fx_touches`, `test_map_preview` ...): they assert today's authored number. When balance is tuned on purpose (the user plans this) they fail for the right reason but protect nothing. Candidates to keep: pins that encode a rule (the always-avoidable boss rules, caps). Candidates to drop: a pin whose only message is "the number is N".
 4. **The 69 lone null/true/false tests** are small and cheap; most check "loads" or "exists" and are also covered by larger tests (for example `test_default_rules_loads`). Low value, low cost.
-5. **One test with no assertion** (`test_aimed_ring_rotates_with_the_aim`) is a real smell: it can never fail. Needs an assertion or removal.
+5. **No test without an assertion was found.** The one test the script flagged asserts through a helper, so it can fail (the review caught this).
 
 ## What this audit cannot tell
 
@@ -30,7 +30,7 @@ Whether a test would catch a bug is not visible from its text. The honest measur
 
 ## Recommendation (for the user to choose)
 
-- **A. Do the safe three now:** give the no-assertion test an assertion, move the four duplicated map-layout checks into `map_layout_checks.gd`, and leave the rest. No coverage lost.
+- **A. Do the safe one now:** move the four duplicated map-layout checks into `map_layout_checks.gd`, and leave the rest. No coverage lost.
 - **B. A, plus review the 40 data pins together** and remove the ones that only restate a balance number.
 - **C. A mutation sample** first, then decide with evidence.
 
