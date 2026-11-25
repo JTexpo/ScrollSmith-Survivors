@@ -334,3 +334,47 @@ func test_a_touch_while_the_tutorial_is_open_is_left_to_it() -> void:
 	touch.pressed = true
 	touch.position = Vector2(240, 120)
 	assert_false(_home.handle_input(touch), "the open Tutorial bridges its own touches")
+
+
+func test_the_home_screen_has_an_achievements_button_that_opens_the_screen() -> void:
+	_start()
+	var button := _button("Achievements")
+	assert_not_null(button)
+	button.pressed.emit()
+	assert_true(_home.achievements_screen().is_open())
+	assert_eq(_home.achievements_screen().card_count(), 12)
+
+
+func test_the_achievements_button_does_not_overlap_full_screen_or_the_main_buttons() -> void:
+	_start()
+	var rect := _button("Achievements").get_global_rect()
+	assert_false(rect.intersects(_button("Full screen").get_global_rect()))
+	for label in ["Play", "Shop", "Tutorial", "Settings", "New game"]:
+		assert_false(rect.intersects(_button(label).get_global_rect()), label)
+	assert_gte(rect.size.x, 100.0)
+	assert_gte(rect.size.y, 28.0)
+
+
+func test_closing_the_achievements_screen_returns_focus_to_play() -> void:
+	_start()
+	_home.open_achievements()
+	_home.achievements_screen().close()
+	assert_true(_button("Play").has_focus())
+
+
+func test_the_screen_shows_what_the_saved_profile_has_earned() -> void:
+	var profile := PlayerProfile.new()
+	profile.grant_achievement(&"reach_level_5")
+	SaveGame.save_profile(profile, _save_path())
+	_start()
+	_home.open_achievements()
+	assert_eq(_home.achievements_screen().count_text(), "1 of 12")
+
+
+func test_a_touch_while_the_achievements_screen_is_open_is_not_bridged_to_the_buttons_below() -> void:
+	_start()
+	_home.open_achievements()
+	var touch := InputEventScreenTouch.new()
+	touch.pressed = true
+	touch.position = _button("Play").get_global_rect().get_center()
+	assert_false(_home.handle_input(touch), "the home screen leaves it to the open screen")
