@@ -167,10 +167,8 @@ func test_art_names_default_to_empty_on_the_map_and_its_zones() -> void:
 	var data := MapData.new()
 	assert_eq(data.floor_style, &"")
 	assert_eq(data.border_style, &"")
-	assert_eq(data.decoration_styles.size(), 0)
 	var zone := MapZone.new()
 	assert_eq(zone.floor_style, &"")
-	assert_eq(zone.decoration_styles.size(), 0)
 
 
 

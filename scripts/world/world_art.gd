@@ -1,9 +1,9 @@
 class_name WorldArt
 extends RefCounted
-## Finds the art a map names. The map data only holds names (a floor style, a wall material, a decoration style), and
+## Finds the art a map names. The map data only holds names (a floor style, a wall material), and
 ## these look them up by one naming rule through `SpriteLibrary`, so a name with no art is simply null and the caller
-## keeps its flat colour. Floors are `tile_<style>`, walls `wall_<material>`, round posts `post_<material>` and
-## decorations `decor_<style>`.
+## keeps its flat colour. Floors are `tile_<style>`, walls `wall_<material>`, and round posts
+## `post_<material>`.
 
 
 static func floor_set(style: StringName) -> SpriteSetData:
@@ -18,8 +18,6 @@ static func post_set(material: StringName) -> SpriteSetData:
 	return _find("post_", material)
 
 
-static func decor_set(style: StringName) -> SpriteSetData:
-	return _find("decor_", style)
 
 
 static func _find(prefix: String, art_name: StringName) -> SpriteSetData:

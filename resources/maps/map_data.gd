@@ -19,17 +19,10 @@ const OBSTACLE_CLEARANCE := 24.0
 ## Names of the art for the floor and the world's edge (empty keeps the flat colours).
 @export var floor_style: StringName = &""
 @export var border_style: StringName = &""
-## Names of the decoration sprites scattered over the map, used in place of `decoration_colors` when set.
-@export var decoration_styles: PackedStringArray = PackedStringArray()
 @export var player_start: Vector2 = Vector2(960, 540)
 ## Null keeps the spawn config the scene already has.
 @export var spawn_config: SpawnConfig
 @export var placements: Array[MapPlacement] = []
-@export var decoration_count: int = 0
-@export var decoration_seed: int = 0
-@export var decoration_colors: PackedColorArray = PackedColorArray()
-## Smallest and largest side of a decoration, in pixels.
-@export var decoration_size: Vector2 = Vector2(2, 5)
 ## Solid shapes that block movement and enemy projectiles.
 @export var obstacles: Array[MapObstacle] = []
 ## Side of one navigation grid cell, in pixels.
@@ -42,7 +35,7 @@ const OBSTACLE_CLEARANCE := 24.0
 @export var body_radius: float = 5.0
 ## Mazes generated from data. Their walls count as obstacles through `solid_shapes()`.
 @export var mazes: Array[MapMaze] = []
-## Regions with their own floor tint and decorations.
+## Regions with their own floor tint and floor art.
 @export var zones: Array[MapZone] = []
 
 

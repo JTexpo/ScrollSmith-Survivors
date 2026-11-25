@@ -1,6 +1,6 @@
 class_name GameMap
 extends Node2D
-## Builds the world from a `MapData`: the floor, the walls around it, the decorations and every
+## Builds the world from a `MapData`: the floor, the walls around it and every
 ## placed scene. It holds no gameplay rules, so a new map is a new `MapData` and no new code.
 
 ## How thick each boundary wall is, just outside the map's edge.
@@ -45,13 +45,6 @@ func _ready() -> void:
 		if zone != null and _add_patch(zone_art, zone.area, zone.floor_style, true):
 			# The art has a ragged edge, so a hard-edged flat tint under it must not show through the gaps.
 			(tints[zone] as ColorRect).visible = false
-	var decor := MapDecorLayer.new()
-	decor.name = &"Decor"
-	add_child(decor)
-	var items := MapDecor.scatter(map_data)
-	for i in map_data.zones.size():
-		items.append_array(MapDecor.scatter_zone(map_data, i))
-	decor.set_decor(items)
 	_put_floor_layers_under_the_shadows()
 	var obstacles := ObstacleLayer.new()
 	obstacles.name = &"Obstacles"
@@ -83,10 +76,10 @@ func player_start() -> Vector2:
 	return map_data.player_start if map_data != null else Vector2.ZERO
 
 
-## The floor, its art and the decorations draw just below the shadows (`BodyView.SHADOW_Z`), and the walls and everything that
+## The floor and its art draw just below the shadows (`BodyView.SHADOW_Z`), and the walls and everything that
 ## stands on the world stay at depth 0 above them. All shadows share one depth, so they draw together and batch.
 func _put_floor_layers_under_the_shadows() -> void:
-	for layer_name in [&"Border", &"Floor", &"BaseArt", &"Zones", &"ZoneArt", &"Decor"]:
+	for layer_name in [&"Border", &"Floor", &"BaseArt", &"Zones", &"ZoneArt"]:
 		(get_node(NodePath(layer_name)) as CanvasItem).z_index = BodyView.SHADOW_Z - 1
 
 

@@ -97,4 +97,3 @@ spawn_config = ExtResource("4")
 placements = Array[ExtResource("2")]([SubResource("lectern_0"), SubResource("lectern_1"), SubResource("lectern_2"), SubResource("chest"), SubResource("merchant"), SubResource("rare_0"), SubResource("rare_1"), SubResource("mana"), SubResource("health")])
 mazes = Array[ExtResource("6")]([SubResource("maze")])
 bosses = Array[ExtResource("bd")]([ExtResource("boss1")])
-decoration_count = 0

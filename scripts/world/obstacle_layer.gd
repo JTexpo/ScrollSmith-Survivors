@@ -28,14 +28,14 @@ func set_obstacles(obstacles: Array[MapObstacle]) -> void:
 	for key in buckets:
 		var chunk := DrawChunk.new()
 		add_child(chunk)
-		chunk.set_items([] as Array[Dictionary], buckets[key])
+		chunk.set_items(buckets[key])
 	var centres := Node2D.new()
 	centres.name = &"Centres"
 	add_child(centres)
 	for key in buckets:
 		var chunk := DrawChunk.new()
 		centres.add_child(chunk)
-		chunk.set_items([] as Array[Dictionary], buckets[key], true)
+		chunk.set_items(buckets[key], true)
 
 
 func item_count() -> int:
