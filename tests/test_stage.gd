@@ -371,6 +371,25 @@ func test_resume_does_nothing_when_motion_is_reduced() -> void:
 	assert_false(_stage.is_processing())
 
 
+func test_resume_follows_a_reduce_motion_change_made_while_stopped() -> void:
+	_stage.play(_script())
+	_stage.stop()
+	FxSettings.reduce_motion()
+	_stage.resume()
+	assert_false(_stage.is_playing(), "motion turned off while covered stays off")
+	assert_false(_stage.is_processing())
+	assert_almost_eq(_stage.elapsed(), _script().still_time, 0.001)
+
+
+func test_resume_follows_reduce_motion_being_turned_off_while_stopped() -> void:
+	FxSettings.reduce_motion()
+	_stage.play(_script())
+	FxSettings.reset()
+	_stage.resume()
+	assert_true(_stage.is_playing(), "motion turned back on while covered plays again")
+	assert_true(_stage.is_processing())
+
+
 func test_dress_wizard_changes_what_the_wizard_wears() -> void:
 	var script := _script()
 	script.actors[0].wizard = true

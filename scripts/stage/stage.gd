@@ -19,6 +19,8 @@ var _elapsed: float = 0.0
 var _next_beat: int = 0
 var _playing: bool = false
 var _reduced: bool = false
+var _profile: PlayerProfile
+var _catalog: EquipmentCatalog
 var _actors: Dictionary = {}
 var _definitions: Dictionary = {}
 ## Holds the scenery and the actors, depth-sorted by their feet with Y-sort, so no node needs a z above 0 (a positive z would draw over any
@@ -47,6 +49,8 @@ func _process(delta: float) -> void:
 func play(script: StageScript, profile: PlayerProfile = null, catalog: EquipmentCatalog = null) -> void:
 	_clear_all()
 	_script = script
+	_profile = profile
+	_catalog = catalog
 	size = Vector2(script.size)
 	custom_minimum_size = size
 	_build(profile, catalog)
@@ -68,9 +72,15 @@ func stop() -> void:
 	_clear_dynamic()
 
 
-## Carries on after `stop` from where it was (it does not restart the loop). Does nothing when motion is reduced.
+## Carries on after `stop` from where it was (it does not restart the loop). If Reduce motion changed while the stage was stopped
+## (Settings covers the home screen), it is built again so it shows the still frame or plays, as the setting now says.
 func resume() -> void:
-	if _script == null or _reduced:
+	if _script == null:
+		return
+	if FxSettings.is_reduced() != _reduced:
+		play(_script, _profile, _catalog)
+		return
+	if _reduced:
 		return
 	_playing = true
 	set_process(true)
