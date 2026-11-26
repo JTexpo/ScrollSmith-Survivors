@@ -4,7 +4,7 @@ extends Control
 ## runs only the sprite code the game already has (`BodyView`, `EffectSprite`), never the game's systems, so it cannot touch a save or
 ## make a gameplay sound. The state is a function of the time into the loop (beats fire in order and every motion is evaluated at the
 ## beat's own time), so a big step and many small ones agree and `seek` is exact. At the wrap every actor is reset and every orb and
-## spark this stage made is freed. Everything draws at depth 0 in tree order (sky, ground, the Y-sorted world, the orbs, then sparks), so
+## spark this stage made is freed. Everything draws at depth 0 in tree order (sky, ground, the background scenery, the Y-sorted world, the orbs, then sparks), so
 ## the stage looks the same wherever it is placed and anything after it in the tree draws over it. When motion is reduced it builds the script's `still_time` frame and never processes. It ignores
 ## touches and clips to its rectangle.
 
@@ -24,6 +24,8 @@ var _definitions: Dictionary = {}
 ## Holds the scenery and the actors, depth-sorted by their feet with Y-sort, so no node needs a z above 0 (a positive z would draw over any
 ## control placed after the stage, such as the home screen's buttons).
 var _world: Node2D
+## Holds the background scenery (the bushes), behind the world so nothing in it can ever draw over an actor.
+var _background: Node2D
 ## Holds the orbs, above the world.
 var _overlay: Node2D
 var _walks: Dictionary = {}
@@ -146,6 +148,10 @@ func _build(profile: PlayerProfile, catalog: EquipmentCatalog) -> void:
 			ground.name = "Ground"
 			ground.setup(Rect2(0.0, _script.ground_top, size.x, maxf(size.y - _script.ground_top, 0.0)), tile)
 			add_child(ground)
+	_background = Node2D.new()
+	_background.name = "Background"
+	_background.y_sort_enabled = true
+	add_child(_background)
 	_world = Node2D.new()
 	_world.name = "World"
 	_world.y_sort_enabled = true
@@ -158,7 +164,7 @@ func _build(profile: PlayerProfile, catalog: EquipmentCatalog) -> void:
 		var holder := Node2D.new()
 		holder.name = "Scenery"
 		holder.position = piece.position
-		_world.add_child(holder)
+		(_background if piece.background else _world).add_child(holder)
 		var view := BodyView.new()
 		holder.add_child(view)
 		view.set_look(piece.sprite, piece.variant)

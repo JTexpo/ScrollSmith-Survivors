@@ -6,3 +6,5 @@ extends Resource
 @export var sprite: StringName
 @export var variant: StringName = &"base"
 @export var position: Vector2 = Vector2.ZERO
+## Drawn on a layer behind every actor (a bush), instead of depth-sorted with them (a tree an enemy can walk behind).
+@export var background: bool = false

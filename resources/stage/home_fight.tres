@@ -230,7 +230,7 @@ script = ExtResource("b")
 time = 3.72
 actor = &""
 action = 6
-to = Vector2(305.07, 100)
+to = Vector2(305.07, 107)
 duration = 0
 animation = &""
 effect = &"fx_fire_burst"
@@ -329,7 +329,7 @@ script = ExtResource("b")
 time = 5.05
 actor = &""
 action = 6
-to = Vector2(224.74, 136)
+to = Vector2(224.74, 141)
 duration = 0
 animation = &""
 effect = &"fx_fire_burst"
@@ -406,7 +406,7 @@ script = ExtResource("b")
 time = 6.26
 actor = &""
 action = 6
-to = Vector2(160, 118)
+to = Vector2(160, 124)
 duration = 0
 animation = &""
 effect = &"fx_fire_burst"
@@ -494,7 +494,7 @@ script = ExtResource("b")
 time = 8.07
 actor = &""
 action = 6
-to = Vector2(263.82, 128)
+to = Vector2(263.82, 135)
 duration = 0
 animation = &""
 effect = &"fx_fire_burst"
@@ -626,7 +626,7 @@ script = ExtResource("b")
 time = 9.88
 actor = &""
 action = 6
-to = Vector2(298.94, 108)
+to = Vector2(298.94, 120)
 duration = 0
 animation = &""
 effect = &"fx_fire_burst"
@@ -670,7 +670,7 @@ script = ExtResource("b")
 time = 10.48
 actor = &""
 action = 6
-to = Vector2(263.39, 144)
+to = Vector2(263.39, 149)
 duration = 0
 animation = &""
 effect = &"fx_fire_burst"
@@ -703,7 +703,7 @@ script = ExtResource("b")
 time = 11
 actor = &""
 action = 6
-to = Vector2(252.59, 108)
+to = Vector2(252.59, 120)
 duration = 0
 animation = &""
 effect = &"fx_fire_burst"
@@ -791,7 +791,7 @@ script = ExtResource("b")
 time = 12.39
 actor = &""
 action = 6
-to = Vector2(213.75, 94)
+to = Vector2(213.75, 100)
 duration = 0
 animation = &""
 effect = &"fx_fire_burst"
@@ -868,7 +868,7 @@ script = ExtResource("b")
 time = 13.59
 actor = &""
 action = 6
-to = Vector2(249.62, 134)
+to = Vector2(249.62, 141)
 duration = 0
 animation = &""
 effect = &"fx_fire_burst"
@@ -911,101 +911,121 @@ facing = 1
 script = ExtResource("c")
 sprite = &"tree_side"
 position = Vector2(26, 104)
+background = false
 
 [sub_resource type="Resource" id="scenery_1"]
 script = ExtResource("c")
 sprite = &"tree_side"
 position = Vector2(92, 90)
+background = false
 
 [sub_resource type="Resource" id="scenery_2"]
 script = ExtResource("c")
 sprite = &"tree_side_small"
 position = Vector2(60, 80)
+background = false
 
 [sub_resource type="Resource" id="scenery_3"]
 script = ExtResource("c")
 sprite = &"tree_side"
 position = Vector2(456, 100)
+background = false
 
 [sub_resource type="Resource" id="scenery_4"]
 script = ExtResource("c")
 sprite = &"tree_side"
 position = Vector2(398, 86)
+background = false
 
 [sub_resource type="Resource" id="scenery_5"]
 script = ExtResource("c")
 sprite = &"tree_side_small"
 position = Vector2(430, 74)
+background = false
 
 [sub_resource type="Resource" id="scenery_6"]
 script = ExtResource("c")
 sprite = &"tree_side"
 position = Vector2(16, 166)
+background = false
 
 [sub_resource type="Resource" id="scenery_7"]
 script = ExtResource("c")
 sprite = &"tree_side"
 position = Vector2(466, 168)
+background = false
 
 [sub_resource type="Resource" id="scenery_8"]
 script = ExtResource("c")
 sprite = &"bush"
 position = Vector2(14, 81)
+background = true
 
 [sub_resource type="Resource" id="scenery_9"]
 script = ExtResource("c")
 sprite = &"bush"
 position = Vector2(470, 85)
+background = true
 
 [sub_resource type="Resource" id="scenery_10"]
 script = ExtResource("c")
 sprite = &"bush"
 position = Vector2(134, 62)
+background = true
 
 [sub_resource type="Resource" id="scenery_11"]
 script = ExtResource("c")
 sprite = &"bush"
 position = Vector2(320, 61)
+background = true
 
 [sub_resource type="Resource" id="scenery_12"]
 script = ExtResource("c")
 sprite = &"bush"
 position = Vector2(372, 63)
+background = true
 
 [sub_resource type="Resource" id="scenery_13"]
 script = ExtResource("c")
 sprite = &"bush"
 position = Vector2(212, 75)
+background = true
 
 [sub_resource type="Resource" id="scenery_14"]
 script = ExtResource("c")
 sprite = &"bush"
 position = Vector2(120, 100)
+background = true
 
 [sub_resource type="Resource" id="scenery_15"]
 script = ExtResource("c")
 sprite = &"bush"
 position = Vector2(300, 155)
+background = true
 
 [sub_resource type="Resource" id="scenery_16"]
 script = ExtResource("c")
 sprite = &"bush"
 position = Vector2(130, 157)
+background = true
 
 [sub_resource type="Resource" id="scenery_17"]
 script = ExtResource("c")
 sprite = &"bush"
 position = Vector2(200, 97)
+background = true
 
 [sub_resource type="Resource" id="scenery_18"]
 script = ExtResource("c")
 sprite = &"bush"
 position = Vector2(356, 117)
+background = true
 
 [sub_resource type="Resource" id="scenery_19"]
 script = ExtResource("c")
 sprite = &"bush"
 position = Vector2(250, 150)
+background = true
 
 [resource]
 script = ExtResource("s")

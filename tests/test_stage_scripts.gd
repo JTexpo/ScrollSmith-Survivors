@@ -186,3 +186,38 @@ func test_trees_stand_on_the_grass_not_on_the_horizon_and_never_over_the_button_
 				var buttons_top := HomeScreen.BUTTONS_Y - HomeScreen.STAGE_RECT.position.y
 				assert_lt(piece.position.y, buttons_top, "home_fight: a tree base at stage y %s would sit among the buttons (they start at %s)" % [str(piece.position.y), str(buttons_top)])
 
+
+
+func test_every_bush_is_background_scenery() -> void:
+	for key in PATHS:
+		for piece in _script(key).scenery:
+			if String(piece.sprite).begins_with("bush"):
+				assert_true(piece.background, "%s: a bush must sit behind the actors, never over an enemy" % key)
+
+
+func test_a_hit_sparks_at_the_base_of_what_it_hits() -> void:
+	for key in PATHS:
+		var script := _script(key)
+		var stage := Stage.new()
+		add_child_autofree(stage)
+		stage.play(script)
+		stage.set_process(false)
+		var deaths := 0
+		for beat in script.beats:
+			if beat.action != StageBeat.Action.PLAY or beat.animation != &"death":
+				continue
+			deaths += 1
+			stage.seek(beat.time)
+			var body := stage.actor(beat.actor)
+			var definition: StageActor
+			for actor in script.actors:
+				if actor.id == beat.actor:
+					definition = actor
+			var half := SpriteLibrary.find(definition.sprite, definition.variant).frame_size.y / 2.0
+			var found := false
+			for other in script.beats:
+				if other.action == StageBeat.Action.BURST and absf(other.time - beat.time) < 0.001:
+					if absf(other.to.x - body.position.x) < 1.5 and absf(other.to.y - (body.position.y + half)) < 1.5:
+						found = true
+			assert_true(found, "%s: the spark for %s at %.2f s is at its base (%s)" % [key, beat.actor, beat.time, str(body.position + Vector2(0.0, half))])
+		assert_gte(deaths, 0)

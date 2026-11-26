@@ -112,7 +112,7 @@ script = ExtResource("b")
 time = 4.66
 actor = &""
 action = 6
-to = Vector2(240, 66)
+to = Vector2(240, 73)
 duration = 0
 animation = &""
 effect = &"fx_fire_burst"
@@ -166,11 +166,13 @@ facing = 1
 script = ExtResource("c")
 sprite = &"bush"
 position = Vector2(14, 48)
+background = true
 
 [sub_resource type="Resource" id="scenery_1"]
 script = ExtResource("c")
 sprite = &"bush"
 position = Vector2(296, 52)
+background = true
 
 [resource]
 script = ExtResource("s")

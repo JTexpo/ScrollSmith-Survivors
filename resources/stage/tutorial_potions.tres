@@ -91,7 +91,7 @@ script = ExtResource("b")
 time = 2.2
 actor = &""
 action = 6
-to = Vector2(90, 64)
+to = Vector2(90, 72)
 duration = 0
 animation = &""
 effect = &"fx_sea_splash"
@@ -135,7 +135,7 @@ script = ExtResource("b")
 time = 5.3
 actor = &""
 action = 6
-to = Vector2(210, 66)
+to = Vector2(210, 71)
 duration = 0
 animation = &""
 effect = &"fx_sea_splash"
@@ -145,11 +145,13 @@ facing = 1
 script = ExtResource("c")
 sprite = &"bush"
 position = Vector2(16, 48)
+background = true
 
 [sub_resource type="Resource" id="scenery_1"]
 script = ExtResource("c")
 sprite = &"bush"
 position = Vector2(302, 52)
+background = true
 
 [resource]
 script = ExtResource("s")

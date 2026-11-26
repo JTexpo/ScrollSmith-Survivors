@@ -393,3 +393,29 @@ func test_stage_script_returns_the_script_it_plays() -> void:
 	var script := _script()
 	_stage.play(script)
 	assert_eq(_stage.stage_script(), script)
+
+
+func test_background_scenery_draws_behind_every_actor_however_far_down_it_stands() -> void:
+	var script := _script()
+	var bush := StageScenery.new()
+	bush.sprite = &"bush"
+	bush.position = Vector2(100, 150)
+	bush.background = true
+	var tree := StageScenery.new()
+	tree.sprite = &"tree_side"
+	tree.position = Vector2(300, 90)
+	script.scenery = [bush, tree] as Array[StageScenery]
+	script.ground_style = &"grass"
+	script.ground_top = 50.0
+	_stage.play(script)
+	var background := _stage.get_node("Background") as Node2D
+	var world := _stage.get_node("World") as Node2D
+	assert_eq(background.get_child_count(), 1, "the bush is on the background layer")
+	assert_lt(background.get_index(), world.get_index(), "behind the world")
+	assert_gt(background.get_index(), _stage.get_node("Ground").get_index(), "but in front of the ground")
+	var in_world := 0
+	for child in world.get_children():
+		if child.name == "Scenery":
+			in_world += 1
+	assert_eq(in_world, 1, "the tree is depth-sorted with the actors")
+	assert_true(background.y_sort_enabled, "background pieces still sort among themselves")
