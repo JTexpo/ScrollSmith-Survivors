@@ -6,7 +6,7 @@ const NEW_PATTERNS := ["art/*", "audio/*", "tools/*", "scenes/world/fx_test.tscn
 const SHIPPED_ROOTS := ["scripts", "scenes", "resources", "assets"]
 ## Build-time tools that read the sources and run only from the art tool and the tests, never in the game (checked: only
 ## tools/art/art_builder.gd and tests use ThemeBuilder).
-const BUILD_TIME_ONLY := ["res://scripts/art/theme_builder.gd"]
+const BUILD_TIME_ONLY := ["res://scripts/art/theme_builder.gd", "res://scripts/release/licence_file.gd"]
 const TEXT_EXTENSIONS := ["gd", "tscn", "tres", "cfg", "godot"]
 
 
