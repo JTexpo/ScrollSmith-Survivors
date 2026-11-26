@@ -57,12 +57,21 @@ func sync() -> void:
 		_saver.save_now()
 
 
+## How many of the catalog's achievements the player holds (an id the catalog no longer has is not counted).
 func earned_count() -> int:
-	return _profile.achievements.size() if _profile != null else 0
+	var count := 0
+	if _profile != null and _catalog != null:
+		for data in _catalog.achievements:
+			if _profile.has_achievement(data.id):
+				count += 1
+	return count
 
 
-## No further unlocks (the player died).
+## No further unlocks (the player died). The clock is checked one last time first, so surviving 5 minutes counts even when the
+## player dies before the next once-a-second check.
 func stop() -> void:
+	if not _stopped and _catalog != null:
+		_check(_facts(float(seconds_source.call())))
 	_stopped = true
 
 
@@ -92,18 +101,18 @@ func _on_gold_changed(_total_gold: int) -> void:
 		_check(_facts(float(seconds_source.call())))
 
 
-## Unlocks every achievement the facts meet that the player does not hold yet, in catalog order.
+## Unlocks every achievement the facts meet that the player does not hold yet, in catalog order. The profile is saved once for the whole
+## batch (a jump across several levels is one write) and before any announcement, so a crash can never lose an unlock the player was told about.
 func _check(facts: AchievementFacts) -> void:
+	var fresh: Array[AchievementData] = []
 	for data in _catalog.achievements:
 		if _profile.has_achievement(data.id):
 			continue
-		if AchievementRules.is_met(data, facts):
-			_unlock(data)
-
-
-func _unlock(data: AchievementData) -> void:
-	if not _profile.grant_achievement(data.id):
+		if AchievementRules.is_met(data, facts) and _profile.grant_achievement(data.id):
+			fresh.append(data)
+	if fresh.is_empty():
 		return
 	if _saver != null:
 		_saver.save_now()
-	unlocked.emit(data)
+	for data in fresh:
+		unlocked.emit(data)

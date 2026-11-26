@@ -400,12 +400,12 @@ func _on_enemy_damaged(_position: Vector2, _amount: float, effect: int) -> void:
 		play(SoundId.HIT_RESISTED)
 
 
-## Listens for spell hits (called by `bind`; tests call it directly).
 ## The chime when an achievement unlocks (`Main` owns the tracker; the board only listens).
 func bind_achievements(tracker: AchievementTracker) -> void:
 	tracker.unlocked.connect(func(_data: AchievementData) -> void: play(SoundId.ACHIEVEMENT))
 
 
+## Listens for spell hits (called by `bind`; tests call it directly).
 func bind_impacts() -> void:
 	if not ImpactEvents.bus.hit.is_connected(_on_impact):
 		ImpactEvents.bus.hit.connect(_on_impact)

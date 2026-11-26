@@ -147,3 +147,43 @@ func test_lifetime_gold_counts_what_a_run_collects() -> void:
 	(main.get_node("Player") as Player).progress.add_gold(800)
 	assert_true(main.profile.has_achievement(&"earn_gold_1000"))
 	assert_true(_toast(main).is_showing())
+
+
+func test_the_real_run_clock_unlocks_survival() -> void:
+	var main := _new_main(_path())
+	# Pretend the run began 301 seconds ago: the tracker's default clock is the run clock, not a test seam.
+	RunClock._start_msec -= 301000
+	main.achievement_tracker._process(AchievementTracker.CLOCK_STEP)
+	assert_true(main.profile.has_achievement(&"survive_5_minutes"))
+	assert_eq(_toast(main).text, "Achievement unlocked: survive 5 minutes")
+
+
+func test_a_high_level_run_that_waits_on_the_pick_screen_still_gets_its_spells_and_chime() -> void:
+	var profile := PlayerProfile.new()
+	profile.total_xp = _track.xp_for_level(20)
+	profile.grant_achievement(&"defeat_tempest_dragon")
+	profile.grant_achievement(&"defeat_dire_minotaur")
+	_save(profile)
+	var main := _new_main(_path())
+	var screen := main.get_node("BuffPickScreen") as BuffPickScreen
+	assert_true(screen.is_open(), "levels 12 and 19 each owe a pick before the run starts")
+	var heard: Array[StringName] = []
+	(main.get_node("SoundBoard") as SoundBoard).requested.connect(func(id: StringName) -> void: heard.append(id))
+	while screen.is_open():
+		screen.choose(0)
+	assert_eq(_spell_id(main, 2), &"thunder_zone")
+	assert_eq(_spell_id(main, 4), &"land_line")
+	_kill_the_first_boss(main)
+	assert_true(main.profile.has_achievement(&"defeat_ember_titan"))
+	assert_true(heard.has(SoundId.ACHIEVEMENT), "the board found the tracker even though the run waited on a pick")
+
+
+func test_the_toast_never_overlaps_the_touch_buttons_or_the_spell_bar() -> void:
+	var main := _new_main(_path())
+	var data := AchievementData.new()
+	data.description = "defeat the Dire Minotaur and everything else besides"
+	_toast(main).show_unlocked(data)
+	var rect := _toast(main).get_global_rect()
+	for path in ["Hud/InteractButton", "Hud/SpellBar", "Hud/LevelToast"]:
+		var other := main.get_node(path) as Control
+		assert_false(rect.intersects(other.get_global_rect()), "the toast overlaps %s" % path)

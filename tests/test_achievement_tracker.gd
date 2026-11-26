@@ -216,3 +216,47 @@ func test_earned_count_follows_the_profile() -> void:
 	assert_eq(_tracker.earned_count(), 0)
 	_level_to(5)
 	assert_eq(_tracker.earned_count(), 1)
+
+
+class CountingSaver extends ProfileSaver:
+	var saves: int = 0
+
+	func save_now() -> bool:
+		saves += 1
+		return super.save_now()
+
+
+func test_a_jump_across_several_thresholds_saves_once_and_before_announcing() -> void:
+	var counting := CountingSaver.new()
+	add_child_autofree(counting)
+	counting.bind(_profile, _path())
+	var own_progress := RunProgress.new()
+	var own_spawner := EnemySpawner.new()
+	add_child_autofree(own_progress)
+	add_child_autofree(own_spawner)
+	var tracker := AchievementTracker.new()
+	add_child_autofree(tracker)
+	tracker.bind(_catalog, _profile, _track, own_spawner, own_progress, counting)
+	var on_disk_when_announced: Array[bool] = []
+	tracker.unlocked.connect(func(data: AchievementData) -> void: on_disk_when_announced.append(SaveGame.load_profile(_path()).has_achievement(data.id)))
+	_profile.total_xp = _track.xp_for_level(20)
+	own_progress.leveled_up.emit(20, _track.reward_for_level(20))
+	assert_eq(counting.saves, 1, "four unlocks from one level-up write the file once")
+	assert_eq(on_disk_when_announced, [true, true, true, true] as Array[bool], "saved before any announcement")
+
+
+func test_stop_still_grants_a_survival_threshold_crossed_since_the_last_check() -> void:
+	_seconds = 300.4
+	_tracker.stop()
+	assert_eq(_unlocked, [&"survive_5_minutes"] as Array[StringName], "surviving 5 minutes counts even if the player dies before the next check")
+	_seconds = 1300.0
+	_tracker._process(1.0)
+	assert_eq(_unlocked.size(), 1, "and nothing more after stop")
+
+
+func test_earned_count_ignores_ids_the_catalog_no_longer_has() -> void:
+	_profile.grant_achievement(&"removed_in_a_later_version")
+	assert_eq(_tracker.earned_count(), 0)
+	_level_to(5)
+	assert_eq(_tracker.earned_count(), 1)
+
