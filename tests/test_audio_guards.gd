@@ -6,6 +6,7 @@ extends GutTest
 const ALLOWED := [
 	"res://scripts/audio/",
 	"res://scripts/main/main.gd",
+	"res://scripts/home/home_screen.gd",
 	"res://scripts/world/sound_test.gd",
 	"res://scripts/dev/stress_test.gd",
 ]

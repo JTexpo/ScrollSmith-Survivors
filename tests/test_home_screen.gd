@@ -57,12 +57,12 @@ func _button(text: String) -> Button:
 func test_it_builds_its_buttons_in_order_and_the_tutorial_is_live() -> void:
 	_start()
 	var labels := ["Play", "Shop", "Tutorial", "Settings", "New game"]
-	var last_y := -1.0
+	var last_x := -1.0
 	for text in labels:
 		var button := _button(text)
 		assert_not_null(button, text)
-		assert_gt(button.position.y, last_y, "%s is below the one before" % text)
-		last_y = button.position.y
+		assert_gt(button.position.x, last_x, "%s is right of the one before" % text)
+		last_x = button.position.x
 		assert_gte(button.custom_minimum_size.x, UiKit.ACTION_SIZE.x, text)
 		assert_gte(button.custom_minimum_size.y, UiKit.ACTION_SIZE.y, text)
 	assert_false(_button("Tutorial").disabled, "the Tutorial pages exist now")

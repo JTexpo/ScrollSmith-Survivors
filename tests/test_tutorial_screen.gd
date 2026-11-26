@@ -73,14 +73,14 @@ func test_the_counter_shows_the_page() -> void:
 	assert_eq(_screen.counter_text(), "2 of 4")
 
 
-func test_the_page_shows_its_title_lines_and_pictures() -> void:
+func test_the_page_shows_its_title_lines_and_its_vignette_instead_of_the_sprite_row() -> void:
 	_screen.open()
 	var page := TutorialPages.pages()[0]
 	assert_eq(_screen.title_text(), page.title)
 	assert_eq(_screen.lines_text(), "\n".join(page.lines))
-	assert_eq(_screen.picture_count(), page.sprites.size())
-	_screen.next()
-	assert_eq(_screen.picture_count(), TutorialPages.pages()[1].sprites.size())
+	assert_eq(_screen.picture_count(), 0, "a page with a vignette has no sprite row")
+	assert_true(_screen.stage().visible)
+	assert_eq(_screen.stage().stage_script(), page.vignette)
 
 
 func test_left_and_right_page_and_escape_closes() -> void:
@@ -169,3 +169,78 @@ func test_pushing_the_stick_right_on_the_last_page_does_not_close_it_by_accident
 	_screen._input(_stick(1.0))
 	_screen._input(_stick(1.0))
 	assert_false(_screen.is_open(), "one deliberate push on the last page is Done")
+
+
+func test_each_page_shows_its_vignette_and_restarts_it() -> void:
+	var pages := TutorialPages.pages()
+	_screen.open()
+	assert_true(_screen.stage().is_playing())
+	assert_eq(_screen.stage().stage_script(), pages[0].vignette)
+	_screen.stage().advance(2.0)
+	assert_gt(_screen.stage().elapsed(), 1.9)
+	_screen.next()
+	assert_eq(_screen.stage().stage_script(), pages[1].vignette)
+	assert_lt(_screen.stage().elapsed(), 0.1, "a new page starts its vignette from the beginning")
+	_screen.stage().advance(2.0)
+	_screen.back()
+	assert_eq(_screen.stage().stage_script(), pages[0].vignette)
+	assert_lt(_screen.stage().elapsed(), 0.1, "going back restarts the first vignette too")
+
+
+func test_closing_stops_the_stage() -> void:
+	_screen.open()
+	assert_true(_screen.stage().is_playing())
+	_screen.close()
+	assert_false(_screen.stage().is_playing())
+	assert_false(_screen.stage().is_processing())
+
+
+func test_reopening_starts_the_first_vignette_again() -> void:
+	_screen.open()
+	_screen.next()
+	_screen.close()
+	_screen.open()
+	assert_eq(_screen.page_index(), 0)
+	assert_eq(_screen.stage().stage_script(), TutorialPages.pages()[0].vignette)
+	assert_true(_screen.stage().is_playing())
+
+
+func test_a_page_without_a_vignette_keeps_the_sprite_row() -> void:
+	var plain := TutorialPage.make("Plain", ["one line"] as Array[String], [&"player", &"pickup_xp"] as Array[StringName])
+	_screen._pages = [plain] as Array[TutorialPage]
+	_screen.open()
+	assert_eq(_screen.picture_count(), 2)
+	assert_false(_screen.stage().visible)
+	assert_false(_screen.stage().is_playing())
+
+
+func test_the_stage_frame_the_lines_and_the_buttons_do_not_overlap_and_fit_the_screen() -> void:
+	_screen.open()
+	var screen := Rect2(0, 0, 480, 270)
+	var frame := _screen.stage().get_global_rect()
+	var lines := _screen.lines_rect()
+	var rects := {"stage": frame, "lines": lines, "title": _screen.title_rect(), "counter": _screen.counter_rect()}
+	for text in ["Back", "Next", "Close"]:
+		rects[text] = _button(text).get_global_rect()
+	for key in rects:
+		assert_true(screen.encloses(rects[key]), "%s %s is inside the screen" % [key, str(rects[key])])
+	var keys := rects.keys()
+	for i in keys.size():
+		for j in range(i + 1, keys.size()):
+			assert_false((rects[keys[i]] as Rect2).intersects(rects[keys[j]]), "%s and %s overlap" % [keys[i], keys[j]])
+
+
+func test_the_stage_takes_no_touches() -> void:
+	_screen.open()
+	assert_eq(_screen.stage().mouse_filter, Control.MOUSE_FILTER_IGNORE)
+	for node in _screen.stage().find_children("*", "Control", true, false):
+		assert_eq((node as Control).mouse_filter, Control.MOUSE_FILTER_IGNORE, str(node.name))
+
+
+func test_reduced_motion_shows_a_still_vignette() -> void:
+	FxSettings.reduce_motion()
+	_screen.open()
+	assert_false(_screen.stage().is_playing())
+	assert_false(_screen.stage().is_processing())
+	FxSettings.reset()
+

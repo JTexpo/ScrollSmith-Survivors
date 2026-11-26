@@ -1016,7 +1016,7 @@ The maze with its own enemies and the Dire Minotaur.
 
 ## Planned after Sprint 16 (the user's wishlist; details in `docs/release-planning/future-roadmap.md`)
 - **Sprint 17: Achievements (built).** Twelve data-driven achievements (3 boss, level 5/10/15/20, 1000 lifetime Gold, survive 5/10/15/20 minutes) tracked by a listening `AchievementTracker`, saved in the profile, announced by a toast and a chime, and shown on a home-screen screen with greyed icons for unearned ones. Defeating the Tempest Dragon, Ember Titan and Dire Minotaur earns a starting spell in slot 3, 4 and 5 (Thunder Zone, Ember Wave, Land Line), tied to the level that unlocks the slot. Design `docs/sprints/sprint-17-design.md`.
-- **Sprint 18: A livelier home screen and tutorial** with more art.
+- **Sprint 18: A livelier home screen and tutorial (built).** A scripted, data-driven `Stage` plays an animated wizard fight on the home screen and a vignette on each tutorial page, with a title banner, menu music and a 4 MB audio cap.
 - **Sprint 15c (parked): release preparation** (`docs/release-planning/`).
 
 ---

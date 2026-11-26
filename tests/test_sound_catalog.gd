@@ -72,7 +72,7 @@ func test_library_with_another_root_finds_nothing_there() -> void:
 	assert_null(SoundLibrary.find(SoundId.UI_CLICK))
 
 
-const DESIGN_IDS: Array[StringName] = [&"cast_fire", &"cast_thunder", &"cast_land", &"cast_sea", &"hit_fire", &"hit_thunder", &"hit_land", &"hit_sea", &"hit_strong", &"hit_resisted", &"enemy_shot", &"blast_warn", &"blast_boom", &"enemy_die", &"enemy_die_big", &"enemy_die_elite", &"boss_spawn", &"boss_slam", &"boss_charge", &"boss_burst", &"boss_die", &"player_hurt", &"player_die", &"level_up", &"step", &"pickup_scroll", &"pickup_xp", &"pickup_gold", &"potion_drink", &"potion_refused", &"ui_click", &"ui_back", &"ui_hover", &"lectern_open", &"craft_confirm", &"craft_fail", &"shop_buy", &"shop_fail", &"shop_equip", &"shrine_heal", &"shrine_mana", &"chest_open", &"merchant_open", &"music_run", &"music_boss", &"heartbeat", &"mana_low", &"achievement"]
+const DESIGN_IDS: Array[StringName] = [&"cast_fire", &"cast_thunder", &"cast_land", &"cast_sea", &"hit_fire", &"hit_thunder", &"hit_land", &"hit_sea", &"hit_strong", &"hit_resisted", &"enemy_shot", &"blast_warn", &"blast_boom", &"enemy_die", &"enemy_die_big", &"enemy_die_elite", &"boss_spawn", &"boss_slam", &"boss_charge", &"boss_burst", &"boss_die", &"player_hurt", &"player_die", &"level_up", &"step", &"pickup_scroll", &"pickup_xp", &"pickup_gold", &"potion_drink", &"potion_refused", &"ui_click", &"ui_back", &"ui_hover", &"lectern_open", &"craft_confirm", &"craft_fail", &"shop_buy", &"shop_fail", &"shop_equip", &"shrine_heal", &"shrine_mana", &"chest_open", &"merchant_open", &"music_run", &"music_boss", &"heartbeat", &"mana_low", &"achievement", &"music_menu"]
 
 
 func _data(id: StringName) -> SoundData:

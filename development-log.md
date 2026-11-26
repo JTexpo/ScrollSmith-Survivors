@@ -781,3 +781,13 @@ Design `docs/sprints/sprint-17-design.md`, plan `docs/superpowers/plans/2026-11-
 - **Not built:** a survival Gold bonus, more tiers, map unlocks, a per-reward off switch.
 - **Soak test** (`--rounds=12 --frames=600`): PASS. Nodes 678 in every round, orphans 0, static memory 48.0 to 49.2 MB (flat, the same shape as the earlier run). The smoke run's exit-leak message grew from 35 objects / 32 resources to 45 / 40: the known home-scene shutdown-order message, now also naming the new screen's nodes (not a runtime leak; the soak shows none).
 - **Stress scene** (300 enemies, `--obstacles --drops`): 33 and 27 fps, but the laptop was on battery in Low Power Mode (the condition that made the Sprint 14c runs swing between about 10 and 45 fps), and the stress scene does not load `Main`, so it contains none of the Sprint 17 code. Not comparable to earlier numbers; no regression evidence either way.
+
+## 2026-11-26: Sprint 18 (a livelier home screen and tutorial)
+
+Design `docs/sprints/sprint-18-design.md`, plan `docs/superpowers/plans/2026-11-26-sprint-18-home-and-tutorial.md`. The suite went 2569 to 2658.
+
+- **Built:** a data-driven `Stage` (five `StageScript` resources) playing a wizard fight on the home screen (title banner, five-button row, clouds, side-view trees, bushes) and a vignette on each tutorial page; a new `music_menu` tune with a `SoundBoard` on the home screen; `FxSettings.is_reduced()`; the audio cap raised from 3 to 4 MB.
+- **User feedback during the build:** the trees were bird's-eye and the scene is side-on, so side-view trees with grass at the base were drawn; grass runs to the bottom of the screen; no trees on the horizon or over the buttons; sparks at the base of an enemy; bushes always behind. All pinned by tests.
+- **Measurements:** `Stage.advance` averages about 12.5 microseconds per frame on the home stage (600 frames). Soak test (`--rounds=12 --frames=600`): PASS, 679 nodes every round, 0 orphans, static memory 49.3 to 49.4 MB. Stress scene (300 enemies): about 95.7 fps, average frame 10.45 ms, on AC power (battery 31%, charging). The tune file is about 756 KB.
+- **Real window:** home screenshots at three moments, 14 of 14 touch and click checks on the seven buttons, the four tutorial vignettes at two moments each.
+- **Not judged:** the tune by ear, the scene's feel in motion, the web unlock path (headless only).

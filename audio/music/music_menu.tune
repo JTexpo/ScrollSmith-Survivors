@@ -1,0 +1,12 @@
+# The menu music: a bright, welcoming G major loop (8 bars at 112 bpm, about 17 s). A rising I vi IV V phrase, then the same chords with the
+# melody lifted an octave and turning back to the start. Pulse melody, quiet pulse arpeggio, triangle bass and a light noise hat on beats 2 and 4.
+tempo 112
+loop
+channel pulse25 0.40
+D5 . . . B4 . . . G4 . . . B4 . . . | E5 . . . G5 . . . E5 . . . B4 . . . | C5 . . . E5 . . . G5 . . . E5 . . . | D5 . . . F#5 . . . A5 . . . - - - - | B5 . . . A5 . G5 . B5 . . . D6 . . . | B5 . . . G5 . . . E5 . G5 . B5 . . . | C6 . . . B5 . A5 . G5 . . . E5 . . . | A5 . . . F#5 . . . D5 . . . D5 . . .
+channel pulse12 0.14
+G3 B3 D4 B3 G3 B3 D4 B3 G3 B3 D4 B3 G3 B3 D4 B3 | E3 G3 B3 G3 E3 G3 B3 G3 E3 G3 B3 G3 E3 G3 B3 G3 | C4 E4 G4 E4 C4 E4 G4 E4 C4 E4 G4 E4 C4 E4 G4 E4 | D4 F#4 A4 F#4 D4 F#4 A4 F#4 D4 F#4 A4 F#4 D4 F#4 A4 F#4 | G3 B3 D4 B3 G3 B3 D4 B3 G3 B3 D4 B3 G3 B3 D4 B3 | E3 G3 B3 G3 E3 G3 B3 G3 E3 G3 B3 G3 E3 G3 B3 G3 | C4 E4 G4 E4 C4 E4 G4 E4 C4 E4 G4 E4 C4 E4 G4 E4 | D4 F#4 A4 F#4 D4 F#4 A4 F#4 D4 F#4 A4 F#4 D4 F#4 A4 F#4
+channel triangle 0.5
+G2 . . . D3 . . . G2 . . . D3 . . . | E2 . . . B2 . . . E2 . . . B2 . . . | C3 . . . G3 . . . C3 . . . G3 . . . | D3 . . . A3 . . . D3 . . . A3 . . . | G2 . . . D3 . . . G2 . . . D3 . . . | E2 . . . B2 . . . E2 . . . B2 . . . | C3 . . . G3 . . . C3 . . . G3 . . . | D3 . . . A3 . . . D3 . . . A3 . . .
+channel noise 0.12
+- - - - x - - - - - - - x - - - | - - - - x - - - - - - - x - - - | - - - - x - - - - - - - x - - - | - - - - x - - - - - - - x - - - | - - - - x - - - - - - - x - - - | - - - - x - - - - - - - x - - - | - - - - x - - - - - - - x - - - | - - - - x - - - - - - - x - - -
