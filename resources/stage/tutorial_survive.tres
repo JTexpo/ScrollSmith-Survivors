@@ -1,0 +1,147 @@
+[gd_resource type="Resource" script_class="StageScript" load_steps=19 format=3]
+
+[ext_resource type="Script" path="res://resources/stage/stage_script.gd" id="s"]
+[ext_resource type="Script" path="res://resources/stage/stage_actor.gd" id="a"]
+[ext_resource type="Script" path="res://resources/stage/stage_beat.gd" id="b"]
+[ext_resource type="Script" path="res://resources/stage/stage_scenery.gd" id="c"]
+
+[sub_resource type="Resource" id="actor_0"]
+script = ExtResource("a")
+id = &"wizard"
+sprite = &"player_body"
+variant = &"base"
+start = Vector2(40, 64)
+facing = 1
+shadow = true
+wizard = true
+visible_at_start = true
+animation = &"idle"
+
+[sub_resource type="Resource" id="actor_1"]
+script = ExtResource("a")
+id = &"gem"
+sprite = &"pickup_xp"
+variant = &"base"
+start = Vector2(110, 66)
+facing = 1
+shadow = true
+wizard = false
+visible_at_start = true
+animation = &"sparkle"
+
+[sub_resource type="Resource" id="actor_2"]
+script = ExtResource("a")
+id = &"coin"
+sprite = &"pickup_gold"
+variant = &"base"
+start = Vector2(170, 62)
+facing = 1
+shadow = true
+wizard = false
+visible_at_start = true
+animation = &"sparkle"
+
+[sub_resource type="Resource" id="actor_3"]
+script = ExtResource("a")
+id = &"goblin"
+sprite = &"enemy_standard"
+variant = &"land"
+start = Vector2(350, 70)
+facing = -1
+shadow = true
+wizard = false
+visible_at_start = true
+animation = &"move"
+
+[sub_resource type="Resource" id="beat_0"]
+script = ExtResource("b")
+time = 0.5
+actor = &"wizard"
+action = 0
+to = Vector2(230, 64)
+duration = 6
+animation = &"move"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_1"]
+script = ExtResource("b")
+time = 2.71
+actor = &"gem"
+action = 4
+to = Vector2(0, 0)
+duration = 0
+animation = &""
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_2"]
+script = ExtResource("b")
+time = 2.71
+actor = &""
+action = 6
+to = Vector2(110, 66)
+duration = 0
+animation = &""
+effect = &"fx_sea_splash"
+facing = 1
+
+[sub_resource type="Resource" id="beat_3"]
+script = ExtResource("b")
+time = 3
+actor = &"goblin"
+action = 0
+to = Vector2(268, 70)
+duration = 5
+animation = &"move"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_4"]
+script = ExtResource("b")
+time = 4.61
+actor = &"coin"
+action = 4
+to = Vector2(0, 0)
+duration = 0
+animation = &""
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_5"]
+script = ExtResource("b")
+time = 4.61
+actor = &""
+action = 6
+to = Vector2(170, 62)
+duration = 0
+animation = &""
+effect = &"fx_sea_splash"
+facing = 1
+
+[sub_resource type="Resource" id="scenery_0"]
+script = ExtResource("c")
+sprite = &"bush"
+position = Vector2(20, 40)
+
+[sub_resource type="Resource" id="scenery_1"]
+script = ExtResource("c")
+sprite = &"bush"
+position = Vector2(300, 44)
+
+[sub_resource type="Resource" id="scenery_2"]
+script = ExtResource("c")
+sprite = &"post_tree"
+position = Vector2(160, 16)
+
+[resource]
+script = ExtResource("s")
+size = Vector2i(320, 88)
+loop_seconds = 9
+still_time = 4
+sky_color = Color(0.435294, 0.827451, 1, 1)
+ground_style = &"grass"
+ground_top = 36
+scenery = Array[ExtResource("c")]([SubResource("scenery_0"), SubResource("scenery_1"), SubResource("scenery_2")])
+actors = Array[ExtResource("a")]([SubResource("actor_0"), SubResource("actor_1"), SubResource("actor_2"), SubResource("actor_3")])
+beats = Array[ExtResource("b")]([SubResource("beat_0"), SubResource("beat_1"), SubResource("beat_2"), SubResource("beat_3"), SubResource("beat_4"), SubResource("beat_5")])

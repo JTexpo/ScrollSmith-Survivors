@@ -4,14 +4,13 @@ extends Control
 ## runs only the sprite code the game already has (`BodyView`, `EffectSprite`), never the game's systems, so it cannot touch a save or
 ## make a gameplay sound. The state is a function of the time into the loop (beats fire in order and every motion is evaluated at the
 ## beat's own time), so a big step and many small ones agree and `seek` is exact. At the wrap every actor is reset and every orb and
-## spark this stage made is freed. When motion is reduced it builds the script's `still_time` frame and never processes. It ignores
+## spark this stage made is freed. Sky, ground, scenery, actors and shadows all draw in tree order and relative depth (the sky and ground
+## first), so the stage looks the same wherever it is placed. When motion is reduced it builds the script's `still_time` frame and never processes. It ignores
 ## touches and clips to its rectangle.
 
 const MAX_ORBS := 8
 const MAX_EFFECTS := 24
 const SPARK_FADE := 0.1
-const SKY_Z := -3
-const GROUND_Z := -2
 const ORB_Z := 1000
 ## Where an orb leaves its shooter, in pixels in front of and above the shooter's centre.
 const ORB_OFFSET := Vector2(10.0, -2.0)
@@ -114,8 +113,6 @@ func _build(profile: PlayerProfile, catalog: EquipmentCatalog) -> void:
 	sky.color = _script.sky_color
 	sky.size = size
 	sky.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	sky.z_index = SKY_Z
-	sky.z_as_relative = false
 	add_child(sky)
 	if _script.ground_style != &"":
 		var tile := SpriteLibrary.find(StringName("tile_%s" % _script.ground_style))
@@ -123,8 +120,6 @@ func _build(profile: PlayerProfile, catalog: EquipmentCatalog) -> void:
 			var ground := FloorPatch.new()
 			ground.name = "Ground"
 			ground.setup(Rect2(0.0, _script.ground_top, size.x, maxf(size.y - _script.ground_top, 0.0)), tile)
-			ground.z_index = GROUND_Z
-			ground.z_as_relative = false
 			add_child(ground)
 	for piece in _script.scenery:
 		var view := BodyView.new()
@@ -143,6 +138,12 @@ func _build(profile: PlayerProfile, catalog: EquipmentCatalog) -> void:
 				PlayerLook.apply(body, profile, catalog)
 		else:
 			body.set_look(definition.sprite, definition.variant)
+		# The body's shadow sits at the world's absolute depth, which would put it under the sky and under whatever is behind this stage;
+		# here it sits just under its own body, in the stage's own order.
+		var shadow := body.get_node_or_null("Shadow") as Sprite2D
+		if shadow != null:
+			shadow.z_as_relative = true
+			shadow.z_index = -1
 		_actors[definition.id] = body
 		_definitions[definition.id] = definition
 
@@ -197,6 +198,10 @@ func _fire(beat: StageBeat) -> void:
 				_shoot(body, beat)
 		StageBeat.Action.BURST:
 			_burst(beat)
+		StageBeat.Action.STOP:
+			if body != null and _walks.has(beat.actor):
+				_walks.erase(beat.actor)
+				body.play((_definitions[beat.actor] as StageActor).animation)
 
 
 func _shoot(shooter: BodyView, beat: StageBeat) -> void:

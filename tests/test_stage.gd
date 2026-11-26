@@ -275,3 +275,30 @@ func test_play_again_replaces_the_previous_scene() -> void:
 	_stage.play(_script())
 	await get_tree().process_frame
 	assert_eq(_stage.get_child_count(), first_count)
+
+
+func test_stop_cancels_a_walk_where_the_actor_stands_and_returns_it_to_its_own_animation() -> void:
+	var stop := _beat(2.0, &"goblin", StageBeat.Action.STOP)
+	_stage.play(_script([_walk(1.0, &"goblin", Vector2(240, 100), 4.0), stop] as Array[StageBeat]))
+	_stage.advance(2.0)
+	var stood := _stage.actor(&"goblin").position
+	assert_almost_eq(stood.x, 440.0 - 200.0 * 0.25, 0.01)
+	_stage.advance(2.0)
+	assert_eq(_stage.actor(&"goblin").position, stood, "it never moved again")
+	assert_eq(_stage.actor(&"goblin").current_animation(), &"move", "back to its own animation")
+
+
+func test_the_sky_the_ground_and_the_shadows_draw_in_the_stage_not_under_whatever_is_behind_it() -> void:
+	var script := _script()
+	script.ground_style = &"grass"
+	script.ground_top = 60.0
+	_stage.play(script)
+	for node_name in ["Sky", "Ground"]:
+		var node := _stage.get_node(node_name) as CanvasItem
+		assert_true(node.z_as_relative, "%s is relative to the stage, so a backdrop behind the stage cannot cover it" % node_name)
+		assert_eq(node.z_index, 0, node_name)
+	for id in [&"wizard", &"goblin"]:
+		var shadow := _stage.actor(id).get_node("Shadow") as Sprite2D
+		assert_true(shadow.z_as_relative, "the shadow of %s sits just under its body inside the stage, not at the world's absolute depth" % id)
+		assert_eq(shadow.z_index, -1)
+	assert_lt(_stage.get_node("Sky").get_index(), _stage.get_node("Ground").get_index(), "sky first, then ground, then everything else")

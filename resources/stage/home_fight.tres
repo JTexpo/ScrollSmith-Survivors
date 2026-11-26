@@ -1,0 +1,1015 @@
+[gd_resource type="Resource" script_class="StageScript" load_steps=106 format=3]
+
+[ext_resource type="Script" path="res://resources/stage/stage_script.gd" id="s"]
+[ext_resource type="Script" path="res://resources/stage/stage_actor.gd" id="a"]
+[ext_resource type="Script" path="res://resources/stage/stage_beat.gd" id="b"]
+[ext_resource type="Script" path="res://resources/stage/stage_scenery.gd" id="c"]
+
+[sub_resource type="Resource" id="actor_0"]
+script = ExtResource("a")
+id = &"wizard"
+sprite = &"player_body"
+variant = &"base"
+start = Vector2(72, 118)
+facing = 1
+shadow = true
+wizard = true
+visible_at_start = true
+animation = &"idle"
+
+[sub_resource type="Resource" id="actor_1"]
+script = ExtResource("a")
+id = &"cloud_a"
+sprite = &"cloud_small"
+variant = &"base"
+start = Vector2(-20, 22)
+facing = 1
+shadow = false
+wizard = false
+visible_at_start = true
+animation = &"idle"
+
+[sub_resource type="Resource" id="actor_2"]
+script = ExtResource("a")
+id = &"cloud_b"
+sprite = &"cloud_large"
+variant = &"base"
+start = Vector2(-60, 40)
+facing = 1
+shadow = false
+wizard = false
+visible_at_start = true
+animation = &"idle"
+
+[sub_resource type="Resource" id="actor_3"]
+script = ExtResource("a")
+id = &"goblin"
+sprite = &"enemy_standard"
+variant = &"land"
+start = Vector2(510, 100)
+facing = -1
+shadow = true
+wizard = false
+visible_at_start = true
+animation = &"move"
+
+[sub_resource type="Resource" id="actor_4"]
+script = ExtResource("a")
+id = &"rat_a"
+sprite = &"enemy_forest_swarmer"
+variant = &"sea"
+start = Vector2(500, 136)
+facing = -1
+shadow = true
+wizard = false
+visible_at_start = true
+animation = &"move"
+
+[sub_resource type="Resource" id="actor_5"]
+script = ExtResource("a")
+id = &"wolf"
+sprite = &"enemy_chaser"
+variant = &"thunder"
+start = Vector2(510, 118)
+facing = -1
+shadow = true
+wizard = false
+visible_at_start = true
+animation = &"move"
+
+[sub_resource type="Resource" id="actor_6"]
+script = ExtResource("a")
+id = &"goblin_b"
+sprite = &"enemy_standard"
+variant = &"fire"
+start = Vector2(510, 128)
+facing = -1
+shadow = true
+wizard = false
+visible_at_start = true
+animation = &"move"
+
+[sub_resource type="Resource" id="actor_7"]
+script = ExtResource("a")
+id = &"tank"
+sprite = &"enemy_forest_tank"
+variant = &"fire"
+start = Vector2(520, 108)
+facing = -1
+shadow = true
+wizard = false
+visible_at_start = true
+animation = &"move"
+
+[sub_resource type="Resource" id="actor_8"]
+script = ExtResource("a")
+id = &"rat_b"
+sprite = &"enemy_forest_swarmer"
+variant = &"none"
+start = Vector2(500, 144)
+facing = -1
+shadow = true
+wizard = false
+visible_at_start = true
+animation = &"move"
+
+[sub_resource type="Resource" id="actor_9"]
+script = ExtResource("a")
+id = &"wolf_b"
+sprite = &"enemy_chaser"
+variant = &"sea"
+start = Vector2(510, 94)
+facing = -1
+shadow = true
+wizard = false
+visible_at_start = true
+animation = &"move"
+
+[sub_resource type="Resource" id="actor_10"]
+script = ExtResource("a")
+id = &"goblin_c"
+sprite = &"enemy_standard"
+variant = &"thunder"
+start = Vector2(510, 134)
+facing = -1
+shadow = true
+wizard = false
+visible_at_start = true
+animation = &"move"
+
+[sub_resource type="Resource" id="beat_0"]
+script = ExtResource("b")
+time = 0
+actor = &"cloud_a"
+action = 0
+to = Vector2(500, 22)
+duration = 15
+animation = &"idle"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_1"]
+script = ExtResource("b")
+time = 0.3
+actor = &"goblin"
+action = 0
+to = Vector2(150, 100)
+duration = 6
+animation = &"move"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_2"]
+script = ExtResource("b")
+time = 1
+actor = &"rat_a"
+action = 0
+to = Vector2(160, 136)
+duration = 5
+animation = &"move"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_3"]
+script = ExtResource("b")
+time = 2.28
+actor = &"wizard"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"cast"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_4"]
+script = ExtResource("b")
+time = 2.4
+actor = &"wizard"
+action = 5
+to = Vector2(305.07, 100)
+duration = 1.32
+animation = &""
+effect = &"fx_fire_orb_16"
+facing = 1
+
+[sub_resource type="Resource" id="beat_5"]
+script = ExtResource("b")
+time = 2.5
+actor = &"wolf"
+action = 0
+to = Vector2(160, 118)
+duration = 3.6
+animation = &"move"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_6"]
+script = ExtResource("b")
+time = 2.75
+actor = &"wizard"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"idle"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_7"]
+script = ExtResource("b")
+time = 3.5
+actor = &"goblin_b"
+action = 0
+to = Vector2(160, 128)
+duration = 6.5
+animation = &"move"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_8"]
+script = ExtResource("b")
+time = 3.72
+actor = &""
+action = 6
+to = Vector2(305.07, 100)
+duration = 0
+animation = &""
+effect = &"fx_fire_burst"
+facing = 1
+
+[sub_resource type="Resource" id="beat_9"]
+script = ExtResource("b")
+time = 3.72
+actor = &"goblin"
+action = 7
+to = Vector2(0, 0)
+duration = 0
+animation = &""
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_10"]
+script = ExtResource("b")
+time = 3.72
+actor = &"goblin"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"death"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_11"]
+script = ExtResource("b")
+time = 4.08
+actor = &"wizard"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"cast"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_12"]
+script = ExtResource("b")
+time = 4.2
+actor = &"wizard"
+action = 5
+to = Vector2(224.74, 136)
+duration = 0.85
+animation = &""
+effect = &"fx_fire_orb_16"
+facing = 1
+
+[sub_resource type="Resource" id="beat_13"]
+script = ExtResource("b")
+time = 4.5
+actor = &"tank"
+action = 0
+to = Vector2(150, 108)
+duration = 9
+animation = &"move"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_14"]
+script = ExtResource("b")
+time = 4.55
+actor = &"wizard"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"idle"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_15"]
+script = ExtResource("b")
+time = 4.62
+actor = &"goblin"
+action = 4
+to = Vector2(0, 0)
+duration = 0
+animation = &""
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_16"]
+script = ExtResource("b")
+time = 5
+actor = &"cloud_b"
+action = 0
+to = Vector2(540, 40)
+duration = 10
+animation = &"idle"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_17"]
+script = ExtResource("b")
+time = 5.05
+actor = &""
+action = 6
+to = Vector2(224.74, 136)
+duration = 0
+animation = &""
+effect = &"fx_fire_burst"
+facing = 1
+
+[sub_resource type="Resource" id="beat_18"]
+script = ExtResource("b")
+time = 5.05
+actor = &"rat_a"
+action = 7
+to = Vector2(0, 0)
+duration = 0
+animation = &""
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_19"]
+script = ExtResource("b")
+time = 5.05
+actor = &"rat_a"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"death"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_20"]
+script = ExtResource("b")
+time = 5.68
+actor = &"wizard"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"cast"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_21"]
+script = ExtResource("b")
+time = 5.8
+actor = &"wizard"
+action = 5
+to = Vector2(160, 118)
+duration = 0.46
+animation = &""
+effect = &"fx_fire_orb_16"
+facing = 1
+
+[sub_resource type="Resource" id="beat_22"]
+script = ExtResource("b")
+time = 5.95
+actor = &"rat_a"
+action = 4
+to = Vector2(0, 0)
+duration = 0
+animation = &""
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_23"]
+script = ExtResource("b")
+time = 6.15
+actor = &"wizard"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"idle"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_24"]
+script = ExtResource("b")
+time = 6.26
+actor = &""
+action = 6
+to = Vector2(160, 118)
+duration = 0
+animation = &""
+effect = &"fx_fire_burst"
+facing = 1
+
+[sub_resource type="Resource" id="beat_25"]
+script = ExtResource("b")
+time = 6.26
+actor = &"wolf"
+action = 7
+to = Vector2(0, 0)
+duration = 0
+animation = &""
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_26"]
+script = ExtResource("b")
+time = 6.26
+actor = &"wolf"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"death"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_27"]
+script = ExtResource("b")
+time = 6.88
+actor = &"wizard"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"cast"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_28"]
+script = ExtResource("b")
+time = 7
+actor = &"wizard"
+action = 5
+to = Vector2(263.82, 128)
+duration = 1.07
+animation = &""
+effect = &"fx_fire_orb_16"
+facing = 1
+
+[sub_resource type="Resource" id="beat_29"]
+script = ExtResource("b")
+time = 7
+actor = &"rat_b"
+action = 0
+to = Vector2(160, 144)
+duration = 5
+animation = &"move"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_30"]
+script = ExtResource("b")
+time = 7.16
+actor = &"wolf"
+action = 4
+to = Vector2(0, 0)
+duration = 0
+animation = &""
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_31"]
+script = ExtResource("b")
+time = 7.35
+actor = &"wizard"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"idle"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_32"]
+script = ExtResource("b")
+time = 8.07
+actor = &""
+action = 6
+to = Vector2(263.82, 128)
+duration = 0
+animation = &""
+effect = &"fx_fire_burst"
+facing = 1
+
+[sub_resource type="Resource" id="beat_33"]
+script = ExtResource("b")
+time = 8.07
+actor = &"goblin_b"
+action = 7
+to = Vector2(0, 0)
+duration = 0
+animation = &""
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_34"]
+script = ExtResource("b")
+time = 8.07
+actor = &"goblin_b"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"death"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_35"]
+script = ExtResource("b")
+time = 8.48
+actor = &"wizard"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"cast"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_36"]
+script = ExtResource("b")
+time = 8.6
+actor = &"wizard"
+action = 5
+to = Vector2(298.94, 108)
+duration = 1.28
+animation = &""
+effect = &"fx_fire_orb_16"
+facing = 1
+
+[sub_resource type="Resource" id="beat_37"]
+script = ExtResource("b")
+time = 8.95
+actor = &"wizard"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"idle"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_38"]
+script = ExtResource("b")
+time = 8.97
+actor = &"goblin_b"
+action = 4
+to = Vector2(0, 0)
+duration = 0
+animation = &""
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_39"]
+script = ExtResource("b")
+time = 9
+actor = &"wolf_b"
+action = 0
+to = Vector2(160, 94)
+duration = 4
+animation = &"move"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_40"]
+script = ExtResource("b")
+time = 9.28
+actor = &"wizard"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"cast"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_41"]
+script = ExtResource("b")
+time = 9.4
+actor = &"wizard"
+action = 5
+to = Vector2(263.39, 144)
+duration = 1.08
+animation = &""
+effect = &"fx_fire_orb_16"
+facing = 1
+
+[sub_resource type="Resource" id="beat_42"]
+script = ExtResource("b")
+time = 9.5
+actor = &"goblin_c"
+action = 0
+to = Vector2(160, 134)
+duration = 5.5
+animation = &"move"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_43"]
+script = ExtResource("b")
+time = 9.75
+actor = &"wizard"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"idle"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_44"]
+script = ExtResource("b")
+time = 9.88
+actor = &""
+action = 6
+to = Vector2(298.94, 108)
+duration = 0
+animation = &""
+effect = &"fx_fire_burst"
+facing = 1
+
+[sub_resource type="Resource" id="beat_45"]
+script = ExtResource("b")
+time = 9.88
+actor = &"wizard"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"cast"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_46"]
+script = ExtResource("b")
+time = 10
+actor = &"wizard"
+action = 5
+to = Vector2(252.59, 108)
+duration = 1
+animation = &""
+effect = &"fx_fire_orb_16"
+facing = 1
+
+[sub_resource type="Resource" id="beat_47"]
+script = ExtResource("b")
+time = 10.35
+actor = &"wizard"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"idle"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_48"]
+script = ExtResource("b")
+time = 10.48
+actor = &""
+action = 6
+to = Vector2(263.39, 144)
+duration = 0
+animation = &""
+effect = &"fx_fire_burst"
+facing = 1
+
+[sub_resource type="Resource" id="beat_49"]
+script = ExtResource("b")
+time = 10.48
+actor = &"rat_b"
+action = 7
+to = Vector2(0, 0)
+duration = 0
+animation = &""
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_50"]
+script = ExtResource("b")
+time = 10.48
+actor = &"rat_b"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"death"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_51"]
+script = ExtResource("b")
+time = 11
+actor = &""
+action = 6
+to = Vector2(252.59, 108)
+duration = 0
+animation = &""
+effect = &"fx_fire_burst"
+facing = 1
+
+[sub_resource type="Resource" id="beat_52"]
+script = ExtResource("b")
+time = 11
+actor = &"tank"
+action = 7
+to = Vector2(0, 0)
+duration = 0
+animation = &""
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_53"]
+script = ExtResource("b")
+time = 11
+actor = &"tank"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"death"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_54"]
+script = ExtResource("b")
+time = 11.38
+actor = &"rat_b"
+action = 4
+to = Vector2(0, 0)
+duration = 0
+animation = &""
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_55"]
+script = ExtResource("b")
+time = 11.48
+actor = &"wizard"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"cast"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_56"]
+script = ExtResource("b")
+time = 11.6
+actor = &"wizard"
+action = 5
+to = Vector2(213.75, 94)
+duration = 0.79
+animation = &""
+effect = &"fx_fire_orb_16"
+facing = 1
+
+[sub_resource type="Resource" id="beat_57"]
+script = ExtResource("b")
+time = 11.9
+actor = &"tank"
+action = 4
+to = Vector2(0, 0)
+duration = 0
+animation = &""
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_58"]
+script = ExtResource("b")
+time = 11.95
+actor = &"wizard"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"idle"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_59"]
+script = ExtResource("b")
+time = 12.39
+actor = &""
+action = 6
+to = Vector2(213.75, 94)
+duration = 0
+animation = &""
+effect = &"fx_fire_burst"
+facing = 1
+
+[sub_resource type="Resource" id="beat_60"]
+script = ExtResource("b")
+time = 12.39
+actor = &"wolf_b"
+action = 7
+to = Vector2(0, 0)
+duration = 0
+animation = &""
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_61"]
+script = ExtResource("b")
+time = 12.39
+actor = &"wolf_b"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"death"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_62"]
+script = ExtResource("b")
+time = 12.48
+actor = &"wizard"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"cast"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_63"]
+script = ExtResource("b")
+time = 12.6
+actor = &"wizard"
+action = 5
+to = Vector2(249.62, 134)
+duration = 0.99
+animation = &""
+effect = &"fx_fire_orb_16"
+facing = 1
+
+[sub_resource type="Resource" id="beat_64"]
+script = ExtResource("b")
+time = 12.95
+actor = &"wizard"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"idle"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_65"]
+script = ExtResource("b")
+time = 13.29
+actor = &"wolf_b"
+action = 4
+to = Vector2(0, 0)
+duration = 0
+animation = &""
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_66"]
+script = ExtResource("b")
+time = 13.59
+actor = &""
+action = 6
+to = Vector2(249.62, 134)
+duration = 0
+animation = &""
+effect = &"fx_fire_burst"
+facing = 1
+
+[sub_resource type="Resource" id="beat_67"]
+script = ExtResource("b")
+time = 13.59
+actor = &"goblin_c"
+action = 7
+to = Vector2(0, 0)
+duration = 0
+animation = &""
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_68"]
+script = ExtResource("b")
+time = 13.59
+actor = &"goblin_c"
+action = 1
+to = Vector2(0, 0)
+duration = 0
+animation = &"death"
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="beat_69"]
+script = ExtResource("b")
+time = 14.49
+actor = &"goblin_c"
+action = 4
+to = Vector2(0, 0)
+duration = 0
+animation = &""
+effect = &""
+facing = 1
+
+[sub_resource type="Resource" id="scenery_0"]
+script = ExtResource("c")
+sprite = &"post_tree"
+position = Vector2(24, 38)
+
+[sub_resource type="Resource" id="scenery_1"]
+script = ExtResource("c")
+sprite = &"post_tree"
+position = Vector2(92, 30)
+
+[sub_resource type="Resource" id="scenery_2"]
+script = ExtResource("c")
+sprite = &"post_tree"
+position = Vector2(398, 34)
+
+[sub_resource type="Resource" id="scenery_3"]
+script = ExtResource("c")
+sprite = &"post_tree"
+position = Vector2(458, 30)
+
+[sub_resource type="Resource" id="scenery_4"]
+script = ExtResource("c")
+sprite = &"post_tree"
+position = Vector2(250, 164)
+
+[sub_resource type="Resource" id="scenery_5"]
+script = ExtResource("c")
+sprite = &"post_tree"
+position = Vector2(16, 160)
+
+[sub_resource type="Resource" id="scenery_6"]
+script = ExtResource("c")
+sprite = &"post_tree"
+position = Vector2(470, 168)
+
+[sub_resource type="Resource" id="scenery_7"]
+script = ExtResource("c")
+sprite = &"bush"
+position = Vector2(14, 76)
+
+[sub_resource type="Resource" id="scenery_8"]
+script = ExtResource("c")
+sprite = &"bush"
+position = Vector2(470, 80)
+
+[sub_resource type="Resource" id="scenery_9"]
+script = ExtResource("c")
+sprite = &"bush"
+position = Vector2(134, 57)
+
+[sub_resource type="Resource" id="scenery_10"]
+script = ExtResource("c")
+sprite = &"bush"
+position = Vector2(320, 56)
+
+[sub_resource type="Resource" id="scenery_11"]
+script = ExtResource("c")
+sprite = &"bush"
+position = Vector2(372, 58)
+
+[sub_resource type="Resource" id="scenery_12"]
+script = ExtResource("c")
+sprite = &"bush"
+position = Vector2(212, 70)
+
+[sub_resource type="Resource" id="scenery_13"]
+script = ExtResource("c")
+sprite = &"bush"
+position = Vector2(60, 88)
+
+[sub_resource type="Resource" id="scenery_14"]
+script = ExtResource("c")
+sprite = &"bush"
+position = Vector2(420, 96)
+
+[sub_resource type="Resource" id="scenery_15"]
+script = ExtResource("c")
+sprite = &"bush"
+position = Vector2(300, 150)
+
+[sub_resource type="Resource" id="scenery_16"]
+script = ExtResource("c")
+sprite = &"bush"
+position = Vector2(130, 152)
+
+[sub_resource type="Resource" id="scenery_17"]
+script = ExtResource("c")
+sprite = &"bush"
+position = Vector2(200, 92)
+
+[sub_resource type="Resource" id="scenery_18"]
+script = ExtResource("c")
+sprite = &"bush"
+position = Vector2(356, 112)
+
+[resource]
+script = ExtResource("s")
+size = Vector2i(480, 160)
+loop_seconds = 15
+still_time = 5
+sky_color = Color(0.435294, 0.827451, 1, 1)
+ground_style = &"grass"
+ground_top = 52
+scenery = Array[ExtResource("c")]([SubResource("scenery_0"), SubResource("scenery_1"), SubResource("scenery_2"), SubResource("scenery_3"), SubResource("scenery_4"), SubResource("scenery_5"), SubResource("scenery_6"), SubResource("scenery_7"), SubResource("scenery_8"), SubResource("scenery_9"), SubResource("scenery_10"), SubResource("scenery_11"), SubResource("scenery_12"), SubResource("scenery_13"), SubResource("scenery_14"), SubResource("scenery_15"), SubResource("scenery_16"), SubResource("scenery_17"), SubResource("scenery_18")])
+actors = Array[ExtResource("a")]([SubResource("actor_0"), SubResource("actor_1"), SubResource("actor_2"), SubResource("actor_3"), SubResource("actor_4"), SubResource("actor_5"), SubResource("actor_6"), SubResource("actor_7"), SubResource("actor_8"), SubResource("actor_9"), SubResource("actor_10")])
+beats = Array[ExtResource("b")]([SubResource("beat_0"), SubResource("beat_1"), SubResource("beat_2"), SubResource("beat_3"), SubResource("beat_4"), SubResource("beat_5"), SubResource("beat_6"), SubResource("beat_7"), SubResource("beat_8"), SubResource("beat_9"), SubResource("beat_10"), SubResource("beat_11"), SubResource("beat_12"), SubResource("beat_13"), SubResource("beat_14"), SubResource("beat_15"), SubResource("beat_16"), SubResource("beat_17"), SubResource("beat_18"), SubResource("beat_19"), SubResource("beat_20"), SubResource("beat_21"), SubResource("beat_22"), SubResource("beat_23"), SubResource("beat_24"), SubResource("beat_25"), SubResource("beat_26"), SubResource("beat_27"), SubResource("beat_28"), SubResource("beat_29"), SubResource("beat_30"), SubResource("beat_31"), SubResource("beat_32"), SubResource("beat_33"), SubResource("beat_34"), SubResource("beat_35"), SubResource("beat_36"), SubResource("beat_37"), SubResource("beat_38"), SubResource("beat_39"), SubResource("beat_40"), SubResource("beat_41"), SubResource("beat_42"), SubResource("beat_43"), SubResource("beat_44"), SubResource("beat_45"), SubResource("beat_46"), SubResource("beat_47"), SubResource("beat_48"), SubResource("beat_49"), SubResource("beat_50"), SubResource("beat_51"), SubResource("beat_52"), SubResource("beat_53"), SubResource("beat_54"), SubResource("beat_55"), SubResource("beat_56"), SubResource("beat_57"), SubResource("beat_58"), SubResource("beat_59"), SubResource("beat_60"), SubResource("beat_61"), SubResource("beat_62"), SubResource("beat_63"), SubResource("beat_64"), SubResource("beat_65"), SubResource("beat_66"), SubResource("beat_67"), SubResource("beat_68"), SubResource("beat_69")])
