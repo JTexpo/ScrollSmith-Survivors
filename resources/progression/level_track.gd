@@ -75,6 +75,22 @@ func slot_count(level: int) -> int:
 	return count
 
 
+## The level at which spell slot `slot` (1 to 5) unlocks: 1 for the first slot, the level of the nth SLOT reward for
+## the nth extra slot, and 0 for a slot the track never unlocks.
+func level_for_slot(slot: int) -> int:
+	if slot < 1:
+		return 0
+	if slot == 1:
+		return 1
+	var found := 1
+	for l in range(2, max_level() + 1):
+		if reward_for_level(l).kind == LevelReward.Kind.SLOT:
+			found += 1
+			if found == slot:
+				return l
+	return 0
+
+
 ## The sum of `amount` over every reward of `kind` up to `level`.
 func stat_sum(kind: LevelReward.Kind, level: int) -> float:
 	var total := 0.0

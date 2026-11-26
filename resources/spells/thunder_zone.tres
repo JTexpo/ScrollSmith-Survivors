@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="SpellData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/spells/spell_data.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/spells/areas/zone_area.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = &"thunder_zone"
+display_name = "Thunder Zone"
+elements = Array[int]([1])
+area_data = ExtResource("2")
+max_mana = 1000.0
+mana_cost = 3.0
+damage = 1.7
+cast_interval = 1.0
+projectile_speed = 220.0
+knockback = 40.0
+max_hits = 1
+color = Color(1, 0.9, 0.2, 1)

@@ -356,6 +356,9 @@ func bind(main: Node) -> void:
 		if main.is_ancestor_of(lectern):
 			lectern.interacted.connect(func(_actor: Node) -> void: play(SoundId.LECTERN_OPEN))
 	main.point_effect_applied.connect(_on_point_effect)
+	var tracker = main.get("achievement_tracker")
+	if tracker != null:
+		bind_achievements(tracker)
 	(main.get_node("CraftingScreen") as CraftingScreen).crafted.connect(func() -> void: play(SoundId.CRAFT_CONFIRM))
 	(main.get_node("CraftingScreen") as CraftingScreen).refused.connect(func(_reason: String) -> void: play(SoundId.CRAFT_FAIL))
 	var shop := main.get_node("ShopScreen") as ShopScreen
@@ -395,6 +398,11 @@ func _on_enemy_damaged(_position: Vector2, _amount: float, effect: int) -> void:
 		play(SoundId.HIT_STRONG)
 	elif effect == ElementTable.Effect.RESISTED:
 		play(SoundId.HIT_RESISTED)
+
+
+## The chime when an achievement unlocks (`Main` owns the tracker; the board only listens).
+func bind_achievements(tracker: AchievementTracker) -> void:
+	tracker.unlocked.connect(func(_data: AchievementData) -> void: play(SoundId.ACHIEVEMENT))
 
 
 ## Listens for spell hits (called by `bind`; tests call it directly).

@@ -26,6 +26,7 @@ var _step: int = 0
 @onready var _confirm: ConfirmDialog = $ConfirmDialog
 @onready var _tutorial: TutorialScreen = $TutorialScreen
 @onready var _map_select: MapSelectScreen = $MapSelectScreen
+@onready var _achievements: AchievementsScreen = $AchievementsScreen
 
 
 func _ready() -> void:
@@ -39,6 +40,7 @@ func _ready() -> void:
 	_settings.closed.connect(_focus_play)
 	_tutorial.closed.connect(_focus_play)
 	_map_select.closed.connect(_focus_play)
+	_achievements.closed.connect(_focus_play)
 	_map_select.map_chosen.connect(play_map)
 	_confirm.confirmed.connect(_on_confirmed)
 	_confirm.cancelled.connect(_on_cancelled)
@@ -54,7 +56,7 @@ func _input(event: InputEvent) -> void:
 
 ## Turns a touch into the left mouse press or release the buttons expect, unless a screen on top is open (it bridges its own).
 func handle_input(event: InputEvent) -> bool:
-	if not event is InputEventScreenTouch or _shop.is_open() or _settings.is_open() or _confirm.is_open() or _tutorial.is_open() or _map_select.is_open():
+	if not event is InputEventScreenTouch or _shop.is_open() or _settings.is_open() or _confirm.is_open() or _tutorial.is_open() or _map_select.is_open() or _achievements.is_open():
 		return false
 	get_viewport().push_input(TouchBridge.to_mouse_button(event), true)
 	return true
@@ -83,6 +85,14 @@ func open_shop() -> void:
 
 func open_tutorial() -> void:
 	_tutorial.open()
+
+
+func open_achievements() -> void:
+	_achievements.open(AchievementCatalog.default_catalog(), profile, LevelTrack.default_track())
+
+
+func achievements_screen() -> AchievementsScreen:
+	return _achievements
 
 
 func map_select_screen() -> MapSelectScreen:
@@ -192,3 +202,10 @@ func _build() -> void:
 	fullscreen.pressed.connect(_toggle_fullscreen)
 	add_child(fullscreen)
 	_buttons["Full screen"] = fullscreen
+	# The mirror of Full screen, at the top left: the five main buttons already fill the screen's height.
+	var achievements := UiKit.button("Achievements")
+	achievements.position = Vector2(8.0, 8.0)
+	achievements.custom_minimum_size = Vector2(100, 28)
+	achievements.pressed.connect(open_achievements)
+	add_child(achievements)
+	_buttons["Achievements"] = achievements

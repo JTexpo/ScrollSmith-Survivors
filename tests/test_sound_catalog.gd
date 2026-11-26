@@ -72,7 +72,7 @@ func test_library_with_another_root_finds_nothing_there() -> void:
 	assert_null(SoundLibrary.find(SoundId.UI_CLICK))
 
 
-const DESIGN_IDS: Array[StringName] = [&"cast_fire", &"cast_thunder", &"cast_land", &"cast_sea", &"hit_fire", &"hit_thunder", &"hit_land", &"hit_sea", &"hit_strong", &"hit_resisted", &"enemy_shot", &"blast_warn", &"blast_boom", &"enemy_die", &"enemy_die_big", &"enemy_die_elite", &"boss_spawn", &"boss_slam", &"boss_charge", &"boss_burst", &"boss_die", &"player_hurt", &"player_die", &"level_up", &"step", &"pickup_scroll", &"pickup_xp", &"pickup_gold", &"potion_drink", &"potion_refused", &"ui_click", &"ui_back", &"ui_hover", &"lectern_open", &"craft_confirm", &"craft_fail", &"shop_buy", &"shop_fail", &"shop_equip", &"shrine_heal", &"shrine_mana", &"chest_open", &"merchant_open", &"music_run", &"music_boss", &"heartbeat", &"mana_low"]
+const DESIGN_IDS: Array[StringName] = [&"cast_fire", &"cast_thunder", &"cast_land", &"cast_sea", &"hit_fire", &"hit_thunder", &"hit_land", &"hit_sea", &"hit_strong", &"hit_resisted", &"enemy_shot", &"blast_warn", &"blast_boom", &"enemy_die", &"enemy_die_big", &"enemy_die_elite", &"boss_spawn", &"boss_slam", &"boss_charge", &"boss_burst", &"boss_die", &"player_hurt", &"player_die", &"level_up", &"step", &"pickup_scroll", &"pickup_xp", &"pickup_gold", &"potion_drink", &"potion_refused", &"ui_click", &"ui_back", &"ui_hover", &"lectern_open", &"craft_confirm", &"craft_fail", &"shop_buy", &"shop_fail", &"shop_equip", &"shrine_heal", &"shrine_mana", &"chest_open", &"merchant_open", &"music_run", &"music_boss", &"heartbeat", &"mana_low", &"achievement"]
 
 
 func _data(id: StringName) -> SoundData:
@@ -143,4 +143,13 @@ func test_the_mana_blip_is_faint_low_priority_and_capped() -> void:
 	assert_eq(data.max_voices, 1)
 	assert_gte(data.min_gap_msec, 400)
 	assert_lte(data.volume_db, -12.0)
+
+
+func test_the_achievement_chime_is_normal_priority_capped_and_pauses_with_the_world() -> void:
+	var chime := _data(&"achievement")
+	assert_not_null(chime)
+	assert_eq(chime.priority, SoundData.Priority.NORMAL)
+	assert_lte(chime.max_voices, 2)
+	assert_true(chime.pausable, "an unlock is a world event: it never plays over a paused game")
+	assert_gt(chime.volume_db, -12.0, "audible, not faint")
 

@@ -27,6 +27,7 @@ signal point_effect_applied(kind: int)
 @onready var _pick_screen: BuffPickScreen = $BuffPickScreen
 @onready var _xp_bar: XpBar = $Hud/XpBar
 @onready var _level_toast: LevelToast = $Hud/LevelToast
+@onready var _achievement_toast: AchievementToast = $Hud/AchievementToast
 @onready var _perf_overlay: PerfOverlay = $PerfOverlay
 @onready var _pause_menu: PauseMenu = $PauseMenu
 @onready var _pause_button: PauseButton = $Hud/PauseButton
@@ -53,6 +54,9 @@ var potion_catalog: PotionCatalog
 var run_potions: RunPotions
 ## The tally of this run (enemies, bosses, scrolls, crafts, potions, XP, Gold), never saved.
 var run_stats: RunStats
+## Decides when achievements unlock (made at run start, before the sound board binds so it can find it). It listens only.
+var achievement_tracker: AchievementTracker
+var achievement_catalog: AchievementCatalog
 
 var _rng := RandomNumberGenerator.new()
 
@@ -189,6 +193,15 @@ func _begin_progression() -> void:
 	progress.xp_changed.connect(_on_xp_changed)
 	progress.gold_changed.connect(_on_gold_changed)
 	progress.leveled_up.connect(_on_leveled_up)
+	achievement_catalog = AchievementCatalog.default_catalog()
+	achievement_tracker = AchievementTracker.new()
+	achievement_tracker.name = &"AchievementTracker"
+	add_child(achievement_tracker)
+	achievement_tracker.bind(achievement_catalog, profile, track, _spawner, progress, _saver)
+	# What an old save already proves unlocks silently, before the run's starting spells are chosen.
+	achievement_tracker.sync()
+	achievement_tracker.unlocked.connect(_achievement_toast.show_unlocked)
+	_player.died.connect(achievement_tracker.stop)
 	_player.died.connect(_on_player_died)
 	_death_screen.shop_requested.connect(_on_shop_requested)
 	_shop_screen.changed.connect(_saver.save_now)
@@ -203,7 +216,7 @@ func _begin_progression() -> void:
 		_pick_screen.open(options, "Level %d: choose a buff for your starting spell" % reward_level)
 		var picked: ScrollData = await _pick_screen.chosen
 		run_buffs.set_pick(reward_level, picked.id)
-	RunStart.prepare(_player, profile, track, run_buffs, catalog)
+	RunStart.prepare(_player, profile, track, run_buffs, catalog, achievement_catalog)
 	for reward_level in rolled:
 		_level_toast.show_message(_rolled_notice(run_buffs, reward_level))
 

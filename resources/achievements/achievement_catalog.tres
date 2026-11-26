@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="AchievementCatalog" load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://resources/achievements/achievement_catalog.gd" id="1"]
+[ext_resource type="Script" path="res://resources/achievements/achievement_data.gd" id="2"]
+[ext_resource type="Resource" path="res://resources/achievements/defeat_tempest_dragon.tres" id="a0"]
+[ext_resource type="Resource" path="res://resources/achievements/defeat_ember_titan.tres" id="a1"]
+[ext_resource type="Resource" path="res://resources/achievements/defeat_dire_minotaur.tres" id="a2"]
+[ext_resource type="Resource" path="res://resources/achievements/reach_level_5.tres" id="a3"]
+[ext_resource type="Resource" path="res://resources/achievements/reach_level_10.tres" id="a4"]
+[ext_resource type="Resource" path="res://resources/achievements/reach_level_15.tres" id="a5"]
+[ext_resource type="Resource" path="res://resources/achievements/reach_level_20.tres" id="a6"]
+[ext_resource type="Resource" path="res://resources/achievements/earn_gold_1000.tres" id="a7"]
+[ext_resource type="Resource" path="res://resources/achievements/survive_5_minutes.tres" id="a8"]
+[ext_resource type="Resource" path="res://resources/achievements/survive_10_minutes.tres" id="a9"]
+[ext_resource type="Resource" path="res://resources/achievements/survive_15_minutes.tres" id="a10"]
+[ext_resource type="Resource" path="res://resources/achievements/survive_20_minutes.tres" id="a11"]
+
+[resource]
+script = ExtResource("1")
+achievements = Array[ExtResource("2")]([ExtResource("a0"), ExtResource("a1"), ExtResource("a2"), ExtResource("a3"), ExtResource("a4"), ExtResource("a5"), ExtResource("a6"), ExtResource("a7"), ExtResource("a8"), ExtResource("a9"), ExtResource("a10"), ExtResource("a11")])

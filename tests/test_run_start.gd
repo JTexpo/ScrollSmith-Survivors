@@ -208,3 +208,16 @@ func test_run_start_adds_no_layers_to_a_wizard_that_is_not_layered() -> void:
 	RunStart.prepare(plain, _profile, _track, _buffs, _catalog)
 	assert_eq((plain.get_node("Body") as BodyView).layer_names().size(), 0, "no body art means no robe, beard or hood floating on the fallback")
 
+
+
+func test_prepare_applies_boss_rewards_after_the_level_spells_and_not_by_default() -> void:
+	_at_level(20)
+	_profile.grant_achievement(&"defeat_tempest_dragon")
+	RunStart.prepare(_player, _profile, _track, _buffs, _catalog)
+	assert_null(_spell(2), "the default (no achievement catalog) gives no boss spell")
+	var second_player := load("res://scenes/player/player.tscn").instantiate() as Player
+	_root.add_child(second_player)
+	RunStart.prepare(second_player, _profile, _track, _buffs, _catalog, AchievementCatalog.default_catalog())
+	assert_eq(second_player.loadout.slots[2].data.id, &"thunder_zone")
+	assert_eq(second_player.loadout.slots[0].data.id, &"fire_missile", "the level spells are still equipped")
+	assert_eq(second_player.loadout.slots[1].data.id, &"sea_cone")

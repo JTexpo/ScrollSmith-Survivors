@@ -212,3 +212,16 @@ func test_erase_takes_every_map_s_bests() -> void:
 	var loaded := SaveGame.load_profile(_path())
 	assert_eq(loaded.best_enemies(&"forest"), 0, "New game starts without records")
 	assert_eq(loaded.best_enemies(&"first_map"), 0)
+
+
+func test_erase_takes_the_achievements_and_lifetime_gold_with_the_save() -> void:
+	var profile := PlayerProfile.new()
+	profile.earn_gold(2000)
+	profile.grant_achievement(&"earn_gold_1000")
+	SaveGame.save_profile(profile, _path())
+	var reloaded := SaveGame.load_profile(_path())
+	assert_true(reloaded.has_achievement(&"earn_gold_1000"))
+	assert_true(SaveGame.erase(_path()))
+	var fresh := SaveGame.load_profile(_path())
+	assert_eq(fresh.achievements.size(), 0)
+	assert_eq(fresh.lifetime_gold, 0)

@@ -1,5 +1,6 @@
 [gd_scene format=3]
 
+[ext_resource type="PackedScene" path="res://scenes/ui/achievement_toast.tscn" id="achievement_toast"]
 [ext_resource type="Script" path="res://scripts/main/main.gd" id="0"]
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_button.tscn" id="pause_button"]
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="pause_menu"]
@@ -120,6 +121,16 @@ offset_left = -90.0
 offset_top = 44.0
 offset_right = 90.0
 offset_bottom = 90.0
+grow_horizontal = 2
+
+[node name="AchievementToast" parent="Hud" instance=ExtResource("achievement_toast")]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -140.0
+offset_top = 180.0
+offset_right = 140.0
+offset_bottom = 198.0
 grow_horizontal = 2
 
 [node name="SpellBar" parent="Hud" instance=ExtResource("8")]

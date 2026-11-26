@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="SpellData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/spells/spell_data.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/spells/areas/wave_area.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = &"ember_wave"
+display_name = "Ember Wave"
+elements = Array[int]([0])
+area_data = ExtResource("2")
+max_mana = 1000.0
+mana_cost = 2.5
+damage = 13.5
+cast_interval = 0.85
+projectile_speed = 140.0
+knockback = 100.0
+max_hits = 1
+color = Color(1, 0.45, 0.1, 1)

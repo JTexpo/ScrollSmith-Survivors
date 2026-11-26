@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="AchievementData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://resources/achievements/achievement_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"survive_10_minutes"
+display_name = "Seasoned"
+description = "survive 10 minutes"
+kind = 3
+threshold = 600
+icon = &"icon_ach_hourglass"

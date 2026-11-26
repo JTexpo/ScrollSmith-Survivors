@@ -2,10 +2,10 @@ class_name RunStart
 extends RefCounted
 ## Sets a run up from the saved profile: the stat bonuses, the unlocked slots and the starting spells
 ## with the buffs their rewards gave. It never rolls or asks for a pick (Main does that first), and
-## running it again gives the same state, so a restart can never apply a bonus twice.
+## running it again gives the same state (a boss spell already in its slot is left as it is), so a restart can never apply a bonus twice.
 
 
-static func prepare(player: Player, profile: PlayerProfile, track: LevelTrack, run_buffs: RunBuffs, catalog: EquipmentCatalog) -> void:
+static func prepare(player: Player, profile: PlayerProfile, track: LevelTrack, run_buffs: RunBuffs, catalog: EquipmentCatalog, achievements: AchievementCatalog = null) -> void:
 	var level := profile.level(track)
 	# The level and equipment layers first (the temporary layer is left as it is), so every spell
 	# equipped below starts with the mana bonus and the casting speed.
@@ -26,6 +26,9 @@ static func prepare(player: Player, profile: PlayerProfile, track: LevelTrack, r
 		var reward := track.reward_for_level(reached)
 		if reward.kind == LevelReward.Kind.SECOND_SPELL:
 			_equip(loadout, 1, reward.spell, StartingBuffs.buffs_for_spell(run_buffs, track, level, 1))
+	# Spells earned by boss achievements, in their own slots (only the ones the level has unlocked, only into empty slots).
+	if achievements != null:
+		AchievementRewards.apply(loadout, profile, achievements)
 
 
 static func _equip(loadout: SpellLoadout, slot: int, spell: SpellData, buffs: Array[ScrollData]) -> void:

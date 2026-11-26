@@ -125,3 +125,13 @@ func test_every_archetype_has_xp_and_gold_rewards() -> void:
 		var archetype := load("res://resources/enemies/archetypes/%s.tres" % name) as EnemyArchetype
 		assert_eq(archetype.xp_reward, expected[name][0], "%s xp" % name)
 		assert_eq(archetype.gold_reward, expected[name][1], "%s gold" % name)
+
+
+func test_level_for_slot_matches_the_slot_rewards() -> void:
+	assert_eq(_track.level_for_slot(1), 1)
+	assert_eq(_track.level_for_slot(2), 5)
+	assert_eq(_track.level_for_slot(3), 10)
+	assert_eq(_track.level_for_slot(4), 15)
+	assert_eq(_track.level_for_slot(5), 20)
+	assert_eq(_track.level_for_slot(6), 0, "the track never unlocks a sixth slot")
+	assert_eq(_track.level_for_slot(0), 0)
