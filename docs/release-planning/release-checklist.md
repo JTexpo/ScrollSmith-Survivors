@@ -1,24 +1,20 @@
-# Release checklist (the parked Sprint 15c)
+# Release checklist (Sprint 15c, built 2026-11-26)
 
 ## Blocking the next publish
-- [x] **Web build has no sound**: fixed 2026-11-25 (bus layout), verified in a browser; confirm by ear on the real site after the next publish (see `future-roadmap.md`). Find the cause in a real browser and fix it, then check on desktop Chrome and Firefox and a phone before publishing.
-- [ ] The published address is now `https://jtexpo.github.io/ScrollSmith-Survivors/` (the repository was renamed); update the address in `CLAUDE.md` ("Web build and GitHub Pages") and anywhere else it is written.
+- [x] **Web build has no sound**: fixed 2026-11-25 (bus layout), verified in a browser. **The user still confirms it by ear** on the live site and in itch.io's frame.
+- [x] The published address is `https://jtexpo.github.io/ScrollSmith-Survivors/` (`CLAUDE.md` updated, a test guards it).
 
-## Still to do from the Sprint 15 list
-- [ ] Create the game icon.
-- [ ] Create promotional screenshots.
-- [ ] Create promotional artwork.
-- [ ] Perform final playtesting.
-- [ ] Fix release-blocking bugs.
-- [ ] Create the release build.
+## Sprint 15 list
+- [x] Create the game icon (`assets/icon.png`, built from `art/sprites/app_icon.sprite`).
+- [x] Create promotional screenshots (`docs/release-planning/promo/`; the user judges them).
+- [x] Create promotional artwork (the cover and the fight GIF).
+- [ ] Perform final playtesting (the user: the manual checklist below, on a desktop and on a phone).
+- [ ] Fix release-blocking bugs (none known; the playtest may find some).
+- [x] Create the release build (the workflow's `itch-web-zip` artifact; version 1.0.0).
 
-## What the project lacks today (found 2026-11-24)
-- **No icon.** `project.godot` has no `config/icon`, so the browser tab shows Godot's default icon. The Web preset has `html/export_icon=true`, so adding an icon fixes the favicon. Plan: draw a pixel-art icon (the wizard and a scroll) with the art pipeline and scale it by a whole number for the file (the one place scaling is unavoidable).
-- **Default web page.** The preset uses Godot's own HTML shell (`html/custom_html_shell=""`, `html/head_include=""`): no description meta tags, Godot's loading screen, no hint for portrait phones (the game is landscape, 480 by 270 with integer scaling).
-- **No version number** anywhere (not in `project.godot`, not on screen). Plan: a `config/version` setting shown small on the home screen and in Credits.
-- **Licence notices.** Credits mention Godot and GUT but not their licences. Plan: a "Third-party licences" section (Godot is MIT, GUT is MIT; confirm the exact notices to include) and a decision on the licence of the game's own code and art (the user's call).
-- **No real-phone numbers.** Every performance figure so far is from a desktop laptop. The performance overlay (F3, or a 1 second press on the mute button) lets testers send a screenshot. See `future-roadmap.md` for the slow-device question.
-- **Promotional material** is not made. Plan: screenshots taken from the real game with the existing scratchpad pattern (a throwaway save, a staged scene, `--resolution` at a whole multiple of 480 by 270) and a key-art banner composed from the game's own sprites; the user judges the art.
+## What was missing and is now done
+- Icon, a version number (1.0.0, in `project.godot`, Credits and the home screen), licence notices (`LICENSE`, the Credits lines and `licences.txt` in the build), the page's description and tags (`html/head_include`), a rotate hint for an upright phone, the page text (`itchio-page.md`) and the pictures.
+- **Still open:** real-phone performance numbers (every figure so far is from a laptop; the performance overlay, F3 or a 1 second press on the mute button, lets testers send a screenshot; see `future-roadmap.md` for the slow-device question) and the Private test upload to itch.io.
 
 ## Manual test checklist (run before any public release)
 Run on the Pages build and on the itch.io build once it exists.

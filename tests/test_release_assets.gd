@@ -77,3 +77,9 @@ func test_the_head_include_has_the_page_tags() -> void:
 	assert_false("og:image" in head)
 	for i in head.length():
 		assert_lt(head.unicode_at(i), 128)
+
+
+func test_the_docs_use_the_current_pages_address() -> void:
+	for path in ["res://CLAUDE.md", "res://docs/release-planning/release-checklist.md", "res://docs/release-planning/itchio-notes.md"]:
+		assert_false("jtexpo.github.io/GODOT-SpellCraft-Survivors" in FileAccess.get_file_as_string(path), path)
+	assert_true("https://jtexpo.github.io/ScrollSmith-Survivors/" in FileAccess.get_file_as_string("res://CLAUDE.md"))

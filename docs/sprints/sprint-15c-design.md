@@ -1,6 +1,6 @@
 # Sprint 15c Design: Release preparation (the itch.io launch)
 
-**Status:** Approved by the user (design and plan written 2026-11-26). Branch `sprint-15c-release-prep`.
+**Status:** Implemented (Sprint 15c). Deviations: there is no separate Licences screen (as section 5 says); itch.io calls a draft page "Private" (verified); the cover is a clean boss-fight frame with the banner, made without the HUD; the version text is bottom right of the home screen; the real export and zip are produced by the workflow on the pull request (no export templates are installed here, so a pack export and the published engine files were used to measure); see `docs/architecture/front-door.md`. Branch `sprint-15c-release-prep`.
 
 The parked third part of Sprint 15 (`docs/release-planning/`), now unparked. Scope comes from the user's answers in conversation; decisions marked "my call" are mine and open to correction.
 

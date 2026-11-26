@@ -854,7 +854,7 @@ A balanced and stable version of the game that can support extended play session
 
 **Goal:** Prepare the game for its first public release.
 
-Sprint 15 is split into three: **15a** the front door (built), **15b** onboarding and run statistics (built), **15c** release preparation (**parked** by the user on 2026-11-24 until the game is improved further; the plan, the missing pieces, a manual test checklist and itch.io notes are in `docs/release-planning/`, and the wishlist that comes first is in `docs/release-planning/future-roadmap.md`: new maps and bosses, achievements, and a livelier home screen and tutorial).
+Sprint 15 is split into three: **15a** the front door (built), **15b** onboarding and run statistics (built), **15c** release preparation (**built** on 2026-11-26 after the wishlist was done: version 1.0.0, an icon, licence notices, a rotate hint, a checked itch.io zip built by the workflow, the page text and pictures; the design is `docs/sprints/sprint-15c-design.md`, and the steps the user does by hand, the manual test checklist and the itch.io notes are in `docs/release-planning/`).
 
 **Built note (15a):** the game opens on a home screen (Play, Shop, Tutorial dimmed until 15b, Settings, New game, Full screen) that is its own scene, so no run exists until Play. Settings are saved in their own file (music and effects volume, every screen-effect switch, the performance overlay, full screen) with a Reduce motion preset and read-only Controls and Credits pages; the sound board follows the volumes live. New game asks twice and keeps one `.bak`. A pause menu (Esc, controller Start or a HUD button) offers Resume, Settings and Quit to home; the inventory now pauses the game; the death screen gained a Home button. Checked in a real window by touch and mouse; not on a phone.
 
@@ -1017,7 +1017,7 @@ The maze with its own enemies and the Dire Minotaur.
 ## Planned after Sprint 16 (the user's wishlist; details in `docs/release-planning/future-roadmap.md`)
 - **Sprint 17: Achievements (built).** Twelve data-driven achievements (3 boss, level 5/10/15/20, 1000 lifetime Gold, survive 5/10/15/20 minutes) tracked by a listening `AchievementTracker`, saved in the profile, announced by a toast and a chime, and shown on a home-screen screen with greyed icons for unearned ones. Defeating the Tempest Dragon, Ember Titan and Dire Minotaur earns a starting spell in slot 3, 4 and 5 (Thunder Zone, Ember Wave, Land Line), tied to the level that unlocks the slot. Design `docs/sprints/sprint-17-design.md`.
 - **Sprint 18: A livelier home screen and tutorial (built).** A scripted, data-driven `Stage` plays an animated wizard fight on the home screen and a vignette on each tutorial page, with a title banner, menu music and a 4 MB audio cap.
-- **Sprint 15c (parked): release preparation** (`docs/release-planning/`).
+- **Sprint 15c: release preparation (built).** Version, icon, licences, rotate hint, the workflow-built and checked itch.io zip, the page text and pictures (`docs/release-planning/`).
 
 ---
 
@@ -1033,7 +1033,7 @@ The sprints can be grouped into larger milestones to track overall progress.
 | Progression | 8–10 | XP, Gold, equipment, and consumables |
 | Content | 11–12 | Enemies, bosses, and world exploration |
 | Polish | 13–14 | Art, audio, balancing, and optimization |
-| Release | 15 | Release candidate (15c parked) |
+| Release | 15 | Release candidate (15c built; the user uploads) |
 | New content | 16–18 | New maps and bosses, achievements, a livelier front door |
 
 # MVP: Minimum Viable Product
