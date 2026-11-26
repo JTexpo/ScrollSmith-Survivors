@@ -77,3 +77,67 @@ func test_the_card_ignores_touches_and_is_hidden_when_not_showing() -> void:
 
 func test_the_hint_keeps_running_while_the_game_is_paused() -> void:
 	assert_eq(_hint.process_mode, Node.PROCESS_MODE_ALWAYS)
+
+
+func _tap() -> InputEventScreenTouch:
+	var event := InputEventScreenTouch.new()
+	event.position = Vector2(100, 100)
+	event.pressed = true
+	return event
+
+
+## A hint in a viewport of its own, so the viewport's "handled" flag starts clean and nothing else in the test run can set it.
+func _hint_in_own_viewport() -> RotateHint:
+	var holder := SubViewport.new()
+	add_child_autofree(holder)
+	var hint := (load("res://scenes/ui/rotate_hint.tscn") as PackedScene).instantiate() as RotateHint
+	holder.add_child(hint)
+	hint.set_process(false)
+	return hint
+
+
+func test_the_card_swallows_input_while_showing() -> void:
+	var hint := _hint_in_own_viewport()
+	hint.update_for(PORTRAIT, true, true)
+	var key := InputEventKey.new()
+	key.pressed = true
+	key.keycode = KEY_ESCAPE
+	hint._input(key)
+	assert_true(hint.get_viewport().is_input_handled(), "a key under the card is swallowed")
+	var other := _hint_in_own_viewport()
+	other.update_for(PORTRAIT, true, true)
+	other._input(_tap())
+	assert_true(other.get_viewport().is_input_handled(), "a tap under the card is swallowed")
+
+
+func test_the_card_lets_input_through_when_not_showing() -> void:
+	var hint := _hint_in_own_viewport()
+	hint.update_for(LANDSCAPE, true, true)
+	hint._input(_tap())
+	assert_false(hint.get_viewport().is_input_handled())
+
+
+func test_it_gives_back_its_own_pause_when_freed_while_showing() -> void:
+	_hint.update_for(PORTRAIT, true, true)
+	assert_true(get_tree().paused)
+	remove_child(_hint)
+	assert_false(get_tree().paused, "leaving the tree while showing must not strand the pause")
+	assert_false(GameTime.is_frozen())
+	_hint.free()
+
+
+func test_it_does_not_give_back_a_pause_it_did_not_make_when_freed() -> void:
+	GamePause.set_paused(get_tree(), true)
+	_hint.update_for(PORTRAIT, true, true)
+	remove_child(_hint)
+	assert_true(get_tree().paused)
+	_hint.free()
+
+
+func test_it_pauses_again_if_something_unpaused_while_it_shows() -> void:
+	_hint.update_for(PORTRAIT, true, true)
+	GamePause.set_paused(get_tree(), false)
+	_hint.update_for(PORTRAIT, true, true)
+	assert_true(get_tree().paused)
+	_hint.update_for(LANDSCAPE, true, true)
+	assert_false(get_tree().paused)

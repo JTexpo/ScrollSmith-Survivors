@@ -74,3 +74,7 @@ func test_the_tags_fit_itch_ios_limit_of_ten() -> void:
 			line = l.trim_prefix("Tags:")
 	assert_false(line.strip_edges().is_empty())
 	assert_lte(line.split(",", false).size(), 10)
+
+
+func test_the_page_does_not_call_the_merchant_roaming() -> void:
+	assert_false("roaming" in _text().to_lower(), "merchants stand at fixed points of interest")

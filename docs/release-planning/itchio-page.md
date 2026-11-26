@@ -41,7 +41,7 @@ Keys 1 to 5 pick a spell slot and Z X C V B N drink the six potions.
 - Forge your own spells from scrolls: four elements, four shapes, many buffs
 - Three maps, each with its own look, enemies and boss
 - Bosses that warn you before every attack, so a fast enough player can always dodge
-- A 20-level wizard, an equipment shop and potions from a roaming merchant
+- A 20-level wizard, an equipment shop and potions from the merchant
 - Twelve achievements, with a starting spell for each boss you defeat
 - Keyboard and mouse, controller and touch controls
 - Bright pixel art and chiptune music, all made for the game
@@ -65,9 +65,9 @@ Page visibility: Private while testing, then Public. "Save & view page" previews
 Cover image: 630 x 500 (itch.io's minimum is 315 x 250 at the same ratio). Screenshots: 3 to 5.
 
 ## Pictures
-All are frames of the real game (nothing mocked up), in `promo/`. Screenshots are the real 480 x 270 frames at exactly 2x, nearest-neighbour (960 x 540).
-- cover.png (630 x 500): a boss fight's warning rings with the title banner on top, both at 2x. Upload as the cover image.
-- shot_1.png: the home screen. shot_2.png: a fight with five spells at once. shot_3.png: crafting a spell at the Lectern. shot_4.png: a boss fight with its attack warnings. shot_5.png: the map select.
+The screenshots and the GIF are frames of the real game (a run staged at level 20 so all five spell slots are open), in `promo/`; the cover is composed from the game's own sprites. Screenshots are the real 480 x 270 frames at exactly 2x, nearest-neighbour (960 x 540).
+- cover.png (630 x 500): the wizard casting fire and lightning at a horde and the Tempest Dragon, drawn with the game's own stage engine and sprites at 4x, with the title banner at 2x. A composed poster, not a play frame. Upload as the cover image.
+- shot_1.png: the home screen. shot_2.png: a fight at level 20 with five spells (a wizard at the top of the level track). shot_3.png: crafting a spell at the Lectern. shot_4.png: a boss fight with its attack warnings. shot_5.png: the map select.
 - fight.gif (480 x 270, 60 frames, under 1 MB): a few seconds of a fight, looping. Use it as a screenshot or in the description.
 
 ## Version

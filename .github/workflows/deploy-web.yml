@@ -18,9 +18,10 @@ permissions:
   pages: write
   id-token: write
 
-# One deploy at a time, and let a running deploy finish instead of cancelling it half way.
+# One deploy at a time, and let a running deploy finish instead of cancelling it half way. A pull request run has a group of its own, so it
+# never queues in (and never cancels a waiting run of) the Pages group.
 concurrency:
-  group: pages
+  group: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.ref) || 'pages' }}
   cancel-in-progress: false
 
 env:

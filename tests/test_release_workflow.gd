@@ -38,3 +38,13 @@ func test_there_are_no_secrets_and_no_butler() -> void:
 	var text := _text()
 	assert_false("secrets." in text)
 	assert_false("butler" in text)
+
+
+func test_pull_requests_do_not_share_the_pages_concurrency_group() -> void:
+	var text := _text()
+	var group := ""
+	for line in text.split("\n"):
+		if line.strip_edges().begins_with("group:"):
+			group = line
+	assert_true("pull_request" in group, "a pull request run must not queue in, or cancel a run of, the pages group: %s" % group)
+	assert_true("'pages'" in group or "pages" in group)
