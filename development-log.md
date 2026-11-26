@@ -772,7 +772,7 @@ The GitHub Pages build was silent. Reproduced by running the published engine fi
 
 ## 2026-11-25: Sprint 17 (achievements)
 
-Design `docs/sprints/sprint-17-design.md`, plan `docs/superpowers/plans/2026-11-25-sprint-17-achievements.md`. The suite went 2460 to 2563.
+Design `docs/sprints/sprint-17-design.md`, plan `docs/superpowers/plans/2026-11-25-sprint-17-achievements.md`. The suite went 2460 to 2569.
 
 - **Built:** twelve data-driven achievements (3 boss, level 5/10/15/20, 1000 lifetime Gold, survive 5/10/15/20 minutes in one run), a listening `AchievementTracker` (a guard test keeps gameplay unaware of it), two optional save fields (`achievements`, always-written `lifetime_gold`), a toast and a chime, the Achievements screen with a home-screen button, five icons, and the boss spells Thunder Zone (Tempest Dragon, slot 3), Ember Wave (Ember Titan, slot 4) and Land Line (Dire Minotaur, slot 5), applied at run start into unlocked empty slots only.
 - **Balance of the three spells (SpellAudit model, group of 8):** Sea Cone 79.4 damage per second and 27000 per pool. Thunder Zone (cost 3, damage 1.7, interval 1.0) 81.6 and 27173; Ember Wave (cost 2.5, damage 13.5, 0.85 s) 79.4 and 27000; Land Line (cost 2, damage 18, 0.68 s) 79.4 and 27000. Starting values; tune by play.
