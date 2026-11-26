@@ -56,3 +56,14 @@ func test_the_merchant_numbers_come_from_the_game_data() -> void:
 	assert_string_contains(text, "%d of each" % stock)
 	assert_string_contains(text, "up to %d" % RunPotions.MAX_POTIONS)
 	assert_string_contains(text.to_lower(), "one run")
+
+
+func test_every_page_has_a_valid_vignette_and_they_are_different() -> void:
+	SpriteLibrary.root = "res://assets/sprites"
+	var seen := {}
+	for page in TutorialPages.pages():
+		assert_not_null(page.vignette, page.title)
+		assert_eq(page.vignette.problems(), PackedStringArray(), "%s: %s" % [page.title, str(page.vignette.problems())])
+		assert_false(seen.has(page.vignette.resource_path), "%s reuses another page's vignette" % page.title)
+		seen[page.vignette.resource_path] = true
+

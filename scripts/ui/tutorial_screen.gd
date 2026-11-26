@@ -7,8 +7,10 @@ extends CanvasLayer
 signal closed
 
 const PICTURE_Y := 66.0
+## The framed area above the lines where the page's vignette plays (320 by 88, centred).
+const STAGE_POSITION := Vector2(80.0, 18.0)
 const PICTURE_STEP := 56.0
-const LINES_Y := 100.0
+const LINES_Y := 114.0
 const BUTTON_SIZE := Vector2(80, 28)
 
 var _open: bool = false
@@ -20,6 +22,7 @@ var _title: Label
 var _lines: Label
 var _counter: Label
 var _pictures: Control
+var _stage: Stage
 var _back: Button
 var _next: Button
 var _close: Button
@@ -41,6 +44,15 @@ func _ready() -> void:
 	_pictures = Control.new()
 	_pictures.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(_pictures)
+	var frame := Panel.new()
+	frame.theme_type_variation = &"PanelSlot"
+	frame.position = STAGE_POSITION - Vector2(2.0, 2.0)
+	frame.size = Vector2(324.0, 92.0)
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(frame)
+	_stage = Stage.new()
+	_stage.position = STAGE_POSITION
+	content.add_child(_stage)
 	_lines = UiKit.label("")
 	_lines.position = Vector2(20, LINES_Y)
 	_lines.size = Vector2(440, 100)
@@ -127,6 +139,7 @@ func close() -> void:
 		return
 	_open = false
 	visible = false
+	_stage.stop()
 	closed.emit()
 
 
@@ -174,6 +187,22 @@ func picture_count() -> int:
 	return _pictures.get_child_count()
 
 
+func stage() -> Stage:
+	return _stage
+
+
+func title_rect() -> Rect2:
+	return _title.get_global_rect()
+
+
+func lines_rect() -> Rect2:
+	return _lines.get_global_rect()
+
+
+func counter_rect() -> Rect2:
+	return _counter.get_global_rect()
+
+
 func _show_page() -> void:
 	var page := _pages[_index]
 	_title.text = page.title
@@ -185,6 +214,13 @@ func _show_page() -> void:
 	for child in _pictures.get_children():
 		_pictures.remove_child(child)
 		child.queue_free()
+	if page.vignette != null:
+		# The frame is drawn behind the stage whether or not the picture is a vignette; only the vignette plays.
+		_stage.visible = true
+		_stage.play(page.vignette)
+		return
+	_stage.stop()
+	_stage.visible = false
 	var total := page.sprites.size()
 	for i in total:
 		var x := 240.0 + (i - (total - 1) / 2.0) * PICTURE_STEP
