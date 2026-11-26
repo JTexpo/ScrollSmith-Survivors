@@ -66,7 +66,7 @@ Cover image: 630 x 500 (itch.io's minimum is 315 x 250 at the same ratio). Scree
 
 ## Pictures
 The screenshots and the GIF are frames of the real game (a run staged at level 20 so all five spell slots are open), in `promo/`; the cover is composed from the game's own sprites. Screenshots are the real 480 x 270 frames at exactly 2x, nearest-neighbour (960 x 540).
-- cover.png (630 x 500): the wizard casting fire and lightning at a horde and the Tempest Dragon, drawn with the game's own stage engine and sprites at 4x, with the title banner at 2x. A composed poster, not a play frame. Upload as the cover image.
+- cover.png (630 x 500): the wizard casting a fireball at a goblin, with a wolf, a tank and the Tempest Dragon closing in, drawn with the game's own stage engine and sprites at 4x, with the title banner at 2x. A composed poster, not a play frame. Upload as the cover image.
 - shot_1.png: the home screen. shot_2.png: a fight at level 20 with five spells (a wizard at the top of the level track). shot_3.png: crafting a spell at the Lectern. shot_4.png: a boss fight with its attack warnings. shot_5.png: the map select.
 - fight.gif (480 x 270, 60 frames, under 1 MB): a few seconds of a fight, looping. Use it as a screenshot or in the description.
 
