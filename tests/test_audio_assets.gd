@@ -5,7 +5,7 @@ extends GutTest
 const SOURCE_DIR := "res://audio"
 const OUT_DIR := "res://assets/audio"
 const TEMP := "res://.godot/audio_tests"
-const MAX_BYTES := 3 * 1024 * 1024
+const MAX_BYTES := 4 * 1024 * 1024
 
 
 func after_each() -> void:
@@ -183,7 +183,7 @@ func _tune(id: StringName) -> TuneSource:
 
 
 func test_the_music_tunes_loop() -> void:
-	for id in [&"music_run", &"music_boss"]:
+	for id in [&"music_run", &"music_boss", &"music_menu"]:
 		assert_true(_tune(id).loops, str(id))
 		var wav := FileAccess.get_file_as_bytes("%s/%s.wav" % [OUT_DIR, id])
 		assert_eq(wav.slice(44 + wav.decode_u32(40), 48 + wav.decode_u32(40)).get_string_from_ascii(), "smpl", "%s carries a loop chunk" % id)
@@ -192,6 +192,7 @@ func test_the_music_tunes_loop() -> void:
 func test_the_run_loop_is_between_20_and_45_seconds() -> void:
 	assert_between(_tune(&"music_run").duration(), 20.0, 45.0)
 	assert_between(_tune(&"music_boss").duration(), 15.0, 45.0)
+	assert_between(_tune(&"music_menu").duration(), 14.0, 22.0)
 
 
 func test_the_boss_loop_is_faster_than_the_run_loop() -> void:
@@ -199,7 +200,7 @@ func test_the_boss_loop_is_faster_than_the_run_loop() -> void:
 
 
 func test_each_loop_has_at_least_four_voices_of_chiptune() -> void:
-	for id in [&"music_run", &"music_boss"]:
+	for id in [&"music_run", &"music_boss", &"music_menu"]:
 		var waves := {}
 		for channel in _tune(id).channels:
 			waves[channel["wave"]] = true

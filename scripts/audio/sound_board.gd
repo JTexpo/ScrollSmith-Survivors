@@ -44,7 +44,11 @@ var _last_volume_offset: float = 0.0
 var _impact_config: ImpactConfig
 
 var _music: Dictionary = {}
-var _music_levels: Dictionary = {&"run": -14.0, &"boss": -14.0}
+## The sound each music key plays. The menu tune plays on the home screen's board, the run and boss tunes on the run's.
+const MUSIC_IDS := {&"run": SoundId.MUSIC_RUN, &"boss": SoundId.MUSIC_BOSS, &"menu": SoundId.MUSIC_MENU}
+var _music_levels: Dictionary = {&"run": -14.0, &"boss": -14.0, &"menu": -17.0}
+## True for the home screen's board: its first press starts the menu tune, not the run tune.
+var _menu_mode: bool = false
 var _music_state: StringName = &"off"
 var _music_starts: int = 0
 var _duck_db: float = 0.0
@@ -67,7 +71,7 @@ func _ready() -> void:
 	apply_settings()
 	SettingsEvents.bus.changed.connect(apply_settings)
 	for key in _music_levels:
-		var level := catalog.find(SoundId.MUSIC_RUN if key == &"run" else SoundId.MUSIC_BOSS)
+		var level := catalog.find(MUSIC_IDS[key])
 		if level != null:
 			_music_levels[key] = level.volume_db
 	_limiter = VoiceLimiter.new(VOICES)
@@ -77,7 +81,7 @@ func _ready() -> void:
 		player.finished.connect(_on_voice_finished.bind(i))
 		add_child(player)
 		_players.append(player)
-	for key in [&"run", &"boss"]:
+	for key in [&"run", &"boss", &"menu"]:
 		var music_player := AudioStreamPlayer.new()
 		music_player.bus = BUS_MUSIC
 		music_player.volume_db = SILENT_DB
@@ -102,7 +106,7 @@ func _input(event: InputEvent) -> void:
 	var pressed: bool = (event is InputEventScreenTouch and event.pressed) or (event is InputEventMouseButton and event.pressed) or (event is InputEventKey and event.pressed) or (event is InputEventJoypadButton and event.pressed)
 	if pressed:
 		unlock()
-		start_music()
+		_start_scene_music()
 
 
 ## Losing focus or going to the background pauses the music; coming back resumes it.
@@ -140,7 +144,7 @@ static func inherits_page_unlock(is_web: bool) -> bool:
 func start_if_allowed() -> void:
 	if _unlocked or starts_unlocked(OS.has_feature("web"), DisplayServer.get_name()):
 		unlock()
-		start_music()
+		_start_scene_music()
 
 
 func is_unlocked() -> bool:
@@ -214,6 +218,38 @@ func play(id: StringName, pitch: float = 1.0, volume_offset_db: float = 0.0) -> 
 	_limiter.started(index, data, now)
 
 
+## The tune this board plays when sound is first allowed: the menu tune on the home screen, the run tune in a run.
+func _start_scene_music() -> void:
+	if _menu_mode:
+		start_menu_music()
+	else:
+		start_music()
+
+
+## Starts the menu tune (once sound is allowed), for the home screen's board.
+func start_menu_music() -> void:
+	if not _unlocked or _music_state != &"off":
+		return
+	if not _start_loop(&"menu", SoundId.MUSIC_MENU):
+		return
+	_music_state = &"menu"
+
+
+## Makes this the home screen's board: wires every button under `home` (and every one added later) to click, back and tick, applies the
+## saved mute (on or off, so a mute an earlier scene left on the shared bus cannot disagree with the profile), and starts the menu tune where
+## no gesture is needed. A browser starts it at the first press. The home screen saves a change of mute itself (`mute_changed`).
+func bind_home(home: Node, profile: PlayerProfile) -> void:
+	if _bound:
+		return
+	_bound = true
+	_menu_mode = true
+	set_muted(profile.muted)
+	for button in home.find_children("*", "Button", true, false):
+		_wire_button(button as Button)
+	get_tree().node_added.connect(_on_node_added)
+	start_if_allowed()
+
+
 ## Starts the run loop (once the first input has unlocked sound). It keeps playing for the rest of the run, even while paused,
 ## muted or under the boss loop, so it is always where it should be.
 func start_music() -> void:
@@ -285,7 +321,7 @@ func music_stream_paused() -> bool:
 
 
 func _state_wants(key: StringName) -> bool:
-	return (key == &"run" and _music_state != &"off" and _music_state != &"boss") or (key == &"boss" and _music_state == &"boss")
+	return (key == &"run" and _music_state == &"run") or (key == &"boss" and _music_state == &"boss") or (key == &"menu" and _music_state == &"menu")
 
 
 func _start_loop(key: StringName, id: StringName) -> bool:

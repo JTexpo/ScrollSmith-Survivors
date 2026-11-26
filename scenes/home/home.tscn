@@ -1,5 +1,6 @@
 [gd_scene format=3]
 
+[ext_resource type="PackedScene" path="res://scenes/audio/sound_board.tscn" id="sound_board"]
 [ext_resource type="PackedScene" path="res://scenes/ui/achievements_screen.tscn" id="achievements"]
 [ext_resource type="Script" path="res://scripts/home/home_screen.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/ui/shop_screen.tscn" id="shop"]
@@ -28,3 +29,5 @@ script = ExtResource("1")
 [node name="MapSelectScreen" parent="." instance=ExtResource("map_select")]
 
 [node name="AchievementsScreen" parent="." instance=ExtResource("achievements")]
+
+[node name="SoundBoard" parent="." instance=ExtResource("sound_board")]

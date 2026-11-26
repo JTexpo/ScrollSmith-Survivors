@@ -38,6 +38,7 @@ var _step: int = 0
 @onready var _tutorial: TutorialScreen = $TutorialScreen
 @onready var _map_select: MapSelectScreen = $MapSelectScreen
 @onready var _achievements: AchievementsScreen = $AchievementsScreen
+@onready var _board: SoundBoard = $SoundBoard
 
 
 func _ready() -> void:
@@ -45,6 +46,9 @@ func _ready() -> void:
 	ScreenMode.apply_saved()
 	profile = SaveGame.load_profile(save_path)
 	_build()
+	# The menu has its own board: the menu tune, the button sounds and the saved mute (the M key saves a change, as in a run).
+	_board.bind_home(self, profile)
+	_board.mute_changed.connect(_on_mute_changed)
 	_shop.changed.connect(_save_profile)
 	_shop.changed.connect(_dress_wizard)
 	_shop.closed.connect(_focus_play)
@@ -202,6 +206,15 @@ func _any_screen_open() -> bool:
 
 func _dress_wizard() -> void:
 	_stage.dress_wizard(profile, EquipmentCatalog.default_catalog())
+
+
+func sound_board() -> SoundBoard:
+	return _board
+
+
+func _on_mute_changed(value: bool) -> void:
+	profile.muted = value
+	_save_profile()
 
 
 func _focus_play() -> void:
