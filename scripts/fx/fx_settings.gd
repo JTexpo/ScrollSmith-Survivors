@@ -46,6 +46,12 @@ static func reduce_motion() -> void:
 	hurt_feedback = false
 
 
+## True when the Reduce motion preset's three values are in force: no shake, no flash and no hurt flash. The preset is not a stored flag,
+## so this combination is the definition (raising any of the three brings motion back). The animated menu scenes show a still frame then.
+static func is_reduced() -> bool:
+	return shake_scale <= 0.0 and flash_scale <= 0.0 and not hurt_feedback
+
+
 ## One switch by its key (a name in `SWITCH_KEYS`); false for an unknown key.
 static func get_switch(key: String) -> bool:
 	return to_dict().get(key, false) == true

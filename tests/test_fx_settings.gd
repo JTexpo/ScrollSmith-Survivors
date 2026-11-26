@@ -134,3 +134,14 @@ func test_a_switch_can_be_read_and_set_by_its_key() -> void:
 		assert_true(FxSettings.get_switch(key), "%s is on" % key)
 	FxSettings.set_switch("no_such_switch", false)
 	assert_false(FxSettings.get_switch("no_such_switch"), "an unknown key is just false")
+
+
+func test_is_reduced_is_true_after_the_reduce_motion_preset_and_false_after_reset() -> void:
+	FxSettings.reset()
+	assert_false(FxSettings.is_reduced())
+	FxSettings.reduce_motion()
+	assert_true(FxSettings.is_reduced())
+	FxSettings.shake_scale = 0.5
+	assert_false(FxSettings.is_reduced(), "raising any of the three brings the animation back")
+	FxSettings.reset()
+	assert_false(FxSettings.is_reduced())
