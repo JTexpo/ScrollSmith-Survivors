@@ -1,6 +1,6 @@
 # Sprint 18 Design: A livelier home screen and tutorial
 
-**Status:** Proposed, awaiting the user's approval. Branch `sprint-18-home-and-tutorial`.
+**Status:** Implemented (Sprint 18). Deviations: a `STOP` beat was added; trees are side-view sprites with grass at the base; scenery positions are base points and bushes always draw in the background; sparks appear at the base of what they hit; Reduce motion is `FxSettings.is_reduced()`; see `docs/architecture/front-door.md`. Branch `sprint-18-home-and-tutorial`.
 
 Sprint 18 of the wishlist (`docs/release-planning/future-roadmap.md`, item 3). Scope comes from the user's answers in conversation; decisions marked "my call" are mine and open to correction.
 
