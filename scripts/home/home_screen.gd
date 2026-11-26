@@ -11,6 +11,8 @@ extends Control
 const BANNER_RECT := Rect2(112, 6, 256, 46)
 const STAGE_RECT := Rect2(0, 58, 480, 212)
 const MESSAGE_RECT := Rect2(0, 220, 480, 10)
+## The small version text under the button row, at the bottom right.
+const VERSION_RECT := Rect2(380, 261, 96, 9)
 const BUTTON_SIZE := Vector2(88, 28)
 const BUTTON_GAP := 4.0
 const BUTTONS_Y := 232.0
@@ -30,6 +32,7 @@ var _stage: Stage
 ## The stage is stopped while a full screen covers it (no work behind a screen nobody can see through).
 var _stage_covered: bool = false
 var _message: Label
+var _version: Label
 var _step: int = 0
 
 @onready var _shop: ShopScreen = $ShopScreen
@@ -188,6 +191,10 @@ func sync_stage() -> void:
 		_stage.resume()
 
 
+func version_label() -> Label:
+	return _version
+
+
 func stage() -> Stage:
 	return _stage
 
@@ -244,6 +251,12 @@ func _build() -> void:
 	_message.size = MESSAGE_RECT.size
 	_message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(_message)
+	_version = UiKit.label("v%s" % GameVersion.current(), &"Muted")
+	_version.position = VERSION_RECT.position
+	_version.size = VERSION_RECT.size
+	_version.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_version.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_version)
 	var row_width := ROW_COUNT * BUTTON_SIZE.x + (ROW_COUNT - 1) * BUTTON_GAP
 	var index := 0
 	for entry in [["Play", &"ButtonGreen"], ["Shop", &""], ["Tutorial", &""], ["Settings", &""], ["New game", &"ButtonRed"]]:

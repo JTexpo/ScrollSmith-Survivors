@@ -13,6 +13,8 @@ func _init() -> void:
 	written += FontBuilder.files_written
 	problems.append_array(ThemeBuilder.write())
 	written += 1
+	problems.append_array(IconBuilder.write("res://art/sprites", "res://art/palette.txt", "res://assets/icon.png"))
+	written += 1
 	problems.append_array(AudioBuilder.build_all("res://audio", "res://assets/audio"))
 	for problem in problems:
 		print("ART ERROR: ", problem)

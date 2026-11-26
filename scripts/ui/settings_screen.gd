@@ -246,7 +246,7 @@ func _build() -> void:
 	_add_button(main, "Credits", Vector2(216, 236), Vector2(80, 28)).pressed.connect(show_page.bind(&"credits"))
 	_add_button(main, "Close", Vector2(392, 236), UiKit.ACTION_SIZE, &"ButtonRed").pressed.connect(close)
 	_pages[&"controls"] = _text_page(content, "Controls", ControlsText.lines())
-	_pages[&"credits"] = _text_page(content, "Credits", CreditsText.LINES)
+	_pages[&"credits"] = _text_page(content, "Credits", CreditsText.lines())
 	show_page(&"main")
 
 

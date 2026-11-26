@@ -1,13 +1,16 @@
 name: Deploy web build to GitHub Pages
 
 # Builds the "Web" export preset with Godot and publishes it, so the game can be played in a
-# browser (including on a phone). Runs when main changes, and by hand from the Actions tab.
+# browser (including on a phone). Runs when main changes, on pull requests (build and check only,
+# nothing is deployed) and by hand from the Actions tab. Every run also writes licences.txt, checks
+# the build against itch.io's limits and attaches the itch.io zip to the run as an artifact.
 #
 # One-time setup: repository Settings > Pages > Build and deployment > Source: "GitHub Actions".
 
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -15,9 +18,10 @@ permissions:
   pages: write
   id-token: write
 
-# One deploy at a time, and let a running deploy finish instead of cancelling it half way.
+# One deploy at a time, and let a running deploy finish instead of cancelling it half way. A pull request run has a group of its own, so it
+# never queues in (and never cancels a waiting run of) the Pages group.
 concurrency:
-  group: pages
+  group: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.ref) || 'pages' }}
   cancel-in-progress: false
 
 env:
@@ -75,6 +79,25 @@ jobs:
           test -f build/web/index.html
           ls -l build/web
 
+      - name: Write licences.txt, check the build against itch.io's limits and zip it
+        run: |
+          set -euo pipefail
+          godot="${HOME}/godot-bin/Godot_v${GODOT_RELEASE}_linux.x86_64"
+          "${godot}" --headless -s tools/release/write_licences.gd -- build/web/licences.txt
+          "${godot}" --headless -s tools/release/check_itch_zip.gd -- build/web
+          version=$(grep '^config/version=' project.godot | cut -d'"' -f2)
+          cd build/web
+          zip -r -X "../../scrollsmith-survivors-${version}-itch.zip" .
+          cd ../..
+          ls -l scrollsmith-survivors-*-itch.zip
+
+      - name: Attach the itch.io zip to the run
+        uses: actions/upload-artifact@v4
+        with:
+          name: itch-web-zip
+          path: scrollsmith-survivors-*-itch.zip
+          retention-days: 14
+
       - name: Upload the web build
         uses: actions/upload-pages-artifact@v3
         with:
@@ -82,6 +105,7 @@ jobs:
 
   deploy:
     needs: build
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

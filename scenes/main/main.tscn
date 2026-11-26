@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://scripts/main/main.gd" id="0"]
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_button.tscn" id="pause_button"]
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="pause_menu"]
+[ext_resource type="PackedScene" path="res://scenes/ui/rotate_hint.tscn" id="rotate_hint"]
 [ext_resource type="PackedScene" path="res://scenes/ui/perf_overlay.tscn" id="perf_overlay"]
 [ext_resource type="PackedScene" path="res://scenes/world/game_map.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2"]
@@ -215,3 +216,5 @@ script = ExtResource("fx_director")
 [node name="PerfOverlay" parent="." instance=ExtResource("perf_overlay")]
 
 [node name="PauseMenu" parent="." instance=ExtResource("pause_menu")]
+
+[node name="RotateHint" parent="." instance=ExtResource("rotate_hint")]
