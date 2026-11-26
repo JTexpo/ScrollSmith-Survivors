@@ -64,5 +64,11 @@ Also tick: Mobile friendly (phones then start the game in fullscreen), and Fulls
 Page visibility: Private while testing, then Public. "Save & view page" previews a private page.
 Cover image: 630 x 500 (itch.io's minimum is 315 x 250 at the same ratio). Screenshots: 3 to 5.
 
+## Pictures
+All are frames of the real game (nothing mocked up), in `promo/`. Screenshots are the real 480 x 270 frames at exactly 2x, nearest-neighbour (960 x 540).
+- cover.png (630 x 500): a boss fight's warning rings with the title banner on top, both at 2x. Upload as the cover image.
+- shot_1.png: the home screen. shot_2.png: a fight with five spells at once. shot_3.png: crafting a spell at the Lectern. shot_4.png: a boss fight with its attack warnings. shot_5.png: the map select.
+- fight.gif (480 x 270, 60 frames, under 1 MB): a few seconds of a fight, looping. Use it as a screenshot or in the description.
+
 ## Version
 1.0.0
