@@ -1,0 +1,10 @@
+Copyright 2026 JTexpo. All rights reserved.
+
+ScrollSmith Survivors (the game's code, art, music, sounds and text) is not
+licensed for copying, modification or redistribution. You may play the game
+as published by the author.
+
+Third-party code: the GUT test framework in addons/gut is used for testing
+only and is not part of the published game. It remains under its own MIT
+licence in addons/gut/LICENSE.md. The Godot engine is used under the MIT
+licence; its notices are written to licences.txt in the published build.

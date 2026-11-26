@@ -197,3 +197,16 @@ func test_opening_and_freeing_the_home_screen_repeatedly_leaves_no_orphans() -> 
 	await get_tree().process_frame
 	assert_eq(int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)), nodes_before, "ten rounds leave the same number of nodes")
 	assert_eq(int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT)), orphans_before)
+
+
+func test_the_version_label_shows_the_version_and_clears_everything() -> void:
+	_start()
+	var label := _home.version_label()
+	assert_true(GameVersion.current() in label.text)
+	var rect := HomeScreen.VERSION_RECT
+	assert_true(SCREEN.encloses(rect), "inside the screen")
+	var others := [HomeScreen.BANNER_RECT, _home.message_rect()]
+	for text in ROW + ["Achievements", "Full screen"]:
+		others.append(_button(text).get_global_rect())
+	for other in others:
+		assert_false(rect.intersects(other), "overlaps %s" % str(other))
