@@ -302,3 +302,47 @@ func test_the_sky_the_ground_and_the_shadows_draw_in_the_stage_not_under_whateve
 		assert_true(shadow.z_as_relative, "the shadow of %s sits just under its body inside the stage, not at the world's absolute depth" % id)
 		assert_eq(shadow.z_index, -1)
 	assert_lt(_stage.get_node("Sky").get_index(), _stage.get_node("Ground").get_index(), "sky first, then ground, then everything else")
+
+
+func test_resume_continues_from_where_stop_left_it() -> void:
+	_stage.play(_script([_walk(1.0, &"goblin", Vector2(240, 100), 4.0)] as Array[StageBeat]))
+	_stage.advance(3.0)
+	var at := _stage.actor(&"goblin").position
+	_stage.stop()
+	_stage.resume()
+	assert_true(_stage.is_playing())
+	assert_eq(_stage.actor(&"goblin").position, at, "resuming does not restart the loop")
+	_stage.advance(1.0)
+	assert_lt(_stage.actor(&"goblin").position.x, at.x)
+
+
+func test_resume_does_nothing_when_motion_is_reduced() -> void:
+	FxSettings.reduce_motion()
+	_stage.play(_script())
+	_stage.resume()
+	assert_false(_stage.is_playing())
+	assert_false(_stage.is_processing())
+
+
+func test_dress_wizard_changes_what_the_wizard_wears() -> void:
+	var script := _script()
+	script.actors[0].wizard = true
+	var catalog := EquipmentCatalog.default_catalog()
+	_stage.play(script, PlayerProfile.new(), catalog)
+	var robe: EquipmentData = null
+	for item in catalog.items:
+		if item.slot() == EquipmentData.Slot.ROBE and item.sprite_name != &"":
+			robe = item
+			break
+	var before: SpriteFrames = _stage.actor(&"wizard")._layers[&"robe"].sprite_frames
+	var profile := PlayerProfile.new()
+	profile.grant(robe.id)
+	profile.equip(int(EquipmentData.Slot.ROBE), robe.id)
+	_stage.dress_wizard(profile, catalog)
+	assert_ne(_stage.actor(&"wizard")._layers[&"robe"].sprite_frames, before)
+
+
+func test_stage_script_returns_the_script_it_plays() -> void:
+	var script := _script()
+	_stage.play(script)
+	assert_eq(_stage.stage_script(), script)

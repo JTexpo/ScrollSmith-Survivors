@@ -62,8 +62,29 @@ func stop() -> void:
 	_clear_dynamic()
 
 
+## Carries on after `stop` from where it was (it does not restart the loop). Does nothing when motion is reduced.
+func resume() -> void:
+	if _script == null or _reduced:
+		return
+	_playing = true
+	set_process(true)
+
+
 func is_playing() -> bool:
 	return _playing
+
+
+func stage_script() -> StageScript:
+	return _script
+
+
+## Puts the equipped look on every wizard actor again (the Shop may have changed it while this stage was covered).
+func dress_wizard(profile: PlayerProfile, catalog: EquipmentCatalog) -> void:
+	if _script == null:
+		return
+	for definition in _script.actors:
+		if definition.wizard and _actors.has(definition.id):
+			PlayerLook.apply(_actors[definition.id], profile, catalog)
 
 
 func elapsed() -> float:

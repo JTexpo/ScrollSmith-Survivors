@@ -5,9 +5,16 @@ extends Control
 ## Play loads it (through SceneSwitcher), so no run, buff pick or crowd exists behind this screen. Touches are handled here because
 ## mouse emulation from touch is off.
 
-const BUTTON_SIZE := Vector2(120, 28)
-const FIRST_BUTTON_Y := 100.0
-const BUTTON_STEP := 32.0
+## The layout (480 by 270): the title banner on top between the two corner buttons, the animated stage in the middle and the five buttons in
+## one row at the bottom. The "Starting over." message sits in the gap between the stage and the buttons.
+const BANNER_RECT := Rect2(112, 6, 256, 46)
+const STAGE_RECT := Rect2(0, 58, 480, 160)
+const MESSAGE_RECT := Rect2(0, 220, 480, 10)
+const BUTTON_SIZE := Vector2(88, 28)
+const BUTTON_GAP := 4.0
+const BUTTONS_Y := 232.0
+const HOME_SCRIPT := "res://resources/stage/home_fight.tres"
+const ROW_COUNT := 5
 const ERASE_QUESTION := "Your XP, Gold and equipment will be erased. Your settings are kept."
 const SURE_QUESTION := "This cannot be undone. Start over from level 1?"
 
@@ -18,6 +25,9 @@ var profile: PlayerProfile
 var scene_changer: Callable = Callable()
 
 var _buttons: Dictionary = {}
+var _stage: Stage
+## The stage is stopped while a full screen covers it (no work behind a screen nobody can see through).
+var _stage_covered: bool = false
 var _message: Label
 var _step: int = 0
 
@@ -35,6 +45,7 @@ func _ready() -> void:
 	profile = SaveGame.load_profile(save_path)
 	_build()
 	_shop.changed.connect(_save_profile)
+	_shop.changed.connect(_dress_wizard)
 	_shop.closed.connect(_focus_play)
 	_settings.settings_path = settings_path
 	_settings.closed.connect(_focus_play)
@@ -138,6 +149,7 @@ func _on_confirmed() -> void:
 		SaveGame.erase(save_path)
 		profile = SaveGame.load_profile(save_path)
 		_message.text = "Starting over."
+		_dress_wizard()
 		_focus_play()
 
 
@@ -155,6 +167,38 @@ func _save_profile() -> void:
 	SaveGame.save_profile(profile, save_path)
 
 
+func _process(_delta: float) -> void:
+	sync_stage()
+
+
+## Stops the stage when a full screen covers the home screen and lets it run again when that screen closes.
+func sync_stage() -> void:
+	var covered := _any_screen_open()
+	if covered == _stage_covered:
+		return
+	_stage_covered = covered
+	if covered:
+		_stage.stop()
+	else:
+		_stage.resume()
+
+
+func stage() -> Stage:
+	return _stage
+
+
+func message_rect() -> Rect2:
+	return _message.get_global_rect()
+
+
+func _any_screen_open() -> bool:
+	return _shop.is_open() or _settings.is_open() or _confirm.is_open() or _tutorial.is_open() or _map_select.is_open() or _achievements.is_open()
+
+
+func _dress_wizard() -> void:
+	_stage.dress_wizard(profile, EquipmentCatalog.default_catalog())
+
+
 func _focus_play() -> void:
 	if _buttons.has("Play") and is_inside_tree():
 		(_buttons["Play"] as Button).grab_focus()
@@ -166,26 +210,27 @@ func _build() -> void:
 	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
 	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(backdrop)
-	var title := UiKit.label("ScrollSmith Survivors", &"Heading")
-	title.position = Vector2(0, 14)
-	title.size = Vector2(480, 12)
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	add_child(title)
-	var wizard := BodyView.new()
-	wizard.position = Vector2(240, 66)
-	wizard.shadow_enabled = true
-	add_child(wizard)
-	wizard.set_look(&"player", &"base")
-	wizard.play(&"idle")
+	var banner := BodyView.new()
+	banner.name = "Banner"
+	banner.position = BANNER_RECT.get_center()
+	add_child(banner)
+	if banner.set_look(&"banner_title"):
+		banner.play(&"shimmer")
+	_stage = Stage.new()
+	_stage.name = "Stage"
+	_stage.position = STAGE_RECT.position
+	add_child(_stage)
+	_stage.play(load(HOME_SCRIPT) as StageScript, profile, EquipmentCatalog.default_catalog())
 	_message = UiKit.label("", &"Muted")
-	_message.position = Vector2(0, 86)
-	_message.size = Vector2(480, 12)
+	_message.position = MESSAGE_RECT.position
+	_message.size = MESSAGE_RECT.size
 	_message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(_message)
+	var row_width := ROW_COUNT * BUTTON_SIZE.x + (ROW_COUNT - 1) * BUTTON_GAP
 	var index := 0
 	for entry in [["Play", &"ButtonGreen"], ["Shop", &""], ["Tutorial", &""], ["Settings", &""], ["New game", &"ButtonRed"]]:
 		var button := UiKit.button(entry[0], entry[1])
-		button.position = Vector2((480.0 - BUTTON_SIZE.x) / 2.0, FIRST_BUTTON_Y + index * BUTTON_STEP)
+		button.position = Vector2((480.0 - row_width) / 2.0 + index * (BUTTON_SIZE.x + BUTTON_GAP), BUTTONS_Y)
 		button.custom_minimum_size = BUTTON_SIZE
 		add_child(button)
 		_buttons[entry[0]] = button
