@@ -6,9 +6,10 @@ extends Control
 ## mouse emulation from touch is off.
 
 ## The layout (480 by 270): the title banner on top between the two corner buttons, the animated stage in the middle and the five buttons in
-## one row at the bottom. The "Starting over." message sits in the gap between the stage and the buttons.
+## one row at the bottom. The grass of the stage runs down to the bottom of the screen and the buttons and the "Starting over." message
+## draw over it.
 const BANNER_RECT := Rect2(112, 6, 256, 46)
-const STAGE_RECT := Rect2(0, 58, 480, 160)
+const STAGE_RECT := Rect2(0, 58, 480, 212)
 const MESSAGE_RECT := Rect2(0, 220, 480, 10)
 const BUTTON_SIZE := Vector2(88, 28)
 const BUTTON_GAP := 4.0
@@ -191,6 +192,10 @@ func message_rect() -> Rect2:
 	return _message.get_global_rect()
 
 
+func message_label() -> Label:
+	return _message
+
+
 func _any_screen_open() -> bool:
 	return _shop.is_open() or _settings.is_open() or _confirm.is_open() or _tutorial.is_open() or _map_select.is_open() or _achievements.is_open()
 
@@ -221,7 +226,7 @@ func _build() -> void:
 	_stage.position = STAGE_RECT.position
 	add_child(_stage)
 	_stage.play(load(HOME_SCRIPT) as StageScript, profile, EquipmentCatalog.default_catalog())
-	_message = UiKit.label("", &"Muted")
+	_message = UiKit.label("", &"HudLabel")
 	_message.position = MESSAGE_RECT.position
 	_message.size = MESSAGE_RECT.size
 	_message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

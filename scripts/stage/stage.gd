@@ -4,14 +4,13 @@ extends Control
 ## runs only the sprite code the game already has (`BodyView`, `EffectSprite`), never the game's systems, so it cannot touch a save or
 ## make a gameplay sound. The state is a function of the time into the loop (beats fire in order and every motion is evaluated at the
 ## beat's own time), so a big step and many small ones agree and `seek` is exact. At the wrap every actor is reset and every orb and
-## spark this stage made is freed. Sky, ground, scenery, actors and shadows all draw in tree order and relative depth (the sky and ground
-## first), so the stage looks the same wherever it is placed. When motion is reduced it builds the script's `still_time` frame and never processes. It ignores
+## spark this stage made is freed. Everything draws at depth 0 in tree order (sky, ground, the Y-sorted world, the orbs, then sparks), so
+## the stage looks the same wherever it is placed and anything after it in the tree draws over it. When motion is reduced it builds the script's `still_time` frame and never processes. It ignores
 ## touches and clips to its rectangle.
 
 const MAX_ORBS := 8
 const MAX_EFFECTS := 24
 const SPARK_FADE := 0.1
-const ORB_Z := 1000
 ## Where an orb leaves its shooter, in pixels in front of and above the shooter's centre.
 const ORB_OFFSET := Vector2(10.0, -2.0)
 
@@ -22,6 +21,11 @@ var _playing: bool = false
 var _reduced: bool = false
 var _actors: Dictionary = {}
 var _definitions: Dictionary = {}
+## Holds the scenery and the actors, depth-sorted by their feet with Y-sort, so no node needs a z above 0 (a positive z would draw over any
+## control placed after the stage, such as the home screen's buttons).
+var _world: Node2D
+## Holds the orbs, above the world.
+var _overlay: Node2D
 var _walks: Dictionary = {}
 var _orbs: Array[Dictionary] = []
 var _effects: Array[EffectSprite] = []
@@ -142,31 +146,53 @@ func _build(profile: PlayerProfile, catalog: EquipmentCatalog) -> void:
 			ground.name = "Ground"
 			ground.setup(Rect2(0.0, _script.ground_top, size.x, maxf(size.y - _script.ground_top, 0.0)), tile)
 			add_child(ground)
+	_world = Node2D.new()
+	_world.name = "World"
+	_world.y_sort_enabled = true
+	add_child(_world)
+	_overlay = Node2D.new()
+	_overlay.name = "Overlay"
+	add_child(_overlay)
 	for piece in _script.scenery:
+		# Scenery stands on its position: a holder sits at that base point (what Y-sort measures) and the sprite rises from it.
+		var holder := Node2D.new()
+		holder.name = "Scenery"
+		holder.position = piece.position
+		_world.add_child(holder)
 		var view := BodyView.new()
-		view.name = "Scenery"
-		view.position = piece.position
-		view.z_index = int(piece.position.y)
-		add_child(view)
+		holder.add_child(view)
 		view.set_look(piece.sprite, piece.variant)
+		view.position = Vector2(0.0, -_feet(piece.sprite, piece.variant))
+		_flatten(view)
 	for definition in _script.actors:
 		var body := BodyView.new()
 		body.name = String(definition.id)
 		body.shadow_enabled = definition.shadow
-		add_child(body)
+		_world.add_child(body)
 		if definition.wizard:
 			if body.set_look(&"player_body"):
 				PlayerLook.apply(body, profile, catalog)
 		else:
 			body.set_look(definition.sprite, definition.variant)
-		# The body's shadow sits at the world's absolute depth, which would put it under the sky and under whatever is behind this stage;
-		# here it sits just under its own body, in the stage's own order.
-		var shadow := body.get_node_or_null("Shadow") as Sprite2D
-		if shadow != null:
-			shadow.z_as_relative = true
-			shadow.z_index = -1
+		_flatten(body)
 		_actors[definition.id] = body
 		_definitions[definition.id] = definition
+
+
+## A body's shadow sits just under its own body (the first child, at the body's own depth). `BodyView` puts it at the world's absolute shadow
+## depth, which would put it under this stage's sky and above nothing; and no node here may have a depth other than 0.
+func _flatten(body: BodyView) -> void:
+	var shadow := body.get_node_or_null("Shadow") as Sprite2D
+	if shadow != null:
+		shadow.z_as_relative = true
+		shadow.z_index = 0
+		body.move_child(shadow, 0)
+
+
+## Half the sprite's height: from a sprite's centre to its base.
+func _feet(sprite: StringName, variant: StringName) -> int:
+	var found := SpriteLibrary.find(sprite, variant)
+	return int(found.frame_size.y / 2.0) if found != null else 0
 
 
 func _reset() -> void:
@@ -178,7 +204,6 @@ func _reset() -> void:
 		var body: BodyView = _actors[id]
 		var definition: StageActor = _definitions[id]
 		body.position = definition.start
-		body.z_index = int(definition.start.y)
 		body.visible = definition.visible_at_start
 		body.set_facing(definition.facing)
 		body.play(definition.animation)
@@ -232,9 +257,9 @@ func _shoot(shooter: BodyView, beat: StageBeat) -> void:
 	var orb := BodyView.new()
 	orb.name = "Orb"
 	orb.shadow_enabled = false
-	orb.z_index = ORB_Z
-	add_child(orb)
+	_overlay.add_child(orb)
 	orb.set_look(beat.effect)
+	_flatten(orb)
 	orb.play(&"fly")
 	orb.set_facing(beat.to.x - shooter.position.x)
 	var from := shooter.position + Vector2(ORB_OFFSET.x * facing, ORB_OFFSET.y)
@@ -258,7 +283,6 @@ func _update_motions(time: float) -> void:
 		var progress := clampf((time - float(walk["start"])) / float(walk["duration"]), 0.0, 1.0)
 		var body: BodyView = _actors[id]
 		body.position = (walk["from"] as Vector2).lerp(walk["to"] as Vector2, progress)
-		body.z_index = int(body.position.y)
 		if progress >= 1.0:
 			_walks.erase(id)
 			body.play((_definitions[id] as StageActor).animation)

@@ -58,7 +58,7 @@ func test_the_home_fight_has_a_wizard_and_enemies_that_are_shot_and_pop() -> voi
 	assert_gte(_count(script, StageBeat.Action.BURST), 3)
 	assert_gte(script.loop_seconds, 10.0)
 	assert_lte(script.loop_seconds, 18.0)
-	assert_eq(script.size, Vector2i(480, 160))
+	assert_eq(script.size, Vector2i(480, 212), "the grass runs down to the bottom of the screen behind the buttons")
 
 
 func test_a_tougher_enemy_takes_two_hits() -> void:
@@ -162,3 +162,27 @@ func test_the_tutorial_vignettes_are_small_enough_for_the_tutorial_frame() -> vo
 		assert_lte(script.size.y, 96, key)
 		assert_gte(script.loop_seconds, 5.0, key)
 		assert_lte(script.loop_seconds, 12.0, key)
+
+
+func test_no_scene_uses_the_bird_s_eye_tree_in_a_side_on_view() -> void:
+	for key in PATHS:
+		for piece in _script(key).scenery:
+			assert_ne(piece.sprite, &"post_tree", "%s: the top-down tree does not belong in a side-on scene" % key)
+	var sides := 0
+	for piece in _script("home_fight").scenery:
+		if String(piece.sprite).begins_with("tree_side"):
+			sides += 1
+	assert_gte(sides, 6, "the home scene is framed by side-view trees")
+
+
+func test_trees_stand_on_the_grass_not_on_the_horizon_and_never_over_the_button_row() -> void:
+	for key in PATHS:
+		var script := _script(key)
+		for piece in script.scenery:
+			if not String(piece.sprite).begins_with("tree_side"):
+				continue
+			assert_gte(piece.position.y, script.ground_top + 20.0, "%s: a tree at base y %s stands on the horizon line" % [key, str(piece.position.y)])
+			if key == "home_fight":
+				var buttons_top := HomeScreen.BUTTONS_Y - HomeScreen.STAGE_RECT.position.y
+				assert_lt(piece.position.y, buttons_top, "home_fight: a tree base at stage y %s would sit among the buttons (they start at %s)" % [str(piece.position.y), str(buttons_top)])
+

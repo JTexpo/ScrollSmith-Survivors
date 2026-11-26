@@ -65,17 +65,32 @@ func test_the_five_buttons_are_one_row_in_order_and_big_enough() -> void:
 	assert_eq(_button("New game").theme_type_variation, &"ButtonRed")
 
 
-func test_everything_fits_inside_the_screen_and_nothing_overlaps() -> void:
+func test_everything_fits_inside_the_screen_and_the_controls_do_not_overlap_each_other() -> void:
 	_start()
 	var rects := {"banner": HomeScreen.BANNER_RECT, "stage": _home.stage().get_global_rect(), "message": _home.message_rect()}
 	for text in ROW + ["Achievements", "Full screen"]:
 		rects[text] = _button(text).get_global_rect()
 	for key in rects:
 		assert_true(SCREEN.encloses(rects[key]), "%s %s is inside the screen" % [key, str(rects[key])])
-	var keys := rects.keys()
+	# The stage is the ground under everything below the banner, so the buttons and the message are meant to sit on it; everything else
+	# must keep clear of everything else.
+	var keys: Array = rects.keys().filter(func(k: String) -> bool: return k != "stage")
 	for i in keys.size():
 		for j in range(i + 1, keys.size()):
 			assert_false((rects[keys[i]] as Rect2).intersects(rects[keys[j]]), "%s and %s overlap" % [keys[i], keys[j]])
+	assert_false((rects["stage"] as Rect2).intersects(rects["banner"]), "the stage starts below the banner")
+	assert_false((rects["stage"] as Rect2).intersects(rects["Achievements"]) or (rects["stage"] as Rect2).intersects(rects["Full screen"]), "and below the corner buttons")
+
+
+func test_the_grass_runs_to_the_bottom_of_the_screen_behind_the_buttons() -> void:
+	_start()
+	var stage_rect := _home.stage().get_global_rect()
+	assert_eq(stage_rect.end.y, SCREEN.end.y, "no straight edge of grass above the buttons")
+	assert_eq(stage_rect.size.x, SCREEN.size.x)
+	for text in ROW:
+		assert_true(stage_rect.encloses(_button(text).get_global_rect()), "%s sits on the grass" % text)
+		assert_gt(_button(text).get_index(), _home.stage().get_index(), "%s draws over the stage" % text)
+	assert_gt(_home.message_label().get_index(), _home.stage().get_index())
 
 
 func test_the_banner_is_the_title_sprite_and_fits_its_rect() -> void:

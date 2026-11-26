@@ -188,12 +188,12 @@ facing = 1
 [sub_resource type="Resource" id="scenery_0"]
 script = ExtResource("c")
 sprite = &"bush"
-position = Vector2(14, 42)
+position = Vector2(14, 48)
 
 [sub_resource type="Resource" id="scenery_1"]
 script = ExtResource("c")
-sprite = &"post_tree"
-position = Vector2(140, 14)
+sprite = &"tree_side_small"
+position = Vector2(140, 60)
 
 [resource]
 script = ExtResource("s")

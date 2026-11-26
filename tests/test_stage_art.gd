@@ -19,7 +19,7 @@ func _frames(name: StringName) -> Array[Image]:
 
 
 func test_every_stage_sprite_resolves() -> void:
-	for name in [&"banner_title", &"cloud_small", &"cloud_large", &"bush"]:
+	for name in [&"banner_title", &"cloud_small", &"cloud_large", &"bush", &"tree_side", &"tree_side_small"]:
 		assert_not_null(SpriteLibrary.find(name, &"base"), String(name))
 
 
@@ -60,3 +60,26 @@ func test_the_clouds_and_the_bush_are_small() -> void:
 		assert_lte(set_data.frame_size.x, 48, String(name))
 		assert_lte(set_data.frame_size.y, 18, String(name))
 		assert_eq(set_data.frame_count(), 1, String(name))
+
+
+func test_the_side_view_trees_have_a_trunk_and_a_crown() -> void:
+	for name in [&"tree_side", &"tree_side_small"]:
+		var set_data := SpriteLibrary.find(name, &"base")
+		assert_lte(set_data.frame_size.x, 34, String(name))
+		assert_lte(set_data.frame_size.y, 46, String(name))
+		assert_gt(set_data.frame_size.y, set_data.frame_size.x, "%s is taller than wide, a tree seen from the side" % name)
+		var image := _frames(name)[0]
+		var brown := 0
+		var green := 0
+		for y in image.get_height():
+			for x in image.get_width():
+				var pixel := image.get_pixel(x, y)
+				if pixel.a == 0.0:
+					continue
+				if pixel.r > pixel.g and pixel.r > pixel.b:
+					brown += 1
+				elif pixel.g > pixel.r and pixel.g > pixel.b:
+					green += 1
+		assert_gt(brown, 20, "%s has a trunk" % name)
+		assert_gt(green, 100, "%s has a crown" % name)
+

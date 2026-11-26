@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="StageScript" load_steps=106 format=3]
+[gd_resource type="Resource" script_class="StageScript" load_steps=107 format=3]
 
 [ext_resource type="Script" path="res://resources/stage/stage_script.gd" id="s"]
 [ext_resource type="Script" path="res://resources/stage/stage_actor.gd" id="a"]
@@ -909,107 +909,112 @@ facing = 1
 
 [sub_resource type="Resource" id="scenery_0"]
 script = ExtResource("c")
-sprite = &"post_tree"
-position = Vector2(24, 38)
+sprite = &"tree_side"
+position = Vector2(26, 104)
 
 [sub_resource type="Resource" id="scenery_1"]
 script = ExtResource("c")
-sprite = &"post_tree"
-position = Vector2(92, 30)
+sprite = &"tree_side"
+position = Vector2(92, 90)
 
 [sub_resource type="Resource" id="scenery_2"]
 script = ExtResource("c")
-sprite = &"post_tree"
-position = Vector2(398, 34)
+sprite = &"tree_side_small"
+position = Vector2(60, 80)
 
 [sub_resource type="Resource" id="scenery_3"]
 script = ExtResource("c")
-sprite = &"post_tree"
-position = Vector2(458, 30)
+sprite = &"tree_side"
+position = Vector2(456, 100)
 
 [sub_resource type="Resource" id="scenery_4"]
 script = ExtResource("c")
-sprite = &"post_tree"
-position = Vector2(250, 164)
+sprite = &"tree_side"
+position = Vector2(398, 86)
 
 [sub_resource type="Resource" id="scenery_5"]
 script = ExtResource("c")
-sprite = &"post_tree"
-position = Vector2(16, 160)
+sprite = &"tree_side_small"
+position = Vector2(430, 74)
 
 [sub_resource type="Resource" id="scenery_6"]
 script = ExtResource("c")
-sprite = &"post_tree"
-position = Vector2(470, 168)
+sprite = &"tree_side"
+position = Vector2(16, 166)
 
 [sub_resource type="Resource" id="scenery_7"]
 script = ExtResource("c")
-sprite = &"bush"
-position = Vector2(14, 76)
+sprite = &"tree_side"
+position = Vector2(466, 168)
 
 [sub_resource type="Resource" id="scenery_8"]
 script = ExtResource("c")
 sprite = &"bush"
-position = Vector2(470, 80)
+position = Vector2(14, 81)
 
 [sub_resource type="Resource" id="scenery_9"]
 script = ExtResource("c")
 sprite = &"bush"
-position = Vector2(134, 57)
+position = Vector2(470, 85)
 
 [sub_resource type="Resource" id="scenery_10"]
 script = ExtResource("c")
 sprite = &"bush"
-position = Vector2(320, 56)
+position = Vector2(134, 62)
 
 [sub_resource type="Resource" id="scenery_11"]
 script = ExtResource("c")
 sprite = &"bush"
-position = Vector2(372, 58)
+position = Vector2(320, 61)
 
 [sub_resource type="Resource" id="scenery_12"]
 script = ExtResource("c")
 sprite = &"bush"
-position = Vector2(212, 70)
+position = Vector2(372, 63)
 
 [sub_resource type="Resource" id="scenery_13"]
 script = ExtResource("c")
 sprite = &"bush"
-position = Vector2(60, 88)
+position = Vector2(212, 75)
 
 [sub_resource type="Resource" id="scenery_14"]
 script = ExtResource("c")
 sprite = &"bush"
-position = Vector2(420, 96)
+position = Vector2(120, 100)
 
 [sub_resource type="Resource" id="scenery_15"]
 script = ExtResource("c")
 sprite = &"bush"
-position = Vector2(300, 150)
+position = Vector2(300, 155)
 
 [sub_resource type="Resource" id="scenery_16"]
 script = ExtResource("c")
 sprite = &"bush"
-position = Vector2(130, 152)
+position = Vector2(130, 157)
 
 [sub_resource type="Resource" id="scenery_17"]
 script = ExtResource("c")
 sprite = &"bush"
-position = Vector2(200, 92)
+position = Vector2(200, 97)
 
 [sub_resource type="Resource" id="scenery_18"]
 script = ExtResource("c")
 sprite = &"bush"
-position = Vector2(356, 112)
+position = Vector2(356, 117)
+
+[sub_resource type="Resource" id="scenery_19"]
+script = ExtResource("c")
+sprite = &"bush"
+position = Vector2(250, 150)
 
 [resource]
 script = ExtResource("s")
-size = Vector2i(480, 160)
+size = Vector2i(480, 212)
 loop_seconds = 15
 still_time = 5
 sky_color = Color(0.435294, 0.827451, 1, 1)
 ground_style = &"grass"
 ground_top = 52
-scenery = Array[ExtResource("c")]([SubResource("scenery_0"), SubResource("scenery_1"), SubResource("scenery_2"), SubResource("scenery_3"), SubResource("scenery_4"), SubResource("scenery_5"), SubResource("scenery_6"), SubResource("scenery_7"), SubResource("scenery_8"), SubResource("scenery_9"), SubResource("scenery_10"), SubResource("scenery_11"), SubResource("scenery_12"), SubResource("scenery_13"), SubResource("scenery_14"), SubResource("scenery_15"), SubResource("scenery_16"), SubResource("scenery_17"), SubResource("scenery_18")])
+scenery = Array[ExtResource("c")]([SubResource("scenery_0"), SubResource("scenery_1"), SubResource("scenery_2"), SubResource("scenery_3"), SubResource("scenery_4"), SubResource("scenery_5"), SubResource("scenery_6"), SubResource("scenery_7"), SubResource("scenery_8"), SubResource("scenery_9"), SubResource("scenery_10"), SubResource("scenery_11"), SubResource("scenery_12"), SubResource("scenery_13"), SubResource("scenery_14"), SubResource("scenery_15"), SubResource("scenery_16"), SubResource("scenery_17"), SubResource("scenery_18"), SubResource("scenery_19")])
 actors = Array[ExtResource("a")]([SubResource("actor_0"), SubResource("actor_1"), SubResource("actor_2"), SubResource("actor_3"), SubResource("actor_4"), SubResource("actor_5"), SubResource("actor_6"), SubResource("actor_7"), SubResource("actor_8"), SubResource("actor_9"), SubResource("actor_10")])
 beats = Array[ExtResource("b")]([SubResource("beat_0"), SubResource("beat_1"), SubResource("beat_2"), SubResource("beat_3"), SubResource("beat_4"), SubResource("beat_5"), SubResource("beat_6"), SubResource("beat_7"), SubResource("beat_8"), SubResource("beat_9"), SubResource("beat_10"), SubResource("beat_11"), SubResource("beat_12"), SubResource("beat_13"), SubResource("beat_14"), SubResource("beat_15"), SubResource("beat_16"), SubResource("beat_17"), SubResource("beat_18"), SubResource("beat_19"), SubResource("beat_20"), SubResource("beat_21"), SubResource("beat_22"), SubResource("beat_23"), SubResource("beat_24"), SubResource("beat_25"), SubResource("beat_26"), SubResource("beat_27"), SubResource("beat_28"), SubResource("beat_29"), SubResource("beat_30"), SubResource("beat_31"), SubResource("beat_32"), SubResource("beat_33"), SubResource("beat_34"), SubResource("beat_35"), SubResource("beat_36"), SubResource("beat_37"), SubResource("beat_38"), SubResource("beat_39"), SubResource("beat_40"), SubResource("beat_41"), SubResource("beat_42"), SubResource("beat_43"), SubResource("beat_44"), SubResource("beat_45"), SubResource("beat_46"), SubResource("beat_47"), SubResource("beat_48"), SubResource("beat_49"), SubResource("beat_50"), SubResource("beat_51"), SubResource("beat_52"), SubResource("beat_53"), SubResource("beat_54"), SubResource("beat_55"), SubResource("beat_56"), SubResource("beat_57"), SubResource("beat_58"), SubResource("beat_59"), SubResource("beat_60"), SubResource("beat_61"), SubResource("beat_62"), SubResource("beat_63"), SubResource("beat_64"), SubResource("beat_65"), SubResource("beat_66"), SubResource("beat_67"), SubResource("beat_68"), SubResource("beat_69")])

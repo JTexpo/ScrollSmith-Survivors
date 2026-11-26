@@ -299,9 +299,56 @@ func test_the_sky_the_ground_and_the_shadows_draw_in_the_stage_not_under_whateve
 		assert_eq(node.z_index, 0, node_name)
 	for id in [&"wizard", &"goblin"]:
 		var shadow := _stage.actor(id).get_node("Shadow") as Sprite2D
-		assert_true(shadow.z_as_relative, "the shadow of %s sits just under its body inside the stage, not at the world's absolute depth" % id)
-		assert_eq(shadow.z_index, -1)
+		assert_true(shadow.z_as_relative, "the shadow of %s is relative to its body, not at the world's absolute depth" % id)
+		assert_eq(shadow.z_index, 0)
+		assert_eq(shadow.get_index(), 0, "and the first child, so the body draws over it")
 	assert_lt(_stage.get_node("Sky").get_index(), _stage.get_node("Ground").get_index(), "sky first, then ground, then everything else")
+	assert_lt(_stage.get_node("Ground").get_index(), _stage.get_node("World").get_index())
+
+
+func test_nothing_in_the_stage_sits_above_depth_zero_so_a_control_placed_after_it_draws_over_it() -> void:
+	var script := _script([_shoot(0.5, Vector2(300, 100), 3.0), _burst(0.6, Vector2(200, 100))] as Array[StageBeat])
+	var tree := StageScenery.new()
+	tree.sprite = &"tree_side"
+	tree.position = Vector2(300, 90)
+	script.scenery = [tree] as Array[StageScenery]
+	_stage.play(script)
+	_stage.advance(1.0)
+	for item in _stage.find_children("*", "CanvasItem", true, false):
+		assert_eq((item as CanvasItem).z_index, 0, "%s: a positive depth would draw over the buttons that follow the stage" % item.name)
+	assert_true((_stage.get_node("World") as Node2D).y_sort_enabled, "depth is by Y-sort, not by z")
+
+
+func test_actors_nearer_the_bottom_draw_in_front_of_those_further_up() -> void:
+	var script := _script()
+	script.actors[0].start = Vector2(100, 120)
+	script.actors[1].start = Vector2(100, 100)
+	_stage.play(script)
+	var near := _stage.actor(&"wizard")
+	var far := _stage.actor(&"goblin")
+	assert_gt(near.position.y, far.position.y, "the lower actor sorts later and so draws on top")
+	assert_true((_stage.get_node("World") as Node2D).y_sort_enabled)
+
+
+func test_scenery_stands_on_its_position_and_sorts_by_its_base() -> void:
+	var script := _script()
+	var tree := StageScenery.new()
+	tree.sprite = &"tree_side"
+	tree.position = Vector2(300, 100)
+	script.scenery = [tree] as Array[StageScenery]
+	_stage.play(script)
+	var holder := _stage.get_node("World").get_node("Scenery") as Node2D
+	assert_eq(holder.position, Vector2(300, 100), "the holder is at the base point")
+	var view := holder.get_child(0) as BodyView
+	assert_eq(view.position, Vector2(0, -23), "the sprite rises from the base by half its height (46 px)")
+
+
+func test_orbs_draw_over_the_actors() -> void:
+	_stage.play(_script([_shoot(0.2, Vector2(300, 100), 3.0)] as Array[StageBeat]))
+	_stage.advance(0.5)
+	var overlay := _stage.get_node("Overlay") as Node2D
+	assert_eq(overlay.get_child_count(), 1, "the orb is on the layer above the world")
+	assert_gt(overlay.get_index(), _stage.get_node("World").get_index())
 
 
 func test_resume_continues_from_where_stop_left_it() -> void:
